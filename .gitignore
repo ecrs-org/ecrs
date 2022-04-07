@@ -1,0 +1,10 @@
+# output files
+#
+target/
+
+# IDE configuration
+#
+.idea/
+
+*.pdf
+*.png
