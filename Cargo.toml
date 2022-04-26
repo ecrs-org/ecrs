@@ -1,5 +1,5 @@
 [package]
-name = "tsp"
+name = "evolutionary_algorithms"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 rand = "0.8.5"
+num = "0.4.0"
+itertools = "0.10.2"
