@@ -1,133 +1,83 @@
-mod city;
-
+use std::f64;
 use rand::{Rng, thread_rng};
-use std::fmt;
-use std::fmt::Formatter;
-use rand::seq::SliceRandom;
-use city::City;
 
-struct Config {
-    elite_size: u32,
-    num_of_cites: u32,
-    pop_size: u32,
-    mutation_rate: f64,
-    generations: u32,
-}
-
-struct GeneticAlgorithm {
-    config: Config,
-}
-
-impl GeneticAlgorithm {
-  fn run(&self) {
-    let mut rng = rand::thread_rng();
-
-    let mut cities: Vec<City> = Vec::new();
-
-    while cities.len() < self.config.num_of_cites as usize {
-      let tempcity: City = rng.gen();
-      if !cities.contains(&tempcity){
-        cities.push(tempcity);
-      }
-    }
-
-    println!("Miasta:");
-    for city in &cities {
-      println!("{}", city);
-    }
-
-    let mut population: Vec<Vec<City>> = Vec::new(); //Populacja jako wektor wektorów miast, naszą drogą są połączenia w kolejności wektora
-
-    while population.len() < self.config.pop_size as usize { //Populacja początkowa
-      cities.shuffle(&mut thread_rng());
-      population.push(cities.clone());
-    }
-    for index in 1..=self.config.generations {
-      population = self.selection(&population); //selekcja
-      while population.len() < self.config.pop_size as usize { //rozmnażanie selekcji do wymaganej wielkości populacji
-        population.push(self.breed(&population[rng.gen_range(0..population.len())],
-                              &population[rng.gen_range(0..population.len())]))
-      }
-      for index in 0..population.len() as u32 {
-        if (rng.gen_range(0..=100)) as f64 >= 10000 as f64 * self.config.mutation_rate { //losowanie, czy mutacja nastąpi
-          population[index as usize] = self.mutate(&population[index as usize]); //mutacja
-        }
-      }
-      if index % 10 == 0{
-        println!("Pokolenie {}: top fitness {}, dystans: {}", index, self.fitness(&population[0]), (100000 as f64)/ self.fitness(&population[0]));
-      }
-    }
-  }
-
-  fn distance(&self, city_a: &City, city_b: &City) -> f64 {
-    f64::sqrt(f64::powi((city_a.x - city_b.x) as f64, 2) + f64::powi((city_a.y - city_b.y) as f64, 2))
-  }
-
-  fn fitness(&self, cities: &Vec<City>) -> f64 {
-    let mut  fit: f64 = 0 as f64;
-    for index in 0..cities.len()-1{
-      fit += self.distance(&cities[index], &cities[index+1]);
-    }
-    (100000 as f64)/fit
-  }
-
-  fn selection(&self, cities: &Vec<Vec<City>>) -> Vec<Vec<City>>{ //Algo selekcji
-    let mut temp: Vec<Vec<City>> = cities.clone();
-    temp.sort_by(|a,b| self.fitness(a).partial_cmp(&self.fitness(b)).unwrap());
-    temp.reverse();
-    let mut result: Vec<Vec<City>> = Vec::new();
-    for index in 0..self.config.elite_size { //Zachowujemy ELITESIZE najlepszych
-      result.push(temp[index as usize].clone())
-    }
-    result
-  }
-
-  fn breed(&self, route_a :&Vec<City>, route_b: &Vec<City>) -> Vec<City>{
-    let routea = route_a.clone();
-    let routeb = route_b.clone();
-
-    let mut result: Vec<City> = Vec::new();
-    let gene_a: u32 = thread_rng().gen_range(0..route_a.len()-2) as u32;
-    let gene_b: u32 = thread_rng().gen_range((gene_a+1) as usize..route_a.len()-1) as u32;
-
-    let transplant_me:Vec<City>;
-    transplant_me = routea[gene_a as usize..gene_b as usize].to_owned();
-    let mut index = 0;
-    while result.len() <= gene_a as usize{
-      if !transplant_me.contains(&route_b[index]){
-        result.push(routeb[index]);
-      }
-      index +=1;
-    }
-    result.append(& mut transplant_me.clone());
-    for index in gene_a as usize..route_a.len() as usize {
-      if !result.contains(&routeb[index]){
-        result.push(routeb[index])
-      }
-    }
-    result
-  }
-
-  fn mutate(&self, route:&Vec<City>) -> Vec<City> {
-    let gene_a = thread_rng().gen_range(0..route.len());
-    let gene_b = thread_rng().gen_range(0..route.len());
-    let mut result = route.clone();
-    result.swap(gene_a as usize, gene_b as usize);
-    result
-  }
-}
-
-
+static LOWER_BOUND: f64 = -5 as f64;
+static UPPER_BOUND: f64 = 5 as f64;
+//TODO dodać setting wyboru rozkładu epsilona
+//TODO zapytać o problemy dyskretne
+static MAX_GENS: u32 = 2000;
+static POP_SIZE:u32 = 25;
+static ALFA0: f64 = 1 as f64; //Wspł początkowej losowości
+static BETA0:f64 = 1 as f64; //Wspł atrakcyjności, zwykle może zostać 1
+static GAMMA:f64 = 0.01 as f64; //Wspł absorpcji światła
+static DELTA:f64 = 0.97; //Wspł spadku losowości, 0<delta<1
 
 fn main() {
-  let alg = GeneticAlgorithm {
-    config: Config {
-      elite_size: 20,
-      num_of_cites: 25,
-      pop_size: 100,
-      mutation_rate: 0.01,
-      generations: 500,
+  fireflies(2, rastrigin);
+}
+
+fn fireflies(dimensions:i8, f:fn(&Vec<f64>) -> f64){
+  let mut population:Vec<Vec<f64>> = Vec::new();
+  for _index in 0..POP_SIZE as usize{ //Generacja populacji
+    let mut temp:Vec<f64> = Vec::new();
+    for _dim in 0..dimensions {
+      temp.push(thread_rng().gen_range(LOWER_BOUND as f64..UPPER_BOUND as f64));
     }
-  };
-  alg.run();
+    population.push(temp);
+  }
+  let mut brightness:Vec<f64> = Vec::new();
+  let temp = population.clone();
+  for point in temp{
+    brightness.push(1 as f64/ f(&point)); //TODO USUŃ TEMP CLONEA
+  }
+  let scale = UPPER_BOUND - LOWER_BOUND;
+  let mut alfa = ALFA0;
+  let mut rng = thread_rng();
+  for generation in 0..MAX_GENS{
+    for index in 0 as usize..POP_SIZE as usize{
+      for innerindex in 0 as usize..POP_SIZE as usize{
+        if brightness[index] < brightness[innerindex]{
+          let const1 = BETA0 * f64::powf(f64::consts::E, -1 as f64 * GAMMA * f64::powi(distance(&population[index], &population[innerindex]),2));
+          for dimension in 0 as usize..dimensions as usize{
+            population[index][dimension] += const1* (population[innerindex][dimension] - population [index][dimension]) + ALFA0*alfa * (rng.gen_range(0.01..0.99) - 0.5) * scale;
+          }
+          brightness[index] = 1 as f64/f(&population[index]);
+        }
+      }
+    }
+    alfa = alfa*DELTA;
+    if generation % 25 == 0{
+      //TODO LOG
+      let mut maxpos = 0;
+      let mut maxbright = 0 as f64;
+      for index in 0 as usize..POP_SIZE as usize{ //TODO POPRAW ZNAJDOWANIE MAXA
+        if brightness[index] == f64::INFINITY{
+          maxpos = index;
+          break;
+        }
+        if brightness[index] > maxbright{
+          maxbright = brightness[index];
+          maxpos = index;
+        }
+      }
+      println!("Gen: {}, x: {}, y: {}", generation, population[maxpos][0], population[maxpos][1]);
+    }
+  }
+  println!("END");
+}
+
+pub fn rastrigin(params:&Vec<f64>) -> f64{
+  let mut res = 0 as f64;
+  for param in params.iter(){
+    res += param * param - 10 as f64 * f64::cos(2 as f64 * f64::consts::PI*param);
+  }
+  res + 10 as f64 * params.len() as f64
+}
+
+fn distance(a:&Vec<f64>, b:&Vec<f64>) -> f64{
+  let mut res:f64 = 0 as f64;
+  for dimension in 0..a.len(){
+    res += f64::powi(a[dimension] - b[dimension], 2)
+  }
+  f64::sqrt(res)
 }
