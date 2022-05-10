@@ -1,133 +1,79 @@
-mod city;
+extern crate core;
 
-use rand::{Rng, thread_rng};
-use std::fmt;
-use std::fmt::Formatter;
-use rand::seq::SliceRandom;
-use city::City;
+mod aco;
 
-struct Config {
-    elite_size: u32,
-    num_of_cites: u32,
-    pop_size: u32,
-    mutation_rate: f64,
-    generations: u32,
-}
+use std::collections::HashSet;
+use std::error::Error;
+use nalgebra::{Dynamic, OMatrix, RealField};
+use rand::Rng;
+use std::ops::{Add, AddAssign, Div, Mul, MulAssign};
+use std::ptr::null;
+use crate::aco::ants_system_v2::probe::CsvProbe;
+// DOI: 10.1109/MCI.2006.329691
+// http://www.scholarpedia.org/article/Ant_colony_optimization
 
-struct GeneticAlgorithm {
-    config: Config,
-}
+type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 
-impl GeneticAlgorithm {
-  fn run(&self) {
-    let mut rng = rand::thread_rng();
 
-    let mut cities: Vec<City> = Vec::new();
+fn generate_tsp_cost(sol_size: usize) -> (Vec<(f64,f64)>, FMatrix) {
+  let mut cities: Vec<(f64,f64)> = Vec::new();
+  let mut r = rand::thread_rng();
+  for _ in 0..sol_size {
+    let x: f64 = r.gen_range(0.0..100.0);
+    let y: f64 = r.gen_range(0.0..100.0);
 
-    while cities.len() < self.config.num_of_cites as usize {
-      let tempcity: City = rng.gen();
-      if !cities.contains(&tempcity){
-        cities.push(tempcity);
-      }
-    }
+    cities.push((x,y))
+  }
 
-    println!("Miasta:");
-    for city in &cities {
-      println!("{}", city);
-    }
+  let mut cost: FMatrix = FMatrix::zeros(sol_size, sol_size);
+  for i in 0..sol_size {
+    for j in i..sol_size {
+      let (x1,y1) = cities[i];
+      let (x2,y2) = cities[j];
+      let x = x1 - x2;
+      let y = y1 - y2;
 
-    let mut population: Vec<Vec<City>> = Vec::new(); //Populacja jako wektor wektorów miast, naszą drogą są połączenia w kolejności wektora
+      let dist = f64::sqrt(x*x + y*y);
 
-    while population.len() < self.config.pop_size as usize { //Populacja początkowa
-      cities.shuffle(&mut thread_rng());
-      population.push(cities.clone());
-    }
-    for index in 1..=self.config.generations {
-      population = self.selection(&population); //selekcja
-      while population.len() < self.config.pop_size as usize { //rozmnażanie selekcji do wymaganej wielkości populacji
-        population.push(self.breed(&population[rng.gen_range(0..population.len())],
-                              &population[rng.gen_range(0..population.len())]))
-      }
-      for index in 0..population.len() as u32 {
-        if (rng.gen_range(0..=100)) as f64 >= 10000 as f64 * self.config.mutation_rate { //losowanie, czy mutacja nastąpi
-          population[index as usize] = self.mutate(&population[index as usize]); //mutacja
-        }
-      }
-      if index % 10 == 0{
-        println!("Pokolenie {}: top fitness {}, dystans: {}", index, self.fitness(&population[0]), (100000 as f64)/ self.fitness(&population[0]));
-      }
+      cost[(i,j)] = dist;
+      cost[(j,i)] = dist;
     }
   }
 
-  fn distance(&self, city_a: &City, city_b: &City) -> f64 {
-    f64::sqrt(f64::powi((city_a.x - city_b.x) as f64, 2) + f64::powi((city_a.y - city_b.y) as f64, 2))
-  }
 
-  fn fitness(&self, cities: &Vec<City>) -> f64 {
-    let mut  fit: f64 = 0 as f64;
-    for index in 0..cities.len()-1{
-      fit += self.distance(&cities[index], &cities[index+1]);
-    }
-    (100000 as f64)/fit
-  }
-
-  fn selection(&self, cities: &Vec<Vec<City>>) -> Vec<Vec<City>>{ //Algo selekcji
-    let mut temp: Vec<Vec<City>> = cities.clone();
-    temp.sort_by(|a,b| self.fitness(a).partial_cmp(&self.fitness(b)).unwrap());
-    temp.reverse();
-    let mut result: Vec<Vec<City>> = Vec::new();
-    for index in 0..self.config.elite_size { //Zachowujemy ELITESIZE najlepszych
-      result.push(temp[index as usize].clone())
-    }
-    result
-  }
-
-  fn breed(&self, route_a :&Vec<City>, route_b: &Vec<City>) -> Vec<City>{
-    let routea = route_a.clone();
-    let routeb = route_b.clone();
-
-    let mut result: Vec<City> = Vec::new();
-    let gene_a: u32 = thread_rng().gen_range(0..route_a.len()-2) as u32;
-    let gene_b: u32 = thread_rng().gen_range((gene_a+1) as usize..route_a.len()-1) as u32;
-
-    let transplant_me:Vec<City>;
-    transplant_me = routea[gene_a as usize..gene_b as usize].to_owned();
-    let mut index = 0;
-    while result.len() <= gene_a as usize{
-      if !transplant_me.contains(&route_b[index]){
-        result.push(routeb[index]);
-      }
-      index +=1;
-    }
-    result.append(& mut transplant_me.clone());
-    for index in gene_a as usize..route_a.len() as usize {
-      if !result.contains(&routeb[index]){
-        result.push(routeb[index])
-      }
-    }
-    result
-  }
-
-  fn mutate(&self, route:&Vec<City>) -> Vec<City> {
-    let gene_a = thread_rng().gen_range(0..route.len());
-    let gene_b = thread_rng().gen_range(0..route.len());
-    let mut result = route.clone();
-    result.swap(gene_a as usize, gene_b as usize);
-    result
-  }
+  (cities, cost)
 }
 
 
+fn write_cities_csv(cities: &Vec<(f64, f64)>, path: &str) -> Result<(), Box<dyn Error>> {
+  let mut wtr = csv::Writer::from_path(path)?;
+  wtr.write_record(&["x", "y"])?;
+  for (x,y) in cities.iter() {
+    wtr.write_record(&[x.to_string(), y.to_string()])?;
+  }
+  wtr.flush()?;
+
+  Ok(())
+}
 
 fn main() {
-  let alg = GeneticAlgorithm {
-    config: Config {
-      elite_size: 20,
-      num_of_cites: 25,
-      pop_size: 100,
-      mutation_rate: 0.01,
-      generations: 500,
-    }
-  };
-  alg.run();
+
+  let (cities, cost) = generate_tsp_cost(60);
+  write_cities_csv(&cities, "cities.csv").expect("Error while writing city file");
+
+  let probe = Box::new(CsvProbe::new());
+
+  let mut ant_s = aco::ants_system_v2::AntSystemBuilder::from_weights(cost)
+      .set_evaporation_rate(0.1)
+      .set_ants_num(8)
+      .set_probe(probe)
+      .build();
+
+  for _ in 0..1000 {
+    ant_s.iterate();
+  }
+
+  ant_s.end();
+
+
 }
