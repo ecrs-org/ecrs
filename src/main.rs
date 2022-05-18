@@ -1,3 +1,5 @@
+extern crate core;
+
 // mod genetic;
 mod particle_swarm_optimization;
 
