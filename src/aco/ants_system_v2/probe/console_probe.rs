@@ -1,5 +1,6 @@
 use crate::aco::ants_system_v2::probe::Probe;
 use crate::aco::ants_system_v2::Solution;
+use crate::FMatrix;
 
 pub struct ConsoleProbe{
 }
@@ -7,6 +8,10 @@ pub struct ConsoleProbe{
 impl Probe for ConsoleProbe{
     fn on_new_best(&mut self, best_sol: &Solution) {
         println!("New best!!!");
+    }
+
+    fn on_pheromone_update(&mut self, old_pheromone: &FMatrix, new_pheromone: &FMatrix) {
+
     }
 
     fn on_current_best(&mut self, best: &Solution) {

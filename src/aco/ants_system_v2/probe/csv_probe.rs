@@ -2,6 +2,7 @@ use serde::Serialize;
 
 use crate::aco::ants_system_v2::probe::Probe;
 use crate::aco::ants_system_v2::Solution;
+use crate::FMatrix;
 
 #[derive(Serialize)]
 struct BestSolutionRecord{
@@ -42,12 +43,33 @@ impl CsvProbe {
         }
         wrt.flush().expect("Could not flush data");
 
+
+        let mut wrt = csv::WriterBuilder::new().from_path("pheromone.csv").unwrap();
+
+        for record in self.pher.iter() {
+            wrt.serialize(record).expect("Could not serialize record");
+        }
+        wrt.flush().expect("Could not flush data");
+
     }
 }
 
 impl Probe for CsvProbe {
     fn on_new_best(&mut self, best_sol: &Solution) {
         self.best_sol = best_sol.clone();
+    }
+
+    fn on_pheromone_update(&mut self, old_pheromone: &FMatrix, new_pheromone: &FMatrix) {
+        for (i, row) in new_pheromone.row_iter().enumerate() {
+            for (j, val ) in row.iter().enumerate() {
+                self.pher.push(FMatrixRecord {
+                    from: i,
+                    to: j,
+                    iter: self.iteration,
+                    val: *val
+                })
+            }
+        }
     }
 
     fn on_current_best(&mut self, best: &Solution) {

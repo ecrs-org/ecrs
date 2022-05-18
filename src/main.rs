@@ -68,6 +68,7 @@ fn main() {
   let mut ant_s = aco::AntSystem::new(AntSystemCfg {
     weights: cost,
     heuristic,
+    probe,
     ..AntSystemCfg::default()
   });
 

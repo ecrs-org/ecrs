@@ -57,7 +57,7 @@ impl AntSystem {
             .scale(1.0 - self.cfg.evaporation_rate)
             .add(&d_pheromone);
 
-
+        self.cfg.probe.on_pheromone_update(&self.pheromone, &new_pheromone);
         self.pheromone = new_pheromone;
 
     }
