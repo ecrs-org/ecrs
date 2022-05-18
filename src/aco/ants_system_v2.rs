@@ -1,44 +1,44 @@
-mod builder;
-mod solution;
-pub mod probe;
-
-use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::iter::zip;
-use std::ops::{Add, Mul, Sub};
-use std::slice::Iter;
+use std::ops::Add;
 use nalgebra::{Dynamic, OMatrix};
 use rand::Rng;
 
+pub use solution::Solution;
+
+use crate::aco::AntSystemCfg;
+
+mod solution;
+pub mod probe;
+
+
 type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 
-pub use builder::AntSystemBuilder;
-pub use solution::Solution;
-use crate::aco::ants_system_v2::probe::Probe;
-
-
 pub struct AntSystem {
-    weights: FMatrix,
-    heuristic: FMatrix,
+    cfg: AntSystemCfg,
     pheromone: FMatrix,
     best_sol: Solution,
-    alpha: f64,
-    beta: f64,
-    evaporation_rate: f64,
-    ants_num: usize,
-    iteration: usize,
-    probe: Box<dyn Probe>
 }
 
 impl AntSystem {
+
+    pub fn new(cfg: AntSystemCfg) -> AntSystem {
+        let pheromone = FMatrix::repeat(cfg.weights.nrows(), cfg.weights.ncols(), 0.5f64);
+        AntSystem {
+            cfg,
+            pheromone,
+            best_sol: Solution::default()
+        }
+    }
+
     pub fn iterate(&mut self) {
-        self.probe.on_iteration_start(self.iteration);
+        self.cfg.probe.on_iteration_start(self.cfg.iteration);
 
         let sols_m = self.run_ants();
         let sols = self.grade(sols_m);
 
         let best = self.find_best(&sols);
-        self.probe.on_current_best(best);
+        self.cfg.probe.on_current_best(best);
         self.update_best(best);
         let d_pheromone = sols.iter()
             .map(|sol| sol.matrix.scale(1.0/ sol.cost))
@@ -46,19 +46,19 @@ impl AntSystem {
             .expect("d_pheromone creation error");
 
         let new_pheromone: FMatrix = self.pheromone
-            .scale(1.0 - self.evaporation_rate)
+            .scale(1.0 - self.cfg.evaporation_rate)
             .add(&d_pheromone);
 
 
         self.pheromone = new_pheromone;
 
-        self.probe.on_iteration_end(self.iteration);
-        self.iteration += 1;
+        self.cfg.probe.on_iteration_end(self.cfg.iteration);
+        self.cfg.iteration += 1;
     }
 
     fn update_best(&mut self, current_best: &Solution) {
         if self.best_sol > *current_best {
-            self.probe.on_new_best(current_best);
+            self.cfg.probe.on_new_best(current_best);
             self.best_sol = (*current_best).clone();
         }
     }
@@ -84,12 +84,12 @@ impl AntSystem {
     }
 
     fn grade_one(&self, s: &FMatrix) -> f64 {
-        s.component_mul(&self.weights).sum() / 2.0
+        s.component_mul(&self.cfg.weights).sum() / 2.0
     }
 
     fn run_ants(&self) -> Vec<FMatrix> {
         let prob_iter = self.pheromone.iter()
-            .zip(self.heuristic.iter())
+            .zip(self.cfg.heuristic.iter())
             .map(|(p, h)| self.calc_prob(p, h));
 
         let prob = FMatrix::from_iterator(
@@ -100,19 +100,19 @@ impl AntSystem {
 
 
         let sols: Vec<FMatrix> =  Vec::from_iter(
-            (0..self.ants_num)
+            (0..self.cfg.ants_num)
                 .map(|_| run_ant(&prob))
         );
 
         sols
     }
 
-    fn calc_prob(&self ,pheromone: &f64, heuristic: &f64) -> f64 {
-        pheromone.powf(self.alpha) * heuristic.powf(self.beta)
+    fn calc_prob(&self, p: &f64, h: &f64) -> f64 {
+        p.powf(self.cfg.alpha) * h.powf(self.cfg.beta)
     }
 
     pub fn end(mut self) {
-        self.probe.on_end();
+        self.cfg.probe.on_end();
     }
 }
 

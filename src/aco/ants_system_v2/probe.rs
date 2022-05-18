@@ -1,10 +1,10 @@
-mod console_probe;
-mod csv_probe;
+pub use console_probe::ConsoleProbe;
+pub use csv_probe::CsvProbe;
 
 use crate::aco::ants_system_v2::Solution;
 
-pub use console_probe::ConsoleProbe;
-pub use csv_probe::CsvProbe;
+mod console_probe;
+mod csv_probe;
 
 pub trait Probe {
     fn on_new_best(&mut self, best_sol: &Solution);

@@ -1,6 +1,7 @@
+use serde::Serialize;
+
 use crate::aco::ants_system_v2::probe::Probe;
 use crate::aco::ants_system_v2::Solution;
-use serde::Serialize;
 
 #[derive(Serialize)]
 struct BestSolutionRecord{
@@ -37,9 +38,9 @@ impl CsvProbe {
         let mut wrt = csv::WriterBuilder::new().from_path("best.csv").unwrap();
 
         for record in self.best_sols.iter() {
-            wrt.serialize(record);
+            wrt.serialize(record).expect("Could not serialize record");
         }
-        wrt.flush();
+        wrt.flush().expect("Could not flush data");
 
     }
 }

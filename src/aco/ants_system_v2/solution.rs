@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+
 use nalgebra::{Dynamic, OMatrix, RealField};
 
 type FMatrix = OMatrix<f64, Dynamic, Dynamic>;

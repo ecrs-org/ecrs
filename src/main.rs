@@ -1,14 +1,15 @@
 extern crate core;
 
+use std::error::Error;
+
+use nalgebra::{Dynamic, OMatrix};
+use rand::Rng;
+
+use crate::aco::probe::CsvProbe;
+use crate::aco::AntSystemCfg;
+
 mod aco;
 
-use std::collections::HashSet;
-use std::error::Error;
-use nalgebra::{Dynamic, OMatrix, RealField};
-use rand::Rng;
-use std::ops::{Add, AddAssign, Div, Mul, MulAssign};
-use std::ptr::null;
-use crate::aco::ants_system_v2::probe::CsvProbe;
 // DOI: 10.1109/MCI.2006.329691
 // http://www.scholarpedia.org/article/Ant_colony_optimization
 
@@ -62,16 +63,18 @@ fn main() {
   write_cities_csv(&cities, "cities.csv").expect("Error while writing city file");
 
   let probe = Box::new(CsvProbe::new());
+  let heuristic = aco::create_heuristic_from_weights(&cost);
 
-  let mut ant_s = aco::ants_system_v2::AntSystemBuilder::from_weights(cost)
-      .set_evaporation_rate(0.1)
-      .set_ants_num(8)
-      .set_probe(probe)
-      .build();
+  let mut ant_s = aco::AntSystem::new(AntSystemCfg {
+    weights: cost,
+    heuristic,
+    ..AntSystemCfg::default()
+  });
 
-  for _ in 0..1000 {
+  for _ in 0..300 {
     ant_s.iterate();
   }
+
 
   ant_s.end();
 
