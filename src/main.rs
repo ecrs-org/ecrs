@@ -71,12 +71,7 @@ fn main() {
     ..AntSystemCfg::default()
   });
 
-  for _ in 0..300 {
-    ant_s.iterate();
-  }
-
-
-  ant_s.end();
+  ant_s.execute();
 
 
 }

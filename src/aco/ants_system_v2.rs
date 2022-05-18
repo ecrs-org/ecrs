@@ -31,9 +31,17 @@ impl AntSystem {
         }
     }
 
-    pub fn iterate(&mut self) {
-        self.cfg.probe.on_iteration_start(self.cfg.iteration);
+    pub fn execute(mut self) {
+        for i in 0..self.cfg.iteration {
+            self.cfg.probe.on_iteration_start(i);
+            self.iterate();
+            self.cfg.probe.on_iteration_end(i);
+        }
 
+        self.end()
+    }
+
+    fn iterate(&mut self) {
         let sols_m = self.run_ants();
         let sols = self.grade(sols_m);
 
@@ -52,8 +60,6 @@ impl AntSystem {
 
         self.pheromone = new_pheromone;
 
-        self.cfg.probe.on_iteration_end(self.cfg.iteration);
-        self.cfg.iteration += 1;
     }
 
     fn update_best(&mut self, current_best: &Solution) {
@@ -111,7 +117,7 @@ impl AntSystem {
         p.powf(self.cfg.alpha) * h.powf(self.cfg.beta)
     }
 
-    pub fn end(mut self) {
+    fn end(mut self) {
         self.cfg.probe.on_end();
     }
 }
