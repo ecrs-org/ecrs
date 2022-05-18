@@ -69,6 +69,7 @@ fn main() {
     weights: cost,
     heuristic,
     probe,
+    ants_num: 100,
     ..AntSystemCfg::default()
   });
 

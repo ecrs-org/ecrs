@@ -126,7 +126,7 @@ fn run_ant(prob: &FMatrix) -> FMatrix {
     let n = prob.nrows();
     let mut sol = FMatrix::zeros(n, n);
     let mut random = rand::thread_rng();
-    let mut unvisited: HashSet<usize> = HashSet::from_iter(1..n);
+    let mut unvisited: HashSet<usize> = HashSet::from_iter(0..n);
 
     let first: usize = random.gen_range(0..n);
     unvisited.remove(&first);
