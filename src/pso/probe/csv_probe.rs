@@ -1,5 +1,5 @@
-use crate::particle_swarm_optimization::probe::probe::Probe;
-use crate::particle_swarm_optimization::swarm::Swarm;
+use crate::pso::probe::probe::Probe;
+use crate::pso::swarm::Swarm;
 use serde::{Serialize};
 
 

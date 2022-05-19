@@ -2,7 +2,7 @@ use std::fmt;
 use rand::distributions::{Distribution, Uniform};
 use num::{abs, One, Zero};
 use itertools::izip;
-use crate::particle_swarm_optimization::util::print_generic_vector;
+use crate::pso::util::print_generic_vector;
 
 #[derive(Clone)]
 pub struct Particle {

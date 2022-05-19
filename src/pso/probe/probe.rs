@@ -1,4 +1,4 @@
-use crate::particle_swarm_optimization::swarm::Swarm;
+use crate::pso::swarm::Swarm;
 
 pub trait Probe {
     fn on_begin(&mut self, swarm: &Swarm);
