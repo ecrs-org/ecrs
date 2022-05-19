@@ -9,3 +9,6 @@ target/
 *.pdf
 *.png
 *.csv
+
+# algorithms ouput directory
+output/
