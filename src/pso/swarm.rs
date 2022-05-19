@@ -1,6 +1,6 @@
 use std::fmt;
-use crate::particle_swarm_optimization::particle::Particle;
-use crate::particle_swarm_optimization::util::print_generic_vector;
+use crate::pso::particle::Particle;
+use crate::pso::util::print_generic_vector;
 
 #[derive(Clone)]
 pub struct Swarm {

@@ -2,11 +2,17 @@ use std::borrow::Borrow;
 use itertools::iterate;
 use num::{NumCast, One};
 
-use crate::particle_swarm_optimization::probe::console_probe::ConsoleProbe;
-use crate::particle_swarm_optimization::probe::csv_probe::CsvProbe;
-use crate::particle_swarm_optimization::probe::json_probe::JsonProbe;
-use crate::particle_swarm_optimization::probe::probe::Probe;
-use crate::particle_swarm_optimization::swarm::Swarm;
+pub mod particle;
+pub mod probe;
+pub mod swarm;
+pub mod util;
+
+
+use crate::pso::probe::console_probe::ConsoleProbe;
+use crate::pso::probe::csv_probe::CsvProbe;
+use crate::pso::probe::json_probe::JsonProbe;
+use crate::pso::probe::probe::Probe;
+use crate::pso::swarm::Swarm;
 
 
 struct PSOAlgorithmCfg {

@@ -1,7 +1,9 @@
 extern crate core;
 
 mod pso;
-use pso::pso::pso_demo;
+
+use crate::pso::{*};
+
 
 fn main() {
   pso_demo();
