@@ -1,19 +1,22 @@
 mod aco;
 mod ga;
+mod pso;
 
 extern crate core;
 
 use crate::aco::probe::CsvProbe;
 use crate::aco::AntSystemCfg;
 use crate::ga::{*};
+use crate::pso::{*};
 
 fn main() {
   ga_example();
   ants_example_run();
+  pso_demo();
 }
 
 fn ants_example_run() {
-  let (cities, cost) = aco::generate_tsp_cost(60);
+  let (cities, cost) = aco::generate_tsp_cost(10);
   aco::write_cities_csv(&cities, "cities.csv").expect("Error while writing city file");
 
   let probe = Box::new(CsvProbe::new());

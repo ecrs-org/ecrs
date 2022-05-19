@@ -1,5 +1,5 @@
 [package]
-name = "tsp"
+name = "evolutionary_algorithms"
 version = "0.1.0"
 edition = "2021"
 
@@ -12,3 +12,6 @@ rayon = "1.5.2"
 csv = "1.1.6"
 serde = { version = "1", features = ["derive"] }
 log = "0.4.17"
+num = "0.4.0"
+itertools = "0.10.2"
+serde_json = "1.0.79"
