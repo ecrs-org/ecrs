@@ -11,3 +11,4 @@ nalgebra = "0.30.1"
 rayon = "1.5.2"
 csv = "1.1.6"
 serde = { version = "1", features = ["derive"] }
+log = "0.4.17"
