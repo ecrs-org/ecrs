@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use crate::aco::ants_system_v2::probe::Probe;
 use crate::aco::ants_system_v2::Solution;
-use crate::FMatrix;
+use crate::aco::FMatrix;
 
 #[derive(Serialize)]
 struct BestSolutionRecord{
@@ -59,7 +59,7 @@ impl Probe for CsvProbe {
         self.best_sol = best_sol.clone();
     }
 
-    fn on_pheromone_update(&mut self, old_pheromone: &FMatrix, new_pheromone: &FMatrix) {
+    fn on_pheromone_update(&mut self, _old_pheromone: &FMatrix, new_pheromone: &FMatrix) {
         for (i, row) in new_pheromone.row_iter().enumerate() {
             for (j, val ) in row.iter().enumerate() {
                 self.pher.push(FMatrixRecord {
@@ -72,7 +72,7 @@ impl Probe for CsvProbe {
         }
     }
 
-    fn on_current_best(&mut self, best: &Solution) {
+    fn on_current_best(&mut self, _best: &Solution) {
 
     }
 
