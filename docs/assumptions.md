@@ -3,6 +3,8 @@
 1. Każdy algorytm jest opakowany w strukturę do inicjalizacji której wymagany jest jeden parametr: `<nazwa-algorytmu>Cfg` (move, nie referencja).
 2. Każda struktura opakowująca algorytm wystawia jedną metodę (bez parametrów) uruchamiającą algorytm (proponuję `execute()`)
 
+Pierwszym parametrem ma być konfig. Drugim ma być obiekt logujący (move, nie referencja).
+
 ### Logowanie wyników 
 
 Dla każdego algorytmu wystawimy traita `Probe` który wystawia metody pozwalające na zapisywanie informacji w istotnych etapach algorytmu, np.:
@@ -15,3 +17,4 @@ itd.
 
 Domyślna implementacja wypisuje na standardowe wyjście, do tego potrzebne będę jeszcze implementacje dla 
 CSV, ewentualnie JSONa
+
