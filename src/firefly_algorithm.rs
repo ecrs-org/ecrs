@@ -1,9 +1,8 @@
-mod probe;
-
 use std::f64;
 use rand::{Rng, thread_rng};
 
-//TODO dodać setting wyboru rozkładu epsilona
+use crate::probe::console_probe::ConsoleProbe;
+use crate::probe::*;
 
 pub struct FireflyAlgorithmCfg {
     dimensions: u8,
@@ -45,20 +44,23 @@ impl Default for FireflyAlgorithmCfg {
 pub struct FireflyAlgorithm {
     pub config: FireflyAlgorithmCfg,
     pub brightness_function: fn(&Vec<f64>) -> f64,
+    pub probe: Box<dyn Probe>,
+
 }
 
-impl FireflyAlgorithm {
-    fn new(config: FireflyAlgorithmCfg, brightness_function: fn(&Vec<f64>) -> f64) -> Self {
+impl FireflyAlgorithm  {
+    fn new(config: FireflyAlgorithmCfg, brightness_function: fn(&Vec<f64>) -> f64, probe: Box<dyn Probe>) -> Self {
         FireflyAlgorithm {
             config,
             brightness_function,
+            probe,
         }
     }
 
-    pub fn execute(&self) {
-
+    pub fn execute(&mut self) {
+        self.probe.on_start();
         let mut population: Vec<Vec<f64>> = Vec::new();
-        for _index in 0..self.config.population_size as usize { //Generacja populacji
+        for _index in 0..self.config.population_size as usize { //Generate initial population
             let mut temp: Vec<f64> = Vec::new();
             for _dim in 0..self.config.dimensions {
                 temp.push(thread_rng().gen_range(self.config.lower_bound as f64..self.config.upper_bound as f64));
@@ -73,24 +75,27 @@ impl FireflyAlgorithm {
         let scale = self.config.upper_bound - self.config.lower_bound;
         let mut alfa = self.config.alfa0;
         let mut rng = thread_rng();
+        let mut currentbest:f64 = f64::MAX;
         for generation in 0..self.config.max_generations {
+            if generation % 25 == 0 {
+                self.probe.on_iteration_start(&generation)
+            }
             for index in 0 as usize..self.config.population_size as usize {
                 for innerindex in 0 as usize..self.config.population_size as usize {
                     if brightness[index] < brightness[innerindex] {
                         let const1 = self.config.beta0 * f64::powf(f64::consts::E, -1 as f64 * self.config.gamma * f64::powi(distance(&population[index], &population[innerindex]), 2));
                         for dimension in 0 as usize..self.config.dimensions as usize {
-                            population[index][dimension] += const1 * (population[innerindex][dimension] - population[index][dimension]) + self.config.alfa0 * alfa * (rng.gen_range(0.01..0.99) - 0.5) * scale;
+                            population[index][dimension] += const1 * (population[innerindex][dimension] - population[index][dimension]) + self.config.alfa0 * alfa * (rng.gen_range(0.01..0.99)/*TODO DODAJ SETTING*/ - 0.5) * scale;
                         }
                         brightness[index] = 1 as f64 / (self.brightness_function)(&population[index]);
                     }
                 }
             }
             alfa = alfa * self.config.delta;
-            if generation % 25 == 0 {
-                //TODO LOG
+            if generation % 25 == 0 { //TODO REFACTOR
                 let mut maxpos = 0;
                 let mut maxbright = 0 as f64;
-                for index in 0 as usize..self.config.population_size as usize { //TODO POPRAW ZNAJDOWANIE MAXA
+                for index in 0 as usize..self.config.population_size as usize {
                     if brightness[index] == f64::INFINITY {
                         maxpos = index;
                         break;
@@ -99,11 +104,22 @@ impl FireflyAlgorithm {
                         maxbright = brightness[index];
                         maxpos = index;
                     }
+
                 }
-                println!("Gen: {}, x: {}, y: {}", generation, population[maxpos][0], population[maxpos][1]);
+                if (self.brightness_function)(&population[maxpos]) < currentbest{
+                    self.probe.on_new_best(&(self.brightness_function)(&population[maxpos]));
+                    currentbest = (self.brightness_function)(&population[maxpos]);
+                } else {
+                    self.probe.on_current_best();
+                }
+                //println!("Gen: {}, x: {}, y: {}", generation, population[maxpos][0], population[maxpos][1]);
+            }
+            if generation % 25 == 0{
+                //self.probe.on_iteration_end(&generation); //TODO CHYBA TEGO NIE POTRZEBUJĘ
+                println!();//TODO PO PROSTU WYPISZĘ NEWLINE USUŃ TO
             }
         }
-        println!("END");
+        self.probe.on_end();
     }
 }
 
