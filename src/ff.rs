@@ -1,8 +1,11 @@
 use std::f64;
 use rand::{Rng, thread_rng};
 
-use crate::probe::console_probe::ConsoleProbe;
-use crate::probe::*;
+pub mod probe;
+pub mod auxiliary;
+
+use probe::Probe;
+
 
 pub struct FireflyAlgorithmCfg {
     dimensions: u8,

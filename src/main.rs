@@ -1,11 +1,9 @@
-mod firefly_algorithm;
-mod auxiliary;
-mod probe;
+mod ff;
 
-use firefly_algorithm::*;
-use auxiliary::*;
+use ff::*;
+use ff::auxiliary::*;
 
-use probe::console_probe::ConsoleProbe;
+use ff::probe::console_probe::ConsoleProbe;
 
 fn main(){
   let mut alg = FireflyAlgorithm{

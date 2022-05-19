@@ -1,4 +1,4 @@
-use crate::probe::Probe;
+use crate::ff::probe::Probe;
 
 pub struct JSONProbe {}
 
