@@ -1,6 +1,7 @@
 mod aco;
 mod ga;
 mod pso;
+mod ff;
 
 extern crate core;
 
@@ -8,11 +9,26 @@ use crate::aco::probe::CsvProbe;
 use crate::aco::AntSystemCfg;
 use crate::ga::{*};
 use crate::pso::{*};
+use ff::*;
+use ff::auxiliary::*;
+use ff::probe::console_probe::ConsoleProbe;
+
 
 fn main() {
   ga_example();
   ants_example_run();
   pso_demo();
+	firefly_example();
+}
+
+fn firefly_example() {
+  let mut alg = FireflyAlgorithm{
+    config: FireflyAlgorithmCfg::default(),
+    brightness_function: rastrigin,
+    probe: Box::new((ConsoleProbe{}))
+  };
+
+  alg.execute();
 }
 
 fn ants_example_run() {
