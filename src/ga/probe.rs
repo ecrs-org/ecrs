@@ -1,4 +1,4 @@
-use crate::Individual;
+use crate::ga::Individual;
 
 pub trait Probe {
   fn on_start(&mut self)                      { /* defaults to noop */ }
