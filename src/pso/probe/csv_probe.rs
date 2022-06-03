@@ -10,14 +10,16 @@ struct Record {
 }
 
 pub struct CsvProbe{
+    filename: &'static str,
     records: Vec<Record>,
     generations: usize,
     last_generation: usize
 }
 
 impl CsvProbe {
-    pub fn new(generations: usize) -> CsvProbe {
+    pub fn new(filename: &'static str, generations: usize) -> CsvProbe {
         CsvProbe {
+            filename,
             records: vec![],
             generations,
             last_generation: 0
@@ -35,7 +37,7 @@ impl Probe for CsvProbe {
             self.on_new_generation(swarm, self.generations);
         }
 
-        let mut writer = csv::WriterBuilder::new().from_path("testing.csv").unwrap();
+        let mut writer = csv::WriterBuilder::new().from_path(&self.filename).unwrap();
         for record in self.records.iter() {
             writer.serialize(record);
         }

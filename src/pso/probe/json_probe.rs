@@ -14,14 +14,16 @@ struct Record {
 }
 
 pub struct JsonProbe{
+    filename: &'static str,
     records: Vec<Record>,
     generations: usize,
     last_generation: usize
 }
 
 impl JsonProbe {
-    pub fn new(generations: usize) -> JsonProbe {
+    pub fn new(filename: &'static str, generations: usize) -> JsonProbe {
         JsonProbe {
+            filename,
             records: vec![],
             generations,
             last_generation: 0
@@ -40,7 +42,7 @@ impl Probe for JsonProbe {
         }
 
         {
-            let mut writer = &File::create("testing.json").unwrap();
+            let mut writer = &File::create(&self.filename).unwrap();
             serde_json::to_writer_pretty(writer, &self.records);
         }
     }
