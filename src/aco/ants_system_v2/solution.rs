@@ -4,6 +4,7 @@ use nalgebra::{Dynamic, OMatrix, RealField};
 
 type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 
+/// Struct with matrix representing path and its cost
 #[derive(Clone)]
 pub struct Solution {
     pub matrix: FMatrix,

@@ -15,24 +15,24 @@ use ff::probe::console_probe::ConsoleProbe;
 
 
 fn main() {
-  ga_example();
+  // ga_example();
   ants_example_run();
-  pso_demo();
-	firefly_example();
+  // pso_demo();
+  // firefly_example();
 }
 
 fn firefly_example() {
   let mut alg = FireflyAlgorithm{
     config: FireflyAlgorithmCfg::default(),
     brightness_function: rastrigin,
-    probe: Box::new((ConsoleProbe{}))
+    probe: Box::new(ConsoleProbe{})
   };
 
   alg.execute();
 }
 
 fn ants_example_run() {
-  let (cities, cost) = aco::generate_tsp_cost(10);
+  let (cities, cost) = aco::generate_tsp_cost(30);
   aco::write_cities_csv(&cities, "cities.csv").expect("Error while writing city file");
 
   let probe = Box::new(CsvProbe::new());
@@ -43,6 +43,7 @@ fn ants_example_run() {
     heuristic,
     probe,
     ants_num: 100,
+    iteration: 1000,
     ..AntSystemCfg::default()
   });
 
