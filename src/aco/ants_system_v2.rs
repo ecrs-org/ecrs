@@ -4,7 +4,6 @@ pub mod probe;
 use std::collections::HashSet;
 use std::iter::zip;
 use std::ops::Add;
-use nalgebra::{Dynamic, OMatrix};
 use rand::Rng;
 
 pub use solution::Solution;
