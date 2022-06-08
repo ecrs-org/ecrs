@@ -15,26 +15,24 @@ use crate::pso::probe::probe::Probe;
 use crate::pso::swarm::Swarm;
 
 
+/// Struct wrapping all configuration parameters of PSO algorithm.
+/// # Parameters:
+///  - dimensions - number of dimension of optimized function's domain
+///  - lower_bound - lower bound of search area in every dimension of the domain
+///  - upper_bound - upper bound of search area in every dimension of the domain
+///  - particle_count - number of particles to use in optimization (number of particles will be maintained throughout the algorithm's run)
+///  - inertia_weight - specifies how much particles retain their speed from previous iteration (0 - no speed retention, 1 - no slowdown)
+///  - cognitive_coefficient - specifies how much particles are attracted their own best positions
+///  - social_coefficient - specifies how much particles are attracted to entire swarm's best position
+///  - function - function to be optimized
+///  - iterations - number of iterations, the algorithm should run for
+///  - log_interval - specifies how often algorithm's progress is logged
+///  - probe - used for displaying results / progress of the algorithm
+/// # Example coefficient values:
+///  - inertia_weight: 0.5
+///  - cognitive_coefficient: 1.0
+///  - social_coefficient: 3.0
 struct PSOAlgorithmCfg {
-    /**
-    Parameters:
-    dimensions: number of dimension of optimized function's domain
-    lower_bound: lower bound of search area in every dimension of the domain
-    upper_bound: upper bound of search area in every dimension of the domain
-    particle_count: number of particles to use in optimization (number of particles will be maintained throughout the algorithm's run)
-    inertia_weight: specifies how much particles retain their speed from previous iteration (0 - no speed retention, 1 - no slowdown)
-    cognitive_coefficient: specifies how much particles are attracted their own best positions
-    social_coefficient: specifies how much particles are attracted to entire swarm's best position
-    function: function to be optimized
-    iterations: number of iterations, the algorithm should run for
-    log_interval: specifies how often algorithm's progress is logged
-    probe: used for displaying results / progress of the algorithm
-
-    Example values:
-    inertia_weight: 0.5
-    cognitive_coefficient: 1.0
-    social_coefficient: 3.0
-    **/
     dimensions: usize,
     lower_bound: f64,
     upper_bound: f64,
@@ -66,6 +64,19 @@ impl Default for PSOAlgorithmCfg {
     }
 }
 
+/// Struct used for running PSO algorithm
+/// # Use example:
+///     let config = PSOAlgorithmCfg{
+///         dimensions: 3,
+///         iterations: 1000,
+///         log_interval: 50,
+///         probe: Box::new(ConsoleProbe::new()),
+///         ..PSOAlgorithmCfg::default()
+///     };
+///
+///     let mut algorithm = PSOAlgorithm::new(config);
+///
+///     algorithm.execute();
 struct PSOAlgorithm {
     config: PSOAlgorithmCfg,
     swarm: Swarm
