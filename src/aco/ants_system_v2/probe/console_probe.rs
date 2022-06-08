@@ -1,6 +1,8 @@
+//! Simple Probe implementation for writing algorithm output onto console.
 use crate::aco::ants_system_v2::probe::Probe;
 use crate::aco::ants_system_v2::Solution;
 use crate::aco::FMatrix;
+
 
 pub struct ConsoleProbe{
 }
@@ -32,7 +34,7 @@ impl Probe for ConsoleProbe{
 }
 
 impl ConsoleProbe {
-
+    /// Constructor
     pub fn new() -> ConsoleProbe {
         ConsoleProbe{
         }
