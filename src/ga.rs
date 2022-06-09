@@ -5,6 +5,7 @@ mod example;
 pub use individual::Individual;
 pub use probe::{Probe};
 pub use probe::stdout_probe::{StdoutProbe};
+pub use probe::json_probe::{JsonProbe};
 pub use example::{*};
 
 use std::cmp::min;

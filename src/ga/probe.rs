@@ -2,6 +2,7 @@ use crate::ga::Individual;
 
 pub mod stdout_probe;
 pub mod csv_probe;
+pub mod json_probe;
 
 pub trait Probe {
   fn on_start(&mut self) { /* defaults to noop */ }
