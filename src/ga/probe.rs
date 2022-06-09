@@ -12,5 +12,6 @@ pub trait Probe {
   fn on_best_fit_in_generation(&mut self, individual: &Individual) { /* defaults to noop */ }
   fn on_iteration_start(&mut self, iteration: usize) { /* defaults to noop */ }
   fn on_iteration_end(&mut self, iteration: usize) { /* defaults to noop */ }
+  fn on_end(&mut self) { /* defaults to noop */ }
 }
 

@@ -75,7 +75,8 @@ fn ga_example() {
     population_factory: quadratic_population_factory,
     eps: 1e-4,
     // probe: Box::new(ga::StdoutProbe{}),
-    probe: Box::new(ga::CsvProbe::new("testing.csv".to_owned())),
+    // probe: Box::new(ga::CsvProbe::new("ga_testing.csv".to_owned())),
+    probe: Box::new(ga::JsonProbe::new("ga_testing.json".to_owned())),
     crossover_operator: quadratic_crossover_operator,
   }).run();
 }

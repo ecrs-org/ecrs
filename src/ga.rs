@@ -123,12 +123,14 @@ impl GeneticAlgorithm {
         self.config.probe.on_best_fit_in_generation(individual);
         if (self.config.fitness_fn)(&individual.chromosome) < self.config.eps {
           self.config.probe.on_new_best(individual);
+          self.config.probe.on_end();
           return Option::Some((*individual).clone());
         }
       }
 
       self.config.probe.on_iteration_end(generation_idx as usize);
     }
+    self.config.probe.on_end();
     if let Some(individual) = population.iter().min() {
       if (self.config.fitness_fn)(&individual.chromosome) < self.config.eps {
         return Option::Some((*individual).clone());
