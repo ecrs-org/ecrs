@@ -1,8 +1,8 @@
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
+use serde::Serialize;
 
-#[derive(Clone)]
-#[derive(Debug)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Individual {
   pub chromosome: Vec<f64>,
   pub fitness: f64,

@@ -3,7 +3,10 @@ mod probe;
 mod example;
 
 pub use individual::Individual;
-pub use probe::{Probe, GAStdoutProbe};
+pub use probe::{Probe};
+pub use probe::stdout_probe::{StdoutProbe};
+pub use probe::json_probe::{JsonProbe};
+pub use probe::csv_probe::{CsvProbe};
 pub use example::{*};
 
 use std::cmp::min;
@@ -114,18 +117,20 @@ impl GeneticAlgorithm {
         individual.fitness = (self.config.fitness_fn)(&individual.chromosome);
       });
 
-      self.config.probe.on_new_generation();
+      self.config.probe.on_new_generation(&population);
 
       if let Some(individual) = population.iter().min() {
         self.config.probe.on_best_fit_in_generation(individual);
         if (self.config.fitness_fn)(&individual.chromosome) < self.config.eps {
           self.config.probe.on_new_best(individual);
+          self.config.probe.on_end();
           return Option::Some((*individual).clone());
         }
       }
 
       self.config.probe.on_iteration_end(generation_idx as usize);
     }
+    self.config.probe.on_end();
     if let Some(individual) = population.iter().min() {
       if (self.config.fitness_fn)(&individual.chromosome) < self.config.eps {
         return Option::Some((*individual).clone());

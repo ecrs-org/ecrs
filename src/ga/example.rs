@@ -19,8 +19,6 @@ pub fn quadratic_mutation_operator(individual: &mut Individual) -> Individual {
   let mut distribution: Uniform<f64> = Uniform::from(-10_f64..10_f64);
   let random_value = distribution.sample(&mut rng) as f64;
 
-  println!("RANDOM VALUE: {}", random_value);
-
   new_chromosome[idx] = random_value;
   // let
   Individual {
