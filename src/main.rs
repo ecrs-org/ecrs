@@ -74,7 +74,8 @@ fn ga_example() {
     mutation_operator: quadratic_mutation_operator,
     population_factory: quadratic_population_factory,
     eps: 1e-4,
-    probe: Box::new(ga::StdoutProbe{}),
+    // probe: Box::new(ga::StdoutProbe{}),
+    probe: Box::new(ga::CsvProbe::new("testing.csv".to_owned())),
     crossover_operator: quadratic_crossover_operator,
   }).run();
 }

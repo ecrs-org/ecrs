@@ -6,6 +6,7 @@ pub use individual::Individual;
 pub use probe::{Probe};
 pub use probe::stdout_probe::{StdoutProbe};
 pub use probe::json_probe::{JsonProbe};
+pub use probe::csv_probe::{CsvProbe};
 pub use example::{*};
 
 use std::cmp::min;
@@ -116,7 +117,7 @@ impl GeneticAlgorithm {
         individual.fitness = (self.config.fitness_fn)(&individual.chromosome);
       });
 
-      self.config.probe.on_new_generation();
+      self.config.probe.on_new_generation(&population);
 
       if let Some(individual) = population.iter().min() {
         self.config.probe.on_best_fit_in_generation(individual);

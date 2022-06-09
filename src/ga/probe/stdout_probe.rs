@@ -19,14 +19,14 @@ impl Probe for StdoutProbe {
     println!("Mutation {:?} ---> {:?}", before, after);
   }
 
-  fn on_new_generation(&mut self) {
+  fn on_new_generation(&mut self, generation: &Vec<Individual>) {
     // TODO: Take reference to whole generation as a parameter and display it here!
     println!("New generation created")
   }
 
   fn on_best_fit_in_generation(&mut self, individual: &Individual) {
     // TODO: Take reference to the best chromosome & display it here!
-    println!("Best fit in generation: {:?}", individual);
+    println!("Best fit in generation: {:?}, value: {}", individual, individual.fitness);
   }
 
   fn on_iteration_start(&mut self, iteration: usize) {
