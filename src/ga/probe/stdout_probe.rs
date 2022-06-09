@@ -1,4 +1,4 @@
-use crate::ga::{Probe, Individual}
+use crate::ga::{Probe, Individual};
 
 pub struct StdoutProbe {
   // no state held

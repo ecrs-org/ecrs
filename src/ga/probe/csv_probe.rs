@@ -1,1 +1,3 @@
-use crate::ga::{Probe, Individual}
+use crate::ga::{Probe, Individual};
+
+
