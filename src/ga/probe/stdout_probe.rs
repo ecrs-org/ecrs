@@ -1,10 +1,10 @@
 use crate::ga::{Probe, Individual}
 
-pub struct GAStdoutProbe {
+pub struct StdoutProbe {
   // no state held
 }
 
-impl Probe for GAStdoutProbe {
+impl Probe for StdoutProbe {
   fn on_start(&mut self) {
     println!("Execution of genetic algorithm started");
   }
