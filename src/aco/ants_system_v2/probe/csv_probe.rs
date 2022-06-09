@@ -1,3 +1,7 @@
+//! Probe implementation for writing algorithm output into a csv file.
+//!
+//! Data is flushed only after algorithm ends.
+
 use serde::Serialize;
 
 use crate::aco::ants_system_v2::probe::Probe;
@@ -5,12 +9,14 @@ use crate::aco::ants_system_v2::Solution;
 use crate::aco::FMatrix;
 
 #[derive(Serialize)]
+#[doc(hidden)]
 struct BestSolutionRecord{
     from: usize,
     to: usize,
     iter: usize,
 }
 #[derive(Serialize)]
+#[doc(hidden)]
 struct FMatrixRecord {
     from: usize,
     to: usize,
@@ -35,7 +41,8 @@ impl CsvProbe {
         }
     }
 
-    pub fn flush(&mut self) {
+    #[doc(hidden)]
+    fn flush(&mut self) {
         let mut wrt = csv::WriterBuilder::new().from_path("best.csv").unwrap();
 
         for record in self.best_sols.iter() {
