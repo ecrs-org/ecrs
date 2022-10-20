@@ -1,3 +1,8 @@
+---
+name: Bug report
+about: Use this template to report a bug
+---
+
 # Bug report
 
 ## Description
