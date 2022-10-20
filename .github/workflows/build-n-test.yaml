@@ -5,6 +5,10 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master", "development", "@*/*" ]
+    paths:
+      - 'src/**'
+      - '.github/workflows/build-n-test.yaml'
+      - 'Cargo.toml'
 
 env:
   CARGO_TERM_COLOR: always
