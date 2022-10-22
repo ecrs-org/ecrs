@@ -5,10 +5,10 @@ mod ff;
 
 extern crate core;
 
-use crate::aco::probe::CsvProbe;
-use crate::aco::AntSystemCfg;
-use crate::ga::{*};
-use crate::pso::{*};
+use aco::probe::CsvProbe;
+use aco::AntSystemCfg;
+use ga::*;
+use pso::*;
 use ff::*;
 use ff::auxiliary::*;
 use ff::probe::console_probe::ConsoleProbe;
