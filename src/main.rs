@@ -2,6 +2,7 @@ mod aco;
 mod ga;
 mod pso;
 mod ff;
+mod ganew;
 
 extern crate core;
 
