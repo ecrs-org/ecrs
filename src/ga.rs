@@ -15,6 +15,11 @@ use std::cmp::min;
 use rand::{random, Rng, thread_rng};
 use rand::rngs::ThreadRng;
 
+type FitnessFn = fn(&[f64]) -> f64;
+type MutationOperator = fn(&mut Individual) -> Individual;
+type CrossoverOperator = fn(&Individual, &Individual) -> Individual;
+type PopulationGenerator = fn(i32) -> Vec<Individual>;
+
 pub struct GeneticAlgorithmCfg {
   pub mutation_rate: f64,
   pub selection_rate: f64,
