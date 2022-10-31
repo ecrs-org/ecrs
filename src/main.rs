@@ -8,6 +8,10 @@ use ga::*;
 
 
 fn main() {
-  ga::Builder::new().build();
+  let mut ga_instance = ga::Builder::new()
+    .set_max_generation_count(100)
+    .set_mutation_rate(0.5f64)
+    .build()
+    .run();
 }
 
