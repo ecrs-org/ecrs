@@ -45,6 +45,23 @@ pub struct GeneticAlgorithmCfg {
 //   }
 // }
 
+impl Default for GeneticAlgorithmCfg {
+  fn default() -> Self {
+      GeneticAlgorithmCfg {
+        mutation_rate: 0.08f64,
+        selection_rate: 0.5f64,
+        generation_upper_bound: 200,
+        population_size: 100,
+        eps: 1e-4,
+        fitness_fn: rastrigin_fitness_function,
+        mutation_operator: rastrigin_mutation_operator,
+        crossover_operator: rastrigin_crossover_operator,
+        population_factory: rastrigin_population_factory,
+        probe: Box::new(StdoutProbe{}),
+      }
+  }
+}
+
 pub struct GeneticAlgorithm {
   config: GeneticAlgorithmCfg,
   rng: ThreadRng,
