@@ -1,6 +1,7 @@
 mod individual;
 mod probe;
 mod example;
+mod builder;
 
 pub use individual::Individual;
 pub use probe::{Probe};
@@ -8,6 +9,7 @@ pub use probe::stdout_probe::{StdoutProbe};
 pub use probe::json_probe::{JsonProbe};
 pub use probe::csv_probe::{CsvProbe};
 pub use example::{*};
+pub use builder::*;
 
 use std::cmp::min;
 use rand::{random, Rng, thread_rng};
