@@ -13,3 +13,4 @@ target/
 
 # algorithms ouput directory
 output/
+*local.*
