@@ -5,16 +5,12 @@ pub mod builder;
 pub mod operators;
 
 pub use individual::Individual;
-use log::info;
-pub use probe::{Probe};
-pub use probe::stdout_probe::{StdoutProbe};
-pub use probe::json_probe::{JsonProbe};
-pub use probe::csv_probe::{CsvProbe};
-pub use example::{*};
+pub use probe::Probe;
+pub use probe::stdout_probe::StdoutProbe;
+pub use probe::json_probe::JsonProbe;
+pub use probe::csv_probe::CsvProbe;
+pub use example::*;
 pub use builder::*;
-
-use rand::{Rng, thread_rng};
-use rand::rngs::ThreadRng;
 
 type Population = Vec<Individual>;
 type FitnessFn = fn(&Individual) -> f64;
