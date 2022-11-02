@@ -1,11 +1,13 @@
 use std::cmp::min;
-use rand::{random, Rng, thread_rng};
-use rand::rngs::ThreadRng;
+use rand::{Rng, thread_rng};
 use rand::distributions::{Distribution, Uniform};
 use std::f64::consts;
-use log::{warn, info};
 
 use crate::ga::Individual;
+
+pub fn quadratic_fn(individual: &Individual) -> f64 {
+	individual.chromosome.clone().into_iter().map(|val| val * val).sum()
+}
 
 pub fn quadratic_function(chromosome: &[f64]) -> f64 {
   return chromosome[0] * chromosome[0]; // + 3 as f64 * chromosome[0];
@@ -27,17 +29,27 @@ pub fn quadratic_mutation_operator(individual: &mut Individual) -> Individual {
   }
 }
 
-pub fn quadratic_population_factory(population_size: i32) -> Vec<Individual> {
-  let mut rng = thread_rng();
-  let distribution: Uniform<f64> = Uniform::from(-10_f64..10_f64);
+pub fn point_generator(restrictions: &Vec<(f64, f64)>) -> Vec<f64> {
+	assert!(restrictions.len() > 0);
 
-  let mut population: Vec<Individual> = Vec::with_capacity(population_size as usize);
+	let mut point: Vec<f64> = Vec::with_capacity(restrictions.len());
+
+	for restriction in restrictions {
+		point.push(restriction.1 * rand::random::<f64>() + restriction.0);
+	}
+
+	point
+}
+
+pub fn quadratic_population_factory(population_size: usize) -> Vec<Individual> {
+  let mut population: Vec<Individual> = Vec::with_capacity(population_size);
+	let mut restrictions = vec![(-2.0, 2.0), (-2.0, 2.0)];
 
   for _ in 0..population_size {
-    let x = distribution.sample(&mut rng) as f64;
+		let chromosome = point_generator(&restrictions);
 
     population.push(Individual {
-      chromosome: vec![x],
+      chromosome,
       fitness: f64::MAX,
     });
   }
@@ -64,7 +76,8 @@ pub fn quadratic_crossover_operator(father: &Individual, mother: &Individual) ->
   }
 }
 
-pub fn rastrigin_fitness_function(chromosome: &[f64]) -> f64 {
+pub fn rastrigin_fitness_function(individual: &Individual) -> f64 {
+	let chromosome = individual.chromosome.clone();
   return 10_f64 * chromosome.len() as f64 + chromosome.iter().fold(0_f64, |sum, x| {
     sum + x.powi(2) - 10_f64 * (2_f64 * consts::PI * x).cos()
   })
@@ -87,7 +100,7 @@ pub fn rastrigin_mutation_operator(individual: &mut Individual) -> Individual {
   }
 }
 
-pub fn rastrigin_population_factory(population_size: i32) -> Vec<Individual> {
+pub fn rastrigin_population_factory(population_size: usize) -> Vec<Individual> {
   let mut rng = thread_rng();
   let distribution: Uniform<f64> = Uniform::from(-5.12..5.12);
   let mut population: Vec<Individual> = Vec::with_capacity(population_size as usize);

@@ -1,5 +1,4 @@
 use std::cmp::Ordering;
-use std::fmt::{Display, Formatter};
 use serde::Serialize;
 
 #[derive(Clone, Debug, Serialize)]
@@ -33,10 +32,3 @@ impl Ord for Individual {
     unimplemented!();
   }
 }
-//
-// impl Display for Individual {
-//   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-//     todo!()
-//
-//   }
-// }
