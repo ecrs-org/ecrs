@@ -106,9 +106,8 @@ impl GeneticAlgorithm {
 
 			// FIXME: Do not assume that population size is an even number.
 			for i in (0..mating_pool.len()).step_by(2) {
-			// FIXME: This should be taken from config, but as for now, I'm taking it directly
-			// from operators module.
-				println!("Mating pool loop i: {}", i);
+				// FIXME: This should be taken from config, but as for now, I'm taking it directly
+				// from operators module.
 				let crt_children = operators::crossover::single_point(mating_pool[i], mating_pool[i + 1]);
 
 				children.push(crt_children.0);

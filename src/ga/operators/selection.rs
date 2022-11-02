@@ -21,7 +21,5 @@ pub fn roulette_wheel(population: &Population, count: usize) -> Vec<&Individual>
 		}
 	}
 
-	println!("Roulette whell result len: {}", selected.len());
-
 	selected
 }
