@@ -15,10 +15,11 @@ pub use builder::*;
 use rand::{Rng, thread_rng};
 use rand::rngs::ThreadRng;
 
+type Population = Vec<Individual>;
 type FitnessFn = fn(&Individual) -> f64;
 type MutationOperator = fn(&mut Individual) -> Individual;
 type CrossoverOperator = fn(&Individual, &Individual) -> Individual;
-type PopulationGenerator = fn(usize) -> Vec<Individual>;
+type PopulationGenerator = fn(usize) -> Population;
 
 pub struct GeneticAlgorithmCfg {
   pub mutation_rate: f64,
@@ -81,13 +82,18 @@ impl GeneticAlgorithm {
     }
   }
 
-  // fn evaluate_population(&mut self, population: &Vec<&mut Individual>) {
-  //   for individual in *population {
-  //     individual.fitness = (self.config.fitness_fn)(&individual.chromosome);
-  //   }
-  // }
+	fn find_best_individual(population: &Population) -> &Individual {
+		debug_assert!(population.len() > 0);
+		let mut best_individual = &population[0];
+		for i in 1..population.len() {
+			if population[i] < *best_individual {
+				best_individual = &population[i];
+			}
+		}
+		best_individual
+	}
 
-  pub fn run(&mut self) -> Option<Individual> {
+  fn run_old(&mut self) -> Option<Individual> {
     let mut population = (self.config.population_factory)(self.config.population_size);
 
     for generation_idx in 0..self.config.generation_upper_bound {
@@ -149,16 +155,69 @@ impl GeneticAlgorithm {
     }
   }
 
-	pub fn run_new(&mut self) -> Option<Individual> {
+	pub fn run(&mut self) -> Option<Individual> {
 		// 1. Create initial random population.
-		let mut initial_population = (self.config.population_factory)(self.config.population_size);
+		let mut population = (self.config.population_factory)(self.config.population_size);
 
 		// 2. Evaluate fitness for each individual.
+		let mut best_individual: &Individual = &population[0];
+
+		for individual in population {
+			individual.fitness = (self.config.fitness_fn)(&individual);
+
+			// Note that here we use "<" operator thus minimizing the fitness function.
+			// It is important to make this more generic & document this well.
+			if individual < *best_individual {
+				best_individual = &individual;
+			}
+		}
+
 		// 3. Store best individual.
-		// 4. Create mating pool by applying selection operator.
-		// 5. From mating pool create new generation (apply crossover & mutation).
-		// 6. Check for stop condition (Is good enough individual found)? If not goto 2.
-		//
+		// Already calculated at step 2.
+
+		if best_individual.fitness < self.config.eps {
+			return Some(best_individual.to_owned())
+		}
+
+		for generation_no in 0..self.config.generation_upper_bound {
+			println!("Calculating generation {}", generation_no);
+			// 2. Evaluate fitness for each individual.
+			// let mut best_individual: &Individual = &population[0];
+
+			for individual in population {
+				individual.fitness = (self.config.fitness_fn)(&individual);
+			}
+
+			// 4. Create mating pool by applying selection operator.
+			// FIXME: This should be taken from config, but as for now, I'm taking it directly
+			// from operators module.
+			let mating_pool: Vec<&Individual> = operators::selection::roulette_wheel(&population, population.len());
+
+			// 5. From mating pool create new generation (apply crossover & mutation).
+			let mut children: Population = Vec::with_capacity(self.config.population_size);
+
+			// FIXME: Do not assume that population size is an even number.
+			for i in (0..mating_pool.len()).step_by(2) {
+			// FIXME: This should be taken from config, but as for now, I'm taking it directly
+			// from operators module.
+				let crt_children = operators::crossover::single_point(mating_pool[i], mating_pool[i + 1]);
+
+				children.push(crt_children.0);
+				children.push(crt_children.1);
+			}
+
+			// 6. Replacement - merge new generation with old one
+			// TODO
+			// As for now I'm replacing old population with the new one, but this must be
+			// reimplemented. See p. 58 Introduction to Genetic Algorithms.
+			population = children;
+
+			// 6. Check for stop condition (Is good enough individual found)? If not goto 2.
+			let best_individual = GeneticAlgorithm::find_best_individual(&population);
+			if best_individual.fitness < self.config.eps {
+				return Some(best_individual.to_owned())
+			}
+		}
 
 		None
 	}
