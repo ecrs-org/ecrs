@@ -147,4 +147,16 @@ impl GeneticAlgorithm {
       None
     }
   }
+
+	pub fn run_new(&mut self) -> Option<Individual> {
+		// 1. Create initial random population.
+		// 2. Evaluate fitness for each individual.
+		// 3. Store best individual.
+		// 4. Create mating pool by applying selection operator.
+		// 5. From mating pool create new generation (apply crossover & mutation).
+		// 6. Check for stop condition (Is good enough individual found)? If not goto 2.
+		//
+
+		None
+	}
 }
