@@ -33,10 +33,3 @@ impl Ord for Individual {
     unimplemented!();
   }
 }
-//
-// impl Display for Individual {
-//   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-//     todo!()
-//
-//   }
-// }
