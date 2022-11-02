@@ -64,7 +64,8 @@ pub fn quadratic_crossover_operator(father: &Individual, mother: &Individual) ->
   }
 }
 
-pub fn rastrigin_fitness_function(chromosome: &[f64]) -> f64 {
+pub fn rastrigin_fitness_function(individual: &Individual) -> f64 {
+	let chromosome = individual.chromosome;
   return 10_f64 * chromosome.len() as f64 + chromosome.iter().fold(0_f64, |sum, x| {
     sum + x.powi(2) - 10_f64 * (2_f64 * consts::PI * x).cos()
   })
@@ -87,7 +88,7 @@ pub fn rastrigin_mutation_operator(individual: &mut Individual) -> Individual {
   }
 }
 
-pub fn rastrigin_population_factory(population_size: i32) -> Vec<Individual> {
+pub fn rastrigin_population_factory(population_size: usize) -> Vec<Individual> {
   let mut rng = thread_rng();
   let distribution: Uniform<f64> = Uniform::from(-5.12..5.12);
   let mut population: Vec<Individual> = Vec::with_capacity(population_size as usize);
