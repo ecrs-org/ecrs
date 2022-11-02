@@ -54,14 +54,12 @@ impl Default for GeneticAlgorithmCfg {
 
 pub struct GeneticAlgorithm {
   config: GeneticAlgorithmCfg,
-  rng: ThreadRng,
 }
 
 impl GeneticAlgorithm {
   pub fn new(config: GeneticAlgorithmCfg) -> Self {
     GeneticAlgorithm {
       config,
-      rng: thread_rng(),
     }
   }
 
@@ -106,8 +104,6 @@ impl GeneticAlgorithm {
 			// FIXME: This should be taken from config, but as for now, I'm taking it directly
 			// from operators module.
 			let mating_pool: Vec<&Individual> = operators::selection::roulette_wheel(&population, population.len());
-
-			// break;
 
 			// 5. From mating pool create new generation (apply crossover & mutation).
 			let mut children: Population = Vec::with_capacity(self.config.population_size);
