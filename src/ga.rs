@@ -1,6 +1,7 @@
 mod individual;
 mod probe;
 mod example;
+mod builder;
 
 pub use individual::Individual;
 pub use probe::{Probe};
@@ -8,10 +9,15 @@ pub use probe::stdout_probe::{StdoutProbe};
 pub use probe::json_probe::{JsonProbe};
 pub use probe::csv_probe::{CsvProbe};
 pub use example::{*};
+pub use builder::*;
 
-use std::cmp::min;
-use rand::{random, Rng, thread_rng};
+use rand::{Rng, thread_rng};
 use rand::rngs::ThreadRng;
+
+type FitnessFn = fn(&[f64]) -> f64;
+type MutationOperator = fn(&mut Individual) -> Individual;
+type CrossoverOperator = fn(&Individual, &Individual) -> Individual;
+type PopulationGenerator = fn(i32) -> Vec<Individual>;
 
 pub struct GeneticAlgorithmCfg {
   pub mutation_rate: f64,
@@ -19,29 +25,29 @@ pub struct GeneticAlgorithmCfg {
   pub generation_upper_bound: i32,
   pub population_size: i32,
   pub eps: f64,
-  pub fitness_fn: fn(&[f64]) -> f64,
-  pub mutation_operator: fn(&mut Individual) -> Individual,
-  pub crossover_operator: fn(&Individual, &Individual) -> Individual,
-  pub population_factory: fn(i32) -> Vec<Individual>,
+  pub fitness_fn: FitnessFn,
+  pub mutation_operator: MutationOperator,
+  pub crossover_operator: CrossoverOperator,
+  pub population_factory: PopulationGenerator,
   pub probe: Box<dyn Probe>
 }
 
-// impl<T> Default for GeneticAlgorithmCfg<T> {
-//   fn default() -> Self {
-//     GeneticAlgorithmCfg {
-//       mutation_rate: 0.08,
-//       selection_rate: 0.5,
-//       generation_upper_bound: 200,
-//       population_size: 100,
-//       fitness_fn: rastrigin_fitness_function,
-//       mutation_operator: custom_mutation_operator,
-//       population_factory: custom_population_factory,
-//       eps: 1e-4,
-//       probe: Box::new(GAStdoutProbe{}),
-//       crossover_operator: custom_crossover_operator
-//     }
-//   }
-// }
+impl Default for GeneticAlgorithmCfg {
+  fn default() -> Self {
+      GeneticAlgorithmCfg {
+        mutation_rate: 0.08f64,
+        selection_rate: 0.5f64,
+        generation_upper_bound: 200,
+        population_size: 100,
+        eps: 1e-4,
+        fitness_fn: rastrigin_fitness_function,
+        mutation_operator: rastrigin_mutation_operator,
+        crossover_operator: rastrigin_crossover_operator,
+        population_factory: rastrigin_population_factory,
+        probe: Box::new(StdoutProbe{}),
+      }
+  }
+}
 
 pub struct GeneticAlgorithm {
   config: GeneticAlgorithmCfg,
