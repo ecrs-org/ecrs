@@ -2,6 +2,7 @@ mod individual;
 mod probe;
 mod example;
 mod builder;
+mod operators;
 
 pub use individual::Individual;
 pub use probe::{Probe};
