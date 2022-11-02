@@ -16,9 +16,12 @@ pub fn roulette_wheel(population: &Population, count: usize) -> Vec<&Individual>
 
 			if crt_sum > border {
 				selected.push(individual);
+				break;
 			}
 		}
 	}
+
+	println!("Roulette whell result len: {}", selected.len());
 
 	selected
 }

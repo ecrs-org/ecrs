@@ -7,7 +7,7 @@ pub struct Builder {
 
 impl Builder {
   pub fn new() -> Self {
-    Builder { 
+    Builder {
       config: GeneticAlgorithmCfg::default()
     }
   }
@@ -24,13 +24,18 @@ impl Builder {
     self
   }
 
+	pub fn set_eps(mut self, eps: f64) -> Self {
+		self.config.eps = eps;
+		self
+	}
+
   pub fn set_max_generation_count(mut self, max_gen_count: i32) -> Self {
     debug_assert!(max_gen_count >= 1);
     self.config.generation_upper_bound = max_gen_count;
     self
   }
 
-  pub fn set_population_size(mut self, size: i32) -> Self {
+  pub fn set_population_size(mut self, size: usize) -> Self {
     debug_assert!(size > 0);
     self.config.population_size = size;
     self

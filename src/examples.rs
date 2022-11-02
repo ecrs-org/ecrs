@@ -1,6 +1,7 @@
 
 use crate::aco::probe::CsvProbe;
 use crate::aco::AntSystemCfg;
+use crate::ga;
 use crate::ga::*;
 use crate::pso::*;
 use crate::ff::*;
@@ -57,13 +58,13 @@ pub fn ga_example() {
     selection_rate: 0.5,
     generation_upper_bound: 200,
     population_size: 400,
-    fitness_fn: quadratic_function,
+    fitness_fn: quadratic_fn,
     mutation_operator: quadratic_mutation_operator,
     population_factory: quadratic_population_factory,
     eps: 1e-4,
     // probe: Box::new(ga::StdoutProbe{}),
     // probe: Box::new(ga::CsvProbe::new("ga_testing.csv".to_owned())),
     probe: Box::new(crate::ga::JsonProbe::new("ga_testing.json".to_owned())),
-    crossover_operator: quadratic_crossover_operator,
+    crossover_operator: ga::operators::crossover::single_point,
   }).run();
 }
