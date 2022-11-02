@@ -12,6 +12,12 @@ impl Builder {
     }
   }
 
+	pub fn new_with_config(config: GeneticAlgorithmCfg) -> Self {
+		Builder {
+			config
+		}
+	}
+
   pub fn set_mutation_rate(mut self, mutation_rate: f64) -> Self {
     debug_assert!(mutation_rate >= 0f64 && mutation_rate <= 1f64);
     self.config.mutation_rate = mutation_rate;
