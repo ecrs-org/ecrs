@@ -7,7 +7,7 @@ pub fn roulette_wheel(population: &Population, count: usize) -> Vec<&Individual>
 
 	let mut selected: Vec<&Individual> = Vec::with_capacity(count);
 
-	for i in 0..count {
+	for _ in 0..count {
 		let border = total_fitness * rand::random::<f64>();
 
 		let mut crt_sum = 0.0;

@@ -1,6 +1,6 @@
-use std::fs::{copy, File};
+use std::fs::File;
 use crate::ga::{Probe, Individual};
-use serde::{Serialize};
+use serde::Serialize;
 use serde_json;
 
 #[derive(Serialize)]

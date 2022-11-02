@@ -4,9 +4,6 @@ mod pso;
 mod ff;
 mod examples;
 
-use ga::*;
-
-
 fn main() {
   let res = ga::Builder::new()
     .set_max_generation_count(100)
@@ -22,4 +19,3 @@ fn main() {
 
 	println!("{:?}", res);
 }
-

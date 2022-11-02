@@ -1,13 +1,9 @@
 use std::cmp::min;
-use rand::{random, Rng, thread_rng};
-use rand::rngs::ThreadRng;
+use rand::{Rng, thread_rng};
 use rand::distributions::{Distribution, Uniform};
 use std::f64::consts;
-use log::{warn, info};
 
 use crate::ga::Individual;
-
-use super::individual;
 
 pub fn quadratic_fn(individual: &Individual) -> f64 {
 	individual.chromosome.clone().into_iter().map(|val| val * val).sum()

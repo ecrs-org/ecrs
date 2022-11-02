@@ -1,5 +1,3 @@
-use rand::distributions::Uniform;
-
 use crate::ga::Individual;
 
 pub fn range_compliment(individual: &mut Individual) -> Individual {

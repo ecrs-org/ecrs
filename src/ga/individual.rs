@@ -1,5 +1,4 @@
 use std::cmp::Ordering;
-use std::fmt::{Display, Formatter};
 use serde::Serialize;
 
 #[derive(Clone, Debug, Serialize)]
