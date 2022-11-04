@@ -55,7 +55,7 @@ impl<T: Gene> ChromosomeWrapper<T> for Individual<T> {
 
 	#[inline]
 	fn get_chromosome_mut(&mut self) -> &mut Chromosome<T> {
-		&mut &mut self.chromosome
+		&mut self.chromosome
 	}
 
 	#[inline]
