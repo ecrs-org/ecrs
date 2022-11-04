@@ -1,4 +1,3 @@
-use std::cmp::Ordering;
 use serde::Serialize;
 
 pub trait Gene: Sized + Default + Copy {}
