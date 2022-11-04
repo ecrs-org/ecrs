@@ -1,17 +1,20 @@
+use std::fmt::Debug;
+
 use serde::Serialize;
 
-pub trait Gene: Sized + Default + Copy {}
+pub trait Gene: Sized + Default + Copy + Debug {}
 
 // Blanket implementaion.
-impl<T: Sized + Default + Copy> Gene for T {}
+impl<T: Sized + Default + Copy + Debug> Gene for T {}
 
 pub type Chromosome<T> = Vec<T>;
 
-pub trait ChromosomeWrapper<T: Gene>: Ord {
+pub trait ChromosomeWrapper<T: Gene>: Ord + Clone + Debug {
 	fn new() -> Self;
 	fn get_chromosome(&self) -> &Chromosome<T>;
 	fn get_chromosome_mut(&mut self) -> &mut Chromosome<T>;
 	fn get_fitness(&self) -> f64;
+	fn set_fitness(&mut self, fitness: f64);
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -61,6 +64,11 @@ impl<T: Gene> ChromosomeWrapper<T> for Individual<T> {
 	#[inline]
 	fn get_fitness(&self) -> f64 {
 		self.fitness
+	}
+
+	#[inline]
+	fn set_fitness(&mut self, fitness: f64) {
+		self.fitness = fitness;
 	}
 }
 

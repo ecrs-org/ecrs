@@ -28,7 +28,7 @@ impl<T: Gene, S: ChromosomeWrapper<T>> Probe<T, S> for StdoutProbe {
 
   fn on_best_fit_in_generation(&mut self, individual: &S) {
     // TODO: Take reference to the best chromosome & display it here!
-    println!("Best fit in generation: {:?}, value: {}", individual, individual.fitness);
+    println!("Best fit in generation: {:?}, value: {}", individual, individual.get_fitness());
   }
 
   fn on_iteration_start(&mut self, iteration: usize) {
