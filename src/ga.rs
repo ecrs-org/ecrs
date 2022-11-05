@@ -1,5 +1,5 @@
-mod individual;
-mod probe;
+pub mod individual;
+pub mod probe;
 pub mod example;
 pub mod builder;
 pub mod operators;
@@ -12,54 +12,75 @@ pub use probe::csv_probe::CsvProbe;
 pub use example::*;
 pub use builder::*;
 
-type Population = Vec<Individual>;
-type FitnessFn = fn(&Individual) -> f64;
-type MutationOperator = fn(&mut Individual) -> Individual;
-type CrossoverOperator = fn(&Individual, &Individual) -> (Individual, Individual);
-type PopulationGenerator = fn(usize) -> Population;
+use self::individual::{Chromosome, ChromosomeWrapper, Gene};
 
-pub struct GeneticAlgorithmCfg {
+// trait FitnessFn
+
+type FitnessFn<S> = fn(&S) -> f64;
+type MutationOperator<S> = fn(&mut S) -> ();
+type CrossoverOperator<S> = fn(&S, &S) -> (S, S);
+type PopulationGenerator<S> = fn(usize) -> Vec<S>;
+
+pub struct GAParams {
   pub mutation_rate: f64,
   pub selection_rate: f64,
-  pub generation_upper_bound: i32,
+  pub generation_upper_bound: usize,
   pub population_size: usize,
   pub eps: f64,
-  pub fitness_fn: FitnessFn,
-  pub mutation_operator: MutationOperator,
-  pub crossover_operator: CrossoverOperator,
-  pub population_factory: PopulationGenerator,
-  pub probe: Box<dyn Probe>
 }
 
-impl Default for GeneticAlgorithmCfg {
-  fn default() -> Self {
-      GeneticAlgorithmCfg {
+impl Default for GAParams {
+	fn default() -> Self {
+		Self {
         mutation_rate: 0.08f64,
         selection_rate: 0.5f64,
         generation_upper_bound: 200,
         population_size: 100,
         eps: 1e-4,
-        fitness_fn: rastrigin_fitness_function,
-        mutation_operator: rastrigin_mutation_operator,
-        crossover_operator: operators::crossover::single_point,
-        population_factory: rastrigin_population_factory,
-        probe: Box::new(StdoutProbe{}),
-      }
-  }
+		}
+	}
 }
 
-pub struct GeneticAlgorithm {
-  config: GeneticAlgorithmCfg,
+// pub struct GAOps<S> {
+//   pub fitness_fn: FitnessFn<S>,
+//   pub mutation_operator: MutationOperator<S>,
+//   pub crossover_operator: CrossoverOperator<S>,
+//   pub population_factory: PopulationGenerator<S>,
+// }
+
+// impl<S> Default for GAOps<S> {
+// 	fn default() -> Self {
+// 		Self {
+//         fitness_fn: quadratic_fn,
+//         mutation_operator: operators::mutation::range_compliment,
+//         crossover_operator: operators::crossover::single_point,
+//         population_factory: quadratic_population_factory,
+// 		}
+// 	}
+// }
+
+pub struct GAConfig<T: Gene, S: ChromosomeWrapper<T>> {
+	pub params: GAParams,
+	// pub ops: GAOps<S>,
+  pub fitness_fn: FitnessFn<S>,
+  pub mutation_operator: MutationOperator<S>,
+  pub crossover_operator: CrossoverOperator<S>,
+  pub population_factory: PopulationGenerator<S>,
+  pub probe: Box<dyn Probe<T, S>>
 }
 
-impl GeneticAlgorithm {
-  pub fn new(config: GeneticAlgorithmCfg) -> Self {
+pub struct GeneticAlgorithm<T: Gene, S: ChromosomeWrapper<T>> {
+  config: GAConfig<T, S>,
+}
+
+impl<T: Gene, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
+  pub fn new(config: GAConfig<T, S>) -> Self {
     GeneticAlgorithm {
       config,
     }
   }
 
-	fn find_best_individual(population: &Population) -> &Individual {
+	fn find_best_individual(population: &Vec<S>) -> &S {
 		debug_assert!(population.len() > 0);
 		let mut best_individual = &population[0];
 		for i in 1..population.len() {
@@ -70,15 +91,16 @@ impl GeneticAlgorithm {
 		best_individual
 	}
 
-	fn evaluate_fitness_in_population(&self, population: &mut Population) -> () {
+	fn evaluate_fitness_in_population(&self, population: &mut Vec<S>) -> () {
 		for i in 0..population.len() {
-			population[i].fitness = (self.config.fitness_fn)(&population[i]);
+			let fitness = (self.config.fitness_fn)(&population[i]);
+			population[i].set_fitness(fitness);
 		}
 	}
 
-	pub fn run(&mut self) -> Option<Individual> {
+	pub fn run(&mut self) -> Option<S> {
 		// 1. Create initial random population.
-		let mut population = (self.config.population_factory)(self.config.population_size);
+		let mut population = (self.config.population_factory)(self.config.params.population_size);
 
 		// 2. Evaluate fitness for each individual.
 		self.evaluate_fitness_in_population(&mut population);
@@ -86,23 +108,23 @@ impl GeneticAlgorithm {
 		// 3. Store best individual.
 		let best_individual = GeneticAlgorithm::find_best_individual(&population);
 
-		if best_individual.fitness < self.config.eps {
+		if best_individual.get_fitness() < self.config.params.eps {
 			return Some(best_individual.to_owned())
 		}
 
-		for generation_no in 0..self.config.generation_upper_bound {
+		for generation_no in 0..self.config.params.generation_upper_bound {
 			println!("Calculating generation {}", generation_no);
-			// 2. Evaluate fitness for each individual.
 
+			// 2. Evaluate fitness for each individual.
 			self.evaluate_fitness_in_population(&mut population);
 
 			// 4. Create mating pool by applying selection operator.
 			// FIXME: This should be taken from config, but as for now, I'm taking it directly
 			// from operators module.
-			let mating_pool: Vec<&Individual> = operators::selection::roulette_wheel(&population, population.len());
+			let mating_pool: Vec<&S> = operators::selection::roulette_wheel(&population, population.len());
 
 			// 5. From mating pool create new generation (apply crossover & mutation).
-			let mut children: Population = Vec::with_capacity(self.config.population_size);
+			let mut children: Vec<S> = Vec::with_capacity(self.config.params.population_size);
 
 			// FIXME: Do not assume that population size is an even number.
 			for i in (0..mating_pool.len()).step_by(2) {
@@ -125,7 +147,7 @@ impl GeneticAlgorithm {
 			// 6. Check for stop condition (Is good enough individual found)? If not goto 2.
 			self.evaluate_fitness_in_population(&mut population);
 			let best_individual = GeneticAlgorithm::find_best_individual(&population);
-			if best_individual.fitness < self.config.eps {
+			if best_individual.get_fitness() < self.config.params.eps {
 				return Some(best_individual.to_owned())
 			}
 		}

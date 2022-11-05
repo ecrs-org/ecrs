@@ -25,38 +25,38 @@ impl CsvProbe {
   }
 }
 
-impl Probe for CsvProbe {
-  fn on_start(&mut self) {
-    /* noop */
-  }
+// impl Probe for CsvProbe {
+//   fn on_start(&mut self) {
+//     /* noop */
+//   }
 
-  fn on_new_best(&mut self, individual: &Individual) {
-    /* noop */
-  }
+//   fn on_new_best(&mut self, individual: &Individual) {
+//     /* noop */
+//   }
 
-  fn on_mutation(&mut self, before: &Individual, after: &Individual) {
-    /* noop */
-  }
+//   fn on_mutation(&mut self, before: &Individual, after: &Individual) {
+//     /* noop */
+//   }
 
-  fn on_new_generation(&mut self, generation: &Vec<Individual>) {
-    let record = CsvRecord {
-      generation_number: self.generation_number, // TODO: Take it as arg or save context in other methods
-      best_fitness: self.best_fitness, // TODO: take it as arg or save context in other methods
-    };
+//   fn on_new_generation(&mut self, generation: &Vec<Individual>) {
+//     let record = CsvRecord {
+//       generation_number: self.generation_number, // TODO: Take it as arg or save context in other methods
+//       best_fitness: self.best_fitness, // TODO: take it as arg or save context in other methods
+//     };
 
-    self.writer.serialize(record);
-    self.writer.flush();
-  }
+//     self.writer.serialize(record);
+//     self.writer.flush();
+//   }
 
-  fn on_best_fit_in_generation(&mut self, individual: &Individual) {
-    self.best_fitness = individual.fitness;
-  }
+//   fn on_best_fit_in_generation(&mut self, individual: &Individual) {
+//     self.best_fitness = individual.fitness;
+//   }
 
-  fn on_iteration_start(&mut self, iteration: usize) {
-    self.generation_number = iteration;
-  }
+//   fn on_iteration_start(&mut self, iteration: usize) {
+//     self.generation_number = iteration;
+//   }
 
-  fn on_iteration_end(&mut self, iteration: usize) {
-    /* noop */
-  }
-}
+//   fn on_iteration_end(&mut self, iteration: usize) {
+//     /* noop */
+//   }
+// }

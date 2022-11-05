@@ -1,21 +1,21 @@
-use crate::ga::{Population, Individual};
+use crate::ga::individual::{ChromosomeWrapper, Gene};
 
-pub fn roulette_wheel(population: &Population, count: usize) -> Vec<&Individual> {
+pub fn roulette_wheel<T: Gene, S: ChromosomeWrapper<T>>(population: &Vec<S>, count: usize) -> Vec<&S> {
 	let total_fitness: f64 = population.into_iter()
-		.map(|individual| individual.fitness)
+		.map(|indiv| indiv.get_fitness())
 		.sum();
 
-	let mut selected: Vec<&Individual> = Vec::with_capacity(count);
+	let mut selected: Vec<&S> = Vec::with_capacity(count);
 
 	for _ in 0..count {
-		let border = total_fitness * rand::random::<f64>();
+		let threshold = total_fitness * rand::random::<f64>();
 
 		let mut crt_sum = 0.0;
-		for individual in population {
-			crt_sum += individual.fitness;
+		for indiv in population {
+			crt_sum += indiv.get_fitness();
 
-			if crt_sum > border {
-				selected.push(individual);
+			if crt_sum > threshold {
+				selected.push(indiv);
 				break;
 			}
 		}

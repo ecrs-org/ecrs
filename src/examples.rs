@@ -38,33 +38,18 @@ pub fn ants_example_run() {
 }
 
 pub fn ga_example() {
-  // let mut alg = GeneticAlgorithm::new(GeneticAlgorithmCfg {
-  //   mutation_rate: 0.08,
-  //   selection_rate: 0.5,
-  //   generation_upper_bound: 200,
-  //   population_size: 100,
-  //   fitness_fn: rastrigin_fitness_function,
-  //   mutation_operator: rastrigin_mutation_operator,
-  //   population_factory: rastrigin_population_factory,
-  //   eps: 1e-4,
-  //   probe: Box::new(GAStdoutProbe{}),
-  //   crossover_operator: rastrigin_crossover_operator
-  // });
+  let res = ga::Builder::new()
+    .set_max_generation_count(100)
+    .set_mutation_rate(0.5f64)
+		.set_population_size(100)
+		.set_fitness_fn(ga::example::quadratic_fn)
+		.set_crossover_operator(ga::operators::crossover::single_point)
+		.set_mutation_operator(ga::operators::mutation::range_compliment)
+		.set_population_generator(ga::example::quadratic_population_factory)
+		.set_eps(0.01)
+		.set_probe(Box::new(ga::probe::stdout_probe::StdoutProbe{}))
+    .build()
+    .run();
 
-  // alg.run();
-
-  GeneticAlgorithm::new(GeneticAlgorithmCfg {
-    mutation_rate: 0.1,
-    selection_rate: 0.5,
-    generation_upper_bound: 200,
-    population_size: 400,
-    fitness_fn: quadratic_fn,
-    mutation_operator: quadratic_mutation_operator,
-    population_factory: quadratic_population_factory,
-    eps: 1e-4,
-    // probe: Box::new(ga::StdoutProbe{}),
-    // probe: Box::new(ga::CsvProbe::new("ga_testing.csv".to_owned())),
-    probe: Box::new(crate::ga::JsonProbe::new("ga_testing.json".to_owned())),
-    crossover_operator: ga::operators::crossover::single_point,
-  }).run();
+	println!("{:?}", res);
 }
