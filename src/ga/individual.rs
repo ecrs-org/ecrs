@@ -14,26 +14,26 @@ pub trait ChromosomeWrapper<T: Chromosome> {
 }
 
 #[derive(Clone, Debug, Serialize)]
-pub struct Individual<T: Gene> {
-  pub chromosome: Chromosome<T>,
+pub struct Individual<T: Chromosome> {
+  pub chromosome: T,
   pub fitness: f64,
 }
 
-impl<T: Gene> PartialEq<Self> for Individual<T> {
+impl<T: Chromosome> PartialEq<Self> for Individual<T> {
 	fn eq(&self, other: &Self) -> bool {
 		self.fitness == other.fitness
 	}
 }
 
-impl<T: Gene> Eq for Individual<T> {}
+impl<T: Chromosome> Eq for Individual<T> {}
 
-impl<T: Gene> PartialOrd<Self> for Individual<T> {
+impl<T: Chromosome> PartialOrd<Self> for Individual<T> {
 	fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
 		self.fitness.partial_cmp(&other.fitness)
 	}
 }
 
-impl<T: Gene> Ord for Individual<T> {
+impl<T: Chromosome> Ord for Individual<T> {
 	fn cmp(&self, other: &Self) -> std::cmp::Ordering {
 		if let Some(ord) = self.partial_cmp(other) {
 			return ord;
@@ -42,7 +42,7 @@ impl<T: Gene> Ord for Individual<T> {
 	}
 }
 
-impl<T: Gene> ChromosomeWrapper<T> for Individual<T> {
+impl<T: Chromosome> ChromosomeWrapper<T> for Individual<T> {
 	fn new() -> Self {
 		Individual { chromosome: Chromosome::default(), fitness: f64::default() }
 	}
@@ -68,5 +68,5 @@ impl<T: Gene> ChromosomeWrapper<T> for Individual<T> {
 	}
 }
 
-pub type RealValueIndividual = Individual<f64>;
-pub type BitStringInvididual = Individual<bool>;
+pub type RealValueIndividual = Individual<Vec<f64>>;
+pub type BitStringInvididual = Individual<Vec<bool>>;
