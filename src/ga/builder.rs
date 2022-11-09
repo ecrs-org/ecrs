@@ -1,7 +1,7 @@
 use super::{GeneticAlgorithm, GAConfig, FitnessFn, MutationOperator, CrossoverOperator, PopulationGenerator, Probe, GAParams};
-use super::individual::{ChromosomeWrapper, Gene};
+use super::individual::{ChromosomeWrapper, Chromosome};
 
-struct GAConfigOpt<T: Gene, S: ChromosomeWrapper<T>> {
+struct GAConfigOpt<T: Chromosome, S: ChromosomeWrapper<T>> {
 	params: Option<GAParams>,
   fitness_fn: Option<FitnessFn<S>>,
   mutation_operator: Option<MutationOperator<S>>,
@@ -10,7 +10,7 @@ struct GAConfigOpt<T: Gene, S: ChromosomeWrapper<T>> {
   probe: Option<Box<dyn Probe<T, S>>>,
 }
 
-impl<T: Gene, S: ChromosomeWrapper<T>> Default for GAConfigOpt<T, S> {
+impl<T: Chromosome, S: ChromosomeWrapper<T>> Default for GAConfigOpt<T, S> {
 	fn default() -> Self {
 		Self {
 			params: Some(GAParams::default()),
@@ -23,7 +23,7 @@ impl<T: Gene, S: ChromosomeWrapper<T>> Default for GAConfigOpt<T, S> {
 	}
 }
 
-impl<T: Gene, S: ChromosomeWrapper<T>> Into<GAConfig<T, S>> for GAConfigOpt<T, S> {
+impl<T: Chromosome, S: ChromosomeWrapper<T>> Into<GAConfig<T, S>> for GAConfigOpt<T, S> {
 	fn into(self) -> GAConfig<T, S> {
 		// FIXME: Unsafe implementation for now
 		GAConfig {
@@ -37,11 +37,11 @@ impl<T: Gene, S: ChromosomeWrapper<T>> Into<GAConfig<T, S>> for GAConfigOpt<T, S
 	}
 }
 
-pub struct Builder<T: Gene, S: ChromosomeWrapper<T>> {
+pub struct Builder<T: Chromosome, S: ChromosomeWrapper<T>> {
   config: GAConfigOpt<T, S>,
 }
 
-impl<T: Gene, S: ChromosomeWrapper<T>> Builder<T, S> {
+impl<T: Chromosome, S: ChromosomeWrapper<T>> Builder<T, S> {
   pub fn new() -> Self {
     Builder {
       config: GAConfigOpt::default()

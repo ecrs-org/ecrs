@@ -5,7 +5,7 @@ use std::f64::consts;
 
 use crate::ga::Individual;
 
-pub fn quadratic_fn(individual: &Individual<f64>) -> f64 {
+pub fn quadratic_fn(individual: &Individual<Vec<f64>>) -> f64 {
 	individual.chromosome.clone().into_iter().map(|val| val * val).sum()
 }
 
@@ -13,7 +13,7 @@ pub fn quadratic_function(chromosome: &[f64]) -> f64 {
   return chromosome[0] * chromosome[0]; // + 3 as f64 * chromosome[0];
 }
 
-pub fn quadratic_mutation_operator(individual: &mut Individual<f64>) -> Individual<f64> {
+pub fn quadratic_mutation_operator(individual: &mut Individual<Vec<f64>>) -> Individual<Vec<f64>> {
   let idx = thread_rng().gen_range(0..individual.chromosome.len());
   let mut new_chromosome = individual.chromosome.clone();
   let mut rng = thread_rng();
@@ -41,8 +41,8 @@ pub fn point_generator(restrictions: &Vec<(f64, f64)>) -> Vec<f64> {
 	point
 }
 
-pub fn quadratic_population_factory(population_size: usize) -> Vec<Individual<f64>> {
-  let mut population: Vec<Individual<f64>> = Vec::with_capacity(population_size);
+pub fn quadratic_population_factory(population_size: usize) -> Vec<Individual<Vec<f64>>> {
+  let mut population: Vec<Individual<Vec<f64>>> = Vec::with_capacity(population_size);
 	let mut restrictions = vec![(-2.0, 2.0), (-2.0, 2.0)];
 
   for _ in 0..population_size {

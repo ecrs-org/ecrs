@@ -1,12 +1,12 @@
 use std::fmt::Debug;
 
-use crate::ga::{Probe, individual::{Gene, ChromosomeWrapper}};
+use crate::ga::{Probe, individual::{Chromosome, ChromosomeWrapper}};
 
 pub struct StdoutProbe {
   // no state held
 }
 
-impl<T: Gene, S: ChromosomeWrapper<T>> Probe<T, S> for StdoutProbe {
+impl<T: Chromosome, S: ChromosomeWrapper<T>> Probe<T, S> for StdoutProbe {
   fn on_start(&mut self) {
     println!("Execution of genetic algorithm started");
   }

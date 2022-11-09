@@ -12,7 +12,7 @@ pub use probe::csv_probe::CsvProbe;
 pub use example::*;
 pub use builder::*;
 
-use self::individual::{Chromosome, ChromosomeWrapper, Gene};
+use self::individual::{Chromosome, ChromosomeWrapper};
 
 // trait FitnessFn
 
@@ -59,7 +59,7 @@ impl Default for GAParams {
 // 	}
 // }
 
-pub struct GAConfig<T: Gene, S: ChromosomeWrapper<T>> {
+pub struct GAConfig<T: Chromosome, S: ChromosomeWrapper<T>> {
 	pub params: GAParams,
 	// pub ops: GAOps<S>,
   pub fitness_fn: FitnessFn<S>,
@@ -69,11 +69,11 @@ pub struct GAConfig<T: Gene, S: ChromosomeWrapper<T>> {
   pub probe: Box<dyn Probe<T, S>>
 }
 
-pub struct GeneticAlgorithm<T: Gene, S: ChromosomeWrapper<T>> {
+pub struct GeneticAlgorithm<T: Chromosome, S: ChromosomeWrapper<T>> {
   config: GAConfig<T, S>,
 }
 
-impl<T: Gene, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
+impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
   pub fn new(config: GAConfig<T, S>) -> Self {
     GeneticAlgorithm {
       config,
@@ -128,9 +128,7 @@ impl<T: Gene, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 
 			// FIXME: Do not assume that population size is an even number.
 			for i in (0..mating_pool.len()).step_by(2) {
-				// FIXME: This should be taken from config, but as for now, I'm taking it directly
-				// from operators module.
-				let crt_children = operators::crossover::single_point(mating_pool[i], mating_pool[i + 1]);
+				let crt_children = (self.config.crossover_operator)(mating_pool[i], mating_pool[i + 1]);
 
 				children.push(crt_children.0);
 				children.push(crt_children.1);
