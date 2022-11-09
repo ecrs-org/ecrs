@@ -1,13 +1,9 @@
 use std::fmt::Debug;
-
 use serde::Serialize;
 
-pub trait Gene: Sized + Default + Copy + Debug {}
 
 // Blanket implementaion.
-impl<T: Sized + Default + Copy + Debug> Gene for T {}
-
-pub type Chromosome<T> = Vec<T>;
+pub trait Chromosome: Sized + Sync +  Send + Clone {}
 
 pub trait ChromosomeWrapper<T: Gene>: Ord + Clone + Debug {
 	fn new() -> Self;
