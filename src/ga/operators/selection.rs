@@ -1,6 +1,6 @@
-use crate::ga::individual::{ChromosomeWrapper, Gene};
+use crate::ga::individual::{ChromosomeWrapper, Chromosome};
 
-pub fn roulette_wheel<T: Gene, S: ChromosomeWrapper<T>>(population: &Vec<S>, count: usize) -> Vec<&S> {
+pub fn roulette_wheel<T: Chromosome, S: ChromosomeWrapper<T>>(population: &Vec<S>, count: usize) -> Vec<&S> {
 	let total_fitness: f64 = population.into_iter()
 		.map(|indiv| indiv.get_fitness())
 		.sum();

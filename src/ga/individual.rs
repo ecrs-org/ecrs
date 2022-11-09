@@ -2,10 +2,12 @@ use std::fmt::Debug;
 use serde::Serialize;
 
 
-// Blanket implementaion.
-pub trait Chromosome: Sized + Sync +  Send + Clone {}
+pub trait Chromosome: Sized + Sync + Send + Clone + Default + Debug {}
 
-pub trait ChromosomeWrapper<T: Chromosome> {
+/// Blanket implementation
+impl<T: Sized + Sync + Send + Clone + Default + Debug> Chromosome for T {}
+
+pub trait ChromosomeWrapper<T: Chromosome>: Sized + Sync + Clone + Ord + Debug {
 	fn new() -> Self;
 	fn get_chromosome(&self) -> &T;
 	fn get_chromosome_mut(&mut self) -> &mut T;
@@ -44,16 +46,16 @@ impl<T: Chromosome> Ord for Individual<T> {
 
 impl<T: Chromosome> ChromosomeWrapper<T> for Individual<T> {
 	fn new() -> Self {
-		Individual { chromosome: Chromosome::default(), fitness: f64::default() }
+		Individual { chromosome: T::default(), fitness: f64::default() }
 	}
 
 	#[inline]
-	fn get_chromosome(&self) -> &Chromosome<T> {
+	fn get_chromosome(&self) -> &T {
 		&self.chromosome
 	}
 
 	#[inline]
-	fn get_chromosome_mut(&mut self) -> &mut Chromosome<T> {
+	fn get_chromosome_mut(&mut self) -> &mut T {
 		&mut self.chromosome
 	}
 
