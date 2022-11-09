@@ -5,10 +5,10 @@ use serde::Serialize;
 // Blanket implementaion.
 pub trait Chromosome: Sized + Sync +  Send + Clone {}
 
-pub trait ChromosomeWrapper<T: Gene>: Ord + Clone + Debug {
+pub trait ChromosomeWrapper<T: Chromosome> {
 	fn new() -> Self;
-	fn get_chromosome(&self) -> &Chromosome<T>;
-	fn get_chromosome_mut(&mut self) -> &mut Chromosome<T>;
+	fn get_chromosome(&self) -> &T;
+	fn get_chromosome_mut(&mut self) -> &mut T;
 	fn get_fitness(&self) -> f64;
 	fn set_fitness(&mut self, fitness: f64);
 }
