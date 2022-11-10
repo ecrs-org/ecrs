@@ -1,12 +1,13 @@
 
 use crate::aco::probe::CsvProbe;
 use crate::aco::AntSystemCfg;
-use crate::ga;
+use crate::{ga, pso};
 use crate::ga::*;
 use crate::pso::*;
 use crate::ff::*;
 use crate::ff::auxiliary::*;
 use crate::ff::probe::console_probe::ConsoleProbe;
+use crate::pso::builder::PSOAlgorithmBuilder;
 
 pub fn firefly_example() {
   let mut alg = FireflyAlgorithm{
@@ -52,4 +53,22 @@ pub fn ga_example() {
     .run();
 
 	println!("{:?}", res);
+}
+
+pub fn pso_example() {
+    let iterations = 2000;
+
+    let console_probe = Box::new(pso::probe::console_probe::ConsoleProbe::new());
+    let csv_probe = Box::new(pso::probe::csv_probe::CsvProbe::new("pso_example.csv", iterations));
+    let json_probe = Box::new(pso::probe::json_probe::JsonProbe::new("pso_example.json", iterations));
+    let probes : Vec<Box<dyn pso::probe::probe::Probe>> = vec![console_probe, csv_probe, json_probe];
+
+    let mut algorithm = PSOAlgorithmBuilder::new()
+        .set_dimensions(3)
+        .set_iterations(iterations)
+        .set_log_interval(50)
+        .set_probe(Box::new(pso::probe::multi_probe::MultiProbe::new(probes)))
+        .build();
+
+    algorithm.run();
 }
