@@ -9,9 +9,6 @@ pub mod util;
 pub mod builder;
 
 use crate::pso::probe::console_probe::ConsoleProbe;
-use crate::pso::probe::csv_probe::CsvProbe;
-use crate::pso::probe::json_probe::JsonProbe;
-use crate::pso::probe::multi_probe::MultiProbe;
 use crate::pso::probe::probe::Probe;
 use crate::pso::swarm::Swarm;
 use crate::pso::builder::PSOAlgorithmBuilder;
@@ -29,7 +26,6 @@ use crate::test_functions::test_functions::rosenbrock;
 ///  - social_coefficient - specifies how much particles are attracted to entire swarm's best position
 ///  - function - function to be optimized
 ///  - iterations - number of iterations, the algorithm should run for
-///  - log_interval - specifies how often algorithm's progress is logged
 ///  - probe - used for displaying results / progress of the algorithm
 /// # Example coefficient values:
 ///  - inertia_weight: 0.5
@@ -45,7 +41,6 @@ pub struct PSOAlgorithmCfg {
     social_coefficient: f64,
     function: fn(&Vec<f64>) -> f64,
     iterations: usize,
-    log_interval: usize,
     probe: Box<dyn Probe>
 }
 
@@ -61,7 +56,6 @@ impl Default for PSOAlgorithmCfg {
             social_coefficient: 3.0,
             function: rosenbrock,
             iterations: 500,
-            log_interval: 10,
             probe:Box::new(ConsoleProbe::new())
         }
     }
@@ -72,7 +66,6 @@ impl Default for PSOAlgorithmCfg {
 ///     let config = PSOAlgorithmCfg{
 ///         dimensions: 3,
 ///         iterations: 1000,
-///         log_interval: 50,
 ///         probe: Box::new(ConsoleProbe::new()),
 ///         ..PSOAlgorithmCfg::default()
 ///     };
@@ -100,9 +93,7 @@ impl PSOAlgorithm {
             self.swarm.update_velocities(&self.config.inertia_weight, &self.config.cognitive_coefficient, &self.config.social_coefficient);
             self.swarm.update_positions(self.config.function);
             self.swarm.update_best_position(self.config.function);
-            if (iteration + 1) % self.config.log_interval == 0 {
-                self.config.probe.on_new_generation(&self.swarm, iteration + 1);
-            }
+            self.config.probe.on_new_generation(&self.swarm, iteration + 1);
         }
         self.config.probe.on_end(&self.swarm);
     }

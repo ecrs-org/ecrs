@@ -57,11 +57,6 @@ impl PSOAlgorithmBuilder {
         return self;
     }
 
-    pub fn set_log_interval(mut self, log_interval: usize) -> Self {
-        self.config.log_interval = log_interval;
-        return self;
-    }
-
     pub fn set_probe(mut self, probe: Box<dyn Probe>) -> Self {
         self.config.probe = probe;
         return self;
