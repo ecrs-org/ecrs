@@ -1,11 +1,13 @@
 use std::borrow::Borrow;
 use itertools::iterate;
 use num::{NumCast, One};
+use crate::builder::PSOAlgorithmBuilder;
 
 pub mod particle;
 pub mod probe;
 pub mod swarm;
 pub mod util;
+pub mod builder;
 
 use crate::pso::probe::console_probe::ConsoleProbe;
 use crate::pso::probe::csv_probe::CsvProbe;
@@ -91,7 +93,7 @@ impl PSOAlgorithm {
         }
     }
 
-    fn execute(&mut self) {
+    fn run(&mut self) {
         self.config.probe.on_begin(&self.swarm);
         for iteration in 0..self.config.iterations {
             self.swarm.update_velocities(&self.config.inertia_weight, &self.config.cognitive_coefficient, &self.config.social_coefficient);
@@ -127,15 +129,12 @@ pub fn pso_demo() {
     let json_probe = Box::new(JsonProbe::new("pso_demo.json", iterations));
     let probes : Vec<Box<dyn Probe>> = vec![console_probe, csv_probe, json_probe];
 
-    let config = PSOAlgorithmCfg{
-        dimensions: 3,
-        iterations,
-        log_interval: 50,
-        probe: Box::new(MultiProbe::new(probes)),
-        ..PSOAlgorithmCfg::default()
-    };
+    let mut algorithm = PSOAlgorithmBuilder::new()
+        .set_dimensions(3)
+        .set_iterations(iterations)
+        .set_log_interval(50)
+        .set_probe(Box::new(MultiProbe::new(probes)))
+        .build();
 
-    let mut algorithm = PSOAlgorithm::new(config);
-
-    algorithm.execute();
+    algorithm.run();
 }
