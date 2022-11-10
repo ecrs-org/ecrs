@@ -1,7 +1,7 @@
 use std::borrow::Borrow;
 use itertools::iterate;
 use num::{NumCast, One};
-use crate::builder::PSOAlgorithmBuilder;
+use crate::pso::builder::PSOAlgorithmBuilder;
 
 pub mod particle;
 pub mod probe;
@@ -97,8 +97,8 @@ impl PSOAlgorithm {
         self.config.probe.on_begin(&self.swarm);
         for iteration in 0..self.config.iterations {
             self.swarm.update_velocities(&self.config.inertia_weight, &self.config.cognitive_coefficient, &self.config.social_coefficient);
-            self.swarm.update_positions(&self.config.function);
-            self.swarm.update_best_position(&self.config.function);
+            self.swarm.update_positions(self.config.function);
+            self.swarm.update_best_position(self.config.function);
             if (iteration + 1) % self.config.log_interval == 0 {
                 self.config.probe.on_new_generation(&self.swarm, iteration + 1);
             }
@@ -121,12 +121,12 @@ fn rosenbrock(x: &Vec<f64>) -> f64 {
     return value;
 }
 
-pub fn pso_demo() {
+pub fn pso_example() {
     let iterations = 1000;
 
     let console_probe = Box::new(ConsoleProbe::new());
-    let csv_probe = Box::new(CsvProbe::new("pso_demo.csv", iterations));
-    let json_probe = Box::new(JsonProbe::new("pso_demo.json", iterations));
+    let csv_probe = Box::new(CsvProbe::new("pso_example.csv", iterations));
+    let json_probe = Box::new(JsonProbe::new("pso_example.json", iterations));
     let probes : Vec<Box<dyn Probe>> = vec![console_probe, csv_probe, json_probe];
 
     let mut algorithm = PSOAlgorithmBuilder::new()
