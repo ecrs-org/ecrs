@@ -122,7 +122,7 @@ pub fn schwefel(x: &Vec<f64>) -> f64 {
 /// f((x_1, ..., x_n)) = 0, where x_i = 2^( -(2^i - 2) / 2^i)
 pub fn dixon_price(x: &Vec<f64>) -> f64 {
     if x.len() < 2 {
-        panic!("Michalewicz function takes an at least two dimensional vector as a parameter.");
+        panic!("Dixon-Price function takes an at least two dimensional vector as a parameter.");
     }
     let mut result: f64 = f64::powi(x[0] - 1.0, 2);
     for i in 1..x.len() {
