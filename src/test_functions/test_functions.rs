@@ -42,7 +42,7 @@ pub fn ackley(x: &Vec<f64>) -> f64 {
 /// f(0, ..., 0) = 0
 pub fn sphere(x: &Vec<f64>) -> f64 {
     if x.len() < 1 {
-        panic!("Rosenbrock function takes an at least one dimensional vector as a parameter.");
+        panic!("Sphere function takes an at least one dimensional vector as a parameter.");
     }
     let mut result: f64 = 0.0;
     for x_curr in x.iter() {
