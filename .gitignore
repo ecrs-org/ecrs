@@ -9,6 +9,8 @@ target/
 *.pdf
 *.png
 *.csv
+*.json
 
 # algorithms ouput directory
 output/
+*local.*

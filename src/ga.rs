@@ -1,139 +1,155 @@
-mod individual;
-mod probe;
-mod example;
+pub mod individual;
+pub mod probe;
+pub mod example;
+pub mod builder;
+pub mod operators;
 
 pub use individual::Individual;
-pub use probe::{Probe, GAStdoutProbe};
-pub use example::{*};
+pub use probe::Probe;
+pub use probe::stdout_probe::StdoutProbe;
+pub use probe::json_probe::JsonProbe;
+pub use probe::csv_probe::CsvProbe;
+pub use example::*;
+pub use builder::*;
 
-use std::cmp::min;
-use rand::{random, Rng, thread_rng};
-use rand::rngs::ThreadRng;
+use self::individual::{Chromosome, ChromosomeWrapper};
 
-pub struct GeneticAlgorithmCfg {
+// trait FitnessFn
+
+type FitnessFn<S> = fn(&S) -> f64;
+type MutationOperator<S> = fn(&mut S) -> ();
+type CrossoverOperator<S> = fn(&S, &S) -> (S, S);
+type PopulationGenerator<S> = fn(usize) -> Vec<S>;
+
+pub struct GAParams {
   pub mutation_rate: f64,
   pub selection_rate: f64,
-  pub generation_upper_bound: i32,
-  pub population_size: i32,
+  pub generation_upper_bound: usize,
+  pub population_size: usize,
   pub eps: f64,
-  pub fitness_fn: fn(&[f64]) -> f64,
-  pub mutation_operator: fn(&mut Individual) -> Individual,
-  pub crossover_operator: fn(&Individual, &Individual) -> Individual,
-  pub population_factory: fn(i32) -> Vec<Individual>,
-  pub probe: Box<dyn Probe>
 }
 
-// impl<T> Default for GeneticAlgorithmCfg<T> {
-//   fn default() -> Self {
-//     GeneticAlgorithmCfg {
-//       mutation_rate: 0.08,
-//       selection_rate: 0.5,
-//       generation_upper_bound: 200,
-//       population_size: 100,
-//       fitness_fn: rastrigin_fitness_function,
-//       mutation_operator: custom_mutation_operator,
-//       population_factory: custom_population_factory,
-//       eps: 1e-4,
-//       probe: Box::new(GAStdoutProbe{}),
-//       crossover_operator: custom_crossover_operator
-//     }
-//   }
+impl Default for GAParams {
+	fn default() -> Self {
+		Self {
+        mutation_rate: 0.08f64,
+        selection_rate: 0.5f64,
+        generation_upper_bound: 200,
+        population_size: 100,
+        eps: 1e-4,
+		}
+	}
+}
+
+// pub struct GAOps<S> {
+//   pub fitness_fn: FitnessFn<S>,
+//   pub mutation_operator: MutationOperator<S>,
+//   pub crossover_operator: CrossoverOperator<S>,
+//   pub population_factory: PopulationGenerator<S>,
 // }
 
-pub struct GeneticAlgorithm {
-  config: GeneticAlgorithmCfg,
-  rng: ThreadRng,
+// impl<S> Default for GAOps<S> {
+// 	fn default() -> Self {
+// 		Self {
+//         fitness_fn: quadratic_fn,
+//         mutation_operator: operators::mutation::range_compliment,
+//         crossover_operator: operators::crossover::single_point,
+//         population_factory: quadratic_population_factory,
+// 		}
+// 	}
+// }
+
+pub struct GAConfig<T: Chromosome, S: ChromosomeWrapper<T>> {
+	pub params: GAParams,
+	// pub ops: GAOps<S>,
+  pub fitness_fn: FitnessFn<S>,
+  pub mutation_operator: MutationOperator<S>,
+  pub crossover_operator: CrossoverOperator<S>,
+  pub population_factory: PopulationGenerator<S>,
+  pub probe: Box<dyn Probe<T, S>>
 }
 
-impl GeneticAlgorithm {
-  pub fn new(config: GeneticAlgorithmCfg) -> Self {
+pub struct GeneticAlgorithm<T: Chromosome, S: ChromosomeWrapper<T>> {
+  config: GAConfig<T, S>,
+}
+
+impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
+  pub fn new(config: GAConfig<T, S>) -> Self {
     GeneticAlgorithm {
       config,
-      rng: thread_rng(),
     }
   }
 
-  fn maybe_apply_mutation_operator(&mut self, target: &mut Individual, probability: f64) -> Individual {
-    if self.rng.gen_range(0f64..1f64) < probability {
-      let target_copy = target.clone();
-      let result = (self.config.mutation_operator)(target);
-      self.config.probe.on_mutation(&target_copy, &result);
-      return result;
-    }
-    return target.clone();
-  }
+	fn find_best_individual(population: &Vec<S>) -> &S {
+		debug_assert!(population.len() > 0);
+		let mut best_individual = &population[0];
+		for i in 1..population.len() {
+			if population[i] < *best_individual {
+				best_individual = &population[i];
+			}
+		}
+		best_individual
+	}
 
-  fn select_individual_from_n_random(&mut self, population: &Vec<Individual>, n: usize) -> Individual {
-    if let Some(selected) = (0..n).map(|_| population[self.rng.gen_range(0..population.len())].clone()).min() {
-      selected
-    } else {
-      unimplemented!()
-    }
-  }
+	fn evaluate_fitness_in_population(&self, population: &mut Vec<S>) -> () {
+		for i in 0..population.len() {
+			let fitness = (self.config.fitness_fn)(&population[i]);
+			population[i].set_fitness(fitness);
+		}
+	}
 
-  // fn evaluate_population(&mut self, population: &Vec<&mut Individual>) {
-  //   for individual in *population {
-  //     individual.fitness = (self.config.fitness_fn)(&individual.chromosome);
-  //   }
-  // }
+	pub fn run(&mut self) -> Option<S> {
+		// 1. Create initial random population.
+		let mut population = (self.config.population_factory)(self.config.params.population_size);
 
-  pub fn run(&mut self) -> Option<Individual> {
-    let mut population = (self.config.population_factory)(self.config.population_size);
+		// 2. Evaluate fitness for each individual.
+		self.evaluate_fitness_in_population(&mut population);
 
-    for generation_idx in 0..self.config.generation_upper_bound {
-      self.config.probe.on_iteration_start(generation_idx as usize);
-      let mut new_generation: Vec<Individual> = Vec::with_capacity(self.config.population_size as usize);
+		// 3. Store best individual.
+		let best_individual = GeneticAlgorithm::find_best_individual(&population);
 
-      population.iter_mut().for_each(|individual| {
-        individual.fitness = (self.config.fitness_fn)(&individual.chromosome);
-      });
+		if best_individual.get_fitness() < self.config.params.eps {
+			return Some(best_individual.to_owned())
+		}
 
-      // TODO: consider to parametrize this
-      for _ in 0..(self.config.population_size / 2) {
-        let (mut father, mut mother) = (
-            self.select_individual_from_n_random(&population, (self.config.selection_rate * self.config.population_size as f64) as usize),
-            self.select_individual_from_n_random(&population, (self.config.selection_rate * self.config.population_size as f64) as usize)
-        );
+		for generation_no in 0..self.config.params.generation_upper_bound {
+			println!("Calculating generation {}", generation_no);
 
-        // TODO: possible optimization
-        father = self.maybe_apply_mutation_operator(&mut father, self.config.mutation_rate);
-        mother = self.maybe_apply_mutation_operator(&mut mother, self.config.mutation_rate);
+			// 2. Evaluate fitness for each individual.
+			self.evaluate_fitness_in_population(&mut population);
 
-        let child = (self.config.crossover_operator)(&father, &mother);
-        new_generation.push(child);
-        if self.rng.gen_bool(self.config.selection_rate as f64) {
-          new_generation.push(father);
-        } else {
-          new_generation.push(mother);
-        }
-      }
+			// 4. Create mating pool by applying selection operator.
+			// FIXME: This should be taken from config, but as for now, I'm taking it directly
+			// from operators module.
+			let mating_pool: Vec<&S> = operators::selection::roulette_wheel(&population, population.len());
 
-      population = new_generation;
+			// 5. From mating pool create new generation (apply crossover & mutation).
+			let mut children: Vec<S> = Vec::with_capacity(self.config.params.population_size);
 
-      population.iter_mut().for_each(|individual| {
-        individual.fitness = (self.config.fitness_fn)(&individual.chromosome);
-      });
+			// FIXME: Do not assume that population size is an even number.
+			for i in (0..mating_pool.len()).step_by(2) {
+				let crt_children = (self.config.crossover_operator)(mating_pool[i], mating_pool[i + 1]);
 
-      self.config.probe.on_new_generation();
+				children.push(crt_children.0);
+				children.push(crt_children.1);
+			}
 
-      if let Some(individual) = population.iter().min() {
-        self.config.probe.on_best_fit_in_generation(individual);
-        if (self.config.fitness_fn)(&individual.chromosome) < self.config.eps {
-          self.config.probe.on_new_best(individual);
-          return Option::Some((*individual).clone());
-        }
-      }
+			// 5.1 Here we should apply the mutations on children?
 
-      self.config.probe.on_iteration_end(generation_idx as usize);
-    }
-    if let Some(individual) = population.iter().min() {
-      if (self.config.fitness_fn)(&individual.chromosome) < self.config.eps {
-        return Option::Some((*individual).clone());
-      } else {
-        None
-      }
-    } else {
-      None
-    }
-  }
+			// 6. Replacement - merge new generation with old one
+			// TODO
+			// As for now I'm replacing old population with the new one, but this must be
+			// reimplemented. See p. 58 Introduction to Genetic Algorithms.
+			population = children;
+
+			// 6. Check for stop condition (Is good enough individual found)? If not goto 2.
+			self.evaluate_fitness_in_population(&mut population);
+			let best_individual = GeneticAlgorithm::find_best_individual(&population);
+			if best_individual.get_fitness() < self.config.params.eps {
+				return Some(best_individual.to_owned())
+			}
+		}
+
+		None
+	}
 }

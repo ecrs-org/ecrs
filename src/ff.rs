@@ -73,7 +73,7 @@ impl FireflyAlgorithm  {
         let mut brightness: Vec<f64> = Vec::new();
         let temp = population.clone();
         for point in temp {
-            brightness.push(1 as f64 / (self.brightness_function)(&point)); //TODO USUŃ TEMP CLONEA
+            brightness.push(1 as f64 / (self.brightness_function)(&point)); //TODO DELETE TEMP CLONEA
         }
         let scale = self.config.upper_bound - self.config.lower_bound;
         let mut alfa = self.config.alfa0;
@@ -88,7 +88,7 @@ impl FireflyAlgorithm  {
                     if brightness[index] < brightness[innerindex] {
                         let const1 = self.config.beta0 * f64::powf(f64::consts::E, -1 as f64 * self.config.gamma * f64::powi(distance(&population[index], &population[innerindex]), 2));
                         for dimension in 0 as usize..self.config.dimensions as usize {
-                            population[index][dimension] += const1 * (population[innerindex][dimension] - population[index][dimension]) + self.config.alfa0 * alfa * (rng.gen_range(0.01..0.99)/*TODO DODAJ SETTING*/ - 0.5) * scale;
+                            population[index][dimension] += const1 * (population[innerindex][dimension] - population[index][dimension]) + self.config.alfa0 * alfa * (rng.gen_range(0.01..0.99)/*TODO ADD SETTING*/ - 0.5) * scale;
                         }
                         brightness[index] = 1 as f64 / (self.brightness_function)(&population[index]);
                     }
@@ -118,8 +118,8 @@ impl FireflyAlgorithm  {
                 //println!("Gen: {}, x: {}, y: {}", generation, population[maxpos][0], population[maxpos][1]);
             }
             if generation % 25 == 0{
-                //self.probe.on_iteration_end(&generation); //TODO CHYBA TEGO NIE POTRZEBUJĘ
-                println!();//TODO PO PROSTU WYPISZĘ NEWLINE USUŃ TO
+                //self.probe.on_iteration_end(&generation); //TODO IT IS PROBABLY USELESS
+                println!();//TODO IT SIMPLY PRINTS A NEWLINE, DELETE IT
             }
         }
         self.probe.on_end();
