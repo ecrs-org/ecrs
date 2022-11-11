@@ -120,16 +120,13 @@ where
 		let mut child_1 = ChWrapperT::new();
 		let mut child_2 = ChWrapperT::new();
 
+		let (mut curr_parent_1, mut curr_parent_2) = (&parent_1, &parent_2);
+
 		for locus in 0..cut_points[0] {
 			child_1.get_chromosome_mut().push(parent_1.get_chromosome()[locus]);
 			child_2.get_chromosome_mut().push(parent_2.get_chromosome()[locus]);
+			(curr_parent_1, curr_parent_2) = (curr_parent_2, curr_parent_1);
 		}
-
-		let (mut curr_parent_1, mut curr_parent_2) = if cut_points[0] != 0 {
-			(&parent_2, &parent_1)
-		} else {
-			(&parent_1, &parent_2)
-		};
 
 		for cut_point_idx in 0..self.cut_points_no - 1 {
 			for locus in cut_points[cut_point_idx]..cut_points[cut_point_idx + 1] {
@@ -138,7 +135,6 @@ where
 			}
 			(curr_parent_1, curr_parent_2) = (curr_parent_2, curr_parent_1);
 		}
-
 
 		for locus in cut_points[self.cut_points_no - 1]..chromosome_len {
 				child_1.get_chromosome_mut().push(curr_parent_1.get_chromosome()[locus]);
