@@ -1,4 +1,5 @@
 use std::fmt;
+use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
 use crate::pso::particle::Particle;
 use crate::pso::util::print_generic_vector;
 
@@ -30,24 +31,23 @@ impl Swarm {
     }
 
     pub fn update_velocities(&mut self, inertia_weight: &f64, cognitive_coefficient: &f64, social_coefficient: &f64) {
-        for i in 0..self.particles.len() {
-            self.particles[i].update_velocity(&self.best_position, inertia_weight, cognitive_coefficient, social_coefficient);
-        }
+        self.particles.par_iter_mut()
+            .for_each(|particle| particle.update_velocity(&self.best_position, inertia_weight, cognitive_coefficient, social_coefficient));
     }
 
-    pub fn update_positions(&mut self, function: &dyn Fn(&Vec<f64>) -> f64) {
-        for i in 0..self.particles.len() {
-            self.particles[i].update_position(function);
-        }
+    pub fn update_positions(&mut self, function: fn(&Vec<f64>) -> f64) {
+        self.particles.par_iter_mut()
+            .for_each(|particle| particle.update_position(function));
     }
 
-    pub fn update_best_position(&mut self, function: &dyn Fn(&Vec<f64>) -> f64) {
-        for i in 0..self.particles.len() {
-            if function(&self.particles[i].best_position) < function(&self.best_position) {
-                self.best_position = self.particles[i].best_position.clone();
-                self.best_position_value = self.particles[i].best_position_value;
-            }
-        }
+    pub fn update_best_position(&mut self, function: fn(&Vec<f64>) -> f64) {
+        self.particles.iter_mut()
+            .for_each(|particle|
+                if function(&particle.best_position) < function(&self.best_position) {
+                    self.best_position = particle.best_position.clone();
+                    self.best_position_value = particle.best_position_value;
+                }
+            );
     }
 }
 
