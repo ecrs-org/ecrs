@@ -14,17 +14,15 @@ struct Record {
 }
 
 pub struct JsonProbe{
-    records: Vec<Record>,
-    generations: usize,
-    last_generation: usize
+    filename: &'static str,
+    records: Vec<Record>
 }
 
 impl JsonProbe {
-    pub fn new(generations: usize) -> JsonProbe {
+    pub fn new(filename: &'static str) -> JsonProbe {
         JsonProbe {
-            records: vec![],
-            generations,
-            last_generation: 0
+            filename,
+            records: vec![]
         }
     }
 }
@@ -34,19 +32,13 @@ impl Probe for JsonProbe {
         self.on_new_generation(swarm, 0);
     }
 
-    fn on_end(&mut self, swarm: &Swarm) {
-        if self.generations > self.last_generation {
-            self.on_new_generation(swarm, self.generations);
-        }
-
-        {
-            let mut writer = &File::create("testing.json").unwrap();
-            serde_json::to_writer_pretty(writer, &self.records);
-        }
+    fn on_end(&mut self, _swarm: &Swarm) {
+        let mut writer = &File::create(&self.filename).unwrap();
+        serde_json::to_writer_pretty(writer, &self.records);
+        writer.flush();
     }
 
     fn on_new_generation(&mut self, swarm: &Swarm, generation: usize) {
-        self.last_generation = generation;
         self.records.push(Record{
             generation,
             best_value: swarm.best_position_value,

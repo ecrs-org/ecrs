@@ -54,7 +54,7 @@ impl Particle {
         self.velocity = updated_velocity;
     }
 
-    pub fn update_position(&mut self, function: &dyn Fn(&Vec<f64>) -> f64) {
+    pub fn update_position(&mut self, function: fn(&Vec<f64>) -> f64) {
         let mut updated_position: Vec<f64> = Vec::new();
 
         for (x_i, v_i) in izip!(&self.position, &self.velocity) {
