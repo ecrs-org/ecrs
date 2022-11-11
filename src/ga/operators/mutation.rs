@@ -1,5 +1,11 @@
 use crate::ga::individual::{ChromosomeWrapper, Chromosome};
 
-pub fn range_compliment<T: Chromosome, S: ChromosomeWrapper<T>>(individual: &mut S) -> () {
-	// individual.to_owned()
+pub trait MutationOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
+	fn apply(&mut self, indivudial: &mut S) -> ();
+}
+
+pub struct Identity;
+
+impl<T: Chromosome, S: ChromosomeWrapper<T>> MutationOperator<T, S> for Identity {
+	fn apply(&mut self, indivudial: &mut S) -> () {}
 }

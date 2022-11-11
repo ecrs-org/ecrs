@@ -12,13 +12,18 @@ pub use probe::csv_probe::CsvProbe;
 pub use example::*;
 pub use builder::*;
 
-use self::individual::{Chromosome, ChromosomeWrapper};
+use self::{
+	individual::{Chromosome, ChromosomeWrapper},
+	operators::{
+		selection::SelectionOperator,
+		crossover::CrossoverOperator,
+		mutation::MutationOperator
+	}
+};
 
 // trait FitnessFn
 
 type FitnessFn<S> = fn(&S) -> f64;
-type MutationOperator<S> = fn(&mut S) -> ();
-type CrossoverOperator<S> = fn(&S, &S) -> (S, S);
 type PopulationGenerator<S> = fn(usize) -> Vec<S>;
 
 pub struct GAParams {
@@ -63,8 +68,9 @@ pub struct GAConfig<T: Chromosome, S: ChromosomeWrapper<T>> {
 	pub params: GAParams,
 	// pub ops: GAOps<S>,
   pub fitness_fn: FitnessFn<S>,
-  pub mutation_operator: MutationOperator<S>,
-  pub crossover_operator: CrossoverOperator<S>,
+  pub mutation_operator: Box<dyn MutationOperator<T, S>>,
+  pub crossover_operator: Box<dyn CrossoverOperator<T, S>>,
+	pub selection_operator: Box<dyn SelectionOperator<T, S>>,
   pub population_factory: PopulationGenerator<S>,
   pub probe: Box<dyn Probe<T, S>>
 }
@@ -121,14 +127,14 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 			// 4. Create mating pool by applying selection operator.
 			// FIXME: This should be taken from config, but as for now, I'm taking it directly
 			// from operators module.
-			let mating_pool: Vec<&S> = operators::selection::roulette_wheel(&population, population.len());
+			let mating_pool: Vec<&S> = self.config.selection_operator.apply(&population, population.len());
 
 			// 5. From mating pool create new generation (apply crossover & mutation).
 			let mut children: Vec<S> = Vec::with_capacity(self.config.params.population_size);
 
 			// FIXME: Do not assume that population size is an even number.
 			for i in (0..mating_pool.len()).step_by(2) {
-				let crt_children = (self.config.crossover_operator)(mating_pool[i], mating_pool[i + 1]);
+				let crt_children = self.config.crossover_operator.apply(mating_pool[i], mating_pool[i + 1]);
 
 				children.push(crt_children.0);
 				children.push(crt_children.1);
