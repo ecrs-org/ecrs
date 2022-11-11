@@ -1,6 +1,5 @@
 use std::ops::Index;
 
-use itertools::Itertools;
 use push_trait::{Push, Nothing};
 use rand::Rng;
 use crate::ga::individual::{ChromosomeWrapper, Chromosome};
