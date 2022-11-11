@@ -1,7 +1,7 @@
 use std::ops::Index;
 
 use push_trait::{Push, Nothing};
-use rand::{Rng, thread_rng};
+use rand::{Rng};
 use crate::ga::individual::{ChromosomeWrapper, Chromosome};
 
 pub trait CrossoverOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
@@ -9,6 +9,12 @@ pub trait CrossoverOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
 }
 
 pub struct SinglePoint;
+
+impl SinglePoint {
+	pub fn new() -> Self {
+		SinglePoint { }
+	}
+}
 
 impl<GeneT, ChT, ChWrapperT> CrossoverOperator<ChT, ChWrapperT> for SinglePoint
 where
@@ -38,6 +44,12 @@ where
 }
 
 pub struct TwoPoint;
+
+impl TwoPoint {
+	pub fn new() -> Self {
+		TwoPoint { }
+	}
+}
 
 impl<GeneT, ChT, ChWrapperT> CrossoverOperator<ChT, ChWrapperT> for TwoPoint
 where
