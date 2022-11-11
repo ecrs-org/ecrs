@@ -1,7 +1,7 @@
 use std::ops::Index;
 
 use push_trait::{Push, Nothing};
-use rand::{Rng, thread_rng};
+use rand::{Rng};
 use crate::ga::individual::{ChromosomeWrapper, Chromosome};
 
 pub trait CrossoverOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
