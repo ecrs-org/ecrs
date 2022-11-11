@@ -12,12 +12,18 @@ pub use probe::csv_probe::CsvProbe;
 pub use example::*;
 pub use builder::*;
 
-use self::{individual::{Chromosome, ChromosomeWrapper}, operators::{selection::SelectionOperator, crossover::CrossoverOperator}};
+use self::{
+	individual::{Chromosome, ChromosomeWrapper},
+	operators::{
+		selection::SelectionOperator,
+		crossover::CrossoverOperator,
+		mutation::MutationOperator
+	}
+};
 
 // trait FitnessFn
 
 type FitnessFn<S> = fn(&S) -> f64;
-type MutationOperator<S> = fn(&mut S) -> ();
 type PopulationGenerator<S> = fn(usize) -> Vec<S>;
 
 pub struct GAParams {
@@ -62,7 +68,7 @@ pub struct GAConfig<T: Chromosome, S: ChromosomeWrapper<T>> {
 	pub params: GAParams,
 	// pub ops: GAOps<S>,
   pub fitness_fn: FitnessFn<S>,
-  pub mutation_operator: MutationOperator<S>,
+  pub mutation_operator: Box<dyn MutationOperator<T, S>>,
   pub crossover_operator: Box<dyn CrossoverOperator<T, S>>,
 	pub selection_operator: Box<dyn SelectionOperator<T, S>>,
   pub population_factory: PopulationGenerator<S>,

@@ -5,7 +5,7 @@ use super::individual::{ChromosomeWrapper, Chromosome};
 struct GAConfigOpt<T: Chromosome, S: ChromosomeWrapper<T>> {
 	params: Option<GAParams>,
   fitness_fn: Option<FitnessFn<S>>,
-  mutation_operator: Option<MutationOperator<S>>,
+  mutation_operator: Option<Box<dyn MutationOperator<T, S>>>,
   crossover_operator: Option<Box<dyn CrossoverOperator<T, S>>>,
 	selection_operator: Option<Box<dyn SelectionOperator<T, S>>>,
   population_factory: Option<PopulationGenerator<S>>,
@@ -92,7 +92,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> Builder<T, S> {
     self
   }
 
-  pub fn set_mutation_operator(mut self, mutation_op: MutationOperator<S>) -> Self {
+  pub fn set_mutation_operator(mut self, mutation_op: Box<dyn MutationOperator<T, S>>) -> Self {
     self.config.mutation_operator = Some(mutation_op);
     self
   }
