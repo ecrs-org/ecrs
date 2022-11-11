@@ -136,8 +136,8 @@ where
 		}
 
 		for locus in cut_points[self.cut_points_no - 1]..chromosome_len {
-				child_1.get_chromosome_mut().push(curr_parent_1.get_chromosome()[locus]);
-				child_2.get_chromosome_mut().push(curr_parent_2.get_chromosome()[locus]);
+			child_1.get_chromosome_mut().push(curr_parent_1.get_chromosome()[locus]);
+			child_2.get_chromosome_mut().push(curr_parent_2.get_chromosome()[locus]);
 		}
 
 		(child_1, child_2)
