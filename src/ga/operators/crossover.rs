@@ -15,8 +15,6 @@ where
 	let chromosome_len = parent1.get_chromosome().len();
 	let cut_point = rand::thread_rng().gen_range(0..chromosome_len);
 
-	println!("Cut point: {}", cut_point);
-
 	let mut child1 = ChWrapperT::new();
 	let mut child2 = ChWrapperT::new();
 

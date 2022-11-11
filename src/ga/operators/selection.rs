@@ -3,13 +3,13 @@ use rand::Rng;
 use crate::ga::individual::{ChromosomeWrapper, Chromosome};
 
 pub trait SelectionOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
-	fn apply(&self, population: &Vec<S>, count: usize) -> Vec<&S>;
+	fn apply<'a> (&self, population: &'a Vec<S>, count: usize) -> Vec<&'a S>;
 }
 
-struct RouletteWheel;
+pub struct RouletteWheel;
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for RouletteWheel {
-	fn apply(&self, population: &Vec<S>, count: usize) -> Vec<&S> {
+	fn apply<'a> (&self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
 		let total_fitness: f64 = population.into_iter()
 			.map(|indiv| indiv.get_fitness())
 			.sum();
@@ -33,10 +33,10 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Roulett
 	}
 }
 
-struct Random;
+pub struct Random;
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Random {
-	fn apply(&self, population: &Vec<S>, count: usize) -> Vec<&S> {
+	fn apply<'a> (&self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
 		// We must use index API, as we want to return vector of references, not vector of actual items
 		let indices = rand::seq::index::sample(&mut rand::thread_rng(), population.len(), count);
 		let mut selected: Vec<&S> = Vec::with_capacity(count);
@@ -48,10 +48,10 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Random 
 	}
 }
 
-struct Rank;
+pub struct Rank;
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Rank {
-	fn apply(&self, population: &Vec<S>, count: usize) -> Vec<&S> {
+	fn apply<'a> (&self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
 		// TODO: Second implementation with r parameter
 
 		let mut selected: Vec<&S> = Vec::with_capacity(count);
@@ -76,10 +76,10 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Rank {
 	}
 }
 
-struct TournamentSelection;
+pub struct TournamentSelection;
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for TournamentSelection {
-	fn apply(&self, population: &Vec<S>, count: usize) -> Vec<&S> {
+	fn apply<'a> (&self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
 		// TODO: This operator must be parametrized...
 		// For now I fix value of this parameter
 		let tournament_size = population.len() / 5;
@@ -99,10 +99,10 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Tournam
 	}
 }
 
-struct StochasticUniversalSampling;
+pub struct StochasticUniversalSampling;
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for StochasticUniversalSampling {
-	fn apply(&self, population: &Vec<S>, count: usize) -> Vec<&S> {
+	fn apply<'a> (&self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
 		let total_fitness: f64 = population.into_iter()
 			.map(|indiv| indiv.get_fitness())
 			.sum();

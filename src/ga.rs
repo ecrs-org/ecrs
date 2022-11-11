@@ -12,7 +12,7 @@ pub use probe::csv_probe::CsvProbe;
 pub use example::*;
 pub use builder::*;
 
-use self::individual::{Chromosome, ChromosomeWrapper};
+use self::{individual::{Chromosome, ChromosomeWrapper}, operators::selection::SelectionOperator};
 
 // trait FitnessFn
 
@@ -65,6 +65,7 @@ pub struct GAConfig<T: Chromosome, S: ChromosomeWrapper<T>> {
   pub fitness_fn: FitnessFn<S>,
   pub mutation_operator: MutationOperator<S>,
   pub crossover_operator: CrossoverOperator<S>,
+	pub selection_operator: Box<dyn SelectionOperator<T, S>>,
   pub population_factory: PopulationGenerator<S>,
   pub probe: Box<dyn Probe<T, S>>
 }
@@ -121,7 +122,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 			// 4. Create mating pool by applying selection operator.
 			// FIXME: This should be taken from config, but as for now, I'm taking it directly
 			// from operators module.
-			let mating_pool: Vec<&S> = operators::selection::roulette_wheel(&population, population.len());
+			let mating_pool: Vec<&S> = self.config.selection_operator.apply(&population, population.len());
 
 			// 5. From mating pool create new generation (apply crossover & mutation).
 			let mut children: Vec<S> = Vec::with_capacity(self.config.params.population_size);

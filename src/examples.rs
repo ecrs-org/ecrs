@@ -46,6 +46,7 @@ pub fn ga_example() {
 		.set_crossover_operator(ga::operators::crossover::single_point)
 		.set_mutation_operator(ga::operators::mutation::range_compliment)
 		.set_population_generator(ga::example::quadratic_population_factory)
+		.set_selection_operator(Box::new(ga::operators::selection::RouletteWheel {}))
 		.set_eps(0.01)
 		.set_probe(Box::new(ga::probe::stdout_probe::StdoutProbe{}))
     .build()
