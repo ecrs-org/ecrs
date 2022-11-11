@@ -1,7 +1,7 @@
 use std::ops::Index;
 
 use push_trait::{Push, Nothing};
-use rand::Rng;
+use rand::{Rng, thread_rng};
 use crate::ga::individual::{ChromosomeWrapper, Chromosome};
 
 pub trait CrossoverOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
@@ -138,6 +138,44 @@ where
 		for locus in cut_points[self.cut_points_no - 1]..chromosome_len {
 			child_1.get_chromosome_mut().push(curr_parent_1.get_chromosome()[locus]);
 			child_2.get_chromosome_mut().push(curr_parent_2.get_chromosome()[locus]);
+		}
+
+		(child_1, child_2)
+	}
+}
+
+pub struct Uniform;
+
+impl Uniform {
+	pub fn new() -> Self {
+		Uniform { }
+	}
+}
+
+impl<GeneT, ChT, ChWrapperT> CrossoverOperator<ChT, ChWrapperT> for Uniform
+where
+	ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+	ChWrapperT: ChromosomeWrapper<ChT>,
+	GeneT: Copy
+{
+	fn apply(&mut self, parent_1: &ChWrapperT, parent_2: &ChWrapperT) -> (ChWrapperT, ChWrapperT) {
+		assert_eq!(parent_1.get_chromosome().len(), parent_2.get_chromosome().len(), "Parent chromosome length must match");
+
+		let chromosome_len = parent_1.get_chromosome().len();
+
+		let mut child_1 = ChWrapperT::new();
+		let mut child_2 = ChWrapperT::new();
+
+		let mask = rand::thread_rng().sample_iter(rand::distributions::Uniform::new(0.0, 1.0)).take(chromosome_len);
+
+		for (locus, val) in mask.enumerate() {
+			if val >= 0.5 {
+				child_1.get_chromosome_mut().push(parent_1.get_chromosome()[locus]);
+				child_2.get_chromosome_mut().push(parent_2.get_chromosome()[locus]);
+			} else {
+				child_1.get_chromosome_mut().push(parent_2.get_chromosome()[locus]);
+				child_2.get_chromosome_mut().push(parent_1.get_chromosome()[locus]);
+			}
 		}
 
 		(child_1, child_2)
