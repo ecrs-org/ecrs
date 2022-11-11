@@ -10,17 +10,15 @@ struct Record {
 }
 
 pub struct CsvProbe{
-    records: Vec<Record>,
-    generations: usize,
-    last_generation: usize
+    filename: &'static str,
+    records: Vec<Record>
 }
 
 impl CsvProbe {
-    pub fn new(generations: usize) -> CsvProbe {
+    pub fn new(filename: &'static str) -> CsvProbe {
         CsvProbe {
+            filename,
             records: vec![],
-            generations,
-            last_generation: 0
         }
     }
 }
@@ -30,12 +28,8 @@ impl Probe for CsvProbe {
         self.on_new_generation(swarm, 0);
     }
 
-    fn on_end(&mut self, swarm: &Swarm) {
-        if self.generations > self.last_generation {
-            self.on_new_generation(swarm, self.generations);
-        }
-
-        let mut writer = csv::WriterBuilder::new().from_path("testing.csv").unwrap();
+    fn on_end(&mut self, _swarm: &Swarm) {
+        let mut writer = csv::WriterBuilder::new().from_path(&self.filename).unwrap();
         for record in self.records.iter() {
             writer.serialize(record);
         }
@@ -43,7 +37,6 @@ impl Probe for CsvProbe {
     }
 
     fn on_new_generation(&mut self, swarm: &Swarm, generation: usize) {
-        self.last_generation = generation;
         self.records.push(Record{
             generation,
             best_value: swarm.best_position_value
