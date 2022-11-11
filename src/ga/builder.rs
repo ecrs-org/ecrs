@@ -6,7 +6,7 @@ struct GAConfigOpt<T: Chromosome, S: ChromosomeWrapper<T>> {
 	params: Option<GAParams>,
   fitness_fn: Option<FitnessFn<S>>,
   mutation_operator: Option<MutationOperator<S>>,
-  crossover_operator: Option<CrossoverOperator<S>>,
+  crossover_operator: Option<Box<dyn CrossoverOperator<T, S>>>,
 	selection_operator: Option<Box<dyn SelectionOperator<T, S>>>,
   population_factory: Option<PopulationGenerator<S>>,
   probe: Option<Box<dyn Probe<T, S>>>,
@@ -97,7 +97,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> Builder<T, S> {
     self
   }
 
-  pub fn set_crossover_operator(mut self, crossover_op: CrossoverOperator<S>) -> Self {
+  pub fn set_crossover_operator(mut self, crossover_op: Box<dyn CrossoverOperator<T, S>>) -> Self {
     self.config.crossover_operator = Some(crossover_op);
     self
   }
