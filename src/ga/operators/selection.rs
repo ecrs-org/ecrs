@@ -1,5 +1,3 @@
-use rand::seq::SliceRandom;
-
 use crate::ga::individual::{ChromosomeWrapper, Chromosome};
 
 pub fn roulette_wheel<T: Chromosome, S: ChromosomeWrapper<T>>(population: &Vec<S>, count: usize) -> Vec<&S> {
