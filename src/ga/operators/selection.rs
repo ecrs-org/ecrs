@@ -61,3 +61,22 @@ pub fn rank<T: Chromosome, S: ChromosomeWrapper<T>>(population: &Vec<S>, count: 
 
 	selected
 }
+
+pub fn tournament<T: Chromosome, S: ChromosomeWrapper<T>>(population: &Vec<S>, count: usize) -> Vec<&S> {
+	// TODO: This operator must be parametrized...
+	// For now I fix value of this parameter
+	let tournament_size = population.len() / 5;
+
+	assert!(tournament_size > 0);
+
+	let mut selected: Vec<&S> = Vec::with_capacity(count);
+
+	for _ in 0..count {
+		let tournament_indices = rand::seq::index::sample(&mut rand::thread_rng(), population.len(), tournament_size);
+		// FIXME: Check wheter the tournament_indices is empty or handle option below.
+		let best_idv  = tournament_indices.into_iter().map(|i| &population[i]).max().unwrap();
+		selected.push(best_idv);
+	}
+
+	selected
+}
