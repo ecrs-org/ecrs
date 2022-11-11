@@ -8,6 +8,12 @@ pub trait SelectionOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
 
 pub struct RouletteWheel;
 
+impl RouletteWheel {
+	pub fn new() -> Self {
+		RouletteWheel { }
+	}
+}
+
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for RouletteWheel {
 	fn apply<'a> (&mut self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
 		let total_fitness: f64 = population.into_iter()
@@ -35,6 +41,12 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Roulett
 
 pub struct Random;
 
+impl Random {
+	pub fn new() -> Self {
+		Random { }
+	}
+}
+
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Random {
 	fn apply<'a>(&mut self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
 		// We must use index API, as we want to return vector of references, not vector of actual items
@@ -49,6 +61,12 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Random 
 }
 
 pub struct Rank;
+
+impl Rank {
+	pub fn new() -> Self {
+		Rank { }
+	}
+}
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Rank {
 	fn apply<'a>(&mut self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
@@ -78,6 +96,12 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Rank {
 
 pub struct Tournament;
 
+impl Tournament {
+	pub fn new() -> Self {
+		Tournament { }
+	}
+}
+
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Tournament {
 	fn apply<'a>(&mut self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
 		// TODO: This operator must be parametrized...
@@ -100,6 +124,12 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Tournam
 }
 
 pub struct StochasticUniversalSampling;
+
+impl StochasticUniversalSampling {
+	pub fn new() -> Self {
+		StochasticUniversalSampling { }
+	}
+}
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for StochasticUniversalSampling {
 	fn apply<'a>(&mut self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {

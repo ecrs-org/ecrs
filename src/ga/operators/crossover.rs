@@ -10,6 +10,12 @@ pub trait CrossoverOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
 
 pub struct SinglePoint;
 
+impl SinglePoint {
+	pub fn new() -> Self {
+		SinglePoint { }
+	}
+}
+
 impl<GeneT, ChT, ChWrapperT> CrossoverOperator<ChT, ChWrapperT> for SinglePoint
 where
 	ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
@@ -38,6 +44,12 @@ where
 }
 
 pub struct TwoPoint;
+
+impl TwoPoint {
+	pub fn new() -> Self {
+		TwoPoint { }
+	}
+}
 
 impl<GeneT, ChT, ChWrapperT> CrossoverOperator<ChT, ChWrapperT> for TwoPoint
 where
