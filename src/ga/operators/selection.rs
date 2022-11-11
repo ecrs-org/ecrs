@@ -80,3 +80,31 @@ pub fn tournament<T: Chromosome, S: ChromosomeWrapper<T>>(population: &Vec<S>, c
 
 	selected
 }
+
+pub fn stochastic_universal_sampling<T: Chromosome, S: ChromosomeWrapper<T>>(population: &Vec<S>, count: usize) -> Vec<&S> {
+	let total_fitness: f64 = population.into_iter()
+		.map(|indiv| indiv.get_fitness())
+		.sum();
+
+	let mut selected: Vec<&S> = Vec::with_capacity(count);
+
+	let distance_between_pointers = total_fitness / (count as f64);
+
+	assert!(distance_between_pointers > 0.0);
+
+	let mut pointer_pos = rand::thread_rng().gen_range(0.0..=distance_between_pointers);
+
+	let mut curr_sum = 0.0;
+	for idv in population {
+		curr_sum += idv.get_fitness();
+
+		while curr_sum >= pointer_pos {
+			selected.push(idv);
+			pointer_pos += distance_between_pointers;
+		}
+	}
+
+	assert_eq!(selected.len(), count);
+
+	selected
+}
