@@ -3,7 +3,7 @@ use rand::Rng;
 use crate::ga::individual::{ChromosomeWrapper, Chromosome};
 
 pub trait SelectionOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
-	fn apply<'a> (&mut self, population: &'a Vec<S>, count: usize) -> Vec<&'a S>;
+	fn apply<'a>(&mut self, population: &'a Vec<S>, count: usize) -> Vec<&'a S>;
 }
 
 pub struct RouletteWheel;
@@ -36,7 +36,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Roulett
 pub struct Random;
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Random {
-	fn apply<'a> (&mut self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
+	fn apply<'a>(&mut self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
 		// We must use index API, as we want to return vector of references, not vector of actual items
 		let indices = rand::seq::index::sample(&mut rand::thread_rng(), population.len(), count);
 		let mut selected: Vec<&S> = Vec::with_capacity(count);
@@ -51,7 +51,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Random 
 pub struct Rank;
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Rank {
-	fn apply<'a> (&mut self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
+	fn apply<'a>(&mut self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
 		// TODO: Second implementation with r parameter
 
 		let mut selected: Vec<&S> = Vec::with_capacity(count);
@@ -79,7 +79,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Rank {
 pub struct Tournament;
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Tournament {
-	fn apply<'a> (&mut self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
+	fn apply<'a>(&mut self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
 		// TODO: This operator must be parametrized...
 		// For now I fix value of this parameter
 		let tournament_size = population.len() / 5;
@@ -102,7 +102,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Tournam
 pub struct StochasticUniversalSampling;
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for StochasticUniversalSampling {
-	fn apply<'a> (&mut self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
+	fn apply<'a>(&mut self, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
 		let total_fitness: f64 = population.into_iter()
 			.map(|indiv| indiv.get_fitness())
 			.sum();
