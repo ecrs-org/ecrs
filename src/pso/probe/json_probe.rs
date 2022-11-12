@@ -33,7 +33,7 @@ impl Probe for JsonProbe {
     }
 
     fn on_end(&mut self, _swarm: &Swarm) {
-        let mut writer = &File::create(&self.filename).unwrap();
+        let mut writer = &File::create(self.filename).unwrap();
         serde_json::to_writer_pretty(writer, &self.records);
         writer.flush();
     }

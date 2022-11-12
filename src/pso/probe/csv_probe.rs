@@ -29,7 +29,7 @@ impl Probe for CsvProbe {
     }
 
     fn on_end(&mut self, _swarm: &Swarm) {
-        let mut writer = csv::WriterBuilder::new().from_path(&self.filename).unwrap();
+        let mut writer = csv::WriterBuilder::new().from_path(self.filename).unwrap();
         for record in self.records.iter() {
             writer.serialize(record);
         }

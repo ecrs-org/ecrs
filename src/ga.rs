@@ -101,7 +101,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
   }
 
 	fn find_best_individual(population: &Vec<S>) -> &S {
-		debug_assert!(population.len() > 0);
+		debug_assert!(!population.is_empty());
 		let mut best_individual = &population[0];
 		for i in 1..population.len() {
 			if population[i] < *best_individual {
@@ -111,7 +111,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 		best_individual
 	}
 
-	fn evaluate_fitness_in_population(&self, population: &mut Vec<S>) -> () {
+	fn evaluate_fitness_in_population(&self, population: &mut Vec<S>) {
 		for i in 0..population.len() {
 			let fitness = (self.config.fitness_fn)(&population[i]);
 			population[i].set_fitness(fitness);

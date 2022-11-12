@@ -17,8 +17,8 @@ impl RouletteWheel {
 }
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for RouletteWheel {
-	fn apply<'a> (&mut self, metadata: &GAMetadata, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
-		let total_fitness: f64 = population.into_iter()
+	fn apply<'a> (&mut self, _metadata: &GAMetadata, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
+		let total_fitness: f64 = population.iter()
 			.map(|indiv| indiv.get_fitness())
 			.sum();
 
@@ -50,7 +50,7 @@ impl Random {
 }
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Random {
-	fn apply<'a>(&mut self, metadata: &GAMetadata, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
+	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
 		// We must use index API, as we want to return vector of references, not vector of actual items
 		let indices = rand::seq::index::sample(&mut rand::thread_rng(), population.len(), count);
 		let mut selected: Vec<&S> = Vec::with_capacity(count);
@@ -71,7 +71,7 @@ impl Rank {
 }
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Rank {
-	fn apply<'a>(&mut self, metadata: &GAMetadata, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
+	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
 		// TODO: Second implementation with r parameter
 
 		let mut selected: Vec<&S> = Vec::with_capacity(count);
@@ -105,7 +105,7 @@ impl Tournament {
 }
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Tournament {
-	fn apply<'a>(&mut self, metadata: &GAMetadata, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
+	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
 		// TODO: This operator must be parametrized...
 		// For now I fix value of this parameter
 		let tournament_size = population.len() / 5;
@@ -134,8 +134,8 @@ impl StochasticUniversalSampling {
 }
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for StochasticUniversalSampling {
-	fn apply<'a>(&mut self, metadata: &GAMetadata, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
-		let total_fitness: f64 = population.into_iter()
+	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a Vec<S>, count: usize) -> Vec<&'a S> {
+		let total_fitness: f64 = population.iter()
 			.map(|indiv| indiv.get_fitness())
 			.sum();
 
@@ -172,8 +172,8 @@ pub struct Boltzmann {
 
 impl Boltzmann {
 	pub fn new(alpha: f64, temp_0: f64, max_gen_count: usize, elitism: bool) -> Self {
-		assert!(alpha >= 0.0 && alpha <= 1.0, "Alpha parameter must be a value from [0, 1] interval");
-		assert!(temp_0 >= 5.0 && temp_0 <= 100.0, "Starting temperature must be a value from [5, 100] interval");
+		assert!((0.0..=1.0).contains(&alpha), "Alpha parameter must be a value from [0, 1] interval");
+		assert!((5.0..=100.0).contains(&temp_0), "Starting temperature must be a value from [5, 100] interval");
 
 		Boltzmann {
 			alpha,

@@ -59,13 +59,13 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> Builder<T, S> {
 	// }
 
   pub fn set_mutation_rate(mut self, mutation_rate: f64) -> Self {
-    debug_assert!(mutation_rate >= 0f64 && mutation_rate <= 1f64);
+    debug_assert!((0f64..=1f64).contains(&mutation_rate));
 		self.config.params = self.config.params.map(|mut params| {params.mutation_rate = mutation_rate; params});
     self
   }
 
   pub fn set_selection_rate(mut self, selection_rate: f64) -> Self {
-    debug_assert!(selection_rate >= 0f64 && selection_rate <= 1f64);
+    debug_assert!((0f64..=1f64).contains(&selection_rate));
 		self.config.params = self.config.params.map(|mut params| {params.selection_rate = selection_rate; params});
     self
   }

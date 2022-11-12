@@ -8,7 +8,7 @@ pub fn quadratic_fn(individual: &Individual<Vec<f64>>) -> f64 {
 }
 
 pub fn quadratic_function(chromosome: &[f64]) -> f64 {
-  return chromosome[0] * chromosome[0]; // + 3 as f64 * chromosome[0];
+  chromosome[0] * chromosome[0] // + 3 as f64 * chromosome[0];
 }
 
 pub fn quadratic_mutation_operator(individual: &mut Individual<Vec<f64>>) -> Individual<Vec<f64>> {
@@ -16,7 +16,7 @@ pub fn quadratic_mutation_operator(individual: &mut Individual<Vec<f64>>) -> Ind
   let mut new_chromosome = individual.chromosome.clone();
   let mut rng = thread_rng();
 
-  let mut distribution: Uniform<f64> = Uniform::from(-10_f64..10_f64);
+  let distribution: Uniform<f64> = Uniform::from(-10_f64..10_f64);
   let random_value = distribution.sample(&mut rng) as f64;
 
   new_chromosome[idx] = random_value;
@@ -28,7 +28,7 @@ pub fn quadratic_mutation_operator(individual: &mut Individual<Vec<f64>>) -> Ind
 }
 
 pub fn point_generator(restrictions: &Vec<(f64, f64)>) -> Vec<f64> {
-	assert!(restrictions.len() > 0);
+	assert!(!restrictions.is_empty());
 
 	let mut point: Vec<f64> = Vec::with_capacity(restrictions.len());
 
@@ -41,7 +41,7 @@ pub fn point_generator(restrictions: &Vec<(f64, f64)>) -> Vec<f64> {
 
 pub fn quadratic_population_factory(population_size: usize) -> Vec<Individual<Vec<f64>>> {
   let mut population: Vec<Individual<Vec<f64>>> = Vec::with_capacity(population_size);
-	let mut restrictions = vec![(-2.0, 2.0), (-2.0, 2.0)];
+	let restrictions = vec![(-2.0, 2.0), (-2.0, 2.0)];
 
   for _ in 0..population_size {
 		let chromosome = point_generator(&restrictions);

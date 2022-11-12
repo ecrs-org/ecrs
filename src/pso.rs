@@ -77,7 +77,7 @@ pub struct PSOAlgorithm {
 
 impl PSOAlgorithm {
     fn new(config: PSOAlgorithmCfg) -> Self {
-        let swarm = Swarm::generate(config.particle_count.clone(), config.dimensions.clone(), config.lower_bound.clone(), config.upper_bound.clone(), config.function.borrow());
+        let swarm = Swarm::generate(config.particle_count, config.dimensions, config.lower_bound, config.upper_bound, config.function.borrow());
         PSOAlgorithm {
             config,
             swarm

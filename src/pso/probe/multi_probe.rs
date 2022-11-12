@@ -15,19 +15,19 @@ impl MultiProbe {
 
 impl Probe for MultiProbe {
     fn on_begin(&mut self, swarm: &Swarm) {
-        for mut probe in self.probes.iter_mut() {
+        for probe in self.probes.iter_mut() {
             probe.on_begin(swarm);
         }
     }
 
     fn on_end(&mut self, swarm: &Swarm) {
-        for mut probe in self.probes.iter_mut() {
+        for probe in self.probes.iter_mut() {
             probe.on_end(swarm);
         }
     }
 
     fn on_new_generation(&mut self, swarm: &Swarm, generation: usize) {
-        for mut probe in self.probes.iter_mut() {
+        for probe in self.probes.iter_mut() {
             probe.on_new_generation(swarm, generation);
         }
     }

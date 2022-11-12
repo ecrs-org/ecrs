@@ -16,27 +16,27 @@ pub struct Particle {
 impl Particle {
     pub fn generate(dimensions: usize, lower_bound: f64, upper_bound: f64, function: &dyn Fn(&Vec<f64>) -> f64) -> Particle {
         let mut rng = rand::thread_rng();
-        let position_distribution = Uniform::from((lower_bound.clone())..=(upper_bound.clone()));
-        let velocity_distribution = Uniform::from(-abs(upper_bound.clone() - lower_bound.clone())..=(abs(upper_bound.clone() - lower_bound.clone())));
+        let position_distribution = Uniform::from(lower_bound..=upper_bound);
+        let velocity_distribution = Uniform::from(-abs(upper_bound - lower_bound)..=(abs(upper_bound - lower_bound)));
         let mut position: Vec<f64> = Vec::new();
         let mut velocity: Vec<f64> = Vec::new();
-        let best_position: Vec<f64>;
+        
 
         for _i in 0..dimensions {
             position.push(position_distribution.sample(&mut rng));
             velocity.push(velocity_distribution.sample(&mut rng));
         }
-        best_position = position.to_vec();
+        let best_position: Vec<f64> = position.to_vec();
 
-        let particle = Particle {
+        
+
+        Particle {
             position: position.clone(),
             velocity,
             best_position: best_position.clone(),
             value: function(&position),
             best_position_value: function(&best_position)
-        };
-
-        return particle;
+        }
     }
 
     pub fn update_velocity(&mut self, swarm_best_position: &Vec<f64>, inertia_weight: &f64, cognitive_coefficient: &f64, social_coefficient: &f64) {
@@ -47,7 +47,7 @@ impl Particle {
         for (v_i, x_i, p_i, p_d) in izip!(&self.velocity, &self.position, &self.best_position, swarm_best_position) {
             let r_1 = uniform_distribution.sample(&mut rng);
             let r_2 = uniform_distribution.sample(&mut rng);
-            let updated_v_i = (inertia_weight.clone() * v_i.clone()) + (cognitive_coefficient.clone() * r_1.clone() * (p_i.clone() - x_i.clone())) + (social_coefficient.clone() * r_2.clone() * (p_d.clone() - x_i.clone()));
+            let updated_v_i = (*inertia_weight * *v_i) + (*cognitive_coefficient * r_1 * (*p_i - *x_i)) + (*social_coefficient * r_2 * (*p_d - *x_i));
             updated_velocity.push(updated_v_i);
         }
 
@@ -58,7 +58,7 @@ impl Particle {
         let mut updated_position: Vec<f64> = Vec::new();
 
         for (x_i, v_i) in izip!(&self.position, &self.velocity) {
-            let updated_x_i: f64 = x_i.clone() + v_i.clone();
+            let updated_x_i: f64 = *x_i + *v_i;
             updated_position.push(updated_x_i);
         }
 
