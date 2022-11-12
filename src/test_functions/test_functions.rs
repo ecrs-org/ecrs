@@ -77,16 +77,14 @@ pub fn styblinski_tang(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0, ..., 0) = 0
 pub fn griewank(x: &Vec<f64>) -> f64 {
-    assert!(!x.is_empty(), "Griewank function takes an at least one dimensional vector as a parameter.");
-    let mut result: f64 = 0.0;
-    let mut temp1 = 0.0;
-    let mut temp2 = 1.0;
-    for (index, x_curr) in x.iter().enumerate() {
-        temp1 += f64::powi(*x_curr, 2) / 4000.0;
-        temp2 *= f64::cos(*x_curr / f64::sqrt((index + 1) as f64));
-    }
-    result = temp1 - temp2 + 1.0;
-    result
+		assert!(!x.is_empty(), "Griewank function takes an at least one dimensional vector as a parameter.");
+		let mut temp1 = 0.0;
+		let mut temp2 = 1.0;
+		for (index, x_curr) in x.iter().enumerate() {
+				temp1 += f64::powi(*x_curr, 2) / 4000.0;
+				temp2 *= f64::cos(*x_curr / f64::sqrt((index + 1) as f64));
+		}
+		temp1 - temp2 + 1.0
 }
 
 /// # Schwefel function
@@ -135,15 +133,13 @@ pub fn michalewicz(x: &Vec<f64>) -> f64 {
 /// f(0, ..., 0) = 0
 pub fn zakharov(x: &Vec<f64>) -> f64 {
     assert!(!x.is_empty(), "Zakharov function takes an at least one dimensional vector as a parameter.");
-    let mut result: f64 = 0.0;
     let mut temp1 = 0.0;
     let mut temp2 = 0.0;
     for (index, x_curr) in x.iter().enumerate() {
         temp1 += f64::powi(*x_curr, 2);
         temp2 += 0.5 * ((index + 1) as f64) * *x_curr;
     }
-    result = temp1 + f64::powi(temp2, 2) + f64::powi(temp2, 4);
-    result
+    temp1 + f64::powi(temp2, 2) + f64::powi(temp2, 4)
 }
 
 /// # Trid function
