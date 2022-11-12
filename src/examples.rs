@@ -47,7 +47,7 @@ pub fn ga_example() {
 		.set_crossover_operator(Box::new(ga::operators::crossover::SinglePoint::new()))
 		.set_mutation_operator(Box::new(ga::operators::mutation::Identity::new()))
 		.set_population_generator(ga::example::quadratic_population_factory)
-		.set_selection_operator(Box::new(ga::operators::selection::RouletteWheel::new()))
+		.set_selection_operator(Box::new(ga::operators::selection::Boltzmann::new(0.05, 80.0, 100, false)))
 		.set_eps(0.01)
 		.set_probe(Box::new(ga::probe::stdout_probe::StdoutProbe{}))
     .build()

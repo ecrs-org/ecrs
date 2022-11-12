@@ -75,14 +75,28 @@ pub struct GAConfig<T: Chromosome, S: ChromosomeWrapper<T>> {
   pub probe: Box<dyn Probe<T, S>>
 }
 
+pub struct GAMetadata {
+	start_time: Option<std::time::Instant>,
+	duration: Option<std::time::Duration>,
+	generation: Option<usize>,
+}
+
+impl GAMetadata {
+	pub fn new() -> Self {
+		GAMetadata { start_time: None, duration: None, generation: None }
+	}
+}
+
 pub struct GeneticAlgorithm<T: Chromosome, S: ChromosomeWrapper<T>> {
   config: GAConfig<T, S>,
+	metadata: GAMetadata,
 }
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
   pub fn new(config: GAConfig<T, S>) -> Self {
     GeneticAlgorithm {
       config,
+			metadata: GAMetadata::new(),
     }
   }
 
@@ -105,6 +119,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 	}
 
 	pub fn run(&mut self) -> Option<S> {
+		self.metadata.start_time = Some(std::time::Instant::now());
 		// 1. Create initial random population.
 		let mut population = (self.config.population_factory)(self.config.params.population_size);
 
@@ -118,8 +133,11 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 			return Some(best_individual.to_owned())
 		}
 
-		for generation_no in 0..self.config.params.generation_upper_bound {
-			println!("Calculating generation {}", generation_no);
+		for generation_no in 1..=self.config.params.generation_upper_bound {
+			self.metadata.generation = Some(generation_no);
+			self.metadata.duration = Some(self.metadata.start_time.unwrap().elapsed());
+
+			println!("Calculating generation {}", self.metadata.generation.unwrap());
 
 			// 2. Evaluate fitness for each individual.
 			self.evaluate_fitness_in_population(&mut population);
@@ -127,7 +145,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 			// 4. Create mating pool by applying selection operator.
 			// FIXME: This should be taken from config, but as for now, I'm taking it directly
 			// from operators module.
-			let mating_pool: Vec<&S> = self.config.selection_operator.apply(&population, population.len());
+			let mating_pool: Vec<&S> = self.config.selection_operator.apply(&self.metadata, &population, population.len());
 
 			// 5. From mating pool create new generation (apply crossover & mutation).
 			let mut children: Vec<S> = Vec::with_capacity(self.config.params.population_size);
