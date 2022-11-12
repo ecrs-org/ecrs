@@ -27,8 +27,8 @@ pub fn ackley(x: &Vec<f64>) -> f64 {
         temp1 += f64::powi(*x_curr, 2);
         temp2 += f64::cos(2.0 * f64::consts::PI * *x_curr)
     }
-    temp1 *= (1.0 / x.len() as f64);
-    temp2 *= (1.0 / x.len() as f64);
+    temp1 *= 1.0 / x.len() as f64;
+    temp2 *= 1.0 / x.len() as f64;
     return -20.0 * f64::exp(-0.2 * f64::sqrt(temp1)) - f64::exp(temp2) + 20.0 + f64::exp(1.0);
 }
 

@@ -1,7 +1,5 @@
-use std::cmp::min;
 use rand::{Rng, thread_rng};
 use rand::distributions::{Distribution, Uniform};
-use std::f64::consts;
 
 use crate::ga::Individual;
 

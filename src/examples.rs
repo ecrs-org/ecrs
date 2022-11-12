@@ -1,9 +1,7 @@
 
 use crate::aco::probe::CsvProbe;
 use crate::aco::AntSystemCfg;
-use crate::{ga, pso, test_functions};
-use crate::ga::*;
-use crate::pso::*;
+use crate::{ga, pso};
 use crate::ff::*;
 use crate::ff::auxiliary::*;
 use crate::ff::probe::console_probe::ConsoleProbe;

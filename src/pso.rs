@@ -1,6 +1,4 @@
 use std::borrow::Borrow;
-use itertools::iterate;
-use num::{NumCast, One};
 
 pub mod particle;
 pub mod probe;
@@ -11,7 +9,6 @@ pub mod builder;
 use crate::pso::probe::console_probe::ConsoleProbe;
 use crate::pso::probe::probe::Probe;
 use crate::pso::swarm::Swarm;
-use crate::pso::builder::PSOAlgorithmBuilder;
 use crate::test_functions::test_functions::rosenbrock;
 
 
