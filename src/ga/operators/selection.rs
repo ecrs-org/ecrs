@@ -1,6 +1,6 @@
-use std::{process::Output, ops::Index};
+use std::ops::Index;
 
-use rand::{Rng, distributions::Alphanumeric};
+use rand::Rng;
 
 use crate::ga::{individual::{ChromosomeWrapper, Chromosome}, GAMetadata};
 
