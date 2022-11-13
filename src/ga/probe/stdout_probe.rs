@@ -8,7 +8,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> Probe<T, S> for StdoutProbe {
   }
 
   fn on_new_best(&mut self, metadata: &GAMetadata, individual: &S) {
-		println!("Gen.: {}, Idv.: {:?}", metadata.generation.unwrap(), individual);
+		println!("{},{},{:?},{}", metadata.duration.unwrap().as_millis(), metadata.generation.unwrap(), individual.get_chromosome(), individual.get_fitness());
   }
 
   fn on_mutation(&mut self, before: &S, after: &S) {

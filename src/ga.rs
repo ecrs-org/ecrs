@@ -31,7 +31,6 @@ pub struct GAParams {
   pub selection_rate: f64,
   pub generation_upper_bound: usize,
   pub population_size: usize,
-  pub eps: f64,
 	pub max_duration: Option<std::time::Duration>,
 }
 
@@ -42,7 +41,6 @@ impl Default for GAParams {
         selection_rate: 0.5f64,
         generation_upper_bound: 200,
         population_size: 100,
-        eps: 1e-4,
 				max_duration: None,
 		}
 	}
@@ -88,7 +86,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 		debug_assert!(!population.is_empty());
 		let mut best_individual = &population[0];
 		for idv in population.iter().skip(1) {
-			if *idv < *best_individual {
+			if *idv > *best_individual {
 				best_individual = idv;
 			}
 		}
@@ -115,12 +113,8 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 
 
 		// 3. Store best individual.
-		let mut best_individual = GeneticAlgorithm::find_best_individual(&population);
+		let mut best_individual_all_time = GeneticAlgorithm::find_best_individual(&population).clone();
 		// self.config.probe.on_new_best(&self.metadata, best_individual);
-
-		if best_individual.get_fitness() < self.config.params.eps {
-			return Some(best_individual.to_owned())
-		}
 
 		for generation_no in 1..=self.config.params.generation_upper_bound {
 			self.metadata.generation = Some(generation_no);
@@ -156,12 +150,13 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 			// 6. Check for stop condition (Is good enough individual found)? If not goto 2.
 			self.evaluate_fitness_in_population(&mut population);
 
-			best_individual = GeneticAlgorithm::find_best_individual(&population);
-			self.config.probe.on_new_best(&self.metadata, best_individual);
+			let best_individual = GeneticAlgorithm::find_best_individual(&population);
 
-			if best_individual.get_fitness() < self.config.params.eps {
-				return Some(best_individual.to_owned())
+			if *best_individual > best_individual_all_time {
+				best_individual_all_time = best_individual.clone()
 			}
+
+			self.config.probe.on_new_best(&self.metadata, &best_individual_all_time);
 
 			if let Some(duration) = self.config.params.max_duration {
 				if self.metadata.start_time.unwrap().elapsed() >= duration {
@@ -170,6 +165,6 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 			}
 		}
 
-		Some(best_individual.to_owned())
+		Some(best_individual_all_time)
 	}
 }

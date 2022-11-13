@@ -38,15 +38,14 @@ pub fn ants_example_run() {
 
 pub fn ga_example() {
   let res = ga::Builder::new()
-    .set_max_generation_count(100)
+    .set_max_generation_count(500)
     .set_mutation_rate(0.5f64)
 		.set_population_size(100)
-		.set_fitness_fn(ga::example::quadratic_fn)
+		.set_fitness_fn(ga::example::rastrigin_fitness)
 		.set_crossover_operator(Box::new(ga::operators::crossover::SinglePoint::new()))
 		.set_mutation_operator(Box::new(ga::operators::mutation::Identity::new()))
-		.set_population_generator(ga::example::quadratic_population_factory)
-		.set_selection_operator(Box::new(ga::operators::selection::Boltzmann::new(0.05, 80.0, 100, false)))
-		.set_eps(0.01)
+		.set_population_generator(ga::example::rastrigin_population_factory)
+		.set_selection_operator(Box::new(ga::operators::selection::Boltzmann::new(0.05, 80.0, 500, false)))
 		.set_probe(Box::new(ga::probe::stdout_probe::StdoutProbe{}))
     .build()
     .run();
