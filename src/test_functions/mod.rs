@@ -188,8 +188,8 @@ pub fn rotated_hyper_ellipsoid(x: &Vec<f64>) -> f64 {
     assert!(!x.is_empty(), "Rotated Hyper-Ellipsoid function takes an at least one dimensional vector as a parameter.");
     let mut result: f64 = 0.0;
     for i in 0..x.len() {
-        for j in 0..i+1 {
-            result += f64::powi(x[j], 2);
+        for x_j in x.iter().take(i + 1) {
+            result += f64::powi(*x_j, 2);
         }
     }
     result
@@ -202,11 +202,11 @@ pub fn rotated_hyper_ellipsoid(x: &Vec<f64>) -> f64 {
 pub fn levy(x: &Vec<f64>) -> f64 {
     assert!(!x.is_empty(), "Levy function takes an at least one dimensional vector as a parameter.");
     let mut result: f64 = f64::powi(f64::sin(f64::consts::PI * (1.0 + (x[0] - 1.0) / 4.0)), 2);
-    for i in 0..x.len()-1 {
-        let temp: f64 = 1.0 + (x[i] - 1.0) / 4.0;
+    for x_i in x.iter().take(x.len() - 1) {
+        let temp: f64 = 1.0 + (x_i - 1.0) / 4.0;
         result += f64::powi(temp - 1.0, 2) * (1.0 + 10.0 * f64::powi(f64::sin(f64::consts::PI * temp + 1.0), 2));
     }
-    let temp: f64 = 1.0 + (x[x.len()-1] - 1.0) / 4.0;
+    let temp: f64 = 1.0 + (x[x.len() - 1] - 1.0) / 4.0;
     result += f64::powi(temp - 1.0, 2) * (1.0 + f64::powi(f64::sin(2.0 * f64::consts::PI * temp), 2));
     result
 }
