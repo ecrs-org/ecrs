@@ -1,6 +1,4 @@
 use std::borrow::Borrow;
-use itertools::iterate;
-use num::{NumCast, One};
 
 pub mod particle;
 pub mod probe;
@@ -9,10 +7,9 @@ pub mod util;
 pub mod builder;
 
 use crate::pso::probe::console_probe::ConsoleProbe;
-use crate::pso::probe::probe::Probe;
+use crate::pso::probe::Probe;
 use crate::pso::swarm::Swarm;
-use crate::pso::builder::PSOAlgorithmBuilder;
-use crate::test_functions::test_functions::rosenbrock;
+use crate::test_functions::rosenbrock;
 
 
 /// Struct wrapping all configuration parameters of PSO algorithm.
@@ -80,7 +77,7 @@ pub struct PSOAlgorithm {
 
 impl PSOAlgorithm {
     fn new(config: PSOAlgorithmCfg) -> Self {
-        let swarm = Swarm::generate(config.particle_count.clone(), config.dimensions.clone(), config.lower_bound.clone(), config.upper_bound.clone(), config.function.borrow());
+        let swarm = Swarm::generate(config.particle_count, config.dimensions, config.lower_bound, config.upper_bound, config.function.borrow());
         PSOAlgorithm {
             config,
             swarm

@@ -1,6 +1,4 @@
 use std::fs::File;
-use crate::ga::{Probe, Individual};
-
 use serde::{Serialize};
 
 #[derive(Serialize)]

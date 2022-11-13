@@ -22,12 +22,12 @@ impl Swarm {
                 best_position = particle.position.clone();
             }
         }
-        let swarm = Swarm {
+        
+        Swarm {
             particles,
             best_position: best_position.clone(),
             best_position_value: function(&best_position)
-        };
-        return swarm;
+        }
     }
 
     pub fn update_velocities(&mut self, inertia_weight: &f64, cognitive_coefficient: &f64, social_coefficient: &f64) {

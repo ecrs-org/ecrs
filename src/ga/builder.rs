@@ -26,17 +26,16 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> Default for GAConfigOpt<T, S> {
 	}
 }
 
-impl<T: Chromosome, S: ChromosomeWrapper<T>> Into<GAConfig<T, S>> for GAConfigOpt<T, S> {
-	fn into(self) -> GAConfig<T, S> {
-		// FIXME: Unsafe implementation for now
+impl<T: Chromosome, S: ChromosomeWrapper<T>> From<GAConfigOpt<T, S>> for GAConfig<T, S> {
+	fn from(config_opt: GAConfigOpt<T, S>) -> Self {
 		GAConfig {
-			params: self.params.unwrap(),
-			fitness_fn: self.fitness_fn.unwrap(),
-			mutation_operator: self.mutation_operator.unwrap(),
-			crossover_operator: self.crossover_operator.unwrap(),
-			selection_operator: self.selection_operator.unwrap(),
-			population_factory: self.population_factory.unwrap(),
-			probe: self.probe.unwrap()
+			params: config_opt.params.unwrap(),
+			fitness_fn: config_opt.fitness_fn.unwrap(),
+			mutation_operator: config_opt.mutation_operator.unwrap(),
+			crossover_operator: config_opt.crossover_operator.unwrap(),
+			selection_operator: config_opt.selection_operator.unwrap(),
+			population_factory: config_opt.population_factory.unwrap(),
+			probe: config_opt.probe.unwrap()
 		}
 	}
 }
@@ -52,20 +51,14 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> Builder<T, S> {
     }
   }
 
-	// pub fn new_with_config(config: GAConfig<T, S>) -> Self {
-	// 	Builder {
-	// 		config
-	// 	}
-	// }
-
   pub fn set_mutation_rate(mut self, mutation_rate: f64) -> Self {
-    debug_assert!(mutation_rate >= 0f64 && mutation_rate <= 1f64);
+    debug_assert!((0f64..=1f64).contains(&mutation_rate));
 		self.config.params = self.config.params.map(|mut params| {params.mutation_rate = mutation_rate; params});
     self
   }
 
   pub fn set_selection_rate(mut self, selection_rate: f64) -> Self {
-    debug_assert!(selection_rate >= 0f64 && selection_rate <= 1f64);
+    debug_assert!((0f64..=1f64).contains(&selection_rate));
 		self.config.params = self.config.params.map(|mut params| {params.selection_rate = selection_rate; params});
     self
   }

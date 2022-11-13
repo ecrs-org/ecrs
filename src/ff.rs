@@ -73,7 +73,7 @@ impl FireflyAlgorithm  {
         let mut brightness: Vec<f64> = Vec::new();
         let temp = population.clone();
         for point in temp {
-            brightness.push(1 as f64 / (self.brightness_function)(&point)); //TODO DELETE TEMP CLONEA
+            brightness.push(1_f64 / (self.brightness_function)(&point)); //TODO DELETE TEMP CLONEA
         }
         let scale = self.config.upper_bound - self.config.lower_bound;
         let mut alfa = self.config.alfa0;
@@ -83,28 +83,28 @@ impl FireflyAlgorithm  {
             if generation % 25 == 0 {
                 self.probe.on_iteration_start(&generation)
             }
-            for index in 0 as usize..self.config.population_size as usize {
-                for innerindex in 0 as usize..self.config.population_size as usize {
+            for index in 0_usize..self.config.population_size as usize {
+                for innerindex in 0_usize..self.config.population_size as usize {
                     if brightness[index] < brightness[innerindex] {
-                        let const1 = self.config.beta0 * f64::powf(f64::consts::E, -1 as f64 * self.config.gamma * f64::powi(distance(&population[index], &population[innerindex]), 2));
-                        for dimension in 0 as usize..self.config.dimensions as usize {
+                        let const1 = self.config.beta0 * f64::powf(f64::consts::E, -1_f64 * self.config.gamma * f64::powi(distance(&population[index], &population[innerindex]), 2));
+                        for dimension in 0_usize..self.config.dimensions as usize {
                             population[index][dimension] += const1 * (population[innerindex][dimension] - population[index][dimension]) + self.config.alfa0 * alfa * (rng.gen_range(0.01..0.99)/*TODO ADD SETTING*/ - 0.5) * scale;
                         }
-                        brightness[index] = 1 as f64 / (self.brightness_function)(&population[index]);
+                        brightness[index] = 1_f64 / (self.brightness_function)(&population[index]);
                     }
                 }
             }
-            alfa = alfa * self.config.delta;
+            alfa *= self.config.delta;
             if generation % 25 == 0 { //TODO REFACTOR
                 let mut maxpos = 0;
                 let mut maxbright = 0 as f64;
-                for index in 0 as usize..self.config.population_size as usize {
-                    if brightness[index] == f64::INFINITY {
+                for (index, item) in brightness.iter().enumerate().take(self.config.population_size as usize) {
+                    if *item == f64::INFINITY {
                         maxpos = index;
                         break;
                     }
-                    if brightness[index] > maxbright {
-                        maxbright = brightness[index];
+                    if *item > maxbright {
+                        maxbright = *item;
                         maxpos = index;
                     }
 
@@ -126,7 +126,7 @@ impl FireflyAlgorithm  {
     }
 }
 
-pub fn distance(a: &Vec<f64>, b: &Vec<f64>) -> f64 { //Distance between two points
+pub fn distance(a: &Vec<f64>, b: &[f64]) -> f64 { //Distance between two points
     let mut res: f64 = 0 as f64;
     for dimension in 0..a.len() {
         res += f64::powi(a[dimension] - b[dimension], 2)

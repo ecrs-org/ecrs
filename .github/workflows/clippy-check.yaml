@@ -1,4 +1,4 @@
-name: Rust
+name: Clippy check
 
 on:
   push:
@@ -7,21 +7,19 @@ on:
     branches: [ "master", "development", "@*/*" ]
     paths:
       - 'src/**'
-      - '.github/workflows/build-n-test.yaml'
-      - 'Cargo.toml'
+      - '.github/workflows/clippy-check.yaml'
 
+# Make sure CI fails on all warnings, including Clippy lints
 env:
-  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-Dwarnings"
 
 jobs:
-  build:
+  clippy_check:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
     - name: Update toolchain
       run: rustup update
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+    - name: Run Clippy
+      run: cargo clippy --all-targets --all-features

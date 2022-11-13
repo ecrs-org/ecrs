@@ -1,4 +1,4 @@
-use crate::pso::probe::probe::Probe;
+use crate::pso::probe::Probe;
 use crate::pso::swarm::Swarm;
 use serde::{Serialize};
 use serde_json;
@@ -33,9 +33,13 @@ impl Probe for JsonProbe {
     }
 
     fn on_end(&mut self, _swarm: &Swarm) {
-        let mut writer = &File::create(&self.filename).unwrap();
-        serde_json::to_writer_pretty(writer, &self.records);
-        writer.flush();
+        let mut writer = &File::create(self.filename).unwrap();
+        if serde_json::to_writer_pretty(writer, &self.records).is_err() {
+						eprintln!("Failed to serialize records");
+				}
+        if writer.flush().is_err() {
+						eprintln!("Failed to save algorithm results");
+				}
     }
 
     fn on_new_generation(&mut self, swarm: &Swarm, generation: usize) {

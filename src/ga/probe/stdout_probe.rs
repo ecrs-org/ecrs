@@ -1,5 +1,3 @@
-use std::fmt::Debug;
-
 use crate::ga::{Probe, individual::{Chromosome, ChromosomeWrapper}};
 
 pub struct StdoutProbe {
@@ -21,7 +19,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> Probe<T, S> for StdoutProbe {
     println!("Mutation {:?} ---> {:?}", before, after);
   }
 
-  fn on_new_generation(&mut self, generation: &Vec<S>) {
+  fn on_new_generation(&mut self, _generation: &[S]) {
     // TODO: Take reference to whole generation as a parameter and display it here!
     println!("New generation created")
   }

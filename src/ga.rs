@@ -101,20 +101,20 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
   }
 
 	fn find_best_individual(population: &Vec<S>) -> &S {
-		debug_assert!(population.len() > 0);
+		debug_assert!(!population.is_empty());
 		let mut best_individual = &population[0];
-		for i in 1..population.len() {
-			if population[i] < *best_individual {
-				best_individual = &population[i];
+		for idv in population.iter().skip(1) {
+			if *idv < *best_individual {
+				best_individual = idv;
 			}
 		}
 		best_individual
 	}
 
-	fn evaluate_fitness_in_population(&self, population: &mut Vec<S>) -> () {
-		for i in 0..population.len() {
-			let fitness = (self.config.fitness_fn)(&population[i]);
-			population[i].set_fitness(fitness);
+	fn evaluate_fitness_in_population(&self, population: &mut Vec<S>) {
+		for idv in population {
+			let fitness = (self.config.fitness_fn)(idv);
+			idv.set_fitness(fitness);
 		}
 	}
 

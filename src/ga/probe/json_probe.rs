@@ -1,7 +1,5 @@
 use std::fs::File;
-use crate::ga::{Probe, Individual};
 use serde::Serialize;
-use serde_json;
 
 #[derive(Serialize)]
 struct JsonRecord {
