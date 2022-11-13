@@ -5,6 +5,7 @@ use rand::{Rng};
 use crate::ga::individual::{ChromosomeWrapper, Chromosome};
 
 /// # Crossover Operator
+///
 /// This trait defines common behaviour for crossover operators.
 /// You can implement this trait to provide your custom crossover operator to the GA.
 pub trait CrossoverOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
@@ -17,9 +18,16 @@ pub trait CrossoverOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
 	fn apply(&mut self, parent_1: &S, parent_2: &S) -> (S, S);
 }
 
+/// # Single point crossover operator
+///
+/// This struct implements [self::CrossoverOperator] trait and can be used with GA.
+/// It works by defininig single cutpoint splitting both parent chromosomes in two parts.
+/// First child gets `parent_1`'s first part and `parent_2`'s second part.
+/// Second child gets `parent_2`'s first part and `parent_1`'s second part.
 pub struct SinglePoint;
 
 impl SinglePoint {
+
 	pub fn new() -> Self {
 		SinglePoint { }
 	}
@@ -31,6 +39,16 @@ where
 	ChWrapperT: ChromosomeWrapper<ChT>,
 	GeneT: Copy
 {
+	/// Returns a tuple of children
+	///
+	/// It works by defininig single cutpoint splitting both parent chromosomes in two parts.
+	/// First child gets `parent_1`'s first part and `parent_2`'s second part.
+	/// Second child gets `parent_2`'s first part and `parent_1`'s second part.
+	///
+	/// ## Arguments
+	///
+	/// * `parent_1` - First parent to take part in recombination
+	/// * `parent_2` - Second parent to take part in recombination
 	fn apply(&mut self, parent_1: &ChWrapperT, parent_2: &ChWrapperT) -> (ChWrapperT, ChWrapperT) {
 		let chromosome_len = parent_1.get_chromosome().len();
 		let cut_point = rand::thread_rng().gen_range(0..chromosome_len);
