@@ -160,7 +160,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 
 			if let Some(duration) = self.config.params.max_duration {
 				if self.metadata.start_time.unwrap().elapsed() >= duration {
-					return Some(best_individual.to_owned())
+					break;
 				}
 			}
 		}
