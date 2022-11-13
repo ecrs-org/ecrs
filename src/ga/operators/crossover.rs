@@ -5,6 +5,7 @@ use rand::{Rng};
 use crate::ga::individual::{ChromosomeWrapper, Chromosome};
 
 /// # Crossover Operator
+///
 /// This trait defines common behaviour for crossover operators.
 /// You can implement this trait to provide your custom crossover operator to the GA.
 pub trait CrossoverOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
@@ -17,9 +18,19 @@ pub trait CrossoverOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
 	fn apply(&mut self, parent_1: &S, parent_2: &S) -> (S, S);
 }
 
+/// # Single point crossover operator
+///
+/// This struct implements [self::CrossoverOperator] trait and can be used with GA.
+///
+/// It works by defininig single cutpoint splitting both parent chromosomes in two parts.
+/// First child gets `parent_1`'s first part and `parent_2`'s second part.
+/// Second child gets `parent_2`'s first part and `parent_1`'s second part.
+///
+/// Degenerated case when cutpoint is selected at index 0 or last can occur.
 pub struct SinglePoint;
 
 impl SinglePoint {
+	/// Creates new [self::SinglePoint] crossover operator
 	pub fn new() -> Self {
 		SinglePoint { }
 	}
@@ -31,6 +42,18 @@ where
 	ChWrapperT: ChromosomeWrapper<ChT>,
 	GeneT: Copy
 {
+	/// Returns a tuple of children
+	///
+	/// It works by randomly selecting single cutpoint splitting both parent chromosomes in two parts.
+	/// First child gets `parent_1`'s first part and `parent_2`'s second part.
+	/// Second child gets `parent_2`'s first part and `parent_1`'s second part.
+	///
+	/// Degenerated case when cutpoint is selected at index 0 or last can occur.
+	///
+	/// ## Arguments
+	///
+	/// * `parent_1` - First parent to take part in recombination
+	/// * `parent_2` - Second parent to take part in recombination
 	fn apply(&mut self, parent_1: &ChWrapperT, parent_2: &ChWrapperT) -> (ChWrapperT, ChWrapperT) {
 		let chromosome_len = parent_1.get_chromosome().len();
 		let cut_point = rand::thread_rng().gen_range(0..chromosome_len);
@@ -52,9 +75,19 @@ where
 	}
 }
 
+/// # Two point crossover operator
+///
+/// This struct implements [self::CrossoverOperator] and can be used with GA.
+///
+/// It works by randomly selecting two cutpoints splitting parents chromosomes in three parts.
+/// Then it creates children by taking parents chromosome parts interchangeably.
+/// Its mechanism is analoguous to [self::SinglePoint].
+///
+/// Degenerate case when both cutpoints are in the same place or at position 0 or last can occur.
 pub struct TwoPoint;
 
 impl TwoPoint {
+	/// Creates new [self::TwoPoint] crossover operator
 	pub fn new() -> Self {
 		TwoPoint { }
 	}
@@ -66,6 +99,18 @@ where
 	ChWrapperT: ChromosomeWrapper<ChT>,
 	GeneT: Copy
 {
+	/// Returns a tuple of children
+	///
+	/// It works by randomly selecting two cutpoints splitting parents chromosomes in three parts.
+	/// Then it creates children by taking parents chromosome parts interchangeably.
+	/// Its mechanism is analoguous to [self::SinglePoint].
+	///
+	/// Degenerate case when both cutpoints are in the same place or at position 0 or last can occur.
+	///
+	/// ## Arguments
+	///
+	/// * `parent_1` - First parent to take part in recombination
+	/// * `parent_2` - Second parent to take part in recombination
 	fn apply(&mut self, parent_1: &ChWrapperT, parent_2: &ChWrapperT) -> (ChWrapperT, ChWrapperT) {
 		assert_eq!(parent_1.get_chromosome().len(), parent_2.get_chromosome().len(), "Parent chromosome length must match");
 
@@ -102,11 +147,23 @@ where
 	}
 }
 
+/// # Mutli-point crossover operator
+///
+/// This struct implements [self::CrossoverOperator] and can be used with GA.
+///
+/// It works analogously to [self::SinglePoint] or [self::TwoPoint]. One important difference is that
+/// all cutpoints are distinct, thus single or two point crossover with guarantee of distinct cutpoints
+/// can be achieved.
 pub struct MultiPoint {
 	cut_points_no: usize,
 }
 
 impl MultiPoint {
+	/// Creates new [self::MultiPoint] crossover operator
+	///
+	/// ## Arguments
+	///
+	/// * `cut_points_no` - Number of cutpoints (crossover points)
 	pub fn new(cut_points_no: usize) -> Self {
 		assert!(cut_points_no >= 1, "Number of cut points must be >= 1");
 		MultiPoint {
@@ -116,6 +173,7 @@ impl MultiPoint {
 }
 
 impl Default for MultiPoint {
+	/// Creates new [self::MultiPoint] crossover operator with 4 cutpoints
 	fn default() -> Self {
 		MultiPoint { cut_points_no: 4 }
 	}
@@ -127,6 +185,16 @@ where
 	ChWrapperT: ChromosomeWrapper<ChT>,
 	GeneT: Copy
 {
+	/// Returns a tuple of children
+	///
+	/// It works analogously to [self::SinglePoint] or [self::TwoPoint]. One important difference is that
+	/// all cutpoints are distinct, thus single or two point crossover with guarantee of distinct cutpoints
+	/// can be achieved.
+	///
+	/// ## Arguments
+	///
+	/// * `parent_1` - First parent to take part in recombination
+	/// * `parent_2` - Second parent to take part in recombination
 	fn apply(&mut self, parent_1: &ChWrapperT, parent_2: &ChWrapperT) -> (ChWrapperT, ChWrapperT) {
 		assert_eq!(parent_1.get_chromosome().len(), parent_2.get_chromosome().len(), "Parent chromosome length must match");
 		assert!(self.cut_points_no <= parent_1.get_chromosome().len(), "There can't be more cut points than chromosome length");
@@ -165,9 +233,16 @@ where
 	}
 }
 
+/// # Uniform crossover operator
+///
+/// This struct implements [self::CrossoverOperator] and can be used with GA.
+///
+/// It works by creating a bit-mask of chromosome length. 1 means that gene should be taken from first
+/// parent, 0 means that gene should be take from second parent. This is inverted when creating second child.
 pub struct Uniform;
 
 impl Uniform {
+	/// Creates new [self::Uniform] crossover operator
 	pub fn new() -> Self {
 		Uniform { }
 	}
@@ -179,6 +254,15 @@ where
 	ChWrapperT: ChromosomeWrapper<ChT>,
 	GeneT: Copy
 {
+	/// Returns a tuple of children
+	///
+	/// It works by creating a bit-mask of chromosome length. 1 means that gene should be taken from first
+	/// parent, 0 means that gene should be take from second parent. This is inverted when creating second child.
+	///
+	/// ## Arguments
+	///
+	/// * `parent_1` - First parent to take part in recombination
+	/// * `parent_2` - Second parent to take part in recombination
 	fn apply(&mut self, parent_1: &ChWrapperT, parent_2: &ChWrapperT) -> (ChWrapperT, ChWrapperT) {
 		assert_eq!(parent_1.get_chromosome().len(), parent_2.get_chromosome().len(), "Parent chromosome length must match");
 
