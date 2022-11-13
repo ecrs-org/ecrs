@@ -31,9 +31,13 @@ impl Probe for CsvProbe {
     fn on_end(&mut self, _swarm: &Swarm) {
         let mut writer = csv::WriterBuilder::new().from_path(self.filename).unwrap();
         for record in self.records.iter() {
-            writer.serialize(record);
+            if writer.serialize(record).is_err() {
+								eprintln!("Failed to serialize a record");
+						}
         }
-        writer.flush();
+        if writer.flush().is_err() {
+						eprintln!("Failed to save algorithm results");
+				}
     }
 
     fn on_new_generation(&mut self, swarm: &Swarm, generation: usize) {

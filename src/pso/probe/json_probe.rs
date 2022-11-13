@@ -34,8 +34,12 @@ impl Probe for JsonProbe {
 
     fn on_end(&mut self, _swarm: &Swarm) {
         let mut writer = &File::create(self.filename).unwrap();
-        serde_json::to_writer_pretty(writer, &self.records);
-        writer.flush();
+        if serde_json::to_writer_pretty(writer, &self.records).is_err() {
+						eprintln!("Failed to serialize records");
+				}
+        if writer.flush().is_err() {
+						eprintln!("Failed to save algorithm results");
+				}
     }
 
     fn on_new_generation(&mut self, swarm: &Swarm, generation: usize) {
