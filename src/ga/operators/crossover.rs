@@ -4,8 +4,17 @@ use push_trait::{Push, Nothing};
 use rand::{Rng};
 use crate::ga::individual::{ChromosomeWrapper, Chromosome};
 
+/// # Crossover Operator
+/// This trait defines common behaviour for crossover operators.
+/// You can implement this trait to provide your custom crossover operator to the GA.
 pub trait CrossoverOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
-	fn apply(&mut self, parent1: &S, parent2: &S) -> (S, S);
+	/// Returns a tuple of children
+	///
+	/// ## Arguments
+	///
+	/// * `parent_1` - First parent to take part in recombination
+	/// * `parent_2` - Second parent to take part in recombination
+	fn apply(&mut self, parent_1: &S, parent_2: &S) -> (S, S);
 }
 
 pub struct SinglePoint;
