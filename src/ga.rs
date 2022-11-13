@@ -124,8 +124,6 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 			self.evaluate_fitness_in_population(&mut population);
 
 			// 4. Create mating pool by applying selection operator.
-			// FIXME: This should be taken from config, but as for now, I'm taking it directly
-			// from operators module.
 			let mating_pool: Vec<&S> = self.config.selection_operator.apply(&self.metadata, &population, population.len());
 
 			// 5. From mating pool create new generation (apply crossover & mutation).
@@ -140,9 +138,10 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 			}
 
 			// 5.1 Here we should apply the mutations on children?
+			(0..children.len()).for_each(|i| self.config.mutation_operator.apply(&mut children[i]));
 
-			// 6. Replacement - merge new generation with old one
 			// TODO
+			// 6. Replacement - merge new generation with old one
 			// As for now I'm replacing old population with the new one, but this must be
 			// reimplemented. See p. 58 Introduction to Genetic Algorithms.
 			population = children;
@@ -160,7 +159,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 
 			if let Some(duration) = self.config.params.max_duration {
 				if self.metadata.start_time.unwrap().elapsed() >= duration {
-					return Some(best_individual.to_owned())
+					break;
 				}
 			}
 		}
