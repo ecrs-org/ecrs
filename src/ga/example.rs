@@ -6,7 +6,7 @@ use crate::ga::Individual;
 use super::individual::ChromosomeWrapper;
 
 pub fn sum_of_squares_fitness(individual: &Individual<Vec<f64>>) -> f64 {
-	-sum_of_squares(individual.get_chromosome()) + 4.0
+	10.0 * f64::exp(-sum_of_squares(individual.get_chromosome()))
 }
 
 pub fn sum_of_squares(chromosome: &[f64]) -> f64 {
