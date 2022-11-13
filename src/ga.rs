@@ -32,6 +32,7 @@ pub struct GAParams {
   pub generation_upper_bound: usize,
   pub population_size: usize,
   pub eps: f64,
+	pub max_duration: Option<std::time::Duration>,
 }
 
 impl Default for GAParams {
@@ -42,27 +43,10 @@ impl Default for GAParams {
         generation_upper_bound: 200,
         population_size: 100,
         eps: 1e-4,
+				max_duration: None,
 		}
 	}
 }
-
-// pub struct GAOps<S> {
-//   pub fitness_fn: FitnessFn<S>,
-//   pub mutation_operator: MutationOperator<S>,
-//   pub crossover_operator: CrossoverOperator<S>,
-//   pub population_factory: PopulationGenerator<S>,
-// }
-
-// impl<S> Default for GAOps<S> {
-// 	fn default() -> Self {
-// 		Self {
-//         fitness_fn: quadratic_fn,
-//         mutation_operator: operators::mutation::range_compliment,
-//         crossover_operator: operators::crossover::single_point,
-//         population_factory: quadratic_population_factory,
-// 		}
-// 	}
-// }
 
 pub struct GAConfig<T: Chromosome, S: ChromosomeWrapper<T>> {
 	pub params: GAParams,
@@ -127,7 +111,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 		self.evaluate_fitness_in_population(&mut population);
 
 		// 3. Store best individual.
-		let best_individual = GeneticAlgorithm::find_best_individual(&population);
+		let mut best_individual = GeneticAlgorithm::find_best_individual(&population);
 
 		if best_individual.get_fitness() < self.config.params.eps {
 			return Some(best_individual.to_owned())
@@ -168,12 +152,19 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 
 			// 6. Check for stop condition (Is good enough individual found)? If not goto 2.
 			self.evaluate_fitness_in_population(&mut population);
-			let best_individual = GeneticAlgorithm::find_best_individual(&population);
+
+			best_individual = GeneticAlgorithm::find_best_individual(&population);
 			if best_individual.get_fitness() < self.config.params.eps {
 				return Some(best_individual.to_owned())
 			}
+
+			if let Some(duration) = self.config.params.max_duration {
+				if self.metadata.start_time.unwrap().elapsed() >= duration {
+					return Some(best_individual.to_owned())
+				}
+			}
 		}
 
-		None
+		Some(best_individual.to_owned())
 	}
 }
