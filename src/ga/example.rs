@@ -1,6 +1,5 @@
 use itertools::Itertools;
-use rand::{Rng, thread_rng};
-use rand::distributions::{Distribution, Uniform};
+use rand::Rng;
 
 use crate::ga::Individual;
 
