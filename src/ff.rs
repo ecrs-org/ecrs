@@ -98,13 +98,13 @@ impl FireflyAlgorithm  {
             if generation % 25 == 0 { //TODO REFACTOR
                 let mut maxpos = 0;
                 let mut maxbright = 0 as f64;
-                for index in 0_usize..self.config.population_size as usize {
-                    if brightness[index] == f64::INFINITY {
+                for (index, item) in brightness.iter().enumerate().take(self.config.population_size as usize) {
+                    if *item == f64::INFINITY {
                         maxpos = index;
                         break;
                     }
-                    if brightness[index] > maxbright {
-                        maxbright = brightness[index];
+                    if *item > maxbright {
+                        maxbright = *item;
                         maxpos = index;
                     }
 
@@ -126,7 +126,7 @@ impl FireflyAlgorithm  {
     }
 }
 
-pub fn distance(a: &Vec<f64>, b: &Vec<f64>) -> f64 { //Distance between two points
+pub fn distance(a: &Vec<f64>, b: &[f64]) -> f64 { //Distance between two points
     let mut res: f64 = 0 as f64;
     for dimension in 0..a.len() {
         res += f64::powi(a[dimension] - b[dimension], 2)
