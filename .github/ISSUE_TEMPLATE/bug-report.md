@@ -3,6 +3,8 @@ name: Bug report
 about: Use this template to report a bug
 ---
 
+<!-- If applicable - remeber to add the issue to the EA Rust project  -->
+
 ## Bug description
 
 
