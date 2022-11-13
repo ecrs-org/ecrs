@@ -1,17 +1,14 @@
-use crate::ga::{Probe, individual::{Chromosome, ChromosomeWrapper}};
+use crate::ga::{Probe, individual::{Chromosome, ChromosomeWrapper}, GAMetadata};
 
-pub struct StdoutProbe {
-  // no state held
-}
+pub struct StdoutProbe;
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> Probe<T, S> for StdoutProbe {
-  fn on_start(&mut self) {
+  fn on_start(&mut self, _metadata: &GAMetadata) {
     println!("Execution of genetic algorithm started");
   }
 
-  fn on_new_best(&mut self, individual: &S) {
-    // TODO: Take new best solution as a parameter
-    println!("New best: {:?}", individual);
+  fn on_new_best(&mut self, metadata: &GAMetadata, individual: &S) {
+		println!("Gen.: {}, Idv.: {:?}", metadata.generation.unwrap(), individual);
   }
 
   fn on_mutation(&mut self, before: &S, after: &S) {

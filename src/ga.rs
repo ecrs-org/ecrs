@@ -104,14 +104,19 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 
 	pub fn run(&mut self) -> Option<S> {
 		self.metadata.start_time = Some(std::time::Instant::now());
+		self.config.probe.on_start(&self.metadata);
+
 		// 1. Create initial random population.
 		let mut population = (self.config.population_factory)(self.config.params.population_size);
+		self.config.probe.on_initial_population_created(&population);
 
 		// 2. Evaluate fitness for each individual.
 		self.evaluate_fitness_in_population(&mut population);
 
+
 		// 3. Store best individual.
 		let mut best_individual = GeneticAlgorithm::find_best_individual(&population);
+		// self.config.probe.on_new_best(&self.metadata, best_individual);
 
 		if best_individual.get_fitness() < self.config.params.eps {
 			return Some(best_individual.to_owned())
@@ -120,8 +125,6 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 		for generation_no in 1..=self.config.params.generation_upper_bound {
 			self.metadata.generation = Some(generation_no);
 			self.metadata.duration = Some(self.metadata.start_time.unwrap().elapsed());
-
-			println!("Calculating generation {}", self.metadata.generation.unwrap());
 
 			// 2. Evaluate fitness for each individual.
 			self.evaluate_fitness_in_population(&mut population);
@@ -154,6 +157,8 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 			self.evaluate_fitness_in_population(&mut population);
 
 			best_individual = GeneticAlgorithm::find_best_individual(&population);
+			self.config.probe.on_new_best(&self.metadata, best_individual);
+
 			if best_individual.get_fitness() < self.config.params.eps {
 				return Some(best_individual.to_owned())
 			}
