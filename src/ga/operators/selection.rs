@@ -132,19 +132,22 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for RankR {
 	}
 }
 
-pub struct Tournament;
+pub struct Tournament {
+	size_factor: f64,
+}
 
 impl Tournament {
-	pub fn new() -> Self {
-		Tournament { }
+	pub fn new(size_factor: f64) -> Self {
+		assert!((0.0..=1.0).contains(&size_factor));
+		Tournament {
+			size_factor
+		}
 	}
 }
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Tournament {
 	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a [S], count: usize) -> Vec<&'a S> {
-		// TODO: This operator must be parametrized...
-		// For now I fix value of this parameter
-		let tournament_size = population.len() / 5;
+		let tournament_size = (population.len() as f64 * self.size_factor) as usize;
 
 		assert!(tournament_size > 0);
 
