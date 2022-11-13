@@ -68,7 +68,7 @@ impl AntSystem {
         }
     }
     #[doc(hidden)]
-    fn find_best<'a>(&mut self, sols: &'a Vec<Solution>) -> &'a Solution {
+    fn find_best<'a>(&mut self, sols: &'a [Solution]) -> &'a Solution {
         let best = sols.iter()
             .min_by(|a,b| (*a).partial_cmp(*b).unwrap());
 

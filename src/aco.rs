@@ -95,7 +95,7 @@ pub fn generate_tsp_cost(sol_size: usize) -> (Vec<(f64,f64)>, FMatrix) {
 }
 
 /// Utility function for writing TSP input data to a CSV file.
-pub fn write_cities_csv(cities: &Vec<(f64, f64)>, path: &str) -> Result<(), Box<dyn Error>> {
+pub fn write_cities_csv(cities: &[(f64, f64)], path: &str) -> Result<(), Box<dyn Error>> {
     let mut wtr = csv::Writer::from_path(path)?;
     wtr.write_record(["x", "y"])?;
     for (x,y) in cities.iter() {

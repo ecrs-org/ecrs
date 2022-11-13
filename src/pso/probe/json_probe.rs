@@ -1,4 +1,4 @@
-use crate::pso::probe::probe::Probe;
+use crate::pso::probe::Probe;
 use crate::pso::swarm::Swarm;
 use serde::{Serialize};
 use serde_json;

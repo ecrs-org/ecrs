@@ -7,7 +7,7 @@ pub mod util;
 pub mod builder;
 
 use crate::pso::probe::console_probe::ConsoleProbe;
-use crate::pso::probe::probe::Probe;
+use crate::pso::probe::Probe;
 use crate::pso::swarm::Swarm;
 use crate::test_functions::test_functions::rosenbrock;
 

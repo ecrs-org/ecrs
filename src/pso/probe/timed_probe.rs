@@ -1,6 +1,6 @@
 use std::time::{Instant};
 
-use crate::pso::probe::probe::Probe;
+use crate::pso::probe::Probe;
 use crate::pso::swarm::Swarm;
 
 pub struct TimedProbe{
