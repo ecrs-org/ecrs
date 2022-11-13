@@ -68,6 +68,11 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> Builder<T, S> {
 		self
 	}
 
+	pub fn set_max_duration(mut self, max_duration: std::time::Duration) -> Self {
+		self.config.params = self.config.params.map(|mut params| {params.max_duration = Some(max_duration); params});
+		self
+	}
+
   pub fn set_max_generation_count(mut self, max_gen_count: usize) -> Self {
     debug_assert!(max_gen_count >= 1);
 		self.config.params = self.config.params.map(|mut params| {params.generation_upper_bound = max_gen_count; params});
