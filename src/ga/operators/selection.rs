@@ -72,8 +72,6 @@ impl Rank {
 
 impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Rank {
 	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a [S], count: usize) -> Vec<&'a S> {
-		// TODO: Second implementation with r parameter
-
 		let mut selected: Vec<&S> = Vec::with_capacity(count);
 
 		let population_len = population.len();
@@ -92,6 +90,44 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Rank {
 			)
 		}
 
+		selected
+	}
+}
+
+pub struct RankR {
+	r: f64,
+}
+
+impl RankR {
+	pub fn new(r: f64) -> Self {
+		assert!((0.0..=1.0).contains(&r));
+		RankR {
+			r,
+		}
+	}
+}
+
+impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for RankR {
+	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a [S], count: usize) -> Vec<&'a S> {
+		let mut selected: Vec<&S> = Vec::with_capacity(count);
+		let population_len = population.len();
+		let distribution_for_ind = rand::distributions::Uniform::from(0..population_len);
+		let distribution_for_rand = rand::distributions::Uniform::from(0.0..1.0);
+
+		for _ in 0..count {
+			// TODO: Consider creating two random index permutations and then iterating over them
+			// instead of N times using random.
+			let p1 = &population[rand::thread_rng().sample(distribution_for_ind)];
+			let p2 = &population[rand::thread_rng().sample(distribution_for_ind)];
+
+			selected.push(
+				if rand::thread_rng().sample(distribution_for_rand) < self.r {
+					p1
+				} else {
+					p2
+				}
+			)
+		}
 		selected
 	}
 }
