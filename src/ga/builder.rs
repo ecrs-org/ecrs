@@ -63,11 +63,6 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> Builder<T, S> {
     self
   }
 
-	pub fn set_eps(mut self, eps: f64) -> Self {
-		self.config.params = self.config.params.map(|mut params| {params.eps = eps; params});
-		self
-	}
-
 	pub fn set_max_duration(mut self, max_duration: std::time::Duration) -> Self {
 		self.config.params = self.config.params.map(|mut params| {params.max_duration = Some(max_duration); params});
 		self
