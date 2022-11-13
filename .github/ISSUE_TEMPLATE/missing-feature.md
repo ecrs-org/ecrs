@@ -3,9 +3,7 @@ name: Feature proposal
 about: Use this template to propose new / missing features
 ---
 
-# Missing feature
-
-## Description
+## Feature description
 
 ## Motivation
 
