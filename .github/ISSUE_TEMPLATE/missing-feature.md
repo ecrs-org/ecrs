@@ -3,9 +3,9 @@ name: Feature proposal
 about: Use this template to propose new / missing features
 ---
 
-# Missing feature
+<!-- If applicable - remeber to add the issue to the EA Rust project  -->
 
-## Description
+## Feature description
 
 ## Motivation
 

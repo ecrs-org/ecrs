@@ -3,9 +3,9 @@ name: Bug report
 about: Use this template to report a bug
 ---
 
-# Bug report
+<!-- If applicable - remeber to add the issue to the EA Rust project  -->
 
-## Description
+## Bug description
 
 
 ## Expected behaviour
