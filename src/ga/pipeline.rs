@@ -61,12 +61,17 @@ where
 //   type Output = S::Output;
 
 //   fn apply(&mut self, input: Self::Input) -> Result<Self::Output, ()> {
-//     let mut data = input;
-//     let result = 
+//     let data = self.node_input.apply(input).unwrap();
+
 //     loop {
-//       let data = self.node_input.apply(data)?;
-//       self.node_output.apply(data);
-//     }    
+//       let result = self.node_output.apply(data);
+//       if result.is_err() {
+//         return Err(())
+//       }
+//     }
+
+
+//     Err(())
 //   }
 // }
 
@@ -81,6 +86,14 @@ pub trait Node {
     Self: Sized
   {
     Link::new(self, node)
+  }
+
+  fn add_loop<T>(self, node: T) -> LoopLink<Self, T>
+  where
+    T: Node<Input = Self::Output>,
+    Self: Sized
+  {
+    LoopLink { node_input: self, node_output: node }
   }
 }
 
@@ -109,8 +122,12 @@ impl Node for AddOne {
   type Input = f64;
   type Output = f64;
 
-  fn apply(&mut self, input: Self::Input) ->Result<Self::Output, ()> {
-    Ok(input + 1.0)
+  fn apply(&mut self, input: Self::Input) -> Result<Self::Output, ()> {
+    if input < 10.0 {
+      Ok(input + 1.0)
+    } else {
+      Err(())
+    }
   }
 }
 
