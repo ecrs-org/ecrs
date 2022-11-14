@@ -3,6 +3,7 @@ pub mod probe;
 pub mod example;
 pub mod builder;
 pub mod operators;
+pub mod pipeline;
 
 pub use individual::Individual;
 pub use probe::Probe;
