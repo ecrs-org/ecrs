@@ -59,17 +59,19 @@ impl Default for PSOAlgorithmCfg {
 }
 
 /// Struct used for running PSO algorithm
-/// # Use example:
-///     let config = PSOAlgorithmCfg{
-///         dimensions: 3,
-///         iterations: 1000,
-///         probe: Box::new(ConsoleProbe::new()),
-///         ..PSOAlgorithmCfg::default()
-///     };
+/// # Usage example:
+/// ```rust
+/// let config = PSOAlgorithmCfg {
+///     dimensions: 3,
+///     iterations: 1000,
+///     probe: Box::new(ConsoleProbe::new()),
+///     ..PSOAlgorithmCfg::default()
+/// };
 ///
-///     let mut algorithm = PSOAlgorithm::new(config);
+/// let mut algorithm = PSOAlgorithm::new(config);
 ///
-///     algorithm.execute();
+/// algorithm.execute();
+/// ```
 pub struct PSOAlgorithm {
     config: PSOAlgorithmCfg,
     swarm: Swarm
