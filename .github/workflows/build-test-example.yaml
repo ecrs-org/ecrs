@@ -1,4 +1,4 @@
-name: Rust
+name: Build & test (example)
 
 on:
   push:
@@ -6,12 +6,13 @@ on:
   pull_request:
     branches: [ "main", "development", "@*/*" ]
     paths:
-      - 'src/**'
-      - '.github/workflows/build-n-test.yaml'
+      - 'example/**'
+      - '.github/workflows/build-test-example.yaml'
       - 'Cargo.toml'
 
 env:
   CARGO_TERM_COLOR: always
+  WORKING_DIR: example
 
 jobs:
   build:
@@ -22,6 +23,8 @@ jobs:
     - name: Update toolchain
       run: rustup update
     - name: Build
+      working-directory: ${{ env.WORKING_DIR }}
       run: cargo build --verbose
     - name: Run tests
+      working-directory: ${{ env.WORKING_DIR }}
       run: cargo test --verbose

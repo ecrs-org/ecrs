@@ -1,0 +1,27 @@
+name: Build & test (lib)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main", "development", "@*/*" ]
+    paths:
+      - 'src/**'
+      - '.github/workflows/build-test-lib.yaml'
+      - 'Cargo.toml'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Update toolchain
+      run: rustup update
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
