@@ -58,3 +58,32 @@ where
 		population
 	}
 }
+
+pub struct BitStrings {
+	dim: usize,
+}
+
+impl BitStrings {
+	pub fn new(dim: usize) -> Self {
+		assert!(dim > 0, "Space dimension must be > 0");
+		BitStrings { dim }
+	}
+}
+
+impl<S> PopulationGenerator<Vec<bool>, S> for BitStrings
+where
+	S: ChromosomeWrapper<Vec<bool>>
+{
+	fn generate(&self, count: usize) -> Vec<S> {
+		let mut population: Vec<S> = Vec::with_capacity(count);
+
+		let distr = rand::distributions::Uniform::from(0.0..1.0);
+		let rng = &mut rand::thread_rng();
+
+		for _ in 0..count {
+			population.push(S::from(rng.sample_iter(distr).take(self.dim).map(|v| v < 0.5).collect_vec()));
+		}
+
+		population
+	}
+}
