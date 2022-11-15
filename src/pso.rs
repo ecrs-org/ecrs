@@ -61,8 +61,8 @@ impl Default for PSOAlgorithmCfg {
 /// Struct used for running PSO algorithm
 /// # Usage example:
 /// ```rust
-/// # use crate::pso::{PSOAlgorithmCfg, PSOAlgorithm};
-/// # use crate::pso::probe::console_probe::ConsoleProbe;
+/// # use ecrs::pso::{PSOAlgorithmCfg, PSOAlgorithm};
+/// # use ecrs::pso::probe::console_probe::ConsoleProbe;
 ///
 /// let config = PSOAlgorithmCfg {
 ///     dimensions: 3,
