@@ -2,6 +2,7 @@ pub mod individual;
 pub mod probe;
 pub mod builder;
 pub mod operators;
+pub mod population;
 
 pub use individual::Individual;
 pub use probe::Probe;
