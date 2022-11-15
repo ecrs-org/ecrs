@@ -1,4 +1,4 @@
-use std::{fmt::Debug, char::CharTryFromError};
+use std::fmt::Debug;
 use serde::Serialize;
 
 
