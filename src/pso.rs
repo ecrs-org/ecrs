@@ -73,7 +73,7 @@ impl Default for PSOAlgorithmCfg {
 ///
 /// let mut algorithm = PSOAlgorithm::new(config);
 ///
-/// algorithm.execute();
+/// algorithm.run();
 /// ```
 pub struct PSOAlgorithm {
     config: PSOAlgorithmCfg,
