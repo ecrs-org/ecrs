@@ -14,7 +14,10 @@
 //!
 //! ## Example
 //! Solving TSP using AntSystem
-//! ```
+//! ```rust
+//! # use ecrs::aco::{self, AntSystemCfg, probe::CsvProbe};
+//!
+//!
 //! // Generate 30 random cities and costs
 //! let (cities, cost) = aco::generate_tsp_cost(30);
 //! // Save generated data to cities.csv

@@ -1,6 +1,5 @@
 pub mod individual;
 pub mod probe;
-pub mod example;
 pub mod builder;
 pub mod operators;
 
@@ -9,7 +8,6 @@ pub use probe::Probe;
 pub use probe::stdout_probe::StdoutProbe;
 pub use probe::json_probe::JsonProbe;
 pub use probe::csv_probe::CsvProbe;
-pub use example::*;
 pub use builder::*;
 
 use self::{
@@ -57,6 +55,7 @@ pub struct GAConfig<T: Chromosome, S: ChromosomeWrapper<T>> {
   pub probe: Box<dyn Probe<T, S>>
 }
 
+#[derive(Default)]
 pub struct GAMetadata {
 	start_time: Option<std::time::Instant>,
 	duration: Option<std::time::Duration>,
@@ -68,7 +67,6 @@ impl GAMetadata {
 		GAMetadata { start_time: None, duration: None, generation: None }
 	}
 }
-
 pub struct GeneticAlgorithm<T: Chromosome, S: ChromosomeWrapper<T>> {
   config: GAConfig<T, S>,
 	metadata: GAMetadata,
