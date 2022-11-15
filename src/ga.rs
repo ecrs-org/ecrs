@@ -25,7 +25,6 @@ type FitnessFn<S> = fn(&S) -> f64;
 type PopulationGenerator<S> = fn(usize) -> Vec<S>;
 
 pub struct GAParams {
-  pub mutation_rate: f64,
   pub selection_rate: f64,
   pub generation_upper_bound: usize,
   pub population_size: usize,
@@ -35,7 +34,6 @@ pub struct GAParams {
 impl Default for GAParams {
 	fn default() -> Self {
 		Self {
-        mutation_rate: 0.08f64,
         selection_rate: 0.5f64,
         generation_upper_bound: 200,
         population_size: 100,
