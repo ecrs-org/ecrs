@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, char::CharTryFromError};
 use serde::Serialize;
 
 
@@ -7,7 +7,7 @@ pub trait Chromosome: Sized + Sync + Send + Clone + Default + Debug {}
 /// Blanket implementation
 impl<T: Sized + Sync + Send + Clone + Default + Debug> Chromosome for T {}
 
-pub trait ChromosomeWrapper<T: Chromosome>: Sized + Sync + Clone + Ord + Debug {
+pub trait ChromosomeWrapper<T: Chromosome>: Sized + Sync + Clone + Ord + Debug + From<T> {
 	fn new() -> Self;
 	fn get_chromosome(&self) -> &T;
 	fn get_chromosome_mut(&mut self) -> &mut T;
@@ -19,6 +19,12 @@ pub trait ChromosomeWrapper<T: Chromosome>: Sized + Sync + Clone + Ord + Debug {
 pub struct Individual<T: Chromosome> {
   pub chromosome: T,
   pub fitness: f64,
+}
+
+impl<T: Chromosome> From<T> for Individual<T> {
+	fn from(chromosome: T) -> Self {
+		Individual { chromosome, fitness: f64::default() }
+	}
 }
 
 impl<T: Chromosome> PartialEq<Self> for Individual<T> {

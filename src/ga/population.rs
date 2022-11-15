@@ -1,4 +1,6 @@
-use num::iter::Range;
+use std::ops::Range;
+use itertools::Itertools;
+use rand::{Rng, rngs::ThreadRng};
 
 use super::individual::{Chromosome, ChromosomeWrapper};
 
@@ -10,24 +12,61 @@ pub trait PopulationGenerator<T: Chromosome, S: ChromosomeWrapper<T>> {
 	fn generate(&self, count: usize) -> Vec<S>;
 }
 
-pub struct RandomPoints<T> {
-	dim: usize,
-	restrictions: Vec<Range<T>>
+fn point_generator(restrictions: &Vec<(f64, f64)>) -> Vec<f64> {
+	assert!(!restrictions.is_empty());
+
+	let mut point: Vec<f64> = Vec::with_capacity(restrictions.len());
+
+	for restriction in restrictions {
+		point.push(restriction.1 * rand::random::<f64>() + restriction.0);
+	}
+
+	point
 }
 
-impl<T> RandomPoints<T> {
-	pub fn new(dim: usize, restrictions: Vec<Range<T>>) -> Self {
+/// # Random points population generator
+///
+/// Implements [PopulationGenerator] trait. Can be used with genetic algorithm.
+///
+/// Generates vector of random points from R^(dim) space within passed domain restrictions.
+pub struct RandomPoints {
+	dim: usize,
+	restrictions: Vec<(f64, f64)>
+}
+
+impl RandomPoints {
+	pub fn new(dim: usize, restrictions: Vec<Range<f64>>) -> Self {
+		assert!(dim > 0, "Space dimension must be > 0");
 		assert_eq!(dim, restrictions.len(), "Number of restrictions must match dimension of sampled space");
-		RandomPoints { dim, restrictions }
+
+		RandomPoints {
+			dim,
+			restrictions: restrictions.into_iter()
+																.map(|range| (range.end - range.start, range.start))
+																.collect_vec()
+		}
 	}
 }
 
-impl<S, R> PopulationGenerator<Vec<f64>, S> for RandomPoints<R>
+impl<S> PopulationGenerator<Vec<f64>, S> for RandomPoints
 where
 	S: ChromosomeWrapper<Vec<f64>>
 {
 	fn generate(&self, count: usize) -> Vec<S> {
+		// FIXME: Sampling from such short interval may cause some f64 values to be more unlikely...
+		let distribution = rand::distributions::Uniform::from(0.0..1.0);
 
+		let mut population: Vec<S> = Vec::with_capacity(count);
+		let rng = &mut rand::thread_rng();
+
+		for _ in 0..count {
+			let mut point: Vec<f64> = Vec::with_capacity(self.dim);
+			for restriction in &self.restrictions {
+				point.push(restriction.1 * rng.sample(distribution) + restriction.0);
+			}
+			population.push(S::from(point));
+		}
+
+		population
 	}
 }
-
