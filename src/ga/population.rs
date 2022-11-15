@@ -12,18 +12,6 @@ pub trait PopulationGenerator<T: Chromosome, S: ChromosomeWrapper<T>> {
 	fn generate(&self, count: usize) -> Vec<S>;
 }
 
-fn point_generator(restrictions: &Vec<(f64, f64)>) -> Vec<f64> {
-	assert!(!restrictions.is_empty());
-
-	let mut point: Vec<f64> = Vec::with_capacity(restrictions.len());
-
-	for restriction in restrictions {
-		point.push(restriction.1 * rand::random::<f64>() + restriction.0);
-	}
-
-	point
-}
-
 /// # Random points population generator
 ///
 /// Implements [PopulationGenerator] trait. Can be used with genetic algorithm.
