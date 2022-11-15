@@ -2,9 +2,9 @@ name: Clippy check
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master", "development", "@*/*" ]
+    branches: [ "main", "development", "@*/*" ]
     paths:
       - 'src/**'
       - '.github/workflows/clippy-check.yaml'
