@@ -1,12 +1,8 @@
 #![allow(dead_code)]
 
-mod aco;
-mod ga;
-mod pso;
-mod ff;
-mod examples;
-mod test_functions;
-
-fn main() {
-	examples::ga_example()
-}
+pub mod aco;
+pub mod ga;
+pub mod pso;
+pub mod ff;
+pub mod examples;
+pub mod test_functions;
