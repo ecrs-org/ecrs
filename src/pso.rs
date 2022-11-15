@@ -81,7 +81,7 @@ pub struct PSOAlgorithm {
 }
 
 impl PSOAlgorithm {
-    fn new(config: PSOAlgorithmCfg) -> Self {
+    pub fn new(config: PSOAlgorithmCfg) -> Self {
         let swarm = Swarm::generate(config.particle_count, config.dimensions, config.lower_bound, config.upper_bound, config.function.borrow());
         PSOAlgorithm {
             config,
