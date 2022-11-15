@@ -10,6 +10,14 @@ Evolutionary computation tools & algorithms
 keywords = ["evolution", "evolutionary", "algorithms", "genetic"]
 categories = ["science"]
 
+[workspace]
+members = [
+	"example",
+]
+
+[lib]
+name = "ecrs"
+path = "src/lib.rs"
 
 
 [dependencies]
