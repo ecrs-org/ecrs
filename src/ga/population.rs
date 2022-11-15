@@ -1,6 +1,6 @@
 use std::ops::Range;
 use itertools::Itertools;
-use rand::{Rng, rngs::ThreadRng};
+use rand::Rng;
 
 use super::individual::{Chromosome, ChromosomeWrapper};
 
@@ -50,7 +50,7 @@ where
 		for _ in 0..count {
 			let mut point: Vec<f64> = Vec::with_capacity(self.dim);
 			for restriction in &self.restrictions {
-				point.push(restriction.1 * rng.sample(distribution) + restriction.0);
+				point.push(restriction.0 * rng.sample(distribution) + restriction.1);
 			}
 			population.push(S::from(point));
 		}
@@ -85,5 +85,38 @@ where
 		}
 
 		population
+	}
+}
+
+
+#[cfg(test)]
+mod tests {
+    use crate::ga::individual::ChromosomeWrapper;
+
+    use super::{RandomPoints, PopulationGenerator};
+
+	#[test]
+	fn points_have_appropriate_len() {
+		let dim = 4;
+		let gen = RandomPoints::new(dim, vec![(0.0..2.0), (-1.0..1.0), (3.0..10.0), (-5.0..-4.0)]);
+		let points: Vec<crate::ga::Individual<Vec<f64>>> = gen.generate(30);
+
+		for p in points {
+			assert_eq!(p.get_chromosome().len(), dim)
+		}
+	}
+
+	#[test]
+	fn points_follow_restrictions() {
+		let dim = 4;
+		let restrictions = vec![(0.0..2.0), (-1.0..1.0), (3.0..10.0), (-5.0..-4.0)];
+		let gen = RandomPoints::new(dim, restrictions.clone());
+		let points: Vec<crate::ga::Individual<Vec<f64>>> = gen.generate(30);
+
+		for p in points {
+			for (v, res) in std::iter::zip(p.get_chromosome(), &restrictions) {
+				assert!(res.contains(v))
+			}
+		}
 	}
 }
