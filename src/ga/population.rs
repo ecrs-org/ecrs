@@ -93,7 +93,7 @@ where
 mod tests {
     use crate::ga::individual::ChromosomeWrapper;
 
-    use super::{RandomPoints, PopulationGenerator};
+    use super::{RandomPoints, PopulationGenerator, BitStrings};
 
 	#[test]
 	fn points_have_appropriate_len() {
@@ -117,6 +117,17 @@ mod tests {
 			for (v, res) in std::iter::zip(p.get_chromosome(), &restrictions) {
 				assert!(res.contains(v))
 			}
+		}
+	}
+
+	#[test]
+	fn bistrings_have_appropriate_len() {
+		let dim = 30;
+		let gen = BitStrings::new(dim);
+		let points: Vec<crate::ga::Individual<Vec<bool>>> = gen.generate(30);
+
+		for p in points {
+			assert_eq!(p.get_chromosome().len(), dim)
 		}
 	}
 }
