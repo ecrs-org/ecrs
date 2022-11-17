@@ -8,7 +8,7 @@ impl<T: Chromosome> Probe<T> for StdoutProbe {
   }
 
   fn on_new_best(&mut self, metadata: &GAMetadata, individual: &Individual<T>) {
-		println!("{},{},{:?}", metadata.duration.unwrap().as_millis(), metadata.generation.unwrap(), &individual.chromosome);
+		println!("{},{},{:?}", metadata.duration.unwrap().as_millis(), metadata.generation.unwrap(), individual.chromosome_ref());
   }
 
   fn on_mutation(&mut self, before: &Individual<T>, after: &Individual<T>) {
