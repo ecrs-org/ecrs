@@ -2,6 +2,12 @@ use crate::ga::{Probe, individual::{Chromosome, Individual}, GAMetadata};
 
 pub struct StdoutProbe;
 
+impl StdoutProbe {
+	pub fn new() -> Self {
+		StdoutProbe
+	}
+}
+
 impl<T: Chromosome> Probe<T> for StdoutProbe {
   fn on_start(&mut self, _metadata: &GAMetadata) {
     println!("Execution of genetic algorithm started");
