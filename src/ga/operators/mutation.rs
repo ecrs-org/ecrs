@@ -1,7 +1,7 @@
-use crate::ga::individual::{ChromosomeWrapper, Chromosome};
+use crate::ga::{individual::Chromosome, Individual};
 
-pub trait MutationOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
-	fn apply(&mut self, indivudial: &mut S);
+pub trait MutationOperator<T: Chromosome> {
+	fn apply(&mut self, indivudial: &mut Individual<T>);
 }
 
 pub struct Identity;
@@ -12,6 +12,6 @@ impl Identity {
 	}
 }
 
-impl<T: Chromosome, S: ChromosomeWrapper<T>> MutationOperator<T, S> for Identity {
-	fn apply(&mut self, _indivudial: &mut S) {}
+impl<T: Chromosome> MutationOperator<T> for Identity {
+	fn apply(&mut self, _indivudial: &mut Individual<T>) {}
 }

@@ -1,9 +1,9 @@
 use ecrs::ga;
-use ga::{Individual, individual::ChromosomeWrapper};
+use ga::Individual;
 use super::point_generator;
 
 pub fn sum_of_squares_fitness(individual: &Individual<Vec<f64>>) -> f64 {
-	10.0 * f64::exp(-sum_of_squares(individual.get_chromosome()))
+	10.0 * f64::exp(-sum_of_squares(individual.chromosome_ref()))
 }
 
 fn sum_of_squares(chromosome: &[f64]) -> f64 {

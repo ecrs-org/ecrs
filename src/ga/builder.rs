@@ -1,19 +1,19 @@
 use super::operators::selection::SelectionOperator;
 use super::population::PopulationGenerator;
-use super::{GeneticAlgorithm, GAConfig, FitnessFn, MutationOperator, CrossoverOperator, Probe, GAParams};
-use super::individual::{ChromosomeWrapper, Chromosome};
+use super::{GeneticAlgorithm, GAConfig, FitnessFn, MutationOperator, CrossoverOperator, Probe, GAParams, Individual};
+use super::individual::Chromosome;
 
-struct GAConfigOpt<T: Chromosome, S: ChromosomeWrapper<T>> {
+struct GAConfigOpt<T: Chromosome> {
 	params: Option<GAParams>,
-  fitness_fn: Option<FitnessFn<S>>,
-  mutation_operator: Option<Box<dyn MutationOperator<T, S>>>,
-  crossover_operator: Option<Box<dyn CrossoverOperator<T, S>>>,
-	selection_operator: Option<Box<dyn SelectionOperator<T, S>>>,
-  population_factory: Option<Box<dyn PopulationGenerator<T, S>>>,
-  probe: Option<Box<dyn Probe<T, S>>>,
+  fitness_fn: Option<FitnessFn<Individual<T>>>,
+  mutation_operator: Option<Box<dyn MutationOperator<T>>>,
+  crossover_operator: Option<Box<dyn CrossoverOperator<T>>>,
+	selection_operator: Option<Box<dyn SelectionOperator<T>>>,
+  population_factory: Option<Box<dyn PopulationGenerator<T>>>,
+  probe: Option<Box<dyn Probe<T>>>,
 }
 
-impl<T: Chromosome, S: ChromosomeWrapper<T>> Default for GAConfigOpt<T, S> {
+impl<T: Chromosome> Default for GAConfigOpt<T> {
 	fn default() -> Self {
 		Self {
 			params: Some(GAParams::default()),
@@ -27,8 +27,8 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> Default for GAConfigOpt<T, S> {
 	}
 }
 
-impl<T: Chromosome, S: ChromosomeWrapper<T>> From<GAConfigOpt<T, S>> for GAConfig<T, S> {
-	fn from(config_opt: GAConfigOpt<T, S>) -> Self {
+impl<T: Chromosome> From<GAConfigOpt<T>> for GAConfig<T> {
+	fn from(config_opt: GAConfigOpt<T>) -> Self {
 		GAConfig {
 			params: config_opt.params.unwrap(),
 			fitness_fn: config_opt.fitness_fn.unwrap(),
@@ -41,11 +41,11 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> From<GAConfigOpt<T, S>> for GAConfi
 	}
 }
 
-pub struct Builder<T: Chromosome, S: ChromosomeWrapper<T>> {
-  config: GAConfigOpt<T, S>,
+pub struct Builder<T: Chromosome> {
+  config: GAConfigOpt<T>,
 }
 
-impl<T: Chromosome, S: ChromosomeWrapper<T>> Builder<T, S> {
+impl<T: Chromosome> Builder<T> {
   pub fn new() -> Self {
     Builder {
       config: GAConfigOpt::default()
@@ -75,37 +75,37 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> Builder<T, S> {
     self
   }
 
-  pub fn set_fitness_fn(mut self, fitness_fn: FitnessFn<S>) -> Self {
+  pub fn set_fitness_fn(mut self, fitness_fn: FitnessFn<Individual<T>>) -> Self {
     self.config.fitness_fn = Some(fitness_fn);
     self
   }
 
-  pub fn set_mutation_operator(mut self, mutation_op: Box<dyn MutationOperator<T, S>>) -> Self {
+  pub fn set_mutation_operator(mut self, mutation_op: Box<dyn MutationOperator<T>>) -> Self {
     self.config.mutation_operator = Some(mutation_op);
     self
   }
 
-  pub fn set_crossover_operator(mut self, crossover_op: Box<dyn CrossoverOperator<T, S>>) -> Self {
+  pub fn set_crossover_operator(mut self, crossover_op: Box<dyn CrossoverOperator<T>>) -> Self {
     self.config.crossover_operator = Some(crossover_op);
     self
   }
 
-	pub fn set_selection_operator(mut self, selection_op: Box<dyn SelectionOperator<T, S>>) -> Self {
+	pub fn set_selection_operator(mut self, selection_op: Box<dyn SelectionOperator<T>>) -> Self {
 		self.config.selection_operator = Some(selection_op);
 		self
 	}
 
-  pub fn set_population_generator(mut self, generator: Box<dyn PopulationGenerator<T, S>>) -> Self {
+  pub fn set_population_generator(mut self, generator: Box<dyn PopulationGenerator<T>>) -> Self {
     self.config.population_factory = Some(generator);
     self
   }
 
-  pub fn set_probe(mut self, probe: Box<dyn Probe<T, S>>) -> Self {
+  pub fn set_probe(mut self, probe: Box<dyn Probe<T>>) -> Self {
     self.config.probe = Some(probe);
     self
   }
 
-  pub fn build(self) -> GeneticAlgorithm<T, S> {
+  pub fn build(self) -> GeneticAlgorithm<T> {
     GeneticAlgorithm::new(self.config.into())
   }
 }
