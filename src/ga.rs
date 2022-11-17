@@ -17,13 +17,12 @@ use self::{
 		selection::SelectionOperator,
 		crossover::CrossoverOperator,
 		mutation::MutationOperator
-	}
+	}, population::PopulationGenerator
 };
 
 // trait FitnessFn
 
 type FitnessFn<S> = fn(&S) -> f64;
-type PopulationGenerator<S> = fn(usize) -> Vec<S>;
 
 pub struct GAParams {
   pub selection_rate: f64,
@@ -50,7 +49,7 @@ pub struct GAConfig<T: Chromosome, S: ChromosomeWrapper<T>> {
   pub mutation_operator: Box<dyn MutationOperator<T, S>>,
   pub crossover_operator: Box<dyn CrossoverOperator<T, S>>,
 	pub selection_operator: Box<dyn SelectionOperator<T, S>>,
-  pub population_factory: PopulationGenerator<S>,
+  pub population_factory: Box<dyn PopulationGenerator<T, S>>,
   pub probe: Box<dyn Probe<T, S>>
 }
 
@@ -102,7 +101,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 		self.config.probe.on_start(&self.metadata);
 
 		// 1. Create initial random population.
-		let mut population = (self.config.population_factory)(self.config.params.population_size);
+		let mut population = self.config.population_factory.generate(self.config.params.population_size);
 		self.config.probe.on_initial_population_created(&population);
 
 		// 2. Evaluate fitness for each individual.

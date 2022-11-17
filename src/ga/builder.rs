@@ -1,5 +1,6 @@
 use super::operators::selection::SelectionOperator;
-use super::{GeneticAlgorithm, GAConfig, FitnessFn, MutationOperator, CrossoverOperator, PopulationGenerator, Probe, GAParams};
+use super::population::PopulationGenerator;
+use super::{GeneticAlgorithm, GAConfig, FitnessFn, MutationOperator, CrossoverOperator, Probe, GAParams};
 use super::individual::{ChromosomeWrapper, Chromosome};
 
 struct GAConfigOpt<T: Chromosome, S: ChromosomeWrapper<T>> {
@@ -8,7 +9,7 @@ struct GAConfigOpt<T: Chromosome, S: ChromosomeWrapper<T>> {
   mutation_operator: Option<Box<dyn MutationOperator<T, S>>>,
   crossover_operator: Option<Box<dyn CrossoverOperator<T, S>>>,
 	selection_operator: Option<Box<dyn SelectionOperator<T, S>>>,
-  population_factory: Option<PopulationGenerator<S>>,
+  population_factory: Option<Box<dyn PopulationGenerator<T, S>>>,
   probe: Option<Box<dyn Probe<T, S>>>,
 }
 
@@ -94,7 +95,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> Builder<T, S> {
 		self
 	}
 
-  pub fn set_population_generator(mut self, generator: PopulationGenerator<S>) -> Self {
+  pub fn set_population_generator(mut self, generator: Box<dyn PopulationGenerator<T, S>>) -> Self {
     self.config.population_factory = Some(generator);
     self
   }
