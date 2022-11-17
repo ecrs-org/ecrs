@@ -4,16 +4,12 @@ use rand::Rng;
 
 use super::individual::{Chromosome, ChromosomeWrapper};
 
-/// # Population generator
-///
 /// Implement this trait in order to provide custom population generator
 /// and feed it to an solver.
 pub trait PopulationGenerator<T: Chromosome, S: ChromosomeWrapper<T>> {
 	fn generate(&self, count: usize) -> Vec<S>;
 }
 
-/// # Random points population generator
-///
 /// Implements [PopulationGenerator] trait. Can be used with genetic algorithm.
 ///
 /// Generates vector of random points from R^(dim) space within passed domain restrictions.
@@ -23,6 +19,12 @@ pub struct RandomPoints {
 }
 
 impl RandomPoints {
+	/// Returns [RandomPoints] population generator
+	///
+	/// ### Arguments
+	///
+	/// * `dim` -- Dimension of the sampling space
+	/// * `restrictions` -- Ranges for coordinates
 	pub fn new(dim: usize, restrictions: Vec<Range<f64>>) -> Self {
 		assert!(dim > 0, "Space dimension must be > 0");
 		assert_eq!(dim, restrictions.len(), "Number of restrictions must match dimension of sampled space");
@@ -40,6 +42,11 @@ impl<S> PopulationGenerator<Vec<f64>, S> for RandomPoints
 where
 	S: ChromosomeWrapper<Vec<f64>>
 {
+	/// Generates vector of `count` random points from R^(dim) space within passed domain restrictions
+	///
+	/// ### Arguments
+	///
+	/// * `count` -- Number of points to generate
 	fn generate(&self, count: usize) -> Vec<S> {
 		// FIXME: Sampling from such short interval may cause some f64 values to be more unlikely...
 		let distribution = rand::distributions::Uniform::from(0.0..1.0);
@@ -59,11 +66,19 @@ where
 	}
 }
 
+/// Implements [PopulationGenerator] trait. Can be used with genetic algorithm.
+///
+/// Generates vector of random bit-strings.
 pub struct BitStrings {
 	dim: usize,
 }
 
 impl BitStrings {
+	/// Returns [BitString] population generator
+	///
+	/// ### Arguments
+	///
+	/// * `dim` -- Dimension of the sampling space
 	pub fn new(dim: usize) -> Self {
 		assert!(dim > 0, "Space dimension must be > 0");
 		BitStrings { dim }
@@ -74,6 +89,11 @@ impl<S> PopulationGenerator<Vec<bool>, S> for BitStrings
 where
 	S: ChromosomeWrapper<Vec<bool>>
 {
+	/// Generates vector of `count` random bitstrings
+	///
+	/// ### Arguments
+	///
+	/// * `count` -- Number of bitstrings to generate
 	fn generate(&self, count: usize) -> Vec<S> {
 		let mut population: Vec<S> = Vec::with_capacity(count);
 
