@@ -2,10 +2,10 @@ use std::ops::Index;
 
 use rand::Rng;
 
-use crate::ga::{individual::{ChromosomeWrapper, Chromosome}, GAMetadata};
+use crate::ga::{individual::{Individual, Chromosome}, GAMetadata};
 
-pub trait SelectionOperator<T: Chromosome, S: ChromosomeWrapper<T>> {
-	fn apply<'a>(&mut self, metadata: &GAMetadata, population: &'a [S], count: usize) -> Vec<&'a S>;
+pub trait SelectionOperator<T: Chromosome> {
+	fn apply<'a>(&mut self, metadata: &GAMetadata, population: &'a [Individual<T>], count: usize) -> Vec<&'a Individual<T>>;
 }
 
 pub struct RouletteWheel;
@@ -16,20 +16,20 @@ impl RouletteWheel {
 	}
 }
 
-impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for RouletteWheel {
-	fn apply<'a> (&mut self, _metadata: &GAMetadata, population: &'a [S], count: usize) -> Vec<&'a S> {
+impl<T: Chromosome> SelectionOperator<T> for RouletteWheel {
+	fn apply<'a> (&mut self, _metadata: &GAMetadata, population: &'a [Individual<T>], count: usize) -> Vec<&'a Individual<T>> {
 		let total_fitness: f64 = population.iter()
-			.map(|indiv| indiv.get_fitness())
+			.map(|indiv| indiv.fitness)
 			.sum();
 
-		let mut selected: Vec<&S> = Vec::with_capacity(count);
+		let mut selected: Vec<&Individual<T>> = Vec::with_capacity(count);
 
 		for _ in 0..count {
 			let threshold = total_fitness * rand::random::<f64>();
 
 			let mut crt_sum = 0.0;
 			for indiv in population {
-				crt_sum += indiv.get_fitness();
+				crt_sum += indiv.fitness;
 
 				if crt_sum > threshold {
 					selected.push(indiv);
@@ -49,11 +49,11 @@ impl Random {
 	}
 }
 
-impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Random {
-	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a [S], count: usize) -> Vec<&'a S> {
+impl<T: Chromosome> SelectionOperator<T> for Random {
+	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a [Individual<T>], count: usize) -> Vec<&'a Individual<T>> {
 		// We must use index API, as we want to return vector of references, not vector of actual items
 		let indices = rand::seq::index::sample(&mut rand::thread_rng(), population.len(), count);
-		let mut selected: Vec<&S> = Vec::with_capacity(count);
+		let mut selected: Vec<&Individual<T>> = Vec::with_capacity(count);
 
 		for i in indices {
 			selected.push(&population[i]);
@@ -70,9 +70,9 @@ impl Rank {
 	}
 }
 
-impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Rank {
-	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a [S], count: usize) -> Vec<&'a S> {
-		let mut selected: Vec<&S> = Vec::with_capacity(count);
+impl<T: Chromosome> SelectionOperator<T> for Rank {
+	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a [Individual<T>], count: usize) -> Vec<&'a Individual<T>> {
+		let mut selected: Vec<&Individual<T>> = Vec::with_capacity(count);
 
 		let population_len = population.len();
 		for _ in 0..count {
@@ -82,7 +82,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Rank {
 			let p2 = &population[rand::thread_rng().gen_range(0..population_len)];
 
 			selected.push(
-				if p1.get_fitness() >= p2.get_fitness() {
+				if p1.fitness >= p2.fitness {
 					p1
 				} else {
 					p2
@@ -107,9 +107,9 @@ impl RankR {
 	}
 }
 
-impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for RankR {
-	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a [S], count: usize) -> Vec<&'a S> {
-		let mut selected: Vec<&S> = Vec::with_capacity(count);
+impl<T: Chromosome> SelectionOperator<T> for RankR {
+	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a [Individual<T>], count: usize) -> Vec<&'a Individual<T>> {
+		let mut selected: Vec<&Individual<T>> = Vec::with_capacity(count);
 		let population_len = population.len();
 		let distribution_for_ind = rand::distributions::Uniform::from(0..population_len);
 		let distribution_for_rand = rand::distributions::Uniform::from(0.0..1.0);
@@ -145,13 +145,13 @@ impl Tournament {
 	}
 }
 
-impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Tournament {
-	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a [S], count: usize) -> Vec<&'a S> {
+impl<T: Chromosome> SelectionOperator<T> for Tournament {
+	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a [Individual<T>], count: usize) -> Vec<&'a Individual<T>> {
 		let tournament_size = (population.len() as f64 * self.size_factor) as usize;
 
 		assert!(tournament_size > 0);
 
-		let mut selected: Vec<&S> = Vec::with_capacity(count);
+		let mut selected: Vec<&Individual<T>> = Vec::with_capacity(count);
 
 		for _ in 0..count {
 			let tournament_indices = rand::seq::index::sample(&mut rand::thread_rng(), population.len(), tournament_size);
@@ -172,13 +172,13 @@ impl StochasticUniversalSampling {
 	}
 }
 
-impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for StochasticUniversalSampling {
-	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a [S], count: usize) -> Vec<&'a S> {
+impl<T: Chromosome> SelectionOperator<T> for StochasticUniversalSampling {
+	fn apply<'a>(&mut self, _metadata: &GAMetadata, population: &'a [Individual<T>], count: usize) -> Vec<&'a Individual<T>> {
 		let total_fitness: f64 = population.iter()
-			.map(|indiv| indiv.get_fitness())
+			.map(|indiv| indiv.fitness)
 			.sum();
 
-		let mut selected: Vec<&S> = Vec::with_capacity(count);
+		let mut selected: Vec<&Individual<T>> = Vec::with_capacity(count);
 
 		let distance_between_pointers = total_fitness / (count as f64);
 
@@ -188,7 +188,7 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> SelectionOperator<T, S> for Stochas
 
 		let mut curr_sum = 0.0;
 		for idv in population {
-			curr_sum += idv.get_fitness();
+			curr_sum += idv.fitness;
 
 			while curr_sum >= pointer_pos {
 				selected.push(idv);
@@ -223,21 +223,20 @@ impl Boltzmann {
 	}
 }
 
-impl<T, S> SelectionOperator<T, S> for Boltzmann
+impl<T> SelectionOperator<T> for Boltzmann
 where
-	T: Chromosome + Index<usize, Output = f64>,
-	S: ChromosomeWrapper<T>,
+	T: Chromosome + Index<usize, Output = f64>
 {
-	fn apply<'a>(&mut self, metadata: &GAMetadata, population: &'a [S], count: usize) -> Vec<&'a S> {
+	fn apply<'a>(&mut self, metadata: &GAMetadata, population: &'a [Individual<T>], count: usize) -> Vec<&'a Individual<T>> {
 
-		let mut selected: Vec<&S> = Vec::with_capacity(count);
+		let mut selected: Vec<&Individual<T>> = Vec::with_capacity(count);
 		let mut weights: Vec<f64> = Vec::with_capacity(count);
 
 		let k = 1.0 + 100.0 * (metadata.generation.unwrap() as f64) / (self.max_gen_count as f64);
 		let temp = self.temp_0 * (1.0 - self.alpha).powf(k);
 
 		for idv in population {
-			weights.push((-idv.get_fitness() / temp).exp())
+			weights.push((-idv.fitness / temp).exp())
 		}
 
 		let Ok(indices) = rand::seq::index::sample_weighted(&mut rand::thread_rng(), population.len(), |i| weights[i], count) else {

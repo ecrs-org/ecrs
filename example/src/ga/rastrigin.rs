@@ -1,10 +1,10 @@
 use ecrs::ga;
-use ga::{Individual, individual::ChromosomeWrapper};
+use ga::Individual;
 use itertools::Itertools;
 use rand::Rng;
 
 pub fn rastrigin_fitness(individual: &Individual<Vec<f64>>) -> f64 {
-	5.0 * f64::exp(-rastrigin(individual.get_chromosome()))
+	5.0 * f64::exp(-rastrigin(individual.chromosome_ref()))
 }
 
 fn rastrigin(chromosome: &[f64]) -> f64 {

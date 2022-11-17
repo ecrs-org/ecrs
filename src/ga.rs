@@ -12,7 +12,7 @@ pub use probe::csv_probe::CsvProbe;
 pub use builder::*;
 
 use self::{
-	individual::{Chromosome, ChromosomeWrapper},
+	individual::Chromosome,
 	operators::{
 		selection::SelectionOperator,
 		crossover::CrossoverOperator,
@@ -42,15 +42,15 @@ impl Default for GAParams {
 	}
 }
 
-pub struct GAConfig<T: Chromosome, S: ChromosomeWrapper<T>> {
+pub struct GAConfig<T: Chromosome> {
 	pub params: GAParams,
 	// pub ops: GAOps<S>,
-  pub fitness_fn: FitnessFn<S>,
-  pub mutation_operator: Box<dyn MutationOperator<T, S>>,
-  pub crossover_operator: Box<dyn CrossoverOperator<T, S>>,
-	pub selection_operator: Box<dyn SelectionOperator<T, S>>,
-  pub population_factory: Box<dyn PopulationGenerator<T, S>>,
-  pub probe: Box<dyn Probe<T, S>>
+  pub fitness_fn: FitnessFn<Individual<T>>,
+  pub mutation_operator: Box<dyn MutationOperator<T>>,
+  pub crossover_operator: Box<dyn CrossoverOperator<T>>,
+	pub selection_operator: Box<dyn SelectionOperator<T>>,
+  pub population_factory: Box<dyn PopulationGenerator<T>>,
+  pub probe: Box<dyn Probe<T>>
 }
 
 #[derive(Default)]
@@ -65,20 +65,20 @@ impl GAMetadata {
 		GAMetadata { start_time: None, duration: None, generation: None }
 	}
 }
-pub struct GeneticAlgorithm<T: Chromosome, S: ChromosomeWrapper<T>> {
-  config: GAConfig<T, S>,
+pub struct GeneticAlgorithm<T: Chromosome> {
+  config: GAConfig<T>,
 	metadata: GAMetadata,
 }
 
-impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
-  pub fn new(config: GAConfig<T, S>) -> Self {
+impl<T: Chromosome> GeneticAlgorithm<T> {
+  pub fn new(config: GAConfig<T>) -> Self {
     GeneticAlgorithm {
       config,
 			metadata: GAMetadata::new(),
     }
   }
 
-	fn find_best_individual(population: &Vec<S>) -> &S {
+	fn find_best_individual(population: &Vec<Individual<T>>) -> &Individual<T> {
 		debug_assert!(!population.is_empty());
 		let mut best_individual = &population[0];
 		for idv in population.iter().skip(1) {
@@ -89,14 +89,14 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 		best_individual
 	}
 
-	fn evaluate_fitness_in_population(&self, population: &mut Vec<S>) {
+	fn evaluate_fitness_in_population(&self, population: &mut Vec<Individual<T>>) {
 		for idv in population {
 			let fitness = (self.config.fitness_fn)(idv);
-			idv.set_fitness(fitness);
+			idv.fitness = fitness;
 		}
 	}
 
-	pub fn run(&mut self) -> Option<S> {
+	pub fn run(&mut self) -> Option<Individual<T>> {
 		self.metadata.start_time = Some(std::time::Instant::now());
 		self.config.probe.on_start(&self.metadata);
 
@@ -120,10 +120,10 @@ impl<T: Chromosome, S: ChromosomeWrapper<T>> GeneticAlgorithm<T, S> {
 			self.evaluate_fitness_in_population(&mut population);
 
 			// 4. Create mating pool by applying selection operator.
-			let mating_pool: Vec<&S> = self.config.selection_operator.apply(&self.metadata, &population, population.len());
+			let mating_pool: Vec<&Individual<T>> = self.config.selection_operator.apply(&self.metadata, &population, population.len());
 
 			// 5. From mating pool create new generation (apply crossover & mutation).
-			let mut children: Vec<S> = Vec::with_capacity(self.config.params.population_size);
+			let mut children: Vec<Individual<T>> = Vec::with_capacity(self.config.params.population_size);
 
 			// FIXME: Do not assume that population size is an even number.
 			for i in (0..mating_pool.len()).step_by(2) {

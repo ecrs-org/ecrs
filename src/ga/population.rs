@@ -2,12 +2,12 @@ use std::ops::Range;
 use itertools::Itertools;
 use rand::Rng;
 
-use super::individual::{Chromosome, ChromosomeWrapper};
+use super::{individual::Chromosome, Individual};
 
 /// Implement this trait in order to provide custom population generator
 /// and feed it to an solver.
-pub trait PopulationGenerator<T: Chromosome, S: ChromosomeWrapper<T>> {
-	fn generate(&self, count: usize) -> Vec<S>;
+pub trait PopulationGenerator<T: Chromosome> {
+	fn generate(&self, count: usize) -> Vec<Individual<T>>;
 }
 
 /// Implements [PopulationGenerator] trait. Can be used with genetic algorithm.
@@ -38,20 +38,17 @@ impl RandomPoints {
 	}
 }
 
-impl<S> PopulationGenerator<Vec<f64>, S> for RandomPoints
-where
-	S: ChromosomeWrapper<Vec<f64>>
-{
+impl PopulationGenerator<Vec<f64>> for RandomPoints {
 	/// Generates vector of `count` random points from R^(dim) space within passed domain restrictions
 	///
 	/// ### Arguments
 	///
 	/// * `count` -- Number of points to generate
-	fn generate(&self, count: usize) -> Vec<S> {
+	fn generate(&self, count: usize) -> Vec<Individual<Vec<f64>>> {
 		// FIXME: Sampling from such short interval may cause some f64 values to be more unlikely...
 		let distribution = rand::distributions::Uniform::from(0.0..1.0);
 
-		let mut population: Vec<S> = Vec::with_capacity(count);
+		let mut population: Vec<Individual<Vec<f64>>> = Vec::with_capacity(count);
 		let rng = &mut rand::thread_rng();
 
 		for _ in 0..count {
@@ -59,7 +56,7 @@ where
 			for restriction in &self.restrictions {
 				point.push(restriction.0 * rng.sample(distribution) + restriction.1);
 			}
-			population.push(S::from(point));
+			population.push(Individual::from(point));
 		}
 
 		population
@@ -85,23 +82,20 @@ impl BitStrings {
 	}
 }
 
-impl<S> PopulationGenerator<Vec<bool>, S> for BitStrings
-where
-	S: ChromosomeWrapper<Vec<bool>>
-{
+impl PopulationGenerator<Vec<bool>> for BitStrings {
 	/// Generates vector of `count` random bitstrings
 	///
 	/// ### Arguments
 	///
 	/// * `count` -- Number of bitstrings to generate
-	fn generate(&self, count: usize) -> Vec<S> {
-		let mut population: Vec<S> = Vec::with_capacity(count);
+	fn generate(&self, count: usize) -> Vec<Individual<Vec<bool>>> {
+		let mut population: Vec<Individual<Vec<bool>>> = Vec::with_capacity(count);
 
 		let distr = rand::distributions::Uniform::from(0.0..1.0);
 		let rng = &mut rand::thread_rng();
 
 		for _ in 0..count {
-			population.push(S::from(rng.sample_iter(distr).take(self.dim).map(|v| v < 0.5).collect_vec()));
+			population.push(Individual::from(rng.sample_iter(distr).take(self.dim).map(|v| v < 0.5).collect_vec()));
 		}
 
 		population
@@ -111,8 +105,6 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::ga::individual::ChromosomeWrapper;
-
     use super::{RandomPoints, PopulationGenerator, BitStrings};
 
 	#[test]
@@ -122,7 +114,7 @@ mod tests {
 		let points: Vec<crate::ga::Individual<Vec<f64>>> = gen.generate(30);
 
 		for p in points {
-			assert_eq!(p.get_chromosome().len(), dim)
+			assert_eq!(p.chromosome.len(), dim)
 		}
 	}
 
@@ -134,7 +126,7 @@ mod tests {
 		let points: Vec<crate::ga::Individual<Vec<f64>>> = gen.generate(30);
 
 		for p in points {
-			for (v, res) in std::iter::zip(p.get_chromosome(), &restrictions) {
+			for (v, res) in std::iter::zip(p.chromosome_ref(), &restrictions) {
 				assert!(res.contains(v))
 			}
 		}
@@ -147,7 +139,7 @@ mod tests {
 		let points: Vec<crate::ga::Individual<Vec<bool>>> = gen.generate(30);
 
 		for p in points {
-			assert_eq!(p.get_chromosome().len(), dim)
+			assert_eq!(p.chromosome_ref().len(), dim)
 		}
 	}
 }

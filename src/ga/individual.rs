@@ -7,18 +7,26 @@ pub trait Chromosome: Sized + Sync + Send + Clone + Default + Debug {}
 /// Blanket implementation
 impl<T: Sized + Sync + Send + Clone + Default + Debug> Chromosome for T {}
 
-pub trait ChromosomeWrapper<T: Chromosome>: Sized + Sync + Clone + Ord + Debug + From<T> {
-	fn new() -> Self;
-	fn get_chromosome(&self) -> &T;
-	fn get_chromosome_mut(&mut self) -> &mut T;
-	fn get_fitness(&self) -> f64;
-	fn set_fitness(&mut self, fitness: f64);
-}
-
 #[derive(Clone, Debug, Serialize)]
 pub struct Individual<T: Chromosome> {
   pub chromosome: T,
   pub fitness: f64,
+}
+
+impl<T: Chromosome> Individual<T> {
+	pub fn new() -> Self {
+		Individual { chromosome: T::default(), fitness: f64::default() }
+	}
+
+	#[inline]
+	pub fn chromosome_ref(&self) -> &T {
+		&self.chromosome
+	}
+
+	#[inline]
+	pub fn chromosome_ref_mut(&mut self) -> &mut T {
+		&mut self.chromosome
+	}
 }
 
 impl<T: Chromosome> From<T> for Individual<T> {
@@ -47,32 +55,6 @@ impl<T: Chromosome> Ord for Individual<T> {
 			return ord;
 		}
 		unimplemented!();
-	}
-}
-
-impl<T: Chromosome> ChromosomeWrapper<T> for Individual<T> {
-	fn new() -> Self {
-		Individual { chromosome: T::default(), fitness: f64::default() }
-	}
-
-	#[inline]
-	fn get_chromosome(&self) -> &T {
-		&self.chromosome
-	}
-
-	#[inline]
-	fn get_chromosome_mut(&mut self) -> &mut T {
-		&mut self.chromosome
-	}
-
-	#[inline]
-	fn get_fitness(&self) -> f64 {
-		self.fitness
-	}
-
-	#[inline]
-	fn set_fitness(&mut self, fitness: f64) {
-		self.fitness = fitness;
 	}
 }
 
