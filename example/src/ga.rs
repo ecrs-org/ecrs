@@ -25,7 +25,7 @@ pub fn ga_example() {
 		.set_mutation_operator(Box::new(ga::operators::mutation::Identity::new()))
 		.set_population_generator(Box::new(ga::population::RandomPoints::new(3, vec![-5.12..5.12, -5.12..5.12, -5.12..5.12])))
 		.set_selection_operator(Box::new(ga::operators::selection::Boltzmann::new(0.05, 80.0, 500, false)))
-		.set_probe(Box::new(ga::probe::stdout_probe::StdoutProbe{}))
+		.set_probe(Box::new(ga::probe::stdout_probe::StdoutProbe))
     .build()
     .run();
 
