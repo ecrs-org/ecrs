@@ -49,6 +49,7 @@ use rand::Rng;
 pub use ant_system_cfg::AntSystemCfg;
 pub use ants_system_v2::AntSystem;
 pub use ants_system_v2::probe;
+pub use ants_system_v2::builder;
 
 mod ants_system_v2;
 mod ant_system_cfg;

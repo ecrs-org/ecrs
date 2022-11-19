@@ -1,6 +1,6 @@
 mod solution;
 pub mod probe;
-mod builder;
+pub mod builder;
 
 use std::collections::HashSet;
 use std::iter::zip;
