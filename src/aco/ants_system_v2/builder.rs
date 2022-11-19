@@ -1,5 +1,5 @@
-use crate::aco::{AntSystem, AntSystemCfg, FMatrix};
 use crate::aco::probe::Probe;
+use crate::aco::{AntSystem, AntSystemCfg, FMatrix};
 
 pub struct Builder {
     conf: AntSystemCfg,
@@ -8,23 +8,22 @@ pub struct Builder {
 type Float = f64;
 
 impl Builder {
-
-    pub fn new() -> Self{
+    pub fn new() -> Self {
         Builder {
-            conf: AntSystemCfg::default()
+            conf: AntSystemCfg::default(),
         }
     }
 
-    pub fn set_weights(mut self, weights: FMatrix) -> Self{
+    pub fn set_weights(mut self, weights: FMatrix) -> Self {
         self.conf.weights = weights;
         self
     }
-    
-    pub fn set_heuristic(mut self, heuristic: FMatrix) -> Self{
+
+    pub fn set_heuristic(mut self, heuristic: FMatrix) -> Self {
         self.conf.heuristic = heuristic;
         self
     }
-    
+
     pub fn set_alpha(mut self, alpha: Float) -> Self {
         self.conf.alpha = alpha;
         self
@@ -34,9 +33,12 @@ impl Builder {
         self.conf.beta = beta;
         self
     }
-    
+
     pub fn set_evaporation_rate(mut self, evaporation_rate: Float) -> Self {
-        assert!(evaporation_rate > 1 as Float || evaporation_rate < 0 as Float, "Evaporation rate must be between 0 and 1");
+        assert!(
+            evaporation_rate > 1 as Float || evaporation_rate < 0 as Float,
+            "Evaporation rate must be between 0 and 1"
+        );
         self.conf.evaporation_rate = evaporation_rate;
         self
     }
