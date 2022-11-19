@@ -1,21 +1,9 @@
-use log::warn;
 use crate::aco::{AntSystem, AntSystemCfg, FMatrix};
 use crate::aco::probe::Probe;
 
 pub struct Builder {
     conf: AntSystemCfg,
 }
-
-// pub struct AntSystemCfg {
-//     pub weights: FMatrix,
-//     pub heuristic: FMatrix,
-//     pub alpha: f64,
-//     pub beta: f64,
-//     pub evaporation_rate: f64,
-//     pub ants_num: usize,
-//     pub iteration: usize,
-//     pub probe: Box<dyn Probe>
-// }
 
 type Float = f64;
 
@@ -48,11 +36,13 @@ impl Builder {
     }
     
     pub fn set_evaporation_rate(mut self, evaporation_rate: Float) -> Self {
+        assert!(evaporation_rate > 1 as Float || evaporation_rate < 0 as Float, "Evaporation rate must be between 0 and 1");
         self.conf.evaporation_rate = evaporation_rate;
         self
     }
 
     pub fn set_ants_num(mut self, ants_num: usize) -> Self {
+        assert!(ants_num > 0, "Number of ants must be greater than 0");
         self.conf.ants_num = ants_num;
         self
     }
@@ -67,7 +57,11 @@ impl Builder {
         self
     }
 
-    pub fn build(self) -> AntSystem {
+    pub fn build(mut self) -> AntSystem {
+        if self.conf.heuristic.shape() != self.conf.weights.shape() {
+            let (nrow, ncol) = self.conf.weights.shape();
+            self.conf.heuristic = FMatrix::repeat(nrow, ncol, 1 as Float);
+        }
         AntSystem::new(self.conf)
     }
 }
