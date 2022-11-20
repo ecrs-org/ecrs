@@ -33,8 +33,8 @@
 //!   weights: cost,
 //!   heuristic,
 //!   probe,
-//!   ants_num: 100,
-//!   iteration: 1000,
+//!   ants_num: 10,
+//!   iteration: 100,
 //!   ..AntSystemCfg::default()
 //! });
 //!

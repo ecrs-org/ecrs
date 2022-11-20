@@ -1,5 +1,4 @@
 use ecrs::ga::{
-  individual,
   operators::selection::{
     Boltzmann, Random, Rank, RankR, RouletteWheel, SelectionOperator, StochasticUniversalSampling, Tournament,
   },
@@ -138,9 +137,9 @@ fn sus_returns_demanded_size_when_fitness_positive() {
   let mut population = BitStrings::new(21).generate(expected_population_size);
 
   // SUS requires positive fitness
-  // for mut individual in &mut population {
-  // 	individual.fitness = 1.0;
-  // }
+  for mut individual in &mut population {
+  	individual.fitness = 1.0;
+  }
 
   assert_eq!(
     expected_population_size,
