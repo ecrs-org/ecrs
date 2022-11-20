@@ -1,4 +1,5 @@
 use ecrs::ga::{
+  individual,
   operators::selection::{
     Boltzmann, Random, Rank, RankR, RouletteWheel, SelectionOperator, StochasticUniversalSampling, Tournament,
   },
@@ -132,9 +133,14 @@ fn tournament_returns_demanded_size() {
 }
 
 #[test]
-fn sus_returns_demanded_size() {
+fn sus_returns_demanded_size_when_fitness_positive() {
   let expected_population_size: usize = 42;
-  let population = BitStrings::new(21).generate(expected_population_size);
+  let mut population = BitStrings::new(21).generate(expected_population_size);
+
+  // SUS requires positive fitness
+  // for mut individual in &mut population {
+  // 	individual.fitness = 1.0;
+  // }
 
   assert_eq!(
     expected_population_size,
@@ -160,7 +166,7 @@ fn sus_returns_demanded_size() {
 fn boltzmann_returns_demanded_size() {
   let expected_population_size: usize = 42;
   let expected_selection_size = expected_population_size / 2;
-	let dim = 21;
+  let dim = 21;
 
   let mut constraints: Vec<std::ops::Range<f64>> = Vec::with_capacity(dim);
   for _ in 0..dim {
@@ -177,7 +183,6 @@ fn boltzmann_returns_demanded_size() {
 
   // FIXME: We must add mocking!
   let metadata = GAMetadata::new(Some(std::time::Instant::now()), None, Some(40));
-
 
   let selected = Boltzmann::new(0.2, 6.0, 300, true).apply(&metadata, &population, expected_selection_size);
 

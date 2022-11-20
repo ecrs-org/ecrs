@@ -58,11 +58,15 @@ pub struct GAMetadata {
 }
 
 impl GAMetadata {
-  pub fn new(start_time: Option<std::time::Instant>, duration: Option<std::time::Duration>, generation: Option<usize>) -> Self {
+  pub fn new(
+    start_time: Option<std::time::Instant>,
+    duration: Option<std::time::Duration>,
+    generation: Option<usize>,
+  ) -> Self {
     GAMetadata {
-			start_time,
-			duration,
-			generation,
+      start_time,
+      duration,
+      generation,
     }
   }
 }
