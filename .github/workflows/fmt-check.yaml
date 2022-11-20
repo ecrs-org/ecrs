@@ -14,7 +14,7 @@ env:
   RUSTFLAGS: "-Dwarnings"
 
 jobs:
-  clippy_check:
+  fmt_check:
     runs-on: ubuntu-latest
 
     steps:
