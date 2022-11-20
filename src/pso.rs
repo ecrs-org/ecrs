@@ -28,33 +28,33 @@ use crate::test_functions::rosenbrock;
 ///  - cognitive_coefficient: 1.0
 ///  - social_coefficient: 3.0
 pub struct PSOAlgorithmCfg {
-    dimensions: usize,
-    lower_bound: f64,
-    upper_bound: f64,
-    particle_count: usize,
-    inertia_weight: f64,
-    cognitive_coefficient: f64,
-    social_coefficient: f64,
-    function: fn(&Vec<f64>) -> f64,
-    iterations: usize,
-    probe: Box<dyn Probe>,
+  dimensions: usize,
+  lower_bound: f64,
+  upper_bound: f64,
+  particle_count: usize,
+  inertia_weight: f64,
+  cognitive_coefficient: f64,
+  social_coefficient: f64,
+  function: fn(&Vec<f64>) -> f64,
+  iterations: usize,
+  probe: Box<dyn Probe>,
 }
 
 impl Default for PSOAlgorithmCfg {
-    fn default() -> Self {
-        PSOAlgorithmCfg {
-            dimensions: 2,
-            lower_bound: -10.0,
-            upper_bound: 10.0,
-            particle_count: 30,
-            inertia_weight: 0.5,
-            cognitive_coefficient: 1.0,
-            social_coefficient: 3.0,
-            function: rosenbrock,
-            iterations: 500,
-            probe: Box::new(ConsoleProbe::new()),
-        }
+  fn default() -> Self {
+    PSOAlgorithmCfg {
+      dimensions: 2,
+      lower_bound: -10.0,
+      upper_bound: 10.0,
+      particle_count: 30,
+      inertia_weight: 0.5,
+      cognitive_coefficient: 1.0,
+      social_coefficient: 3.0,
+      function: rosenbrock,
+      iterations: 500,
+      probe: Box::new(ConsoleProbe::new()),
     }
+  }
 }
 
 /// Struct used for running PSO algorithm
@@ -76,36 +76,34 @@ impl Default for PSOAlgorithmCfg {
 /// algorithm.run();
 /// ```
 pub struct PSOAlgorithm {
-    config: PSOAlgorithmCfg,
-    swarm: Swarm,
+  config: PSOAlgorithmCfg,
+  swarm: Swarm,
 }
 
 impl PSOAlgorithm {
-    pub fn new(config: PSOAlgorithmCfg) -> Self {
-        let swarm = Swarm::generate(
-            config.particle_count,
-            config.dimensions,
-            config.lower_bound,
-            config.upper_bound,
-            config.function.borrow(),
-        );
-        PSOAlgorithm { config, swarm }
-    }
+  pub fn new(config: PSOAlgorithmCfg) -> Self {
+    let swarm = Swarm::generate(
+      config.particle_count,
+      config.dimensions,
+      config.lower_bound,
+      config.upper_bound,
+      config.function.borrow(),
+    );
+    PSOAlgorithm { config, swarm }
+  }
 
-    pub fn run(&mut self) {
-        self.config.probe.on_begin(&self.swarm);
-        for iteration in 0..self.config.iterations {
-            self.swarm.update_velocities(
-                &self.config.inertia_weight,
-                &self.config.cognitive_coefficient,
-                &self.config.social_coefficient,
-            );
-            self.swarm.update_positions(self.config.function);
-            self.swarm.update_best_position(self.config.function);
-            self.config
-                .probe
-                .on_new_generation(&self.swarm, iteration + 1);
-        }
-        self.config.probe.on_end(&self.swarm);
+  pub fn run(&mut self) {
+    self.config.probe.on_begin(&self.swarm);
+    for iteration in 0..self.config.iterations {
+      self.swarm.update_velocities(
+        &self.config.inertia_weight,
+        &self.config.cognitive_coefficient,
+        &self.config.social_coefficient,
+      );
+      self.swarm.update_positions(self.config.function);
+      self.swarm.update_best_position(self.config.function);
+      self.config.probe.on_new_generation(&self.swarm, iteration + 1);
     }
+    self.config.probe.on_end(&self.swarm);
+  }
 }

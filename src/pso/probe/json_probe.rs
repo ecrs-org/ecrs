@@ -7,45 +7,45 @@ use std::io::Write;
 
 #[derive(Serialize)]
 struct Record {
-    generation: usize,
-    best_value: f64,
-    best_position: Vec<f64>,
+  generation: usize,
+  best_value: f64,
+  best_position: Vec<f64>,
 }
 
 pub struct JsonProbe {
-    filename: &'static str,
-    records: Vec<Record>,
+  filename: &'static str,
+  records: Vec<Record>,
 }
 
 impl JsonProbe {
-    pub fn new(filename: &'static str) -> JsonProbe {
-        JsonProbe {
-            filename,
-            records: vec![],
-        }
+  pub fn new(filename: &'static str) -> JsonProbe {
+    JsonProbe {
+      filename,
+      records: vec![],
     }
+  }
 }
 
 impl Probe for JsonProbe {
-    fn on_begin(&mut self, swarm: &Swarm) {
-        self.on_new_generation(swarm, 0);
-    }
+  fn on_begin(&mut self, swarm: &Swarm) {
+    self.on_new_generation(swarm, 0);
+  }
 
-    fn on_end(&mut self, _swarm: &Swarm) {
-        let mut writer = &File::create(self.filename).unwrap();
-        if serde_json::to_writer_pretty(writer, &self.records).is_err() {
-            eprintln!("Failed to serialize records");
-        }
-        if writer.flush().is_err() {
-            eprintln!("Failed to save algorithm results");
-        }
+  fn on_end(&mut self, _swarm: &Swarm) {
+    let mut writer = &File::create(self.filename).unwrap();
+    if serde_json::to_writer_pretty(writer, &self.records).is_err() {
+      eprintln!("Failed to serialize records");
     }
+    if writer.flush().is_err() {
+      eprintln!("Failed to save algorithm results");
+    }
+  }
 
-    fn on_new_generation(&mut self, swarm: &Swarm, generation: usize) {
-        self.records.push(Record {
-            generation,
-            best_value: swarm.best_position_value,
-            best_position: swarm.best_position.clone(),
-        });
-    }
+  fn on_new_generation(&mut self, swarm: &Swarm, generation: usize) {
+    self.records.push(Record {
+      generation,
+      best_value: swarm.best_position_value,
+      best_position: swarm.best_position.clone(),
+    });
+  }
 }

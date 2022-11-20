@@ -5,5 +5,5 @@ mod ga;
 mod pso;
 
 fn main() {
-    ga::ga_example();
+  ga::ga_example();
 }
