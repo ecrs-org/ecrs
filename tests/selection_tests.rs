@@ -159,13 +159,15 @@ fn sus_returns_demanded_size() {
 #[test]
 fn boltzmann_returns_demanded_size() {
   let expected_population_size: usize = 42;
+  let expected_selection_size = expected_population_size / 2;
+	let dim = 21;
 
-  let mut constraints: Vec<std::ops::Range<f64>> = Vec::with_capacity(expected_population_size);
-  for _ in 0..expected_population_size {
+  let mut constraints: Vec<std::ops::Range<f64>> = Vec::with_capacity(dim);
+  for _ in 0..dim {
     constraints.push(-1.0..1.0);
   }
 
-  let population = RandomPoints::new(21, constraints).generate(expected_population_size);
+  let population = RandomPoints::new(dim, constraints).generate(expected_population_size);
 
   assert_eq!(
     expected_population_size,
@@ -174,9 +176,8 @@ fn boltzmann_returns_demanded_size() {
   );
 
   // FIXME: We must add mocking!
-  let metadata = GAMetadata::default();
+  let metadata = GAMetadata::new(Some(std::time::Instant::now()), None, Some(40));
 
-  let expected_selection_size = expected_population_size / 2;
 
   let selected = Boltzmann::new(0.2, 6.0, 300, true).apply(&metadata, &population, expected_selection_size);
 

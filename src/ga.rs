@@ -58,11 +58,11 @@ pub struct GAMetadata {
 }
 
 impl GAMetadata {
-  pub fn new() -> Self {
+  pub fn new(start_time: Option<std::time::Instant>, duration: Option<std::time::Duration>, generation: Option<usize>) -> Self {
     GAMetadata {
-      start_time: None,
-      duration: None,
-      generation: None,
+			start_time,
+			duration,
+			generation,
     }
   }
 }
@@ -75,7 +75,7 @@ impl<T: Chromosome> GeneticAlgorithm<T> {
   pub fn new(config: GAConfig<T>) -> Self {
     GeneticAlgorithm {
       config,
-      metadata: GAMetadata::new(),
+      metadata: GAMetadata::new(None, None, None),
     }
   }
 

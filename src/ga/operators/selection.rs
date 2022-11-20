@@ -24,6 +24,7 @@ impl RouletteWheel {
   }
 }
 
+// FIXME: It will return empty vector if total_fitness == 0
 impl<T: Chromosome> SelectionOperator<T> for RouletteWheel {
   fn apply<'a>(
     &mut self,
@@ -196,6 +197,8 @@ impl StochasticUniversalSampling {
   }
 }
 
+// FIXME: Panics then total_fitness == 0
+// Should this be expected or do we want to handle this?
 impl<T: Chromosome> SelectionOperator<T> for StochasticUniversalSampling {
   fn apply<'a>(
     &mut self,
