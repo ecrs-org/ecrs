@@ -1,5 +1,7 @@
 use ecrs::ga::{
-  operators::selection::{Random, Rank, RankR, RouletteWheel, SelectionOperator, Tournament, StochasticUniversalSampling, Boltzmann},
+  operators::selection::{
+    Boltzmann, Random, Rank, RankR, RouletteWheel, SelectionOperator, StochasticUniversalSampling, Tournament,
+  },
   population::{BitStrings, PopulationGenerator, RandomPoints},
   GAMetadata,
 };
@@ -158,11 +160,10 @@ fn sus_returns_demanded_size() {
 fn boltzmann_returns_demanded_size() {
   let expected_population_size: usize = 42;
 
-	let mut constraints: Vec<std::ops::Range<f64>> = Vec::with_capacity(expected_population_size);
-	for _ in 0..expected_population_size {
-		constraints.push(-1.0..1.0);
-	}
-
+  let mut constraints: Vec<std::ops::Range<f64>> = Vec::with_capacity(expected_population_size);
+  for _ in 0..expected_population_size {
+    constraints.push(-1.0..1.0);
+  }
 
   let population = RandomPoints::new(21, constraints).generate(expected_population_size);
 
