@@ -11,7 +11,7 @@ pub trait MutationOperator<T: Chromosome> {
 	/// ## Arguments
 	///
 	/// * `individual` - mutable reference to to-be-mutated individual
-	fn apply(&mut self, indivudial: &mut Individual<T>);
+	fn apply(&self, indivudial: &mut Individual<T>);
 }
 
 /// # Identity Mutation Operator
