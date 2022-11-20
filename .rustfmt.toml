@@ -33,7 +33,7 @@
 
 # Maximum width of each line.
 # Default: 100
-#   max_width =
+max_width = 110
 
 # Ideal width of each line.
 # Default: 80
@@ -41,7 +41,7 @@
 
 # Number of spaces per tab.
 # Default: 4
-  # tab_spaces =
+tab_spaces = 2
 
 # Maximum width of the args of a function call before
 # falling back to vertical formatting.
