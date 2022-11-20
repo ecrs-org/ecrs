@@ -24,6 +24,9 @@ impl RouletteWheel {
   }
 }
 
+// FIXME: It will return empty vector if total_fitness == 0
+// WORKING CHANGE: crt >= threshold instead of crt_sum > threshold
+// But this should be resolved some other way
 impl<T: Chromosome> SelectionOperator<T> for RouletteWheel {
   fn apply<'a>(
     &mut self,
@@ -42,7 +45,7 @@ impl<T: Chromosome> SelectionOperator<T> for RouletteWheel {
       for indiv in population {
         crt_sum += indiv.fitness;
 
-        if crt_sum > threshold {
+        if crt_sum >= threshold {
           selected.push(indiv);
           break;
         }
@@ -196,6 +199,8 @@ impl StochasticUniversalSampling {
   }
 }
 
+// FIXME: Panics then total_fitness == 0
+// Should this be expected or do we want to handle this?
 impl<T: Chromosome> SelectionOperator<T> for StochasticUniversalSampling {
   fn apply<'a>(
     &mut self,

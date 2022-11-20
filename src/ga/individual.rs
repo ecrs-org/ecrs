@@ -35,7 +35,7 @@ impl<T: Chromosome> From<T> for Individual<T> {
   fn from(chromosome: T) -> Self {
     Individual {
       chromosome,
-      fitness: f64::default(),
+      fitness: f64::MIN,
     }
   }
 }

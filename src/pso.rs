@@ -61,7 +61,7 @@ impl Default for PSOAlgorithmCfg {
 /// # Usage example:
 /// ```rust
 /// # use ecrs::pso::{builder::PSOAlgorithmBuilder, self};
-/// let iterations = 2000;
+/// let iterations = 50; // use more reasonable number here
 /// let console_probe = Box::new(pso::probe::console_probe::ConsoleProbe::new());
 /// let csv_probe = Box::new(pso::probe::csv_probe::CsvProbe::new("pso_example.csv"));
 /// let json_probe = Box::new(pso::probe::json_probe::JsonProbe::new("pso_example.json"));
