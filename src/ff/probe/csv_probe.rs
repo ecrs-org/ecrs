@@ -9,7 +9,9 @@ impl CSVProbe {
 }
 
 impl Probe for CSVProbe {
-    fn on_start(&mut self) { unimplemented!(); }
+    fn on_start(&mut self) {
+        unimplemented!();
+    }
     fn on_iteration_start(&mut self, _num: &u32) {
         unimplemented!();
     }

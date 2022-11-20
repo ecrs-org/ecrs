@@ -2,13 +2,13 @@ use crate::pso::probe::Probe;
 use crate::pso::{PSOAlgorithm, PSOAlgorithmCfg};
 
 pub struct PSOAlgorithmBuilder {
-    config: PSOAlgorithmCfg
+    config: PSOAlgorithmCfg,
 }
 
 impl PSOAlgorithmBuilder {
     pub fn new() -> Self {
         PSOAlgorithmBuilder {
-            config: PSOAlgorithmCfg::default()
+            config: PSOAlgorithmCfg::default(),
         }
     }
 

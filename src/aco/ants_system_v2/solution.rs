@@ -14,8 +14,8 @@ pub struct Solution {
 impl Default for Solution {
     fn default() -> Self {
         Self {
-            matrix: FMatrix::zeros(0,0),
-            cost: f64::max_value().unwrap()
+            matrix: FMatrix::zeros(0, 0),
+            cost: f64::max_value().unwrap(),
         }
     }
 }

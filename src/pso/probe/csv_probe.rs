@@ -1,17 +1,16 @@
 use crate::pso::probe::Probe;
 use crate::pso::swarm::Swarm;
-use serde::{Serialize};
-
+use serde::Serialize;
 
 #[derive(Serialize)]
 struct Record {
     generation: usize,
-    best_value: f64
+    best_value: f64,
 }
 
-pub struct CsvProbe{
+pub struct CsvProbe {
     filename: &'static str,
-    records: Vec<Record>
+    records: Vec<Record>,
 }
 
 impl CsvProbe {
@@ -32,18 +31,18 @@ impl Probe for CsvProbe {
         let mut writer = csv::WriterBuilder::new().from_path(self.filename).unwrap();
         for record in self.records.iter() {
             if writer.serialize(record).is_err() {
-								eprintln!("Failed to serialize a record");
-						}
+                eprintln!("Failed to serialize a record");
+            }
         }
         if writer.flush().is_err() {
-						eprintln!("Failed to save algorithm results");
-				}
+            eprintln!("Failed to save algorithm results");
+        }
     }
 
     fn on_new_generation(&mut self, swarm: &Swarm, generation: usize) {
-        self.records.push(Record{
+        self.records.push(Record {
             generation,
-            best_value: swarm.best_position_value
+            best_value: swarm.best_position_value,
         });
     }
 }

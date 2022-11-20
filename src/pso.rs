@@ -1,16 +1,15 @@
 use std::borrow::Borrow;
 
+pub mod builder;
 pub mod particle;
 pub mod probe;
 pub mod swarm;
 pub mod util;
-pub mod builder;
 
 use crate::pso::probe::console_probe::ConsoleProbe;
 use crate::pso::probe::Probe;
 use crate::pso::swarm::Swarm;
 use crate::test_functions::rosenbrock;
-
 
 /// Struct wrapping all configuration parameters of PSO algorithm.
 /// # Parameters:
@@ -38,7 +37,7 @@ pub struct PSOAlgorithmCfg {
     social_coefficient: f64,
     function: fn(&Vec<f64>) -> f64,
     iterations: usize,
-    probe: Box<dyn Probe>
+    probe: Box<dyn Probe>,
 }
 
 impl Default for PSOAlgorithmCfg {
@@ -53,7 +52,7 @@ impl Default for PSOAlgorithmCfg {
             social_coefficient: 3.0,
             function: rosenbrock,
             iterations: 500,
-            probe:Box::new(ConsoleProbe::new())
+            probe: Box::new(ConsoleProbe::new()),
         }
     }
 }
@@ -78,25 +77,34 @@ impl Default for PSOAlgorithmCfg {
 /// ```
 pub struct PSOAlgorithm {
     config: PSOAlgorithmCfg,
-    swarm: Swarm
+    swarm: Swarm,
 }
 
 impl PSOAlgorithm {
     pub fn new(config: PSOAlgorithmCfg) -> Self {
-        let swarm = Swarm::generate(config.particle_count, config.dimensions, config.lower_bound, config.upper_bound, config.function.borrow());
-        PSOAlgorithm {
-            config,
-            swarm
-        }
+        let swarm = Swarm::generate(
+            config.particle_count,
+            config.dimensions,
+            config.lower_bound,
+            config.upper_bound,
+            config.function.borrow(),
+        );
+        PSOAlgorithm { config, swarm }
     }
 
     pub fn run(&mut self) {
         self.config.probe.on_begin(&self.swarm);
         for iteration in 0..self.config.iterations {
-            self.swarm.update_velocities(&self.config.inertia_weight, &self.config.cognitive_coefficient, &self.config.social_coefficient);
+            self.swarm.update_velocities(
+                &self.config.inertia_weight,
+                &self.config.cognitive_coefficient,
+                &self.config.social_coefficient,
+            );
             self.swarm.update_positions(self.config.function);
             self.swarm.update_best_position(self.config.function);
-            self.config.probe.on_new_generation(&self.swarm, iteration + 1);
+            self.config
+                .probe
+                .on_new_generation(&self.swarm, iteration + 1);
         }
         self.config.probe.on_end(&self.swarm);
     }

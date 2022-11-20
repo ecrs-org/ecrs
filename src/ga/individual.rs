@@ -1,6 +1,5 @@
-use std::fmt::Debug;
 use serde::Serialize;
-
+use std::fmt::Debug;
 
 pub trait Chromosome: Sized + Sync + Send + Clone + Default + Debug {}
 
@@ -9,53 +8,59 @@ impl<T: Sized + Sync + Send + Clone + Default + Debug> Chromosome for T {}
 
 #[derive(Clone, Debug, Serialize)]
 pub struct Individual<T: Chromosome> {
-  pub chromosome: T,
-  pub fitness: f64,
+    pub chromosome: T,
+    pub fitness: f64,
 }
 
 impl<T: Chromosome> Individual<T> {
-	pub fn new() -> Self {
-		Individual { chromosome: T::default(), fitness: f64::default() }
-	}
+    pub fn new() -> Self {
+        Individual {
+            chromosome: T::default(),
+            fitness: f64::default(),
+        }
+    }
 
-	#[inline]
-	pub fn chromosome_ref(&self) -> &T {
-		&self.chromosome
-	}
+    #[inline]
+    pub fn chromosome_ref(&self) -> &T {
+        &self.chromosome
+    }
 
-	#[inline]
-	pub fn chromosome_ref_mut(&mut self) -> &mut T {
-		&mut self.chromosome
-	}
+    #[inline]
+    pub fn chromosome_ref_mut(&mut self) -> &mut T {
+        &mut self.chromosome
+    }
 }
 
 impl<T: Chromosome> From<T> for Individual<T> {
-	fn from(chromosome: T) -> Self {
-		Individual { chromosome, fitness: f64::default() }
-	}
+    fn from(chromosome: T) -> Self {
+        Individual {
+            chromosome,
+            fitness: f64::default(),
+        }
+    }
 }
 
 impl<T: Chromosome> PartialEq<Self> for Individual<T> {
-	fn eq(&self, other: &Self) -> bool {
-		self.fitness == other.fitness
-	}
+    fn eq(&self, other: &Self) -> bool {
+        self.fitness == other.fitness
+    }
 }
 
 impl<T: Chromosome> Eq for Individual<T> {}
 
 impl<T: Chromosome> PartialOrd<Self> for Individual<T> {
-	fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-		self.fitness.partial_cmp(&other.fitness)
-	}
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.fitness.partial_cmp(&other.fitness)
+    }
 }
 
 impl<T: Chromosome> Ord for Individual<T> {
-	fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-		if let Some(ord) = self.partial_cmp(other) {
-			return ord;
-		}
-		unimplemented!();
-	}
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        if let Some(ord) = self.partial_cmp(other) {
+            return ord;
+        }
+        unimplemented!();
+    }
 }
 
 pub type RealValueIndividual = Individual<Vec<f64>>;

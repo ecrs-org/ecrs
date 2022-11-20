@@ -1,20 +1,24 @@
 use crate::pso::probe::Probe;
 use crate::pso::swarm::Swarm;
 
-pub struct IterationCountProbe{
+pub struct IterationCountProbe {
     probe: Box<dyn Probe>,
     last_log_generation: usize,
     log_interval: usize,
-    total_generations: usize
+    total_generations: usize,
 }
 
 impl IterationCountProbe {
-    pub fn new(probe: Box<dyn Probe>, log_interval: usize, total_generations: usize, ) -> IterationCountProbe {
+    pub fn new(
+        probe: Box<dyn Probe>,
+        log_interval: usize,
+        total_generations: usize,
+    ) -> IterationCountProbe {
         IterationCountProbe {
             probe,
             last_log_generation: 0,
             log_interval,
-            total_generations
+            total_generations,
         }
     }
 }

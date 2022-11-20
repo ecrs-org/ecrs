@@ -22,7 +22,7 @@ pub struct AntSystemCfg {
     pub evaporation_rate: f64,
     pub ants_num: usize,
     pub iteration: usize,
-    pub probe: Box<dyn Probe>
+    pub probe: Box<dyn Probe>,
 }
 
 impl Default for AntSystemCfg {
@@ -35,7 +35,7 @@ impl Default for AntSystemCfg {
             evaporation_rate: 0.1,
             ants_num: 10,
             iteration: 300,
-            probe: Box::new(ConsoleProbe::new())
+            probe: Box::new(ConsoleProbe::new()),
         }
     }
 }

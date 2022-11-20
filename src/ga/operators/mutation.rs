@@ -23,10 +23,10 @@ pub trait MutationOperator<T: Chromosome> {
 pub struct Identity;
 
 impl Identity {
-	/// Returns new [Identity] mutation operator
-	pub fn new() -> Self {
-		Identity { }
-	}
+    /// Returns new [Identity] mutation operator
+    pub fn new() -> Self {
+        Identity {}
+    }
 }
 
 impl<T: Chromosome> MutationOperator<T> for Identity {

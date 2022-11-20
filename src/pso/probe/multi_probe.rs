@@ -1,15 +1,13 @@
 use crate::pso::probe::Probe;
 use crate::pso::swarm::Swarm;
 
-pub struct MultiProbe{
-    probes: Vec<Box<dyn Probe>>
+pub struct MultiProbe {
+    probes: Vec<Box<dyn Probe>>,
 }
 
 impl MultiProbe {
     pub fn new(probes: Vec<Box<dyn Probe>>) -> MultiProbe {
-        MultiProbe {
-            probes
-        }
+        MultiProbe { probes }
     }
 }
 

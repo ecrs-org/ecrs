@@ -10,7 +10,7 @@ use crate::aco::FMatrix;
 
 #[derive(Serialize)]
 #[doc(hidden)]
-struct BestSolutionRecord{
+struct BestSolutionRecord {
     from: usize,
     to: usize,
     iter: usize,
@@ -21,14 +21,14 @@ struct FMatrixRecord {
     from: usize,
     to: usize,
     iter: usize,
-    val: f64
+    val: f64,
 }
 
 pub struct CsvProbe {
     iteration: usize,
     best_sols: Vec<BestSolutionRecord>,
     pher: Vec<FMatrixRecord>,
-    best_sol: Solution
+    best_sol: Solution,
 }
 
 impl CsvProbe {
@@ -37,7 +37,7 @@ impl CsvProbe {
             iteration: 0,
             best_sols: vec![],
             pher: vec![],
-            best_sol: Solution::default()
+            best_sol: Solution::default(),
         }
     }
 
@@ -50,14 +50,14 @@ impl CsvProbe {
         }
         wrt.flush().expect("Could not flush data");
 
-
-        let mut wrt = csv::WriterBuilder::new().from_path("pheromone.csv").unwrap();
+        let mut wrt = csv::WriterBuilder::new()
+            .from_path("pheromone.csv")
+            .unwrap();
 
         for record in self.pher.iter() {
             wrt.serialize(record).expect("Could not serialize record");
         }
         wrt.flush().expect("Could not flush data");
-
     }
 }
 
@@ -68,20 +68,18 @@ impl Probe for CsvProbe {
 
     fn on_pheromone_update(&mut self, _old_pheromone: &FMatrix, new_pheromone: &FMatrix) {
         for (i, row) in new_pheromone.row_iter().enumerate() {
-            for (j, val ) in row.iter().enumerate() {
+            for (j, val) in row.iter().enumerate() {
                 self.pher.push(FMatrixRecord {
                     from: i,
                     to: j,
                     iter: self.iteration,
-                    val: *val
+                    val: *val,
                 })
             }
         }
     }
 
-    fn on_current_best(&mut self, _best: &Solution) {
-
-    }
+    fn on_current_best(&mut self, _best: &Solution) {}
 
     fn on_iteration_start(&mut self, iteration: usize) {
         self.iteration = iteration;
@@ -89,13 +87,15 @@ impl Probe for CsvProbe {
 
     fn on_iteration_end(&mut self, iteration: usize) {
         for (i, row) in self.best_sol.matrix.row_iter().enumerate() {
-            for (j, val ) in row.iter().enumerate() {
-                if *val < 0.5 {continue;}
+            for (j, val) in row.iter().enumerate() {
+                if *val < 0.5 {
+                    continue;
+                }
 
                 self.best_sols.push(BestSolutionRecord {
                     from: i,
                     to: j,
-                    iter: iteration
+                    iter: iteration,
                 })
             }
         }

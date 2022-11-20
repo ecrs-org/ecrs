@@ -1,4 +1,3 @@
-
 pub fn print_generic_vector<T: std::fmt::Display>(vector: &Vec<T>) -> String {
     let mut text = String::from("");
     text += "[";

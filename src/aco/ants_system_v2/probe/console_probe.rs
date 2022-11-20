@@ -3,18 +3,14 @@ use crate::aco::ants_system_v2::probe::Probe;
 use crate::aco::ants_system_v2::Solution;
 use crate::aco::FMatrix;
 
+pub struct ConsoleProbe {}
 
-pub struct ConsoleProbe{
-}
-
-impl Probe for ConsoleProbe{
+impl Probe for ConsoleProbe {
     fn on_new_best(&mut self, _best_sol: &Solution) {
         println!("New best!!!");
     }
 
-    fn on_pheromone_update(&mut self, _old_pheromone: &FMatrix, _new_pheromone: &FMatrix) {
-
-    }
+    fn on_pheromone_update(&mut self, _old_pheromone: &FMatrix, _new_pheromone: &FMatrix) {}
 
     fn on_current_best(&mut self, best: &Solution) {
         println!("Iteration best: {}", best.cost);
@@ -36,8 +32,6 @@ impl Probe for ConsoleProbe{
 impl ConsoleProbe {
     /// Constructor
     pub fn new() -> ConsoleProbe {
-        ConsoleProbe{
-        }
+        ConsoleProbe {}
     }
-
 }

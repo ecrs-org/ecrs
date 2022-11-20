@@ -1,9 +1,9 @@
 #![allow(dead_code)]
+mod aco;
+mod ff;
 mod ga;
 mod pso;
-mod ff;
-mod aco;
 
 fn main() {
-	ga::ga_example();
+    ga::ga_example();
 }

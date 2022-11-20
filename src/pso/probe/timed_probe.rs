@@ -1,14 +1,14 @@
-use std::time::{Instant};
+use std::time::Instant;
 
 use crate::pso::probe::Probe;
 use crate::pso::swarm::Swarm;
 
-pub struct TimedProbe{
+pub struct TimedProbe {
     probe: Box<dyn Probe>,
     last_log_time: Instant,
     log_interval: usize,
     last_log_generation: usize,
-    total_generations: usize
+    total_generations: usize,
 }
 
 impl TimedProbe {
@@ -18,7 +18,7 @@ impl TimedProbe {
             last_log_time: Instant::now(),
             log_interval,
             last_log_generation: 0,
-            total_generations
+            total_generations,
         }
     }
 }

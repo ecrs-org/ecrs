@@ -1,26 +1,26 @@
+use serde::Serialize;
 use std::fs::File;
-use serde::{Serialize};
 
 #[derive(Serialize)]
 struct CsvRecord {
-  generation_number: usize,
-  best_fitness: f64,
+    generation_number: usize,
+    best_fitness: f64,
 }
 
 pub struct CsvProbe {
-  writer: csv::Writer<File>,
-  best_fitness: f64,
-  generation_number: usize,
+    writer: csv::Writer<File>,
+    best_fitness: f64,
+    generation_number: usize,
 }
 
 impl CsvProbe {
-  pub fn new(file: String) -> CsvProbe {
-    CsvProbe {
-      writer: csv::WriterBuilder::new().from_path(file).unwrap(),
-      best_fitness: 0f64,
-      generation_number: 0
+    pub fn new(file: String) -> CsvProbe {
+        CsvProbe {
+            writer: csv::WriterBuilder::new().from_path(file).unwrap(),
+            best_fitness: 0f64,
+            generation_number: 0,
+        }
     }
-  }
 }
 
 // impl Probe for CsvProbe {

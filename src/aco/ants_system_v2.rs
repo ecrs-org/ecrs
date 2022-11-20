@@ -1,10 +1,10 @@
-mod solution;
 pub mod probe;
+mod solution;
 
+use rand::Rng;
 use std::collections::HashSet;
 use std::iter::zip;
 use std::ops::Add;
-use rand::Rng;
 
 pub use solution::Solution;
 
@@ -26,7 +26,7 @@ impl AntSystem {
         AntSystem {
             cfg,
             pheromone,
-            best_sol: Solution::default()
+            best_sol: Solution::default(),
         }
     }
     /// Executes the algorithm
@@ -47,18 +47,21 @@ impl AntSystem {
         let best = self.find_best(&sols);
         self.cfg.probe.on_current_best(best);
         self.update_best(best);
-        let d_pheromone = sols.iter()
-            .map(|sol| sol.matrix.scale(1.0/ sol.cost))
-            .reduce(|s1,s2| s1.add(s2))
+        let d_pheromone = sols
+            .iter()
+            .map(|sol| sol.matrix.scale(1.0 / sol.cost))
+            .reduce(|s1, s2| s1.add(s2))
             .expect("d_pheromone creation error");
 
-        let new_pheromone: FMatrix = self.pheromone
+        let new_pheromone: FMatrix = self
+            .pheromone
             .scale(1.0 - self.cfg.evaporation_rate)
             .add(&d_pheromone);
 
-        self.cfg.probe.on_pheromone_update(&self.pheromone, &new_pheromone);
+        self.cfg
+            .probe
+            .on_pheromone_update(&self.pheromone, &new_pheromone);
         self.pheromone = new_pheromone;
-
     }
     #[doc(hidden)]
     fn update_best(&mut self, current_best: &Solution) {
@@ -69,8 +72,7 @@ impl AntSystem {
     }
     #[doc(hidden)]
     fn find_best<'a>(&mut self, sols: &'a [Solution]) -> &'a Solution {
-        let best = sols.iter()
-            .min_by(|a,b| (*a).partial_cmp(*b).unwrap());
+        let best = sols.iter().min_by(|a, b| (*a).partial_cmp(*b).unwrap());
 
         best.unwrap()
     }
@@ -78,11 +80,8 @@ impl AntSystem {
     fn grade(&self, sols_m: Vec<FMatrix>) -> Vec<Solution> {
         let costs: Vec<f64> = Vec::from_iter(sols_m.iter().map(|s| self.grade_one(s)));
         let mut sols: Vec<Solution> = Vec::new();
-        for (m,c) in zip(sols_m, costs) {
-            sols.push(Solution{
-                matrix: m,
-                cost: c
-            })
+        for (m, c) in zip(sols_m, costs) {
+            sols.push(Solution { matrix: m, cost: c })
         }
 
         sols
@@ -93,21 +92,16 @@ impl AntSystem {
     }
     #[doc(hidden)]
     fn run_ants(&self) -> Vec<FMatrix> {
-        let prob_iter = self.pheromone.iter()
+        let prob_iter = self
+            .pheromone
+            .iter()
             .zip(self.cfg.heuristic.iter())
             .map(|(p, h)| self.calc_prob(p, h));
 
-        let prob = FMatrix::from_iterator(
-            self.pheromone.nrows(),
-            self.pheromone.ncols(),
-            prob_iter
-        );
+        let prob =
+            FMatrix::from_iterator(self.pheromone.nrows(), self.pheromone.ncols(), prob_iter);
 
-
-        let sols: Vec<FMatrix> =  Vec::from_iter(
-            (0..self.cfg.ants_num)
-                .map(|_| run_ant(&prob))
-        );
+        let sols: Vec<FMatrix> = Vec::from_iter((0..self.cfg.ants_num).map(|_| run_ant(&prob)));
 
         sols
     }
@@ -142,7 +136,7 @@ fn run_ant(prob: &FMatrix) -> FMatrix {
         let r_range = 0.0..sum;
         if r_range.is_empty() {
             println!("Could not find a solution");
-            return FMatrix::zeros(n,n);
+            return FMatrix::zeros(n, n);
         }
 
         let mut r = random.gen_range(r_range);
@@ -166,4 +160,3 @@ fn run_ant(prob: &FMatrix) -> FMatrix {
 
     sol
 }
-
