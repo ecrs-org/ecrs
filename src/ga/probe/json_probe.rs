@@ -1,11 +1,11 @@
-use std::fs::File;
 use serde::Serialize;
+use std::fs::File;
 
 #[derive(Serialize)]
 struct JsonRecord {
   generation_number: usize,
   best_fitness: f64,
-  best_individual: Vec<f64>
+  best_individual: Vec<f64>,
 }
 
 pub struct JsonProbe {
@@ -23,7 +23,7 @@ impl JsonProbe {
       best_fitness: 0f64,
       generation_number: 0,
       best_chromosome: vec![],
-      records: vec![]
+      records: vec![],
     }
   }
 }

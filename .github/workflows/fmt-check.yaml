@@ -1,0 +1,25 @@
+name: fmt check
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main", "development", "@*/*" ]
+    paths:
+      - 'src/**'
+      - '.github/workflows/fmt-check.yaml'
+
+# Make sure CI fails on all warnings, including Clippy lints
+env:
+  RUSTFLAGS: "-Dwarnings"
+
+jobs:
+  fmt_check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Update toolchain
+      run: rustup update
+    - name: Run fmt
+      run: cargo fmt -v --check
