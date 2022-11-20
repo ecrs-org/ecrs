@@ -1,7 +1,7 @@
 use std::ops::Index;
 
 use push_trait::{Push, Nothing};
-use rand::{Rng};
+use rand::Rng;
 use crate::ga::individual::{Individual, Chromosome};
 
 /// # Crossover Operator
