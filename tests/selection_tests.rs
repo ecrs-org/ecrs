@@ -138,7 +138,7 @@ fn sus_returns_demanded_size_when_fitness_positive() {
 
   // SUS requires positive fitness
   for mut individual in &mut population {
-  	individual.fitness = 1.0;
+    individual.fitness = 1.0;
   }
 
   assert_eq!(
