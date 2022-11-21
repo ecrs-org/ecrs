@@ -1,3 +1,4 @@
+pub mod builder;
 pub mod probe;
 mod solution;
 
@@ -20,15 +21,6 @@ pub struct AntSystem {
 }
 
 impl AntSystem {
-  /// Creates a new instance of AntSystem using config
-  pub fn new(cfg: AntSystemCfg) -> AntSystem {
-    let pheromone = FMatrix::repeat(cfg.weights.nrows(), cfg.weights.ncols(), 0.5f64);
-    AntSystem {
-      cfg,
-      pheromone,
-      best_sol: Solution::default(),
-    }
-  }
   /// Executes the algorithm
   pub fn execute(mut self) {
     for i in 0..self.cfg.iteration {

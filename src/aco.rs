@@ -8,50 +8,39 @@
 //! * <http://www.scholarpedia.org/article/Ant_colony_optimization>
 //!
 //! Look at [AntSystemCfg](ant_system_cfg::AntSystemCfg) for parameters overview and
-//! at [AntSystem](ants_system_v2::AntSystem) for interface details
+//! at [AntSystem](ants_system::AntSystem) for interface details
 //!
-//! Logging system details can be found [here](ants_system_v2::probe)
+//! Logging system details can be found [here](ants_system::probe)
 //!
 //! ## Example
 //! Solving TSP using AntSystem
 //! ```rust
-//! # use ecrs::aco::{self, AntSystemCfg, probe::CsvProbe};
+//! pub fn ants_example_run() {
+//!   let (cities, cost) = ecrs::aco::generate_tsp_cost(30);
+//!   ecrs::aco::write_cities_csv(&cities, "cities.csv").expect("Error while writing city file");
 //!
+//!   let heuristic = ecrs::aco::create_heuristic_from_weights(&cost);
 //!
-//! // Generate 30 random cities and costs
-//! let (cities, cost) = aco::generate_tsp_cost(30);
-//! // Save generated data to cities.csv
-//! aco::write_cities_csv(&cities, "cities.csv").expect("Error while writing city file");
+//!   let ant_s = ecrs::aco::builder::Builder::new()
+//!       .set_weights(cost)
+//!       .set_heuristic(heuristic)
+//!       .build();
 //!
-//! // Prepare logging probe
-//! let probe = Box::new(CsvProbe::new());
-//! // Calculate heuristic using cost
-//! let heuristic = aco::create_heuristic_from_weights(&cost);
-//!
-//! // Instantiate algorithm
-//! let ant_s = aco::AntSystem::new(AntSystemCfg {
-//!   weights: cost,
-//!   heuristic,
-//!   probe,
-//!   ants_num: 10,
-//!   iteration: 100,
-//!   ..AntSystemCfg::default()
-//! });
-//!
-//! // Execute algorithm
-//! ant_s.execute();
+//!   ant_s.execute();
+//! }
 //! ```
 //!
 
 pub use ant_system_cfg::AntSystemCfg;
-pub use ants_system_v2::probe;
-pub use ants_system_v2::AntSystem;
+pub use ants_system::builder;
+pub use ants_system::probe;
+pub use ants_system::AntSystem;
 use nalgebra::{Dynamic, OMatrix};
 use rand::Rng;
 use std::error::Error;
 
 mod ant_system_cfg;
-mod ants_system_v2;
+mod ants_system;
 
 pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 
