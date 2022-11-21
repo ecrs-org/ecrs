@@ -43,16 +43,16 @@
 //! ```
 //!
 
-use std::error::Error;
+pub use ant_system_cfg::AntSystemCfg;
+pub use ants_system::builder;
+pub use ants_system::probe;
+pub use ants_system::AntSystem;
 use nalgebra::{Dynamic, OMatrix};
 use rand::Rng;
-pub use ant_system_cfg::AntSystemCfg;
-pub use ants_system::AntSystem;
-pub use ants_system::probe;
-pub use ants_system::builder;
+use std::error::Error;
 
-mod ants_system;
 mod ant_system_cfg;
+mod ants_system;
 
 pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 

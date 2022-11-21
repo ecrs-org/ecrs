@@ -1,5 +1,5 @@
-pub mod probe;
 pub mod builder;
+pub mod probe;
 mod solution;
 
 use rand::Rng;
