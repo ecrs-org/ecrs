@@ -5,7 +5,6 @@ pub struct Builder {
     conf: AntSystemCfg,
 }
 
-type Float = f64;
 
 impl Builder {
     pub fn new() -> Self {
@@ -24,19 +23,19 @@ impl Builder {
         self
     }
 
-    pub fn set_alpha(mut self, alpha: Float) -> Self {
+    pub fn set_alpha(mut self, alpha: f64) -> Self {
         self.conf.alpha = alpha;
         self
     }
 
-    pub fn set_beta(mut self, beta: Float) -> Self {
+    pub fn set_beta(mut self, beta: f64) -> Self {
         self.conf.beta = beta;
         self
     }
 
-    pub fn set_evaporation_rate(mut self, evaporation_rate: Float) -> Self {
+    pub fn set_evaporation_rate(mut self, evaporation_rate: f64) -> Self {
         assert!(
-            evaporation_rate > 1 as Float || evaporation_rate < 0 as Float,
+            !(0.0..=1.0).contains(&evaporation_rate),
             "Evaporation rate must be between 0 and 1"
         );
         self.conf.evaporation_rate = evaporation_rate;
@@ -62,7 +61,7 @@ impl Builder {
     pub fn build(mut self) -> AntSystem {
         if self.conf.heuristic.shape() != self.conf.weights.shape() {
             let (nrow, ncol) = self.conf.weights.shape();
-            self.conf.heuristic = FMatrix::repeat(nrow, ncol, 1 as Float);
+            self.conf.heuristic = FMatrix::repeat(nrow, ncol, 1.0);
         }
         AntSystem::new(self.conf)
     }
