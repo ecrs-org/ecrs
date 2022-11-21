@@ -22,7 +22,7 @@ pub fn ga_example() {
     .set_fitness_fn(rastrigin::rastrigin_fitness)
     .set_crossover_operator(Box::new(ga::operators::crossover::SinglePoint::new()))
     .set_mutation_operator(Box::new(ga::operators::mutation::Identity::new()))
-    .set_population_generator(Box::new(ga::population::RandomPoints::new(
+    .set_population_generator(Box::new(ga::population::RandomPoints::with_constraints(
       3,
       vec![-5.12..5.12, -5.12..5.12, -5.12..5.12],
     )))

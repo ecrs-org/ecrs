@@ -172,7 +172,7 @@ fn boltzmann_returns_demanded_size() {
     constraints.push(-1.0..1.0);
   }
 
-  let population = RandomPoints::new(dim, constraints).generate(expected_population_size);
+  let population = RandomPoints::with_constraints(dim, constraints).generate(expected_population_size);
 
   assert_eq!(
     expected_population_size,
