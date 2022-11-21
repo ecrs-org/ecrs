@@ -20,16 +20,14 @@ pub fn ga_example() {
     .set_max_generation_count(500)
     .set_population_size(100)
     .set_fitness_fn(rastrigin::rastrigin_fitness)
-    .set_crossover_operator(Box::new(ga::operators::crossover::SinglePoint::new()))
-    .set_mutation_operator(Box::new(ga::operators::mutation::Identity::new()))
-    .set_population_generator(Box::new(ga::population::RandomPoints::with_constraints(
+    .set_crossover_operator(ga::operators::crossover::SinglePoint::new())
+    .set_mutation_operator(ga::operators::mutation::Identity::new())
+    .set_population_generator(ga::population::RandomPoints::with_constraints(
       3,
       vec![-5.12..5.12, -5.12..5.12, -5.12..5.12],
-    )))
-    .set_selection_operator(Box::new(ga::operators::selection::Boltzmann::new(
-      0.05, 80.0, 500, false,
-    )))
-    .set_probe(Box::new(ga::probe::stdout_probe::StdoutProbe))
+    ))
+    .set_selection_operator(ga::operators::selection::Boltzmann::new(0.05, 80.0, 500, false))
+    .set_probe(ga::probe::stdout_probe::StdoutProbe)
     .build()
     .run();
 

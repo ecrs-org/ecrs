@@ -17,8 +17,6 @@ use self::{
   population::PopulationGenerator,
 };
 
-// trait FitnessFn
-
 type FitnessFn<S> = fn(&S) -> f64;
 
 pub struct GAParams {
@@ -39,15 +37,23 @@ impl Default for GAParams {
   }
 }
 
-pub struct GAConfig<T: Chromosome> {
+pub struct GAConfig<T, M, C, S, P, Pr>
+where
+  T: Chromosome,
+  M: MutationOperator<T>,
+  C: CrossoverOperator<T>,
+  S: SelectionOperator<T>,
+  P: PopulationGenerator<T>,
+  Pr: Probe<T>,
+{
   pub params: GAParams,
   // pub ops: GAOps<S>,
   pub fitness_fn: FitnessFn<Individual<T>>,
-  pub mutation_operator: Box<dyn MutationOperator<T>>,
-  pub crossover_operator: Box<dyn CrossoverOperator<T>>,
-  pub selection_operator: Box<dyn SelectionOperator<T>>,
-  pub population_factory: Box<dyn PopulationGenerator<T>>,
-  pub probe: Box<dyn Probe<T>>,
+  pub mutation_operator: M,
+  pub crossover_operator: C,
+  pub selection_operator: S,
+  pub population_factory: P,
+  pub probe: Pr,
 }
 
 #[derive(Default)]
@@ -70,13 +76,29 @@ impl GAMetadata {
     }
   }
 }
-pub struct GeneticAlgorithm<T: Chromosome> {
-  config: GAConfig<T>,
+pub struct GeneticAlgorithm<T, M, C, S, P, Pr>
+where
+  T: Chromosome,
+  M: MutationOperator<T>,
+  C: CrossoverOperator<T>,
+  S: SelectionOperator<T>,
+  P: PopulationGenerator<T>,
+  Pr: Probe<T>,
+{
+  config: GAConfig<T, M, C, S, P, Pr>,
   metadata: GAMetadata,
 }
 
-impl<T: Chromosome> GeneticAlgorithm<T> {
-  pub fn new(config: GAConfig<T>) -> Self {
+impl<T, M, C, S, P, Pr> GeneticAlgorithm<T, M, C, S, P, Pr>
+where
+  T: Chromosome,
+  M: MutationOperator<T>,
+  C: CrossoverOperator<T>,
+  S: SelectionOperator<T>,
+  P: PopulationGenerator<T>,
+  Pr: Probe<T>,
+{
+  pub fn new(config: GAConfig<T, M, C, S, P, Pr>) -> Self {
     GeneticAlgorithm {
       config,
       metadata: GAMetadata::new(None, None, None),
@@ -116,7 +138,8 @@ impl<T: Chromosome> GeneticAlgorithm<T> {
     self.evaluate_fitness_in_population(&mut population);
 
     // 3. Store best individual.
-    let mut best_individual_all_time = GeneticAlgorithm::find_best_individual(&population).clone();
+    let mut best_individual_all_time =
+      GeneticAlgorithm::<T, M, C, S, P, Pr>::find_best_individual(&population).clone();
     // self.config.probe.on_new_best(&self.metadata, best_individual);
 
     for generation_no in 1..=self.config.params.generation_upper_bound {
@@ -159,7 +182,7 @@ impl<T: Chromosome> GeneticAlgorithm<T> {
       // 6. Check for stop condition (Is good enough individual found)? If not goto 2.
       self.evaluate_fitness_in_population(&mut population);
 
-      let best_individual = GeneticAlgorithm::find_best_individual(&population);
+      let best_individual = GeneticAlgorithm::<T, M, C, S, P, Pr>::find_best_individual(&population);
 
       if *best_individual > best_individual_all_time {
         best_individual_all_time = best_individual.clone()
