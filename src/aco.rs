@@ -15,31 +15,19 @@
 //! ## Example
 //! Solving TSP using AntSystem
 //! ```rust
-//! # use ecrs::aco::{self, AntSystemCfg, probe::CsvProbe};
+//! pub fn ants_example_run() {
+//!   let (cities, cost) = ecrs::aco::generate_tsp_cost(30);
+//!   ecrs::aco::write_cities_csv(&cities, "cities.csv").expect("Error while writing city file");
 //!
+//!   let heuristic = ecrs::aco::create_heuristic_from_weights(&cost);
 //!
-//! // Generate 30 random cities and costs
-//! let (cities, cost) = aco::generate_tsp_cost(30);
-//! // Save generated data to cities.csv
-//! aco::write_cities_csv(&cities, "cities.csv").expect("Error while writing city file");
+//!   let ant_s = ecrs::aco::builder::Builder::new()
+//!       .set_weights(cost)
+//!       .set_heuristic(heuristic)
+//!       .build();
 //!
-//! // Prepare logging probe
-//! let probe = Box::new(CsvProbe::new());
-//! // Calculate heuristic using cost
-//! let heuristic = aco::create_heuristic_from_weights(&cost);
-//!
-//! // Instantiate algorithm
-//! let ant_s = aco::AntSystem::new(AntSystemCfg {
-//!   weights: cost,
-//!   heuristic,
-//!   probe,
-//!   ants_num: 10,
-//!   iteration: 100,
-//!   ..AntSystemCfg::default()
-//! });
-//!
-//! // Execute algorithm
-//! ant_s.execute();
+//!   ant_s.execute();
+//! }
 //! ```
 //!
 
