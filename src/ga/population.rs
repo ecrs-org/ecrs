@@ -42,21 +42,24 @@ impl RandomPoints {
     }
   }
 
-	/// Returns [RandomPoints] population generator with no explicit constraints.
-	/// Points coords will be from range 0.0..1.0.
-	///
-	/// ### Arguments
-	///
-	/// * `dim` - Dimension of the sampling space
-	pub fn new(dim: usize) -> Self {
-		assert!(dim > 0, "Space dimension must be > 0");
-		RandomPoints { dim, constraints: Vec::<(f64, f64)>::with_capacity(0) }
-	}
+  /// Returns [RandomPoints] population generator with no explicit constraints.
+  /// Points coords will be from range 0.0..1.0.
+  ///
+  /// ### Arguments
+  ///
+  /// * `dim` - Dimension of the sampling space
+  pub fn new(dim: usize) -> Self {
+    assert!(dim > 0, "Space dimension must be > 0");
+    RandomPoints {
+      dim,
+      constraints: Vec::<(f64, f64)>::with_capacity(0),
+    }
+  }
 }
 
 impl PopulationGenerator<Vec<f64>> for RandomPoints {
   /// Generates vector of `count` random points from R^(dim) space within passed domain constraints.
-	/// If there were no constraints passed then the points coords are from range 0.0..1.0.
+  /// If there were no constraints passed then the points coords are from range 0.0..1.0.
   ///
   /// ### Arguments
   ///
@@ -68,25 +71,25 @@ impl PopulationGenerator<Vec<f64>> for RandomPoints {
     let mut population: Vec<Individual<Vec<f64>>> = Vec::with_capacity(count);
     let rng = &mut rand::thread_rng();
 
-		// We do not use Option to designate whether there are constraints or not
-		// because using unwrap moves!
-		if self.constraints.is_empty() {
-			for _ in 0..count {
-				let mut point = Vec::<f64>::with_capacity(self.dim);
-				for _ in 0..self.dim {
-					point.push(rng.sample(distribution));
-				}
-				population.push(Individual::from(point));
-			}
-		} else {
-			for _ in 0..count {
-				let mut point: Vec<f64> = Vec::with_capacity(self.dim);
-				for restriction in &self.constraints {
-					point.push(restriction.0 * rng.sample(distribution) + restriction.1);
-				}
-				population.push(Individual::from(point));
-			}
-		}
+    // We do not use Option to designate whether there are constraints or not
+    // because using unwrap moves!
+    if self.constraints.is_empty() {
+      for _ in 0..count {
+        let mut point = Vec::<f64>::with_capacity(self.dim);
+        for _ in 0..self.dim {
+          point.push(rng.sample(distribution));
+        }
+        population.push(Individual::from(point));
+      }
+    } else {
+      for _ in 0..count {
+        let mut point: Vec<f64> = Vec::with_capacity(self.dim);
+        for restriction in &self.constraints {
+          point.push(restriction.0 * rng.sample(distribution) + restriction.1);
+        }
+        population.push(Individual::from(point));
+      }
+    }
     population
   }
 }
@@ -165,20 +168,20 @@ mod tests {
     }
   }
 
-	#[test]
-	fn points_follow_implicit_constraints() {
-		let dim = 30;
-		let count = 100;
+  #[test]
+  fn points_follow_implicit_constraints() {
+    let dim = 30;
+    let count = 100;
 
-		let gen = RandomPoints::new(dim);
-		let points: Vec<crate::ga::Individual<Vec<f64>>> = gen.generate(count);
+    let gen = RandomPoints::new(dim);
+    let points: Vec<crate::ga::Individual<Vec<f64>>> = gen.generate(count);
 
-		for p in points {
-			for v in p.chromosome_ref() {
-				assert!((0.0..1.0).contains(v));
-			}
-		}
-	}
+    for p in points {
+      for v in p.chromosome_ref() {
+        assert!((0.0..1.0).contains(v));
+      }
+    }
+  }
 
   #[test]
   fn bistrings_have_appropriate_len() {
