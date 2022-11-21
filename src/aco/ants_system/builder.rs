@@ -1,10 +1,10 @@
+use crate::aco::ants_system::Solution;
 use crate::aco::probe::Probe;
 use crate::aco::{AntSystem, AntSystemCfg, FMatrix};
 
 pub struct Builder {
     conf: AntSystemCfg,
 }
-
 
 impl Builder {
     pub fn new() -> Self {
@@ -59,10 +59,18 @@ impl Builder {
     }
 
     pub fn build(mut self) -> AntSystem {
-        if self.conf.heuristic.shape() != self.conf.weights.shape() {
-            let (nrow, ncol) = self.conf.weights.shape();
+        let (nrow, ncol) = self.conf.weights.shape();
+
+        if self.conf.heuristic.shape() != (nrow, ncol) {
             self.conf.heuristic = FMatrix::repeat(nrow, ncol, 1.0);
         }
-        AntSystem::new(self.conf)
+
+        let pheromone = FMatrix::repeat(nrow, ncol, 0.5f64);
+
+        AntSystem {
+            cfg: self.conf,
+            pheromone,
+            best_sol: Solution::default(),
+        }
     }
 }
