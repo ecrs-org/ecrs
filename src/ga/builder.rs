@@ -1,4 +1,7 @@
+use std::ops::Index;
+
 use super::individual::Chromosome;
+use super::operators::mutation::Identity;
 use super::operators::selection::SelectionOperator;
 use super::population::PopulationGenerator;
 use super::{
@@ -23,10 +26,31 @@ where
   probe: Option<Pr>,
 }
 
-impl<T, M, C, S, P, Pr> Default for GAConfigOpt<T, M, C, S, P, Pr>
+impl<T, M, C, S, P, Pr> GAConfigOpt<T, M, C, S, P, Pr>
 where
-  T: Chromosome,
-  M: MutationOperator<T>,
+	T: Chromosome,
+	M: MutationOperator<T>,
+	C: CrossoverOperator<T>,
+	S: SelectionOperator<T>,
+	P: PopulationGenerator<T>,
+	Pr: Probe<T>
+{
+	pub fn new() -> Self {
+    Self {
+      params: Some(GAParams::default()),
+      fitness_fn: None,
+      mutation_operator: None,
+      crossover_operator: None,
+      selection_operator: None,
+      population_factory: None,
+      probe: None,
+    }
+  }
+}
+
+impl<T, C, S, P, Pr> Default for GAConfigOpt<T, Identity, C, S, P, Pr>
+where
+  T: Chromosome + Index<usize>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
   P: PopulationGenerator<T>,
@@ -36,7 +60,7 @@ where
     Self {
       params: Some(GAParams::default()),
       fitness_fn: None,
-      mutation_operator: None,
+      mutation_operator: Some(Identity::new()),
       crossover_operator: None,
       selection_operator: None,
       population_factory: None,
@@ -79,6 +103,19 @@ where
   config: GAConfigOpt<T, M, C, S, P, Pr>,
 }
 
+impl<T, C, S, P, Pr> Default for Builder<T, Identity, C, S, P, Pr>
+where
+	T: Chromosome + Index<usize>,
+	C: CrossoverOperator<T>,
+	S: SelectionOperator<T>,
+	P: PopulationGenerator<T>,
+	Pr: Probe<T>
+{
+	fn default() -> Self {
+		Self { config: Default::default() }
+	}
+}
+
 impl<T, M, C, S, P, Pr> Builder<T, M, C, S, P, Pr>
 where
   T: Chromosome,
@@ -90,7 +127,7 @@ where
 {
   pub fn new() -> Self {
     Builder {
-      config: GAConfigOpt::default(),
+      config: GAConfigOpt::new(),
     }
   }
 
