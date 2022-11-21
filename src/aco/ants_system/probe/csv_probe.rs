@@ -4,17 +4,18 @@
 
 use serde::Serialize;
 
-use crate::aco::ants_system_v2::probe::Probe;
-use crate::aco::ants_system_v2::Solution;
+use crate::aco::ants_system::probe::Probe;
+use crate::aco::ants_system::Solution;
 use crate::aco::FMatrix;
 
 #[derive(Serialize)]
 #[doc(hidden)]
-struct BestSolutionRecord{
+struct BestSolutionRecord {
     from: usize,
     to: usize,
     iter: usize,
 }
+
 #[derive(Serialize)]
 #[doc(hidden)]
 struct FMatrixRecord {

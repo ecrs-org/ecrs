@@ -8,9 +8,9 @@
 //! * <http://www.scholarpedia.org/article/Ant_colony_optimization>
 //!
 //! Look at [AntSystemCfg](ant_system_cfg::AntSystemCfg) for parameters overview and
-//! at [AntSystem](ants_system_v2::AntSystem) for interface details
+//! at [AntSystem](ants_system::AntSystem) for interface details
 //!
-//! Logging system details can be found [here](ants_system_v2::probe)
+//! Logging system details can be found [here](ants_system::probe)
 //!
 //! ## Example
 //! Solving TSP using AntSystem
@@ -47,11 +47,11 @@ use std::error::Error;
 use nalgebra::{Dynamic, OMatrix};
 use rand::Rng;
 pub use ant_system_cfg::AntSystemCfg;
-pub use ants_system_v2::AntSystem;
-pub use ants_system_v2::probe;
-pub use ants_system_v2::builder;
+pub use ants_system::AntSystem;
+pub use ants_system::probe;
+pub use ants_system::builder;
 
-mod ants_system_v2;
+mod ants_system;
 mod ant_system_cfg;
 
 pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;

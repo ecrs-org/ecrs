@@ -6,7 +6,7 @@
 pub use console_probe::ConsoleProbe;
 pub use csv_probe::CsvProbe;
 
-use crate::aco::ants_system_v2::Solution;
+use crate::aco::ants_system::Solution;
 use crate::aco::FMatrix;
 
 mod console_probe;
