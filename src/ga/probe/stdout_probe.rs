@@ -1,11 +1,14 @@
-use crate::ga::{Probe, individual::{Chromosome, Individual}, GAMetadata};
+use crate::ga::{
+  individual::{Chromosome, Individual},
+  GAMetadata, Probe,
+};
 
 pub struct StdoutProbe;
 
 impl StdoutProbe {
-	pub fn new() -> Self {
-		StdoutProbe
-	}
+  pub fn new() -> Self {
+    StdoutProbe
+  }
 }
 
 impl<T: Chromosome> Probe<T> for StdoutProbe {
@@ -14,7 +17,12 @@ impl<T: Chromosome> Probe<T> for StdoutProbe {
   }
 
   fn on_new_best(&mut self, metadata: &GAMetadata, individual: &Individual<T>) {
-		println!("{},{},{:?}", metadata.duration.unwrap().as_millis(), metadata.generation.unwrap(), individual.chromosome_ref());
+    println!(
+      "{},{},{:?}",
+      metadata.duration.unwrap().as_millis(),
+      metadata.generation.unwrap(),
+      individual.chromosome_ref()
+    );
   }
 
   fn on_mutation(&mut self, before: &Individual<T>, after: &Individual<T>) {
@@ -29,7 +37,10 @@ impl<T: Chromosome> Probe<T> for StdoutProbe {
 
   fn on_best_fit_in_generation(&mut self, individual: &Individual<T>) {
     // TODO: Take reference to the best chromosome & display it here!
-    println!("Best fit in generation: {:?}, value: {}", individual, individual.fitness);
+    println!(
+      "Best fit in generation: {:?}, value: {}",
+      individual, individual.fitness
+    );
   }
 
   fn on_iteration_start(&mut self, iteration: usize) {

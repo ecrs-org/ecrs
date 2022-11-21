@@ -1,4 +1,4 @@
-name: Build & test (lib)
+name: fmt check
 
 on:
   push:
@@ -7,21 +7,19 @@ on:
     branches: [ "main", "development", "@*/*" ]
     paths:
       - 'src/**'
-      - '.github/workflows/build-test-lib.yaml'
-      - 'Cargo.toml'
+      - '.github/workflows/fmt-check.yaml'
 
+# Make sure CI fails on all warnings, including Clippy lints
 env:
-  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-Dwarnings"
 
 jobs:
-  build:
+  fmt_check:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
     - name: Update toolchain
       run: rustup update
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: RUST_BACKTRACE=1 cargo test --verbose
+    - name: Run fmt
+      run: cargo fmt -v --check

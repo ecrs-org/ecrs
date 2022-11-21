@@ -1,5 +1,5 @@
+use serde::Serialize;
 use std::fs::File;
-use serde::{Serialize};
 
 #[derive(Serialize)]
 struct CsvRecord {
@@ -18,7 +18,7 @@ impl CsvProbe {
     CsvProbe {
       writer: csv::WriterBuilder::new().from_path(file).unwrap(),
       best_fitness: 0f64,
-      generation_number: 0
+      generation_number: 0,
     }
   }
 }
