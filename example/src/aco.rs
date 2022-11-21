@@ -5,9 +5,9 @@ pub fn ants_example_run() {
   let heuristic = ecrs::aco::create_heuristic_from_weights(&cost);
 
   let ant_s = ecrs::aco::builder::Builder::new()
-      .set_weights(cost)
-      .set_heuristic(heuristic)
-      .build();
+    .set_weights(cost)
+    .set_heuristic(heuristic)
+    .build();
 
   ant_s.execute();
 }
