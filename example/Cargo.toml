@@ -9,3 +9,5 @@ edition = "2021"
 ecrs = {path = "../" }
 itertools = "0.10.5"
 rand = "0.8.5"
+log4rs = "1.2.0"
+log = "0.4.17"
