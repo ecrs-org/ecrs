@@ -36,9 +36,9 @@ fn init_logging() -> Result<log4rs::Handle, log::SetLoggerError> {
 }
 
 fn main() {
-  // let Ok(handle) = init_logging() else {
-  //   panic!("Failed to initialize logging backend");
-  // };
+  let Ok(_handle) = init_logging() else {
+    panic!("Failed to initialize logging backend");
+  };
 
   ga::ga_example();
 }
