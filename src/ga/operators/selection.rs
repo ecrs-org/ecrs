@@ -128,7 +128,7 @@ impl<T: Chromosome> SelectionOperator<T> for Random {
 	///
 	/// Individuals are selected with uniform probability.
 	///
-	/// **Note**: The same individual *can not* be selected mutiple times.
+	/// **Note**: The same individual *can not* be selected multiple times.
   ///
   /// ### Arguments
   ///
@@ -152,15 +152,36 @@ impl<T: Chromosome> SelectionOperator<T> for Random {
   }
 }
 
+/// ### Rank selection operator
+///
+/// This struct implements [SelectionOperator] trait and can be used with GA.
+///
+/// Individuals are selected by randomly (uniform distribution) choosing pairs of individuals - better
+/// rated individual from selected pair goes to mating pool. In case of equal fitness - only one goes to mating pool.
+///
+/// **Note**: The same individual *can* be selected multiple times.
 pub struct Rank;
 
 impl Rank {
+	/// Returns new instance of [Rank] selection operator
   pub fn new() -> Self {
     Rank {}
   }
 }
 
 impl<T: Chromosome> SelectionOperator<T> for Rank {
+  /// Returns a vector of references to individuals selected to mating pool.
+	///
+	/// Individuals are selected by randomly (uniform distribution) choosing pairs of individuals - better
+	/// rated individual from selected pair goes to mating pool. In case of equal fitness - only one goes to mating pool.
+	///
+	/// **Note**: The same individual *can* be selected multiple times.
+  ///
+  /// ### Arguments
+  ///
+  /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+  /// * `population` - individuals to choose mating pool from
+  /// * `count` - target number of individuals in mating pool
   fn apply<'a>(
     &mut self,
     _metadata: &GAMetadata,
