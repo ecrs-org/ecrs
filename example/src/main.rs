@@ -32,7 +32,7 @@ fn init_logging() -> Result<log4rs::Handle, log::SetLoggerError> {
     )
     .unwrap();
 
-    log4rs::init_config(config)
+  log4rs::init_config(config)
 }
 
 fn main() {
