@@ -117,7 +117,7 @@ impl<T: Chromosome> SelectionOperator<T> for RouletteWheel {
 pub struct Random;
 
 impl Random {
-	/// Returns new instance of [Random] selection operator
+  /// Returns new instance of [Random] selection operator
   pub fn new() -> Self {
     Random {}
   }
@@ -125,10 +125,10 @@ impl Random {
 
 impl<T: Chromosome> SelectionOperator<T> for Random {
   /// Returns a vector of references to individuals selected to mating pool.
-	///
-	/// Individuals are selected with uniform probability.
-	///
-	/// **Note**: The same individual *can not* be selected multiple times.
+  ///
+  /// Individuals are selected with uniform probability.
+  ///
+  /// **Note**: The same individual *can not* be selected multiple times.
   ///
   /// ### Arguments
   ///
@@ -163,7 +163,7 @@ impl<T: Chromosome> SelectionOperator<T> for Random {
 pub struct Rank;
 
 impl Rank {
-	/// Returns new instance of [Rank] selection operator
+  /// Returns new instance of [Rank] selection operator
   pub fn new() -> Self {
     Rank {}
   }
@@ -171,11 +171,11 @@ impl Rank {
 
 impl<T: Chromosome> SelectionOperator<T> for Rank {
   /// Returns a vector of references to individuals selected to mating pool.
-	///
-	/// Individuals are selected by randomly (uniform distribution) choosing pairs of individuals - better
-	/// rated individual from selected pair goes to mating pool. In case of equal fitness - only one goes to mating pool.
-	///
-	/// **Note**: The same individual *can* be selected multiple times.
+  ///
+  /// Individuals are selected by randomly (uniform distribution) choosing pairs of individuals - better
+  /// rated individual from selected pair goes to mating pool. In case of equal fitness - only one goes to mating pool.
+  ///
+  /// **Note**: The same individual *can* be selected multiple times.
   ///
   /// ### Arguments
   ///
@@ -204,11 +204,28 @@ impl<T: Chromosome> SelectionOperator<T> for Rank {
   }
 }
 
+/// ### RankR selection operator
+///
+/// This struct implements [SelectionOperator] trait and can be used with GA
+///
+/// Individuals are selected in following process:
+///
+/// 1. Select two random individuals (uniform distribution)
+/// 2. Select random number `R` from [0, 1] (uniform distribution)
+/// 3. If `R` < `r` then select first individual, second otherwise
+/// 4. Repeat 1-3 necessary number of times to create mating pool of demanded size
+///
+/// **Note**: The same individual can be selected multiple times
 pub struct RankR {
   r: f64,
 }
 
 impl RankR {
+  /// Returns new instance of [RankR] selection operator
+  ///
+  /// ### Arguments
+  ///
+  /// * `r` - threshold in range [0, 1]; see [RankR] description for explaination
   pub fn new(r: f64) -> Self {
     assert!((0.0..=1.0).contains(&r));
     RankR { r }
@@ -216,6 +233,22 @@ impl RankR {
 }
 
 impl<T: Chromosome> SelectionOperator<T> for RankR {
+  /// Returns a vector of references to individuals selected to mating pool.
+  ///
+	/// Individuals are selected in following process:
+	///
+	/// 1. Select two random individuals (uniform distribution)
+	/// 2. Select random number `R` from [0, 1] (uniform distribution)
+	/// 3. If `R` < `r` then select first individual, second otherwise
+	/// 4. Repeat 1-3 necessary number of times to create mating pool of demanded size
+	///
+	/// **Note**: The same individual can be selected multiple times
+	///
+  /// ### Arguments
+  ///
+  /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+  /// * `population` - individuals to choose mating pool from
+  /// * `count` - target number of individuals in mating pool
   fn apply<'a>(
     &mut self,
     _metadata: &GAMetadata,
