@@ -15,12 +15,18 @@ pub trait Probe<T: Chromosome> {
   }
   fn on_new_generation(&mut self, _generation: &[Individual<T>]) { /* defaults to noop */
   }
-  fn on_best_fit_in_generation(&mut self, _metadata: &GAMetadata, _individual: &Individual<T>) { /* defaults to noop */
+  fn on_best_fit_in_generation(&mut self, _metadata: &GAMetadata, _individual: &Individual<T>) {
+    /* defaults to noop */
   }
   fn on_iteration_start(&mut self, _iteration: usize) { /* defaults to noop */
   }
   fn on_iteration_end(&mut self, _iteration: usize) { /* defaults to noop */
   }
-  fn on_end(&mut self, _metadata: &GAMetadata, _population: &[Individual<T>], _best_individual: &Individual<T>) { /* defaults to noop */
+  fn on_end(
+    &mut self,
+    _metadata: &GAMetadata,
+    _population: &[Individual<T>],
+    _best_individual: &Individual<T>,
+  ) { /* defaults to noop */
   }
 }
