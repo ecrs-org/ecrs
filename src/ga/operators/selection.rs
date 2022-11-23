@@ -111,16 +111,30 @@ impl<T: Chromosome> SelectionOperator<T> for RouletteWheel {
 ///
 /// This struct implements [SelectionOperator] trait and can be used with GA.
 ///
+/// Individuals are selected with uniform probability.
 ///
+/// **Note**: The same individual *can not* be selected mutiple times.
 pub struct Random;
 
 impl Random {
+	/// Returns new instance of [Random] selection operator
   pub fn new() -> Self {
     Random {}
   }
 }
 
 impl<T: Chromosome> SelectionOperator<T> for Random {
+  /// Returns a vector of references to individuals selected to mating pool.
+	///
+	/// Individuals are selected with uniform probability.
+	///
+	/// **Note**: The same individual *can not* be selected mutiple times.
+  ///
+  /// ### Arguments
+  ///
+  /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+  /// * `population` - individuals to choose mating pool from
+  /// * `count` - target number of individuals in mating pool
   fn apply<'a>(
     &mut self,
     _metadata: &GAMetadata,
