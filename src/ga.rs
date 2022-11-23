@@ -183,9 +183,11 @@ where
       self.evaluate_fitness_in_population(&mut population);
 
       let best_individual = GeneticAlgorithm::<T, M, C, S, P, Pr>::find_best_individual(&population);
+      self.config.probe.on_best_fit_in_generation(&self.metadata, &best_individual);
 
       if *best_individual > best_individual_all_time {
-        best_individual_all_time = best_individual.clone()
+        best_individual_all_time = best_individual.clone();
+        self.config.probe.on_new_best(&self.metadata, &best_individual_all_time);
       }
 
       self
@@ -200,6 +202,7 @@ where
       }
     }
 
+    self.config.probe.on_end(&self.metadata, &population, &best_individual_all_time);
     Some(best_individual_all_time)
   }
 }
