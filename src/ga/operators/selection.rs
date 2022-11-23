@@ -7,7 +7,30 @@ use crate::ga::{
   GAMetadata,
 };
 
+/// ### Selection operator
+///
+/// This trait defines common behaviour for selection operators.
+/// You can implement this trait to provide your custom crossover opertator to the GA.
+///
+/// Following operators are implemented in the library:
+///
+/// * [RouletteWheel]
+/// * [Random]
+/// * [Rank]
+/// * [RankR]
+/// * [Tournament]
+/// * [StochasticUniversalSampling]
+/// * [Boltzmann]
+///
+/// See their respecitve docs for details.
 pub trait SelectionOperator<T: Chromosome> {
+	/// Returns a vector of references to individuals selected to mating pool
+	///
+	/// ### Arguments
+	///
+	/// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+	/// * `population` - individuals to choose mating pool from
+	/// * `count` - target number of individuals in mating pool
   fn apply<'a>(
     &mut self,
     metadata: &GAMetadata,
@@ -16,9 +39,22 @@ pub trait SelectionOperator<T: Chromosome> {
   ) -> Vec<&'a Individual<T>>;
 }
 
+/// ### Routelle wheel selection operator
+///
+/// This struct implements [SelectionOperator] trait and can be use with GA.
+///
+/// **Note 1**: This selection operator requires positive fitness function. No runtime checks are performed
+/// to assert this invariant. If aggregated fitness in whole population is <= 0 the behaviour is undefined,
+/// implementation dependent and might change without any notice.
+///
+/// **Note 2**: The same individual can be selected multiple times.
+///
+/// Individuals are selected with probability proportional to their fitness value. More specifically:
+/// probability of selecting chromosome `C` from population `P` is `fitness(C)` / `sum_of_fitness_in_whole_population`.
 pub struct RouletteWheel;
 
 impl RouletteWheel {
+	/// Returns new instance of [RouletteWheel] selection operator
   pub fn new() -> Self {
     RouletteWheel {}
   }
