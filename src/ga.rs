@@ -190,11 +190,6 @@ where
         self.config.probe.on_new_best(&self.metadata, &best_individual_all_time);
       }
 
-      self
-        .config
-        .probe
-        .on_new_best(&self.metadata, &best_individual_all_time);
-
       if let Some(duration) = self.config.params.max_duration {
         if self.metadata.start_time.unwrap().elapsed() >= duration {
           break;

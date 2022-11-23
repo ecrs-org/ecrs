@@ -15,7 +15,7 @@ impl StdoutProbe {
 
 impl<T: Chromosome> Probe<T> for StdoutProbe {
   fn on_start(&mut self, _metadata: &GAMetadata) {
-    info!("[START] GA");
+    info!("[START] time,generation,chromosome,fitness");
   }
 
   fn on_new_best(&mut self, metadata: &GAMetadata, individual: &Individual<T>) {
