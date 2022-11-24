@@ -10,9 +10,10 @@ Evolutionary computation tools & algorithms
 """
 keywords = ["evolution", "evolutionary", "algorithms", "genetic"]
 categories = ["science"]
-license = "LICENSE.md"
+license-file = "LICENSE.md"
 exclude = [
-	".github/*"
+	".github/*",
+	"example/*"
 ]
 
 [workspace]
