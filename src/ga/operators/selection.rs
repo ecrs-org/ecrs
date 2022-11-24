@@ -347,6 +347,27 @@ impl<T: Chromosome> SelectionOperator<T> for Tournament {
   }
 }
 
+/// ### Stochastic universal sampling selection operator
+///
+/// This struct implements [SelectionOperator] trati and can be used with GA
+///
+/// **Note**: This selection operator requires positive fitenss function. No runtime checks
+/// are performed to assert this invariant. If aggregated fitenss in whole population is <= the
+/// behaviour is undefined, implementation dependent and might change without any notice.
+///
+/// **Note**: The same individual can be selected multiple times
+///
+/// Individuals are selected in process similar to described below:
+///
+/// 1. Individuals are laid on real axis, in order they appear in population,
+/// to interval \[0, `total_fitness`\]; each individual is represented by sub
+/// interval of lengths equal to its fitness
+/// 2. `count` virtual pointers are placed along interval \[0, `total_fitness`\];
+/// distance between pointers `d` is `total_fitness` / `mating_pool_size`;
+/// first pointer position is selected randomly from interval \[0, `d`\]
+/// 3. Iterate over the pointers and select the individuals they point to
+///
+/// See the source code for implemenation details
 pub struct StochasticUniversalSampling;
 
 impl StochasticUniversalSampling {
@@ -358,6 +379,31 @@ impl StochasticUniversalSampling {
 // FIXME: Panics then total_fitness == 0
 // Should this be expected or do we want to handle this?
 impl<T: Chromosome> SelectionOperator<T> for StochasticUniversalSampling {
+  /// Returns a vector of references to individuals selected to mating pool
+	///
+	/// **Note**: This selection operator requires positive fitenss function. No runtime checks
+	/// are performed to assert this invariant. If aggregated fitenss in whole population is <= the
+	/// behaviour is undefined, implementation dependent and might change without any notice.
+	///
+	/// **Note**: The same individual can be selected multiple times
+	///
+	/// Individuals are selected in process similar to described below:
+	///
+	/// 1. Individuals are laid on real axis, in order they appear in population,
+	/// to interval \[0, `total_fitness`\]; each individual is represented by sub
+	/// interval of lengths equal to its fitness
+	/// 2. `count` virtual pointers are placed along interval \[0, `total_fitness`\];
+	/// distance between pointers `d` is `total_fitness` / `mating_pool_size`;
+	/// first pointer position is selected randomly from interval \[0, `d`\]
+	/// 3. Iterate over the pointers and select the individuals they point to
+	///
+	/// See the source code for implemenation details
+	///
+  /// ### Arguments
+  ///
+  /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+  /// * `population` - individuals to choose mating pool from
+  /// * `count` - target number of individuals in mating pool
   fn apply<'a>(
     &mut self,
     _metadata: &GAMetadata,
