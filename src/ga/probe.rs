@@ -3,6 +3,7 @@ use super::{individual::Chromosome, GAMetadata, Individual};
 pub mod csv_probe;
 pub mod json_probe;
 pub mod stdout_probe;
+pub mod empty;
 
 pub trait Probe<T: Chromosome> {
   fn on_start(&mut self, _metadata: &GAMetadata) { /* defaults to noop */
