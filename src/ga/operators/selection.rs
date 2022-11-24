@@ -276,11 +276,28 @@ impl<T: Chromosome> SelectionOperator<T> for RankR {
   }
 }
 
+
+/// ### Tournament selection operator
+///
+/// This struct implements [SelectionOperator] and can be used with GA
+///
+/// Individuals are selected by conducting given number of tournaments with single winner:
+///
+/// *Note*: The same individual can be selected multiple times
+///
+/// 1. Select `ceil(size_factor * population_size)` distinct, random individuals
+/// 2. Select one with the highest fitness
+/// 3. Repeat 1-2 number of times necessary to fill mating pool
 pub struct Tournament {
   size_factor: f64,
 }
 
 impl Tournament {
+	/// Returns new instance of [Tournament] selection operator
+	///
+	/// ### Arguments
+	///
+	/// * `size_factor` - part of population to take part in tournament for choosing single individual; must be in range [0, 1]
   pub fn new(size_factor: f64) -> Self {
     assert!((0.0..=1.0).contains(&size_factor));
     Tournament { size_factor }
@@ -288,6 +305,21 @@ impl Tournament {
 }
 
 impl<T: Chromosome> SelectionOperator<T> for Tournament {
+  /// Returns a vector of references to individuals selected to mating pool
+  ///
+	/// Individuals are selected by conducting given number of tournaments with single winner:
+	///
+	/// 1. Select `ceil(size_factor * population_size)` distinct, random individuals
+	/// 2. Select one with the highest fitness
+	/// 3. Repeat 1-2 number of times necessary to fill mating pool
+	///
+	/// *Note*: The same individual can be selected multiple times
+	///
+  /// ### Arguments
+  ///
+  /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+  /// * `population` - individuals to choose mating pool from
+  /// * `count` - target number of individuals in mating pool
   fn apply<'a>(
     &mut self,
     _metadata: &GAMetadata,
