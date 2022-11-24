@@ -7,7 +7,30 @@ use crate::ga::{
   GAMetadata,
 };
 
+/// ### Selection operator
+///
+/// This trait defines common behaviour for selection operators.
+/// You can implement this trait to provide your custom crossover opertator to the GA.
+///
+/// Following operators are implemented in the library:
+///
+/// * [RouletteWheel]
+/// * [Random]
+/// * [Rank]
+/// * [RankR]
+/// * [Tournament]
+/// * [StochasticUniversalSampling]
+/// * [Boltzmann]
+///
+/// See their respecitve docs for details.
 pub trait SelectionOperator<T: Chromosome> {
+  /// Returns a vector of references to individuals selected to mating pool
+  ///
+  /// ### Arguments
+  ///
+  /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+  /// * `population` - individuals to choose mating pool from
+  /// * `count` - target number of individuals in mating pool
   fn apply<'a>(
     &mut self,
     metadata: &GAMetadata,
@@ -16,9 +39,22 @@ pub trait SelectionOperator<T: Chromosome> {
   ) -> Vec<&'a Individual<T>>;
 }
 
+/// ### Routelle wheel selection operator
+///
+/// This struct implements [SelectionOperator] trait and can be used with GA.
+///
+/// **Note 1**: This selection operator requires positive fitness function. No runtime checks are performed
+/// to assert this invariant. If aggregated fitness in whole population is <= 0 the behaviour is undefined,
+/// implementation dependent and might change without any notice.
+///
+/// **Note 2**: The same individual can be selected multiple times.
+///
+/// Individuals are selected with probability proportional to their fitness value. More specifically:
+/// probability of selecting chromosome `C` from population `P` is `fitness(C)` / `sum_of_fitness_in_whole_population`.
 pub struct RouletteWheel;
 
 impl RouletteWheel {
+  /// Returns new instance of [RouletteWheel] selection operator
   pub fn new() -> Self {
     RouletteWheel {}
   }
@@ -28,6 +64,22 @@ impl RouletteWheel {
 // WORKING CHANGE: crt >= threshold instead of crt_sum > threshold
 // But this should be resolved some other way
 impl<T: Chromosome> SelectionOperator<T> for RouletteWheel {
+  /// Returns a vector of references to individuals selected to mating pool
+  ///
+  /// **Note 1**: This selection operator requires positive fitness function. No runtime checks are performed
+  /// to assert this invariant. If aggregated fitness in whole population is <= 0 the behaviour is undefined,
+  /// implementation dependent and might change without any notice.
+  ///
+  /// **Note 2**: The same individual can be selected multiple times.
+  ///
+  /// Individuals are selected with probability proportional to their fitness value. More specifically:
+  /// probability of selecting chromosome `C` from population `P` is `fitness(C)` / `sum_of_fitness_in_whole_population`.
+  ///
+  /// ### Arguments
+  ///
+  /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+  /// * `population` - individuals to choose mating pool from
+  /// * `count` - target number of individuals in mating pool
   fn apply<'a>(
     &mut self,
     _metadata: &GAMetadata,
@@ -55,15 +107,34 @@ impl<T: Chromosome> SelectionOperator<T> for RouletteWheel {
   }
 }
 
+/// ### Random selection operator
+///
+/// This struct implements [SelectionOperator] trait and can be used with GA.
+///
+/// Individuals are selected with uniform probability.
+///
+/// **Note**: The same individual *can not* be selected mutiple times.
 pub struct Random;
 
 impl Random {
+  /// Returns new instance of [Random] selection operator
   pub fn new() -> Self {
     Random {}
   }
 }
 
 impl<T: Chromosome> SelectionOperator<T> for Random {
+  /// Returns a vector of references to individuals selected to mating pool.
+  ///
+  /// Individuals are selected with uniform probability.
+  ///
+  /// **Note**: The same individual *can not* be selected multiple times.
+  ///
+  /// ### Arguments
+  ///
+  /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+  /// * `population` - individuals to choose mating pool from
+  /// * `count` - target number of individuals in mating pool
   fn apply<'a>(
     &mut self,
     _metadata: &GAMetadata,
@@ -81,15 +152,36 @@ impl<T: Chromosome> SelectionOperator<T> for Random {
   }
 }
 
+/// ### Rank selection operator
+///
+/// This struct implements [SelectionOperator] trait and can be used with GA.
+///
+/// Individuals are selected by randomly (uniform distribution) choosing pairs of individuals - better
+/// rated individual from selected pair goes to mating pool. In case of equal fitness - only one goes to mating pool.
+///
+/// **Note**: The same individual *can* be selected multiple times.
 pub struct Rank;
 
 impl Rank {
+  /// Returns new instance of [Rank] selection operator
   pub fn new() -> Self {
     Rank {}
   }
 }
 
 impl<T: Chromosome> SelectionOperator<T> for Rank {
+  /// Returns a vector of references to individuals selected to mating pool.
+  ///
+  /// Individuals are selected by randomly (uniform distribution) choosing pairs of individuals - better
+  /// rated individual from selected pair goes to mating pool. In case of equal fitness - only one goes to mating pool.
+  ///
+  /// **Note**: The same individual *can* be selected multiple times.
+  ///
+  /// ### Arguments
+  ///
+  /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+  /// * `population` - individuals to choose mating pool from
+  /// * `count` - target number of individuals in mating pool
   fn apply<'a>(
     &mut self,
     _metadata: &GAMetadata,
@@ -112,11 +204,28 @@ impl<T: Chromosome> SelectionOperator<T> for Rank {
   }
 }
 
+/// ### RankR selection operator
+///
+/// This struct implements [SelectionOperator] trait and can be used with GA
+///
+/// Individuals are selected in following process:
+///
+/// 1. Select two random individuals (uniform distribution)
+/// 2. Select random number `R` from [0, 1] (uniform distribution)
+/// 3. If `R` < `r` then select first individual, second otherwise
+/// 4. Repeat 1-3 necessary number of times to create mating pool of demanded size
+///
+/// **Note**: The same individual can be selected multiple times
 pub struct RankR {
   r: f64,
 }
 
 impl RankR {
+  /// Returns new instance of [RankR] selection operator
+  ///
+  /// ### Arguments
+  ///
+  /// * `r` - threshold in range [0, 1]; see [RankR] description for explaination
   pub fn new(r: f64) -> Self {
     assert!((0.0..=1.0).contains(&r));
     RankR { r }
@@ -124,6 +233,22 @@ impl RankR {
 }
 
 impl<T: Chromosome> SelectionOperator<T> for RankR {
+  /// Returns a vector of references to individuals selected to mating pool.
+  ///
+  /// Individuals are selected in following process:
+  ///
+  /// 1. Select two random individuals (uniform distribution)
+  /// 2. Select random number `R` from [0, 1] (uniform distribution)
+  /// 3. If `R` < `r` then select first individual, second otherwise
+  /// 4. Repeat 1-3 necessary number of times to create mating pool of demanded size
+  ///
+  /// **Note**: The same individual can be selected multiple times
+  ///
+  /// ### Arguments
+  ///
+  /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+  /// * `population` - individuals to choose mating pool from
+  /// * `count` - target number of individuals in mating pool
   fn apply<'a>(
     &mut self,
     _metadata: &GAMetadata,
@@ -151,11 +276,27 @@ impl<T: Chromosome> SelectionOperator<T> for RankR {
   }
 }
 
+/// ### Tournament selection operator
+///
+/// This struct implements [SelectionOperator] and can be used with GA
+///
+/// Individuals are selected by conducting given number of tournaments with single winner:
+///
+/// *Note*: The same individual can be selected multiple times
+///
+/// 1. Select `ceil(size_factor * population_size)` distinct, random individuals
+/// 2. Select one with the highest fitness
+/// 3. Repeat 1-2 number of times necessary to fill mating pool
 pub struct Tournament {
   size_factor: f64,
 }
 
 impl Tournament {
+  /// Returns new instance of [Tournament] selection operator
+  ///
+  /// ### Arguments
+  ///
+  /// * `size_factor` - part of population to take part in tournament for choosing single individual; must be in range [0, 1]
   pub fn new(size_factor: f64) -> Self {
     assert!((0.0..=1.0).contains(&size_factor));
     Tournament { size_factor }
@@ -163,6 +304,21 @@ impl Tournament {
 }
 
 impl<T: Chromosome> SelectionOperator<T> for Tournament {
+  /// Returns a vector of references to individuals selected to mating pool
+  ///
+  /// Individuals are selected by conducting given number of tournaments with single winner:
+  ///
+  /// 1. Select `ceil(size_factor * population_size)` distinct, random individuals
+  /// 2. Select one with the highest fitness
+  /// 3. Repeat 1-2 number of times necessary to fill mating pool
+  ///
+  /// *Note*: The same individual can be selected multiple times
+  ///
+  /// ### Arguments
+  ///
+  /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+  /// * `population` - individuals to choose mating pool from
+  /// * `count` - target number of individuals in mating pool
   fn apply<'a>(
     &mut self,
     _metadata: &GAMetadata,
@@ -191,9 +347,31 @@ impl<T: Chromosome> SelectionOperator<T> for Tournament {
   }
 }
 
+/// ### Stochastic universal sampling selection operator
+///
+/// This struct implements [SelectionOperator] trati and can be used with GA
+///
+/// **Note**: This selection operator requires positive fitenss function. No runtime checks
+/// are performed to assert this invariant. If aggregated fitenss in whole population is <= the
+/// behaviour is undefined, implementation dependent and might change without any notice.
+///
+/// **Note**: The same individual can be selected multiple times
+///
+/// Individuals are selected in process similar to described below:
+///
+/// 1. Individuals are laid on real axis, in order they appear in population,
+/// to interval \[0, `total_fitness`\]; each individual is represented by sub
+/// interval of lengths equal to its fitness
+/// 2. `count` virtual pointers are placed along interval \[0, `total_fitness`\];
+/// distance between pointers `d` is `total_fitness` / `mating_pool_size`;
+/// first pointer position is selected randomly from interval \[0, `d`\]
+/// 3. Iterate over the pointers and select the individuals they point to
+///
+/// See the source code for implemenation details
 pub struct StochasticUniversalSampling;
 
 impl StochasticUniversalSampling {
+  /// Returns new instance of [StochasticUniversalSampling] selection operator
   pub fn new() -> Self {
     StochasticUniversalSampling {}
   }
@@ -202,6 +380,31 @@ impl StochasticUniversalSampling {
 // FIXME: Panics then total_fitness == 0
 // Should this be expected or do we want to handle this?
 impl<T: Chromosome> SelectionOperator<T> for StochasticUniversalSampling {
+  /// Returns a vector of references to individuals selected to mating pool
+  ///
+  /// **Note**: This selection operator requires positive fitenss function. No runtime checks
+  /// are performed to assert this invariant. If aggregated fitenss in whole population is <= the
+  /// behaviour is undefined, implementation dependent and might change without any notice.
+  ///
+  /// **Note**: The same individual can be selected multiple times
+  ///
+  /// Individuals are selected in process similar to described below:
+  ///
+  /// 1. Individuals are laid on real axis, in order they appear in population,
+  /// to interval \[0, `total_fitness`\]; each individual is represented by sub
+  /// interval of lengths equal to its fitness
+  /// 2. `count` virtual pointers are placed along interval \[0, `total_fitness`\];
+  /// distance between pointers `d` is `total_fitness` / `mating_pool_size`;
+  /// first pointer position is selected randomly from interval \[0, `d`\]
+  /// 3. Iterate over the pointers and select the individuals they point to
+  ///
+  /// See the source code for implemenation details
+  ///
+  /// ### Arguments
+  ///
+  /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+  /// * `population` - individuals to choose mating pool from
+  /// * `count` - target number of individuals in mating pool
   fn apply<'a>(
     &mut self,
     _metadata: &GAMetadata,
@@ -234,6 +437,10 @@ impl<T: Chromosome> SelectionOperator<T> for StochasticUniversalSampling {
   }
 }
 
+/// ### Boltzmann selection operator
+///
+/// This struct implements [SelectionOperator] trait and can be used with GA
+///
 pub struct Boltzmann {
   alpha: f64,
   max_gen_count: usize, // FIXME: This should be removed after operators are passed whole algorithm state & config
@@ -242,6 +449,14 @@ pub struct Boltzmann {
 }
 
 impl Boltzmann {
+  /// Returns new instance of [Boltzmann] selection operator
+  ///
+  /// ### Arguments
+  ///
+  /// * `alpha` - prameter that controlls temperature scaling; must be in [0, 1] range
+  /// * `temp_0` - initial temperature for the operator
+  /// * `max_gen_count` - maximum number of generations GA can run; this param will be removed in future version of the library
+  /// * `elitism` - set to true to ensure that best individuals end in mating pool no matter operator results; **not supported yet**
   pub fn new(alpha: f64, temp_0: f64, max_gen_count: usize, elitism: bool) -> Self {
     assert!(
       (0.0..=1.0).contains(&alpha),
