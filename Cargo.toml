@@ -9,6 +9,7 @@ Evolutionary computation tools & algorithms
 """
 keywords = ["evolution", "evolutionary", "algorithms", "genetic"]
 categories = ["science"]
+license = "LICENSE.md"
 
 [workspace]
 members = [
