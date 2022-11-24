@@ -235,15 +235,15 @@ impl RankR {
 impl<T: Chromosome> SelectionOperator<T> for RankR {
   /// Returns a vector of references to individuals selected to mating pool.
   ///
-	/// Individuals are selected in following process:
-	///
-	/// 1. Select two random individuals (uniform distribution)
-	/// 2. Select random number `R` from [0, 1] (uniform distribution)
-	/// 3. If `R` < `r` then select first individual, second otherwise
-	/// 4. Repeat 1-3 necessary number of times to create mating pool of demanded size
-	///
-	/// **Note**: The same individual can be selected multiple times
-	///
+  /// Individuals are selected in following process:
+  ///
+  /// 1. Select two random individuals (uniform distribution)
+  /// 2. Select random number `R` from [0, 1] (uniform distribution)
+  /// 3. If `R` < `r` then select first individual, second otherwise
+  /// 4. Repeat 1-3 necessary number of times to create mating pool of demanded size
+  ///
+  /// **Note**: The same individual can be selected multiple times
+  ///
   /// ### Arguments
   ///
   /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
@@ -276,7 +276,6 @@ impl<T: Chromosome> SelectionOperator<T> for RankR {
   }
 }
 
-
 /// ### Tournament selection operator
 ///
 /// This struct implements [SelectionOperator] and can be used with GA
@@ -293,11 +292,11 @@ pub struct Tournament {
 }
 
 impl Tournament {
-	/// Returns new instance of [Tournament] selection operator
-	///
-	/// ### Arguments
-	///
-	/// * `size_factor` - part of population to take part in tournament for choosing single individual; must be in range [0, 1]
+  /// Returns new instance of [Tournament] selection operator
+  ///
+  /// ### Arguments
+  ///
+  /// * `size_factor` - part of population to take part in tournament for choosing single individual; must be in range [0, 1]
   pub fn new(size_factor: f64) -> Self {
     assert!((0.0..=1.0).contains(&size_factor));
     Tournament { size_factor }
@@ -307,14 +306,14 @@ impl Tournament {
 impl<T: Chromosome> SelectionOperator<T> for Tournament {
   /// Returns a vector of references to individuals selected to mating pool
   ///
-	/// Individuals are selected by conducting given number of tournaments with single winner:
-	///
-	/// 1. Select `ceil(size_factor * population_size)` distinct, random individuals
-	/// 2. Select one with the highest fitness
-	/// 3. Repeat 1-2 number of times necessary to fill mating pool
-	///
-	/// *Note*: The same individual can be selected multiple times
-	///
+  /// Individuals are selected by conducting given number of tournaments with single winner:
+  ///
+  /// 1. Select `ceil(size_factor * population_size)` distinct, random individuals
+  /// 2. Select one with the highest fitness
+  /// 3. Repeat 1-2 number of times necessary to fill mating pool
+  ///
+  /// *Note*: The same individual can be selected multiple times
+  ///
   /// ### Arguments
   ///
   /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
