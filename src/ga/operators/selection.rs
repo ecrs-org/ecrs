@@ -371,7 +371,7 @@ impl<T: Chromosome> SelectionOperator<T> for Tournament {
 pub struct StochasticUniversalSampling;
 
 impl StochasticUniversalSampling {
-	/// Returns new instance of [StochasticUniversalSampling] selection operator
+  /// Returns new instance of [StochasticUniversalSampling] selection operator
   pub fn new() -> Self {
     StochasticUniversalSampling {}
   }
@@ -441,7 +441,6 @@ impl<T: Chromosome> SelectionOperator<T> for StochasticUniversalSampling {
 ///
 /// This struct implements [SelectionOperator] trait and can be used with GA
 ///
-///
 pub struct Boltzmann {
   alpha: f64,
   max_gen_count: usize, // FIXME: This should be removed after operators are passed whole algorithm state & config
@@ -450,14 +449,14 @@ pub struct Boltzmann {
 }
 
 impl Boltzmann {
-	/// Returns new instance of [Boltzmann] selection operator
-	///
-	/// ### Arguments
-	///
-	/// * `alpha` - prameter that controlls temperature scaling; must be in [0, 1] range
-	/// * `temp_0` - initial temperature for the operator
-	/// * `max_gen_count` - maximum number of generations GA can run; this param will be removed in future version of the library
-	/// * `elitism` - set to true to ensure that best individuals end in mating pool no matter operator results
+  /// Returns new instance of [Boltzmann] selection operator
+  ///
+  /// ### Arguments
+  ///
+  /// * `alpha` - prameter that controlls temperature scaling; must be in [0, 1] range
+  /// * `temp_0` - initial temperature for the operator
+  /// * `max_gen_count` - maximum number of generations GA can run; this param will be removed in future version of the library
+  /// * `elitism` - set to true to ensure that best individuals end in mating pool no matter operator results; **not supported yet**
   pub fn new(alpha: f64, temp_0: f64, max_gen_count: usize, elitism: bool) -> Self {
     assert!(
       (0.0..=1.0).contains(&alpha),
