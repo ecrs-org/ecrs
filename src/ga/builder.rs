@@ -74,26 +74,26 @@ where
 pub struct Builder;
 
 impl Builder {
-	#[allow(clippy::new_ret_no_self)]
-	pub fn new<T, M, C, S, P, Pr>() -> GenericBuilder<T, M, C, S, P, Pr>
-	where
-		T: Chromosome,
-		M: MutationOperator<T>,
-		C: CrossoverOperator<T>,
-		S: SelectionOperator<T>,
-		P: PopulationGenerator<T>,
-		Pr: Probe<T>
-	{
-		GenericBuilder::new()
-	}
+  #[allow(clippy::new_ret_no_self)]
+  pub fn new<T, M, C, S, P, Pr>() -> GenericBuilder<T, M, C, S, P, Pr>
+  where
+    T: Chromosome,
+    M: MutationOperator<T>,
+    C: CrossoverOperator<T>,
+    S: SelectionOperator<T>,
+    P: PopulationGenerator<T>,
+    Pr: Probe<T>,
+  {
+    GenericBuilder::new()
+  }
 
-	pub fn with_rvc() -> RealValuedBuilder {
-		RealValuedBuilder::new()
-	}
+  pub fn with_rvc() -> RealValuedBuilder {
+    RealValuedBuilder::new()
+  }
 
-	pub fn with_bsc() -> BitStringBuilder {
-		BitStringBuilder::new()
-	}
+  pub fn with_bsc() -> BitStringBuilder {
+    BitStringBuilder::new()
+  }
 }
 
 pub struct GenericBuilder<T, M, C, S, P, Pr>
@@ -132,14 +132,14 @@ where
     self
   }
 
-	pub fn set_mutation_rate(mut self, mutation_rate: f64) -> Self {
-		assert!((0.0..=1.0).contains(&mutation_rate));
-		self.config.params = self.config.params.map(|mut params| {
-			params.mutation_rate = mutation_rate;
-			params
-		});
-		self
-	}
+  pub fn set_mutation_rate(mut self, mutation_rate: f64) -> Self {
+    assert!((0.0..=1.0).contains(&mutation_rate));
+    self.config.params = self.config.params.map(|mut params| {
+      params.mutation_rate = mutation_rate;
+      params
+    });
+    self
+  }
 
   pub fn set_max_duration(mut self, max_duration: std::time::Duration) -> Self {
     self.config.params = self.config.params.map(|mut params| {

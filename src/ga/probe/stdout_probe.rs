@@ -44,12 +44,12 @@ impl<T: Chromosome> Probe<T> for StdoutProbe {
     );
   }
 
-	fn on_end(
-			&mut self,
-			metadata: &GAMetadata,
-			_population: &[Individual<T>],
-			best_individual: &Individual<T>,
-		) {
+  fn on_end(
+    &mut self,
+    metadata: &GAMetadata,
+    _population: &[Individual<T>],
+    best_individual: &Individual<T>,
+  ) {
     info!(
       "[END] {},{},{:?},{}",
       metadata.duration.unwrap().as_millis(),
@@ -57,7 +57,7 @@ impl<T: Chromosome> Probe<T> for StdoutProbe {
       best_individual.chromosome_ref(),
       best_individual.fitness
     );
-	}
+  }
 
   // fn on_iteration_start(&mut self, iteration: usize) {
   //   // TODO: Take iteration count & maybe some more info here (best so far, etc.)

@@ -1,6 +1,6 @@
 use std::ops::IndexMut;
 
-use push_trait::{Push, Nothing};
+use push_trait::{Nothing, Push};
 use rand::Rng;
 
 use crate::ga::{individual::Chromosome, Individual};
@@ -15,7 +15,7 @@ pub trait MutationOperator<T: Chromosome> {
   /// ## Arguments
   ///
   /// * `individual` - mutable reference to to-be-mutated individual
-	/// * `mutation_rate` - probability of gene mutation
+  /// * `mutation_rate` - probability of gene mutation
   fn apply(&self, indivudial: &mut Individual<T>, mutation_rate: f64);
 }
 
@@ -69,25 +69,25 @@ mod tests {
 pub struct FlipBit;
 
 impl FlipBit {
-	/// Returns new instance of [FlipBit] mutation operator
-	pub fn new() -> Self {
-		Self
-	}
+  /// Returns new instance of [FlipBit] mutation operator
+  pub fn new() -> Self {
+    Self
+  }
 }
 
 impl<T> MutationOperator<T> for FlipBit
 where
-	T: Chromosome + IndexMut<usize, Output = bool> + Push<bool, PushedOut = Nothing>
+  T: Chromosome + IndexMut<usize, Output = bool> + Push<bool, PushedOut = Nothing>,
 {
-	fn apply(&self, indivudial: &mut Individual<T>, mutation_rate: f64) {
-		let distribution = rand::distributions::Uniform::from(0.0..1.0);
-		let chromosome_ref = indivudial.chromosome_ref_mut();
-		let chromosome_len = chromosome_ref.len();
+  fn apply(&self, indivudial: &mut Individual<T>, mutation_rate: f64) {
+    let distribution = rand::distributions::Uniform::from(0.0..1.0);
+    let chromosome_ref = indivudial.chromosome_ref_mut();
+    let chromosome_len = chromosome_ref.len();
 
-		for i in 0..chromosome_len {
-			if rand::thread_rng().sample(distribution) < mutation_rate {
-				chromosome_ref[i] = !chromosome_ref[i];
-			}
-		}
-	}
+    for i in 0..chromosome_len {
+      if rand::thread_rng().sample(distribution) < mutation_rate {
+        chromosome_ref[i] = !chromosome_ref[i];
+      }
+    }
+  }
 }
