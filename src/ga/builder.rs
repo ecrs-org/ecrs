@@ -19,7 +19,7 @@ where
   Pr: Probe<T>,
 {
   params: Option<GAParams>,
-  fitness_fn: Option<FitnessFn<Individual<T>>>,
+  fitness_fn: Option<FitnessFn<T>>,
   mutation_operator: Option<M>,
   crossover_operator: Option<C>,
   selection_operator: Option<S>,
@@ -167,7 +167,7 @@ where
     self
   }
 
-  pub fn set_fitness_fn(mut self, fitness_fn: FitnessFn<Individual<T>>) -> Self {
+  pub fn set_fitness_fn(mut self, fitness_fn: FitnessFn<T>) -> Self {
     self.config.fitness_fn = Some(fitness_fn);
     self
   }

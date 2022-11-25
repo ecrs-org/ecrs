@@ -76,7 +76,7 @@ impl RealValuedBuilder {
     self
   }
 
-  pub fn fitness_fn(mut self, fitness_fn: FitnessFn<Individual<Rvc>>) -> Self {
+  pub fn fitness_fn(mut self, fitness_fn: FitnessFn<Rvc>) -> Self {
     self.config.fitness_fn = Some(fitness_fn);
     self
   }
@@ -179,7 +179,7 @@ impl BitStringBuilder {
     self
   }
 
-  pub fn fitness_fn(mut self, fitness_fn: FitnessFn<Individual<Bsc>>) -> Self {
+  pub fn fitness_fn(mut self, fitness_fn: FitnessFn<Bsc>) -> Self {
     self.config.fitness_fn = Some(fitness_fn);
     self
   }

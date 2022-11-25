@@ -50,7 +50,7 @@ where
 {
   pub params: GAParams,
   // pub ops: GAOps<S>,
-  pub fitness_fn: FitnessFn<Individual<T>>,
+  pub fitness_fn: FitnessFn<T>,
   pub mutation_operator: M,
   pub crossover_operator: C,
   pub selection_operator: S,
