@@ -36,17 +36,17 @@ pub fn ga_example() {
 }
 
 pub fn ga_rvc_example() -> Option<ga::Individual<Vec<f64>>> {
-	ecrs::ga::Builder::with_rvc()
-		.fitness_fn(rastrigin::rastrigin_fitness)
-		.dim(5)
-		.build()
-		.run()
+  ecrs::ga::Builder::with_rvc()
+    .fitness_fn(rastrigin::rastrigin_fitness)
+    .dim(5)
+    .build()
+    .run()
 }
 
 pub fn ga_bsc_example() -> Option<ga::Individual<Vec<bool>>> {
-	ecrs::ga::Builder::with_bsc()
-		.fitness_fn(wordmax::wordmax_fitness)
-		.dim(10)
-		.build()
-		.run()
+  ecrs::ga::Builder::with_bsc()
+    .fitness_fn(wordmax::wordmax_fitness)
+    .dim(10)
+    .build()
+    .run()
 }

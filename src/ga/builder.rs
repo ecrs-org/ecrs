@@ -1,7 +1,5 @@
 pub mod presets;
 
-use std::marker::PhantomData;
-
 use super::individual::Chromosome;
 use super::operators::selection::SelectionOperator;
 use super::population::PopulationGenerator;
