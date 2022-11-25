@@ -58,8 +58,8 @@ where
 {
   /// Mutates provided solution in place
   ///
-	/// Genes are muatated by flipping the value - `1` becomes `0` and vice versa
-	///
+  /// Genes are muatated by flipping the value - `1` becomes `0` and vice versa
+  ///
   /// ## Arguments
   ///
   /// * `individual` - mutable reference to to-be-mutated individual
@@ -98,8 +98,8 @@ where
 {
   /// Mutates provided solution in place
   ///
-	/// If a gene is to be muatated, a new locus is randomly choosen and gene values are interchanged
-	///
+  /// If a gene is to be muatated, a new locus is randomly choosen and gene values are interchanged
+  ///
   /// ## Arguments
   ///
   /// * `individual` - mutable reference to to-be-mutated individual
@@ -113,7 +113,10 @@ where
 
     for i in 0..chromosome_len {
       if rand::thread_rng().sample(dist) < mutation_rate {
-        chromosome_ref[i] = chromosome_ref[rand::thread_rng().sample(index_dist)]
+				let rand_index = rand::thread_rng().sample(index_dist);
+				let gene = chromosome_ref[rand_index];
+				chromosome_ref[rand_index] = chromosome_ref[i];
+				chromosome_ref[i] = gene;
       }
     }
   }
@@ -169,4 +172,9 @@ mod tests {
       assert_eq!(actual, !*expected);
     }
   }
+
+	#[test]
+	fn interchange_introduces_changes() {
+
+	}
 }
