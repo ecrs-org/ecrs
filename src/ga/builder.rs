@@ -1,9 +1,13 @@
+pub mod presets;
+
 use super::individual::Chromosome;
 use super::operators::selection::SelectionOperator;
 use super::population::PopulationGenerator;
 use super::{
   CrossoverOperator, FitnessFn, GAConfig, GAParams, GeneticAlgorithm, Individual, MutationOperator, Probe,
 };
+
+pub use presets::{BitStringBuilder, RealValuedBuilder};
 
 struct GAConfigOpt<T, M, C, S, P, Pr>
 where
@@ -23,7 +27,7 @@ where
   probe: Option<Pr>,
 }
 
-impl<T, M, C, S, P, Pr> Default for GAConfigOpt<T, M, C, S, P, Pr>
+impl<T, M, C, S, P, Pr> GAConfigOpt<T, M, C, S, P, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
@@ -32,7 +36,7 @@ where
   P: PopulationGenerator<T>,
   Pr: Probe<T>,
 {
-  fn default() -> Self {
+  pub fn new() -> Self {
     Self {
       params: Some(GAParams::default()),
       fitness_fn: None,
@@ -67,7 +71,32 @@ where
   }
 }
 
-pub struct Builder<T, M, C, S, P, Pr>
+pub struct Builder;
+
+impl Builder {
+	#[allow(clippy::new_ret_no_self)]
+	pub fn new<T, M, C, S, P, Pr>() -> GenericBuilder<T, M, C, S, P, Pr>
+	where
+		T: Chromosome,
+		M: MutationOperator<T>,
+		C: CrossoverOperator<T>,
+		S: SelectionOperator<T>,
+		P: PopulationGenerator<T>,
+		Pr: Probe<T>
+	{
+		GenericBuilder::new()
+	}
+
+	pub fn with_rvc() -> RealValuedBuilder {
+		RealValuedBuilder::new()
+	}
+
+	pub fn with_bsc() -> BitStringBuilder {
+		BitStringBuilder::new()
+	}
+}
+
+pub struct GenericBuilder<T, M, C, S, P, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
@@ -79,7 +108,7 @@ where
   config: GAConfigOpt<T, M, C, S, P, Pr>,
 }
 
-impl<T, M, C, S, P, Pr> Builder<T, M, C, S, P, Pr>
+impl<T, M, C, S, P, Pr> GenericBuilder<T, M, C, S, P, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
@@ -89,8 +118,8 @@ where
   Pr: Probe<T>,
 {
   pub fn new() -> Self {
-    Builder {
-      config: GAConfigOpt::default(),
+    GenericBuilder {
+      config: GAConfigOpt::new(),
     }
   }
 
@@ -162,4 +191,11 @@ where
   pub fn build(self) -> GeneticAlgorithm<T, M, C, S, P, Pr> {
     GeneticAlgorithm::new(self.config.into())
   }
+}
+
+#[cfg(test)]
+mod test {
+
+  #[test]
+  fn api_test() {}
 }

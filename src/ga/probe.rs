@@ -1,6 +1,7 @@
 use super::{individual::Chromosome, GAMetadata, Individual};
 
 pub mod csv_probe;
+pub mod empty;
 pub mod json_probe;
 pub mod stdout_probe;
 

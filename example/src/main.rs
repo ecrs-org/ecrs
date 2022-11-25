@@ -41,4 +41,7 @@ fn main() {
   };
 
   ga::ga_example();
+
+  ga::ga_rvc_example();
+  ga::ga_bsc_example();
 }
