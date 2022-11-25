@@ -1,5 +1,7 @@
 pub mod presets;
 
+use std::marker::PhantomData;
+
 use super::individual::Chromosome;
 use super::operators::selection::SelectionOperator;
 use super::population::PopulationGenerator;
@@ -71,24 +73,30 @@ where
   }
 }
 
-// pub struct BuilderDispatcher;
+pub struct Builder;
 
-// impl BuilderDispatcher {
-// 	pub fn with_real_valued_chromosome<M, C, S, P, Pr>() -> Builder<Vec<f64>, M, C, S, P, Pr>
-// 	where
-// 		M: MutationOperator<Vec<f64>>,
-// 		C: CrossoverOperator<Vec<f64>>,
-// 		S: SelectionOperator<Vec<f64>>,
-// 		P: PopulationGenerator<Vec<f64>>,
-// 		Pr: Probe<Vec<f64>>,
-// 	{
-// 		Builder::new()
-// 	}
+impl Builder {
+	#[allow(clippy::new_ret_no_self)]
+	pub fn new<T, M, C, S, P, Pr>() -> GenericBuilder<T, M, C, S, P, Pr>
+	where
+		T: Chromosome,
+		M: MutationOperator<T>,
+		C: CrossoverOperator<T>,
+		S: SelectionOperator<T>,
+		P: PopulationGenerator<T>,
+		Pr: Probe<T>
+	{
+		GenericBuilder::new()
+	}
 
-// 	pub fn with_bitstring_chromosome() -> Builder<Vec<bool>, Identity, SinglePoint, StochasticUniversalSampling, BitStrings, EmptyProbe> {
-// 		Builder::new()
-// 	}
-// }
+	pub fn with_rvc() -> RealValuedBuilder {
+		RealValuedBuilder::new()
+	}
+
+	pub fn with_bsc() -> BitStringBuilder {
+		BitStringBuilder::new()
+	}
+}
 
 pub struct GenericBuilder<T, M, C, S, P, Pr>
 where

@@ -72,13 +72,33 @@ impl RealValuedBuilder
 		self
 	}
 
-	pub fn build(self) -> GeneticAlgorithm<Rvc, Identity, SinglePoint, Tournament, RandomPoints, StdoutProbe> {
+	pub fn build(mut self) -> GeneticAlgorithm<Rvc, Identity, SinglePoint, Tournament, RandomPoints, StdoutProbe> {
 		 if self.config.fitness_fn.is_none() {
 				panic!("Fitness function must be set");
 		 }
 
 		if self.dim.is_none() {
 			panic!("Problem dimension must be set");
+		}
+
+		if self.config.crossover_operator.is_none() {
+			self.config.crossover_operator = Some(SinglePoint::new());
+		}
+
+		if self.config.mutation_operator.is_none() {
+			self.config.mutation_operator = Some(Identity::new());
+		}
+
+		if self.config.selection_operator.is_none() {
+			self.config.selection_operator = Some(Tournament::new(0.2));
+		}
+
+		if self.config.population_factory.is_none() {
+			self.config.population_factory = Some(RandomPoints::new(self.dim.unwrap_or(10)));
+		}
+
+		if self.config.probe.is_none() {
+			self.config.probe = Some(StdoutProbe::new());
 		}
 
 		GeneticAlgorithm::new(self.config.into())
@@ -142,13 +162,29 @@ impl BitStringBuilder {
 		self
 	}
 
-	pub fn build(self) -> GeneticAlgorithm<Bsc, Identity, SinglePoint, Tournament, BitStrings, StdoutProbe> {
-		 if self.config.fitness_fn.is_none() {
-				panic!("Fitness function must be set");
-		 }
+	pub fn build(mut self) -> GeneticAlgorithm<Bsc, Identity, SinglePoint, Tournament, BitStrings, StdoutProbe> {
+		if self.config.fitness_fn.is_none() {
+			panic!("Fitness function must be set");
+		}
 
-		if self.dim.is_none() {
-			panic!("Problem dimension must be set");
+		if self.config.crossover_operator.is_none() {
+			self.config.crossover_operator = Some(SinglePoint::new());
+		}
+
+		if self.config.mutation_operator.is_none() {
+			self.config.mutation_operator = Some(Identity::new());
+		}
+
+		if self.config.selection_operator.is_none() {
+			self.config.selection_operator = Some(Tournament::new(0.2));
+		}
+
+		if self.config.population_factory.is_none() {
+			self.config.population_factory = Some(BitStrings::new(self.dim.unwrap_or(10)));
+		}
+
+		if self.config.probe.is_none() {
+			self.config.probe = Some(StdoutProbe::new());
 		}
 
 		GeneticAlgorithm::new(self.config.into())

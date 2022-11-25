@@ -51,7 +51,7 @@ impl<T: Chromosome> Probe<T> for StdoutProbe {
 			best_individual: &Individual<T>,
 		) {
     info!(
-      "[BEST_IN_GEN] {},{},{:?},{}",
+      "[END] {},{},{:?},{}",
       metadata.duration.unwrap().as_millis(),
       metadata.generation.unwrap(),
       best_individual.chromosome_ref(),

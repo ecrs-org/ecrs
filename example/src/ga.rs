@@ -1,5 +1,6 @@
 pub mod rastrigin;
 pub mod sum_of_squares;
+pub mod wordmax;
 
 use ecrs::ga;
 
@@ -16,7 +17,7 @@ pub fn point_generator(restrictions: &Vec<(f64, f64)>) -> Vec<f64> {
 }
 
 pub fn ga_example() {
-  let res = ecrs::ga::GenericBuilder::new()
+  let res = ecrs::ga::Builder::new()
     .set_max_generation_count(500)
     .set_population_size(100)
     .set_fitness_fn(rastrigin::rastrigin_fitness)
@@ -32,4 +33,20 @@ pub fn ga_example() {
     .run();
 
   println!("{:?}", res);
+}
+
+pub fn ga_rvc_example() -> Option<ga::Individual<Vec<f64>>> {
+	ecrs::ga::Builder::with_rvc()
+		.fitness_fn(rastrigin::rastrigin_fitness)
+		.dim(5)
+		.build()
+		.run()
+}
+
+pub fn ga_bsc_example() -> Option<ga::Individual<Vec<bool>>> {
+	ecrs::ga::Builder::with_bsc()
+		.fitness_fn(wordmax::wordmax_fitness)
+		.dim(10)
+		.build()
+		.run()
 }
