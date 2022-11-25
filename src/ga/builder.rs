@@ -7,6 +7,8 @@ use super::{
   CrossoverOperator, FitnessFn, GAConfig, GAParams, GeneticAlgorithm, Individual, MutationOperator, Probe,
 };
 
+pub use presets::{BitStringBuilder, RealValuedBuilder};
+
 struct GAConfigOpt<T, M, C, S, P, Pr>
 where
   T: Chromosome,
