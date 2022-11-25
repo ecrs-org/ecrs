@@ -1,7 +1,7 @@
 use crate::ga::{
   operators::{
     crossover::SinglePoint,
-    mutation::Identity,
+    mutation::{Identity, FlipBit},
     selection::Tournament,
   },
   population::{RandomPoints, BitStrings},
@@ -116,7 +116,7 @@ impl RealValuedBuilder
 
 
 pub struct BitStringBuilder {
-  config: GAConfigOpt<Bsc, Identity, SinglePoint, Tournament, BitStrings, StdoutProbe>,
+  config: GAConfigOpt<Bsc, FlipBit, SinglePoint, Tournament, BitStrings, StdoutProbe>,
 	dim: Option<usize>,
 }
 
@@ -180,7 +180,7 @@ impl BitStringBuilder {
 		self
 	}
 
-	pub fn build(mut self) -> GeneticAlgorithm<Bsc, Identity, SinglePoint, Tournament, BitStrings, StdoutProbe> {
+	pub fn build(mut self) -> GeneticAlgorithm<Bsc, FlipBit, SinglePoint, Tournament, BitStrings, StdoutProbe> {
 		if self.config.fitness_fn.is_none() {
 			panic!("Fitness function must be set");
 		}
@@ -190,7 +190,7 @@ impl BitStringBuilder {
 		}
 
 		if self.config.mutation_operator.is_none() {
-			self.config.mutation_operator = Some(Identity::new());
+			self.config.mutation_operator = Some(FlipBit::new());
 		}
 
 		if self.config.selection_operator.is_none() {
