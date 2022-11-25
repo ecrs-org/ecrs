@@ -1,5 +1,5 @@
 use serde::Serialize;
-use std::fmt::Debug;
+use std::{fmt::Debug, ops::Deref};
 
 pub trait Chromosome: Sized + Sync + Send + Clone + Default + Debug {}
 
@@ -29,6 +29,14 @@ impl<T: Chromosome> Individual<T> {
   pub fn chromosome_ref_mut(&mut self) -> &mut T {
     &mut self.chromosome
   }
+}
+
+impl<T: Chromosome> Deref for Individual<T> {
+	type Target = T;
+
+	fn deref(&self) -> &Self::Target {
+		&self.chromosome
+	}
 }
 
 impl<T: Chromosome> From<T> for Individual<T> {
