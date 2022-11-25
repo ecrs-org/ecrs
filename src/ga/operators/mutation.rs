@@ -113,10 +113,10 @@ where
 
     for i in 0..chromosome_len {
       if rand::thread_rng().sample(dist) < mutation_rate {
-				let rand_index = rand::thread_rng().sample(index_dist);
-				let gene = chromosome_ref[rand_index];
-				chromosome_ref[rand_index] = chromosome_ref[i];
-				chromosome_ref[i] = gene;
+        let rand_index = rand::thread_rng().sample(index_dist);
+        let gene = chromosome_ref[rand_index];
+        chromosome_ref[rand_index] = chromosome_ref[i];
+        chromosome_ref[i] = gene;
       }
     }
   }
@@ -128,7 +128,7 @@ mod tests {
   use itertools::Itertools;
   use rand::{distributions::Uniform, Rng};
 
-  use super::{FlipBit, Identity, MutationOperator};
+  use super::{FlipBit, Identity, Interchange, MutationOperator};
 
   #[test]
   fn identity_does_not_change_chromosome() {
@@ -144,7 +144,7 @@ mod tests {
 
     let identity_mutation = Identity;
 
-    identity_mutation.apply(&mut individual, 0.1);
+    identity_mutation.apply(&mut individual, 1.);
 
     assert_eq!(chromosome, individual.chromosome);
   }
@@ -173,8 +173,75 @@ mod tests {
     }
   }
 
-	#[test]
-	fn interchange_introduces_changes() {
+  #[test]
+  fn flipbit_does_not_mutate_rate_0() {
+    let chromosome = rand::thread_rng()
+      .sample_iter(Uniform::from(-1.0..1.0))
+      .take(30)
+      .map(|val| val > 0.)
+      .collect_vec();
 
-	}
+    let chromosome_clone = chromosome.clone();
+
+    let mut individual = Individual {
+      chromosome,
+      fitness: f64::default(),
+    };
+
+    let operator = FlipBit::new();
+
+    operator.apply(&mut individual, 0.);
+
+    for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome_ref()) {
+      assert_eq!(actual, *expected);
+    }
+  }
+
+  #[test]
+  fn interchange_introduces_changes() {
+    let chromosome = rand::thread_rng()
+      .sample_iter(Uniform::from(-1.0..1.0))
+      .take(300)
+      .map(|val| val > 0.)
+      .collect_vec();
+
+    let chromosome_clone = chromosome.clone();
+
+    let mut individual = Individual {
+      chromosome,
+      fitness: f64::default(),
+    };
+
+    let operator = Interchange::new();
+
+    operator.apply(&mut individual, 1.);
+    let changes = std::iter::zip(chromosome_clone, individual.chromosome_ref())
+      .filter(|p| p.0 != *p.1)
+      .count();
+    assert!(changes > 0);
+  }
+
+  #[test]
+  fn interchange_does_not_mutate_rate_0() {
+    let chromosome = rand::thread_rng()
+      .sample_iter(Uniform::from(-1.0..1.0))
+      .take(30)
+      .map(|val| val > 0.)
+      .collect_vec();
+
+    let chromosome_clone = chromosome.clone();
+
+    let mut individual = Individual {
+      chromosome,
+      fitness: f64::default(),
+    };
+
+    let operator = Interchange::new();
+
+    operator.apply(&mut individual, 0.);
+
+    for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome_ref()) {
+      assert_eq!(actual, *expected);
+    }
+  }
 }
