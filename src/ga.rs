@@ -21,6 +21,7 @@ type FitnessFn<S> = fn(&S) -> f64;
 
 pub struct GAParams {
   pub selection_rate: f64,
+	pub mutation_rate: f64,
   pub generation_upper_bound: usize,
   pub population_size: usize,
   pub max_duration: Option<std::time::Duration>,
@@ -30,6 +31,7 @@ impl Default for GAParams {
   fn default() -> Self {
     Self {
       selection_rate: 0.5f64,
+			mutation_rate: 0.05,
       generation_upper_bound: 200,
       population_size: 100,
       max_duration: None,
@@ -171,7 +173,7 @@ where
       }
 
       // 5.1 Here we should apply the mutations on children?
-      (0..children.len()).for_each(|i| self.config.mutation_operator.apply(&mut children[i]));
+      (0..children.len()).for_each(|i| self.config.mutation_operator.apply(&mut children[i], self.config.params.mutation_rate));
 
       // TODO
       // 6. Replacement - merge new generation with old one

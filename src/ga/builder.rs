@@ -132,6 +132,15 @@ where
     self
   }
 
+	pub fn set_mutation_rate(mut self, mutation_rate: f64) -> Self {
+		assert!((0.0..=1.0).contains(&mutation_rate));
+		self.config.params = self.config.params.map(|mut params| {
+			params.mutation_rate = mutation_rate;
+			params
+		});
+		self
+	}
+
   pub fn set_max_duration(mut self, max_duration: std::time::Duration) -> Self {
     self.config.params = self.config.params.map(|mut params| {
       params.max_duration = Some(max_duration);

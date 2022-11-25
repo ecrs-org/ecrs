@@ -10,7 +10,8 @@ pub trait MutationOperator<T: Chromosome> {
   /// ## Arguments
   ///
   /// * `individual` - mutable reference to to-be-mutated individual
-  fn apply(&self, indivudial: &mut Individual<T>);
+	/// * `mutation_rate` - probability of gene mutation
+  fn apply(&self, indivudial: &mut Individual<T>, mutation_rate: f64);
 }
 
 /// # Identity Mutation Operator
@@ -29,7 +30,7 @@ impl Identity {
 }
 
 impl<T: Chromosome> MutationOperator<T> for Identity {
-  fn apply(&self, _indivudial: &mut Individual<T>) {}
+  fn apply(&self, _indivudial: &mut Individual<T>, _mutation_rate: f64) {}
 }
 
 #[cfg(test)]
@@ -54,8 +55,19 @@ mod tests {
 
     let identity_mutation = Identity;
 
-    identity_mutation.apply(&mut individual);
+    identity_mutation.apply(&mut individual, 0.1);
 
     assert_eq!(chromosome, individual.chromosome);
   }
 }
+
+pub struct FlipBit;
+
+impl FlipBit {
+	/// Returns new instance of [FlipBit] mutation operator
+	pub fn new() -> Self {
+		Self
+	}
+}
+
+
