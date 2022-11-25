@@ -1,7 +1,7 @@
 use crate::ga::{
   operators::{
     crossover::SinglePoint,
-    mutation::{FlipBit, Identity},
+    mutation::{FlipBit, Interchange},
     selection::Tournament,
   },
   population::{BitStrings, RandomPoints},
@@ -14,7 +14,7 @@ type Rvc = Vec<f64>;
 type Bsc = Vec<bool>;
 
 pub struct RealValuedBuilder {
-  config: GAConfigOpt<Rvc, Identity, SinglePoint, Tournament, RandomPoints, StdoutProbe>,
+  config: GAConfigOpt<Rvc, Interchange, SinglePoint, Tournament, RandomPoints, StdoutProbe>,
   dim: Option<usize>,
 }
 
@@ -83,7 +83,7 @@ impl RealValuedBuilder {
 
   pub fn build(
     mut self,
-  ) -> GeneticAlgorithm<Rvc, Identity, SinglePoint, Tournament, RandomPoints, StdoutProbe> {
+  ) -> GeneticAlgorithm<Rvc, Interchange, SinglePoint, Tournament, RandomPoints, StdoutProbe> {
     if self.config.fitness_fn.is_none() {
       panic!("Fitness function must be set");
     }
@@ -97,7 +97,7 @@ impl RealValuedBuilder {
     }
 
     if self.config.mutation_operator.is_none() {
-      self.config.mutation_operator = Some(Identity::new());
+      self.config.mutation_operator = Some(Interchange::new());
     }
 
     if self.config.selection_operator.is_none() {
