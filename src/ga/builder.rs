@@ -3,9 +3,7 @@ pub mod presets;
 use super::individual::Chromosome;
 use super::operators::selection::SelectionOperator;
 use super::population::PopulationGenerator;
-use super::{
-  CrossoverOperator, FitnessFn, GAConfig, GAParams, GeneticAlgorithm, Individual, MutationOperator, Probe,
-};
+use super::{CrossoverOperator, FitnessFn, GAConfig, GAParams, GeneticAlgorithm, MutationOperator, Probe};
 
 pub use presets::{BitStringBuilder, RealValuedBuilder};
 

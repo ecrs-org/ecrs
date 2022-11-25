@@ -32,11 +32,11 @@ impl<T: Chromosome> Individual<T> {
 }
 
 impl<T: Chromosome> Deref for Individual<T> {
-	type Target = T;
+  type Target = T;
 
-	fn deref(&self) -> &Self::Target {
-		&self.chromosome
-	}
+  fn deref(&self) -> &Self::Target {
+    &self.chromosome
+  }
 }
 
 impl<T: Chromosome> From<T> for Individual<T> {

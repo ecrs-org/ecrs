@@ -5,7 +5,7 @@ use crate::ga::{
     selection::Tournament,
   },
   population::{BitStrings, RandomPoints},
-  FitnessFn, GeneticAlgorithm, Individual, StdoutProbe,
+  FitnessFn, GeneticAlgorithm, StdoutProbe,
 };
 
 use super::GAConfigOpt;
