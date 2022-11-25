@@ -38,6 +38,11 @@ impl<T: Chromosome> MutationOperator<T> for Identity {
   fn apply(&self, _individual: &mut Individual<T>, _mutation_rate: f64) {}
 }
 
+/// ### Flilp bit mutation operator
+///
+/// This struct implements [MutationOperator] trait and can be used with GA
+///
+/// Genes are muatated by flipping the value - `1` becomes `0` and vice versa
 pub struct FlipBit;
 
 impl FlipBit {
@@ -51,6 +56,14 @@ impl<T> MutationOperator<T> for FlipBit
 where
   T: Chromosome + IndexMut<usize, Output = bool> + Push<bool, PushedOut = Nothing>,
 {
+  /// Mutates provided solution in place
+  ///
+	/// Genes are muatated by flipping the value - `1` becomes `0` and vice versa
+	///
+  /// ## Arguments
+  ///
+  /// * `individual` - mutable reference to to-be-mutated individual
+  /// * `mutation_rate` - probability of gene mutation
   fn apply(&self, individual: &mut Individual<T>, mutation_rate: f64) {
     let distribution = rand::distributions::Uniform::from(0.0..1.0);
     let chromosome_ref = individual.chromosome_ref_mut();
@@ -64,6 +77,11 @@ where
   }
 }
 
+/// ### Interchange mustation operator
+///
+/// This struct implements [MutationOperator] trait and can be used with GA
+///
+/// If a gene is to be muatated, a new locus is randomly choosen and gene values are interchanged
 pub struct Interchange;
 
 impl Interchange {
@@ -78,6 +96,14 @@ where
   G: Copy,
   T: Chromosome + IndexMut<usize, Output = G> + Push<G, PushedOut = Nothing>,
 {
+  /// Mutates provided solution in place
+  ///
+	/// If a gene is to be muatated, a new locus is randomly choosen and gene values are interchanged
+	///
+  /// ## Arguments
+  ///
+  /// * `individual` - mutable reference to to-be-mutated individual
+  /// * `mutation_rate` - probability of gene mutation
   fn apply(&self, individual: &mut Individual<T>, mutation_rate: f64) {
     let chromosome_ref = individual.chromosome_ref_mut();
     let chromosome_len = chromosome_ref.len();
