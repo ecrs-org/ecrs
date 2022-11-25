@@ -16,7 +16,7 @@ pub trait MutationOperator<T: Chromosome> {
   ///
   /// * `individual` - mutable reference to to-be-mutated individual
   /// * `mutation_rate` - probability of gene mutation
-  fn apply(&self, indivudial: &mut Individual<T>, mutation_rate: f64);
+  fn apply(&self, individual: &mut Individual<T>, mutation_rate: f64);
 }
 
 /// # Identity Mutation Operator
@@ -35,7 +35,7 @@ impl Identity {
 }
 
 impl<T: Chromosome> MutationOperator<T> for Identity {
-  fn apply(&self, _indivudial: &mut Individual<T>, _mutation_rate: f64) {}
+  fn apply(&self, _individual: &mut Individual<T>, _mutation_rate: f64) {}
 }
 
 pub struct FlipBit;
@@ -51,9 +51,9 @@ impl<T> MutationOperator<T> for FlipBit
 where
   T: Chromosome + IndexMut<usize, Output = bool> + Push<bool, PushedOut = Nothing>,
 {
-  fn apply(&self, indivudial: &mut Individual<T>, mutation_rate: f64) {
+  fn apply(&self, individual: &mut Individual<T>, mutation_rate: f64) {
     let distribution = rand::distributions::Uniform::from(0.0..1.0);
-    let chromosome_ref = indivudial.chromosome_ref_mut();
+    let chromosome_ref = individual.chromosome_ref_mut();
     let chromosome_len = chromosome_ref.len();
 
     for i in 0..chromosome_len {
@@ -73,13 +73,19 @@ impl Interchange {
   }
 }
 
+impl<T: Chromosome> MutationOperator<T> for Interchange {
+	fn apply(&self, individual: &mut Individual<T>, mutation_rate: f64) {
+
+	}
+}
+
 #[cfg(test)]
 mod tests {
-  use crate::ga::{Individual, individual::Chromosome};
+  use crate::ga::Individual;
   use itertools::Itertools;
   use rand::{distributions::Uniform, Rng};
 
-  use super::{Identity, MutationOperator, FlipBit};
+  use super::{FlipBit, Identity, MutationOperator};
 
   #[test]
   fn identity_does_not_change_chromosome() {
@@ -100,27 +106,27 @@ mod tests {
     assert_eq!(chromosome, individual.chromosome);
   }
 
-	#[test]
-	fn flipbit_negates_chromosome() {
-		let chromosome = rand::thread_rng()
-			.sample_iter(Uniform::from(-1.0..1.0))
-			.take(30)
-			.map(|val| val > 0.)
-			.collect_vec();
+  #[test]
+  fn flipbit_negates_chromosome() {
+    let chromosome = rand::thread_rng()
+      .sample_iter(Uniform::from(-1.0..1.0))
+      .take(30)
+      .map(|val| val > 0.)
+      .collect_vec();
 
-		let chromosome_clone = chromosome.clone();
+    let chromosome_clone = chromosome.clone();
 
-		let mut individual = Individual {
-			chromosome,
-			fitness: f64::default(),
-		};
+    let mut individual = Individual {
+      chromosome,
+      fitness: f64::default(),
+    };
 
-		let operator = FlipBit::new();
+    let operator = FlipBit::new();
 
-		operator.apply(&mut individual, 1.);
+    operator.apply(&mut individual, 1.);
 
-		for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome_ref()) {
-			assert_eq!(actual, !*expected);
-		}
-	}
+    for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome_ref()) {
+      assert_eq!(actual, !*expected);
+    }
+  }
 }
