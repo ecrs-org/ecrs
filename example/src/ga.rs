@@ -16,7 +16,7 @@ pub fn point_generator(restrictions: &Vec<(f64, f64)>) -> Vec<f64> {
 }
 
 pub fn ga_example() {
-  let res = ecrs::ga::Builder::new()
+  let res = ecrs::ga::GenericBuilder::new()
     .set_max_generation_count(500)
     .set_population_size(100)
     .set_fitness_fn(rastrigin::rastrigin_fitness)
