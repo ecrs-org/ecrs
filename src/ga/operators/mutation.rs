@@ -67,19 +67,19 @@ where
 pub struct Interchange;
 
 impl Interchange {
-	/// Returns new instance of [Interchange] mutation operator
-	pub fn new() -> Self {
-		Self
-	}
+  /// Returns new instance of [Interchange] mutation operator
+  pub fn new() -> Self {
+    Self
+  }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::ga::Individual;
+  use crate::ga::{Individual, individual::Chromosome};
   use itertools::Itertools;
   use rand::{distributions::Uniform, Rng};
 
-  use super::{Identity, MutationOperator};
+  use super::{Identity, MutationOperator, FlipBit};
 
   #[test]
   fn identity_does_not_change_chromosome() {
@@ -99,4 +99,28 @@ mod tests {
 
     assert_eq!(chromosome, individual.chromosome);
   }
+
+	#[test]
+	fn flipbit_negates_chromosome() {
+		let chromosome = rand::thread_rng()
+			.sample_iter(Uniform::from(-1.0..1.0))
+			.take(30)
+			.map(|val| val > 0.)
+			.collect_vec();
+
+		let chromosome_clone = chromosome.clone();
+
+		let mut individual = Individual {
+			chromosome,
+			fitness: f64::default(),
+		};
+
+		let operator = FlipBit::new();
+
+		operator.apply(&mut individual, 1.);
+
+		for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome_ref()) {
+			assert_eq!(actual, !*expected);
+		}
+	}
 }
