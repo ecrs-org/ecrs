@@ -43,5 +43,5 @@ fn main() {
   ga::ga_example();
   ga::ga_rvc_example();
   ga::ga_bsc_example();
-	ga::ga_exmaple_test_functions();
+  ga::ga_exmaple_test_functions();
 }
