@@ -10,6 +10,4 @@ impl EmptyProbe {
   }
 }
 
-impl<T: Chromosome> Probe<T> for EmptyProbe {
-
-}
+impl<T: Chromosome> Probe<T> for EmptyProbe {}

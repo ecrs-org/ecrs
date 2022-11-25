@@ -1,6 +1,6 @@
 use super::individual::Chromosome;
-use super::operators::selection::{SelectionOperator, StochasticUniversalSampling, Boltzmann};
-use super::population::{PopulationGenerator, RandomPoints, BitStrings};
+use super::operators::selection::SelectionOperator;
+use super::population::PopulationGenerator;
 use super::{
   CrossoverOperator, FitnessFn, GAConfig, GAParams, GeneticAlgorithm, Individual, MutationOperator, Probe,
 };
@@ -25,14 +25,14 @@ where
 
 impl<T, M, C, S, P, Pr> GAConfigOpt<T, M, C, S, P, Pr>
 where
-	T: Chromosome,
-	M: MutationOperator<T>,
-	C: CrossoverOperator<T>,
-	S: SelectionOperator<T>,
-	P: PopulationGenerator<T>,
-	Pr: Probe<T>
+  T: Chromosome,
+  M: MutationOperator<T>,
+  C: CrossoverOperator<T>,
+  S: SelectionOperator<T>,
+  P: PopulationGenerator<T>,
+  Pr: Probe<T>,
 {
-	pub fn new() -> Self {
+  pub fn new() -> Self {
     Self {
       params: Some(GAParams::default()),
       fitness_fn: None,
@@ -94,7 +94,7 @@ where
   P: PopulationGenerator<Vec<f64>>,
   Pr: Probe<Vec<f64>>,
 {
-	config: GAConfigOpt<Vec<f64>, M, C, S, P, Pr>
+  config: GAConfigOpt<Vec<f64>, M, C, S, P, Pr>,
 }
 
 impl<M, C, S, P, Pr> RealValuedBuilder<M, C, S, P, Pr>
@@ -275,8 +275,6 @@ where
 #[cfg(test)]
 mod test {
 
-	#[test]
-	fn api_test() {
-	}
+  #[test]
+  fn api_test() {}
 }
-
