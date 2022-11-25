@@ -73,9 +73,23 @@ impl Interchange {
   }
 }
 
-impl<T: Chromosome> MutationOperator<T> for Interchange {
-	fn apply(&self, individual: &mut Individual<T>, mutation_rate: f64) {
+impl<T, G> MutationOperator<T> for Interchange
+where
+	G: Copy,
+	T: Chromosome + IndexMut<usize, Output = G> + Push<G, PushedOut = Nothing>,
+{
+  fn apply(&self, individual: &mut Individual<T>, mutation_rate: f64) {
+		let chromosome_ref = individual.chromosome_ref_mut();
+		let chromosome_len = chromosome_ref.len();
 
+		let dist = rand::distributions::Uniform::from(0.0..1.0);
+		let index_dist = rand::distributions::Uniform::from(0..chromosome_len);
+
+		for i in 0..chromosome_len {
+			if rand::thread_rng().sample(dist) < mutation_rate {
+				chromosome_ref[i] = chromosome_ref[rand::thread_rng().sample(index_dist)]
+			}
+		}
 	}
 }
 
