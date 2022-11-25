@@ -3,8 +3,8 @@ use ga::Individual;
 use itertools::Itertools;
 use rand::Rng;
 
-pub fn rastrigin_fitness(individual: &Individual<Vec<f64>>) -> f64 {
-  1000.0 * f64::exp(-rastrigin(individual.chromosome_ref()))
+pub fn rastrigin_fitness(chromosome: &Vec<f64>) -> f64 {
+  1000.0 * f64::exp(-rastrigin(chromosome))
 }
 
 fn rastrigin(chromosome: &[f64]) -> f64 {

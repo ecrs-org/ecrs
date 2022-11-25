@@ -1,5 +1,4 @@
-use ecrs::ga::Individual;
-
-pub fn wordmax_fitness(individual: &Individual<Vec<bool>>) -> f64 {
-  individual.chromosome_ref().iter().filter(|gene| **gene).count() as f64
+#[allow(clippy::ptr_arg)]
+pub fn wordmax_fitness(chromosome: &Vec<bool>) -> f64 {
+  chromosome.iter().filter(|gene| **gene).count() as f64
 }
