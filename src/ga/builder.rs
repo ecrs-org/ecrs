@@ -1,4 +1,4 @@
-pub mod realvalued;
+pub mod presets;
 
 use super::individual::Chromosome;
 use super::operators::selection::SelectionOperator;
