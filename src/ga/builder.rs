@@ -190,9 +190,9 @@ where
   }
 }
 
-pub struct Factory;
+pub struct Builder;
 
-impl Factory {
+impl Builder {
   #[allow(clippy::new_ret_no_self)]
   pub fn new<T, M, C, S, P, Pr>() -> GenericBuilder<T, M, C, S, P, Pr>
   where
@@ -215,8 +215,7 @@ impl Factory {
   }
 }
 
-pub trait DefaultParams
-{
+pub trait DefaultParams {
   const DEFAULT_PARAMS: GAParams = GAParams {
     selection_rate: 1.0,
     mutation_rate: 0.05,

@@ -8,7 +8,7 @@ use crate::ga::{
   FitnessFn, GeneticAlgorithm, StdoutProbe,
 };
 
-use super::{GAConfigOpt, DefaultParams};
+use super::{DefaultParams, GAConfigOpt};
 
 type Rvc = Vec<f64>;
 type Bsc = Vec<bool>;
@@ -108,7 +108,6 @@ impl RealValuedBuilder {
 
 impl DefaultParams for RealValuedBuilder {}
 
-
 pub struct BitStringBuilder {
   config: GAConfigOpt<Bsc, FlipBit, SinglePoint, Tournament, BitStrings, StdoutProbe>,
   dim: Option<usize>,
@@ -163,29 +162,29 @@ impl BitStringBuilder {
   }
 
   pub fn build(mut self) -> GeneticAlgorithm<Bsc, FlipBit, SinglePoint, Tournament, BitStrings, StdoutProbe> {
-    // if self.config.fitness_fn.is_none() {
-    //   panic!("Fitness function must be set");
-    // }
+    if self.config.fitness_fn.is_none() {
+      panic!("Fitness function must be set");
+    }
 
-    // if self.config.crossover_operator.is_none() {
-    //   self.config.crossover_operator = Some(SinglePoint::new());
-    // }
+    if self.config.crossover_operator.is_none() {
+      self.config.crossover_operator = Some(SinglePoint::new());
+    }
 
-    // if self.config.mutation_operator.is_none() {
-    //   self.config.mutation_operator = Some(FlipBit::new());
-    // }
+    if self.config.mutation_operator.is_none() {
+      self.config.mutation_operator = Some(FlipBit::new());
+    }
 
-    // if self.config.selection_operator.is_none() {
-    //   self.config.selection_operator = Some(Tournament::new(0.2));
-    // }
+    if self.config.selection_operator.is_none() {
+      self.config.selection_operator = Some(Tournament::new(0.2));
+    }
 
-    // if self.config.population_factory.is_none() {
-    //   self.config.population_factory = Some(BitStrings::new(self.dim.unwrap_or(10)));
-    // }
+    if self.config.population_factory.is_none() {
+      self.config.population_factory = Some(BitStrings::new(self.dim.unwrap_or(10)));
+    }
 
-    // if self.config.probe.is_none() {
-    //   self.config.probe = Some(StdoutProbe::new());
-    // }
+    if self.config.probe.is_none() {
+      self.config.probe = Some(StdoutProbe::new());
+    }
 
     // GeneticAlgorithm::new(self.config.into())
     let config = match self.config.try_into() {

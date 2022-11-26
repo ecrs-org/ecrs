@@ -17,7 +17,7 @@ pub fn point_generator(restrictions: &Vec<(f64, f64)>) -> Vec<f64> {
 }
 
 pub fn ga_example() {
-  let res = ecrs::ga::Factory::new()
+  let res = ecrs::ga::Builder::new()
     .set_max_generation_count(500)
     .set_population_size(100)
     .set_fitness_fn(rastrigin::rastrigin_fitness)
@@ -36,7 +36,7 @@ pub fn ga_example() {
 }
 
 pub fn ga_rvc_example() -> Option<ga::Individual<Vec<f64>>> {
-  ecrs::ga::Factory::with_rvc()
+  ecrs::ga::Builder::with_rvc()
     .fitness_fn(rastrigin::rastrigin_fitness)
     .dim(5)
     .build()
@@ -44,7 +44,7 @@ pub fn ga_rvc_example() -> Option<ga::Individual<Vec<f64>>> {
 }
 
 pub fn ga_bsc_example() -> Option<ga::Individual<Vec<bool>>> {
-  ecrs::ga::Factory::with_bsc()
+  ecrs::ga::Builder::with_bsc()
     .fitness_fn(wordmax::wordmax_fitness)
     .dim(10)
     .set_population_size(6)
@@ -53,7 +53,7 @@ pub fn ga_bsc_example() -> Option<ga::Individual<Vec<bool>>> {
 }
 
 pub fn ga_exmaple_test_functions() -> Option<ga::Individual<Vec<f64>>> {
-  ecrs::ga::Factory::with_rvc()
+  ecrs::ga::Builder::with_rvc()
     .fitness_fn(ecrs::test_functions::ackley)
     .dim(4)
     .build()
