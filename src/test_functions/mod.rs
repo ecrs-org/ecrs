@@ -533,3 +533,10 @@ pub fn schaffer_n4(x: &Vec<f64>) -> f64 {
     ) - 0.5)
       / f64::powi(1.0 + 0.001 * (f64::powi(x1, 2) + f64::powi(x2, 2)), 2)
 }
+
+/// # Wordmax
+/// Global maximum in `chromosome.len()`
+#[allow(clippy::ptr_arg)]
+pub fn wordmax(chromosome: &Vec<bool>) -> f64 {
+  chromosome.iter().filter(|gene| **gene).count() as f64
+}
