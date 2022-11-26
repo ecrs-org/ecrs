@@ -48,8 +48,8 @@ pub(self) struct GAParamsOpt {
   pub max_duration: Option<std::time::Duration>,
 }
 
-/// Returns new instance of [GAParamsOpt] struct. All fields are `None` initially.
 impl GAParamsOpt {
+	/// Returns new instance of [GAParamsOpt] struct. All fields are `None` initially.
   pub fn new() -> Self {
     Self {
       selection_rate: None,
@@ -59,6 +59,15 @@ impl GAParamsOpt {
       max_duration: None,
     }
   }
+
+	/// Sets all `None` values to values form `other`
+	pub fn fill_from(&mut self, other: &GAParams) {
+		self.selection_rate.get_or_insert(other.selection_rate);
+		self.mutation_rate.get_or_insert(other.mutation_rate);
+		self.population_size.get_or_insert(other.population_size);
+		self.generation_limit.get_or_insert(other.generation_limit);
+		self.max_duration.get_or_insert(other.max_duration);
+	}
 }
 
 impl TryFrom<GAParamsOpt> for GAParams {
