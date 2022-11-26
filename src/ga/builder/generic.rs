@@ -93,7 +93,9 @@ where
     self
   }
 
-  pub fn build(self) -> GeneticAlgorithm<T, M, C, S, P, Pr> {
+  pub fn build(mut self) -> GeneticAlgorithm<T, M, C, S, P, Pr> {
+    self.config.params.fill_from(&Self::DEFAULT_PARAMS);
+
     let config = match self.config.try_into() {
       Ok(config) => config,
       Err(err) => panic!("Builder panicked with error: {}", err),
