@@ -1,10 +1,6 @@
 use crate::ga::{
   individual::Chromosome,
-  operators::{
-    crossover::CrossoverOperator,
-    mutation::MutationOperator,
-    selection::{self, SelectionOperator},
-  },
+  operators::{crossover::CrossoverOperator, mutation::MutationOperator, selection::SelectionOperator},
   population::PopulationGenerator,
   FitnessFn, GeneticAlgorithm, Probe,
 };
