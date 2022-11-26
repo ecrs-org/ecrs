@@ -215,14 +215,7 @@ impl Factory {
   }
 }
 
-pub(self) trait Builder<T, M, C, S, P, Pr>
-where
-  T: Chromosome,
-  M: MutationOperator<T>,
-  C: CrossoverOperator<T>,
-  S: SelectionOperator<T>,
-  P: PopulationGenerator<T>,
-  Pr: Probe<T>,
+pub trait DefaultParams
 {
   const DEFAULT_PARAMS: GAParams = GAParams {
     selection_rate: 1.0,
@@ -237,8 +230,7 @@ where
   // fn set_max_duration(self, max_duration: std::time::Duration) -> Self;
   // fn set_max_generation_count(self, max_gen_count: usize) -> Self;
   // fn set_population_size(self, size: usize) -> Self;
-
-  fn build(self) -> GeneticAlgorithm<T, M, C, S, P, Pr>;
+  // fn build(self) -> GeneticAlgorithm<T, M, C, S, P, Pr>;
 }
 
 #[cfg(test)]

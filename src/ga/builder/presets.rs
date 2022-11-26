@@ -8,7 +8,7 @@ use crate::ga::{
   FitnessFn, GeneticAlgorithm, StdoutProbe,
 };
 
-use super::GAConfigOpt;
+use super::{GAConfigOpt, DefaultParams};
 
 type Rvc = Vec<f64>;
 type Bsc = Vec<bool>;
@@ -106,6 +106,9 @@ impl RealValuedBuilder {
   }
 }
 
+impl DefaultParams for RealValuedBuilder {}
+
+
 pub struct BitStringBuilder {
   config: GAConfigOpt<Bsc, FlipBit, SinglePoint, Tournament, BitStrings, StdoutProbe>,
   dim: Option<usize>,
@@ -193,3 +196,5 @@ impl BitStringBuilder {
     GeneticAlgorithm::new(config)
   }
 }
+
+impl DefaultParams for BitStringBuilder {}

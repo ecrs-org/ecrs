@@ -2,10 +2,10 @@ use crate::ga::{
   individual::Chromosome,
   operators::{crossover::CrossoverOperator, mutation::MutationOperator, selection::SelectionOperator},
   population::PopulationGenerator,
-  FitnessFn, GeneticAlgorithm, Probe,
+  FitnessFn, GeneticAlgorithm, Probe, GAParams,
 };
 
-use super::GAConfigOpt;
+use super::{GAConfigOpt, DefaultParams};
 
 pub struct GenericBuilder<T, M, C, S, P, Pr>
 where
@@ -102,3 +102,13 @@ where
     GeneticAlgorithm::new(config)
   }
 }
+
+impl<T, M, C, S, P, Pr> DefaultParams for GenericBuilder<T, M, C, S, P, Pr>
+where
+  T: Chromosome,
+  M: MutationOperator<T>,
+  C: CrossoverOperator<T>,
+  S: SelectionOperator<T>,
+  P: PopulationGenerator<T>,
+  Pr: Probe<T>
+{}
