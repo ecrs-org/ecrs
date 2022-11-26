@@ -216,7 +216,13 @@ impl Factory {
 }
 
 pub(self) trait BuilderTrait {
-  const DEFAULT_PARAMS: GAParams;
+  const DEFAULT_PARAMS: GAParams = GAParams {
+    selection_rate: 1.0,
+    mutation_rate: 0.05,
+    population_size: 100,
+    generation_limit: usize::MAX,
+    max_duration: std::time::Duration::MAX,
+  };
 }
 
 #[cfg(test)]
