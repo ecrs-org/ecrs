@@ -24,7 +24,7 @@ pub struct GAParams {
   pub mutation_rate: f64,
   pub population_size: usize,
   pub generation_limit: usize,
-  pub max_duration: Option<std::time::Duration>,
+  pub max_duration: std::time::Duration,
 }
 
 // impl Default for GAParams {
@@ -204,10 +204,8 @@ where
           .on_new_best(&self.metadata, &best_individual_all_time);
       }
 
-      if let Some(duration) = self.config.params.max_duration {
-        if self.metadata.start_time.unwrap().elapsed() >= duration {
-          break;
-        }
+      if self.metadata.start_time.unwrap().elapsed() >= self.config.params.max_duration {
+        break;
       }
     }
 

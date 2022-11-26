@@ -36,6 +36,65 @@ impl Display for ConfigError {
 
 impl Error for ConfigError {}
 
+/// This is a mirror struct to `[GAParams]`, except that all fields are wrapped
+/// inside `Option` type, so that builders can incrementally fill it up.
+// TODO: We should really consider creating a macro here, so that we
+// don't have to write it by hand...
+pub(self) struct GAParamsOpt {
+  pub selection_rate: Option<f64>,
+  pub mutation_rate: Option<f64>,
+  pub population_size: Option<usize>,
+  pub generation_limit: Option<usize>,
+  pub max_duration: Option<std::time::Duration>,
+}
+
+/// Returns new instance of [GAParamsOpt] struct. All fields are `None` initially.
+impl GAParamsOpt {
+  pub fn new() -> Self {
+    Self {
+      selection_rate: None,
+      mutation_rate: None,
+      population_size: None,
+      generation_limit: None,
+      max_duration: None,
+    }
+  }
+}
+
+impl TryFrom<GAParamsOpt> for GAParams {
+  type Error = ConfigError;
+
+  fn try_from(params_opt: GAParamsOpt) -> Result<Self, Self::Error> {
+    let Some(selection_rate) = params_opt.selection_rate else {
+			return Err(ConfigError::MissingParam("Unspecified selection rate".to_owned()));
+		};
+
+    let Some(mutation_rate) = params_opt.mutation_rate else {
+			return Err(ConfigError::MissingParam("Unspecified mutation rate".to_owned()));
+		};
+
+    let Some(population_size) = params_opt.population_size else {
+			return Err(ConfigError::MissingParam("Unspecified population size".to_owned()));
+		};
+
+    let Some(generation_limit) = params_opt.generation_limit else {
+			return Err(ConfigError::MissingParam("Unspecified generation_limit".to_owned()));
+		};
+
+    let Some(max_duration) = params_opt.max_duration else {
+			return Err(ConfigError::MissingParam("Unspecified max duration".to_owned()));
+		};
+
+    Ok(GAParams {
+      selection_rate,
+      mutation_rate,
+      population_size,
+      generation_limit,
+      max_duration,
+    })
+  }
+}
+
 /// This is a mirror struct to `[GAConifg]`, except that all fields are wrapped
 /// inside `Option` type, so that builders can incrementally fill it up.
 // TODO: We should really consider creating a macro here, so that we
@@ -49,13 +108,13 @@ where
   P: PopulationGenerator<T>,
   Pr: Probe<T>,
 {
-  params: Option<GAParams>,
-  fitness_fn: Option<FitnessFn<T>>,
-  mutation_operator: Option<M>,
-  crossover_operator: Option<C>,
-  selection_operator: Option<S>,
-  population_factory: Option<P>,
-  probe: Option<Pr>,
+  pub params: Option<GAParams>,
+  pub fitness_fn: Option<FitnessFn<T>>,
+  pub mutation_operator: Option<M>,
+  pub crossover_operator: Option<C>,
+  pub selection_operator: Option<S>,
+  pub population_factory: Option<P>,
+  pub probe: Option<Pr>,
 }
 
 impl<T, M, C, S, P, Pr> GAConfigOpt<T, M, C, S, P, Pr>
@@ -67,7 +126,7 @@ where
   P: PopulationGenerator<T>,
   Pr: Probe<T>,
 {
-  /// Returns new instance of [GAConfigOpt] struct. All fields are `None`.
+  /// Returns new instance of [GAConfigOpt] struct. All fields are `None` initially.
   pub fn new() -> Self {
     Self {
       params: None,
