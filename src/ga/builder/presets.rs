@@ -55,7 +55,7 @@ impl RealValuedBuilder {
   pub fn max_generations(mut self, max_gen_count: usize) -> Self {
     assert!(max_gen_count >= 1);
     self.config.params = self.config.params.map(|mut params| {
-      params.generation_upper_bound = max_gen_count;
+      params.generation_limit = max_gen_count;
       params
     });
     self
@@ -158,7 +158,7 @@ impl BitStringBuilder {
   pub fn max_generations(mut self, max_gen_count: usize) -> Self {
     assert!(max_gen_count >= 1);
     self.config.params = self.config.params.map(|mut params| {
-      params.generation_upper_bound = max_gen_count;
+      params.generation_limit = max_gen_count;
       params
     });
     self

@@ -150,7 +150,7 @@ where
   pub fn set_max_generation_count(mut self, max_gen_count: usize) -> Self {
     debug_assert!(max_gen_count >= 1);
     self.config.params = self.config.params.map(|mut params| {
-      params.generation_upper_bound = max_gen_count;
+      params.generation_limit = max_gen_count;
       params
     });
     self
