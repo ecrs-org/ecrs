@@ -41,6 +41,7 @@ impl Error for ConfigError {}
 /// inside `Option` type, so that builders can incrementally fill it up.
 // TODO: We should really consider creating a macro here, so that we
 // don't have to write it by hand...
+#[derive(Debug, Clone)]
 pub(self) struct GAParamsOpt {
   pub selection_rate: Option<f64>,
   pub mutation_rate: Option<f64>,
@@ -244,7 +245,63 @@ pub trait DefaultParams {
 
 #[cfg(test)]
 mod test {
+	use crate::ga::{GAParams, builder::ConfigError};
+	use super::GAParamsOpt;
+
+	fn convert_gaparamsopt_to_ga_params(params_opt: GAParamsOpt) -> Result<GAParams, ConfigError> {
+		params_opt.try_into()
+	}
 
   #[test]
-  fn api_test() {}
+	fn new_param_opt_is_empty() {
+		let params = GAParamsOpt::new();
+		assert!(params.selection_rate.is_none());
+		assert!(params.mutation_rate.is_none());
+		assert!(params.population_size.is_none());
+		assert!(params.generation_limit.is_none());
+		assert!(params.max_duration.is_none());
+	}
+
+	#[test]
+	fn param_opt_fills_correctly() {
+		let mut params_opt = GAParamsOpt::new();
+		params_opt.selection_rate = Some(0.5);
+		params_opt.generation_limit = Some(100);
+
+		let params = GAParams {
+			selection_rate: 1.0,
+			mutation_rate: 1.0,
+			population_size: 100,
+			generation_limit: 200,
+			max_duration: std::time::Duration::from_secs(1),
+		};
+
+		params_opt.fill_from(&params);
+
+		assert!(params_opt.selection_rate.is_some() && params_opt.selection_rate.unwrap() == 0.5);
+		assert!(params_opt.mutation_rate.is_some() && params_opt.mutation_rate.unwrap() == 1.0);
+		assert!(params_opt.population_size.is_some() && params_opt.population_size.unwrap() == 100);
+		assert!(params_opt.generation_limit.is_some() && params_opt.generation_limit.unwrap() == 100);
+		assert!(params_opt.max_duration.is_some() && params_opt.max_duration.unwrap() == std::time::Duration::from_secs(1));
+	}
+
+	#[test]
+	fn conversion_works_as_expected() {
+		let mut params_opt = GAParamsOpt::new();
+
+		params_opt.selection_rate = Some(1.0);
+		assert!(convert_gaparamsopt_to_ga_params(params_opt.clone()).is_err());
+
+		params_opt.mutation_rate = Some(0.0);
+		assert!(convert_gaparamsopt_to_ga_params(params_opt.clone()).is_err());
+
+		params_opt.population_size = Some(200);
+		assert!(convert_gaparamsopt_to_ga_params(params_opt.clone()).is_err());
+
+		params_opt.generation_limit = Some(200);
+		assert!(convert_gaparamsopt_to_ga_params(params_opt.clone()).is_err());
+
+		params_opt.max_duration = Some(std::time::Duration::from_micros(10));
+		assert!(convert_gaparamsopt_to_ga_params(params_opt).is_ok());
+	}
 }
