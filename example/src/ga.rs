@@ -47,7 +47,7 @@ pub fn ga_bsc_example() -> Option<ga::Individual<Vec<bool>>> {
   ecrs::ga::Builder::with_bsc()
     .fitness_fn(wordmax::wordmax_fitness)
     .dim(10)
-    .population_size(6)
+    .set_population_size(6)
     .build()
     .run()
 }

@@ -1,13 +1,116 @@
-pub mod presets;
+mod bistring;
+mod generic;
+mod realvalued;
+use std::error::Error;
+use std::fmt::Display;
 
 use super::individual::Chromosome;
 use super::operators::selection::SelectionOperator;
 use super::population::PopulationGenerator;
-use super::{CrossoverOperator, FitnessFn, GAConfig, GAParams, GeneticAlgorithm, MutationOperator, Probe};
+use super::{CrossoverOperator, FitnessFn, GAConfig, GAParams, MutationOperator, Probe};
 
-pub use presets::{BitStringBuilder, RealValuedBuilder};
+pub use bistring::BitStringBuilder;
+pub use generic::GenericBuilder;
+pub use realvalued::RealValuedBuilder;
 
-struct GAConfigOpt<T, M, C, S, P, Pr>
+/// Error type for internal use
+#[derive(Debug, Clone)]
+enum ConfigError {
+  MissingParam(String),
+  MissingOperator(String),
+  MissingPopulationFactory,
+  NoProbe,
+  NoParams,
+}
+
+impl Display for ConfigError {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    match self {
+      Self::MissingParam(param) => write!(f, "Unspecified parameter: {}", param),
+      Self::MissingOperator(op) => write!(f, "Unspecified operator: {}", op),
+      Self::MissingPopulationFactory => write!(f, "Unspecified population factory"),
+      Self::NoProbe => write!(f, "Unspecified probe"),
+      Self::NoParams => write!(f, "No parameters were specified"),
+    }
+  }
+}
+
+impl Error for ConfigError {}
+
+/// This is a mirror struct to `[GAParams]`, except that all fields are wrapped
+/// inside `Option` type, so that builders can incrementally fill it up.
+// TODO: We should really consider creating a macro here, so that we
+// don't have to write it by hand...
+#[derive(Debug, Clone)]
+pub(self) struct GAParamsOpt {
+  pub selection_rate: Option<f64>,
+  pub mutation_rate: Option<f64>,
+  pub population_size: Option<usize>,
+  pub generation_limit: Option<usize>,
+  pub max_duration: Option<std::time::Duration>,
+}
+
+impl GAParamsOpt {
+  /// Returns new instance of [GAParamsOpt] struct. All fields are `None` initially.
+  pub fn new() -> Self {
+    Self {
+      selection_rate: None,
+      mutation_rate: None,
+      population_size: None,
+      generation_limit: None,
+      max_duration: None,
+    }
+  }
+
+  /// Sets all `None` values to values form `other`
+  pub fn fill_from(&mut self, other: &GAParams) {
+    self.selection_rate.get_or_insert(other.selection_rate);
+    self.mutation_rate.get_or_insert(other.mutation_rate);
+    self.population_size.get_or_insert(other.population_size);
+    self.generation_limit.get_or_insert(other.generation_limit);
+    self.max_duration.get_or_insert(other.max_duration);
+  }
+}
+
+impl TryFrom<GAParamsOpt> for GAParams {
+  type Error = ConfigError;
+
+  fn try_from(params_opt: GAParamsOpt) -> Result<Self, Self::Error> {
+    let Some(selection_rate) = params_opt.selection_rate else {
+			return Err(ConfigError::MissingParam("Unspecified selection rate".to_owned()));
+		};
+
+    let Some(mutation_rate) = params_opt.mutation_rate else {
+			return Err(ConfigError::MissingParam("Unspecified mutation rate".to_owned()));
+		};
+
+    let Some(population_size) = params_opt.population_size else {
+			return Err(ConfigError::MissingParam("Unspecified population size".to_owned()));
+		};
+
+    let Some(generation_limit) = params_opt.generation_limit else {
+			return Err(ConfigError::MissingParam("Unspecified generation_limit".to_owned()));
+		};
+
+    let Some(max_duration) = params_opt.max_duration else {
+			return Err(ConfigError::MissingParam("Unspecified max duration".to_owned()));
+		};
+
+    Ok(GAParams {
+      selection_rate,
+      mutation_rate,
+      population_size,
+      generation_limit,
+      max_duration,
+    })
+  }
+}
+
+/// This is a mirror struct to `[GAConifg]`, except that all fields are wrapped
+/// inside `Option` type, so that builders can incrementally fill it up.
+// TODO: We should really consider creating a macro here, so that we
+// don't have to write it by hand...
+pub(self) struct GAConfigOpt<T, M, C, S, P, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
@@ -16,13 +119,13 @@ where
   P: PopulationGenerator<T>,
   Pr: Probe<T>,
 {
-  params: Option<GAParams>,
-  fitness_fn: Option<FitnessFn<T>>,
-  mutation_operator: Option<M>,
-  crossover_operator: Option<C>,
-  selection_operator: Option<S>,
-  population_factory: Option<P>,
-  probe: Option<Pr>,
+  pub params: GAParamsOpt,
+  pub fitness_fn: Option<FitnessFn<T>>,
+  pub mutation_operator: Option<M>,
+  pub crossover_operator: Option<C>,
+  pub selection_operator: Option<S>,
+  pub population_factory: Option<P>,
+  pub probe: Option<Pr>,
 }
 
 impl<T, M, C, S, P, Pr> GAConfigOpt<T, M, C, S, P, Pr>
@@ -34,9 +137,10 @@ where
   P: PopulationGenerator<T>,
   Pr: Probe<T>,
 {
+  /// Returns new instance of [GAConfigOpt] struct. All fields are `None` initially, except params.
   pub fn new() -> Self {
     Self {
-      params: Some(GAParams::default()),
+      params: GAParamsOpt::new(),
       fitness_fn: None,
       mutation_operator: None,
       crossover_operator: None,
@@ -47,7 +151,7 @@ where
   }
 }
 
-impl<T, M, C, S, P, Pr> From<GAConfigOpt<T, M, C, S, P, Pr>> for GAConfig<T, M, C, S, P, Pr>
+impl<T, M, C, S, P, Pr> TryFrom<GAConfigOpt<T, M, C, S, P, Pr>> for GAConfig<T, M, C, S, P, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
@@ -56,16 +160,44 @@ where
   P: PopulationGenerator<T>,
   Pr: Probe<T>,
 {
-  fn from(config_opt: GAConfigOpt<T, M, C, S, P, Pr>) -> Self {
-    GAConfig {
-      params: config_opt.params.unwrap(),
-      fitness_fn: config_opt.fitness_fn.unwrap(),
-      mutation_operator: config_opt.mutation_operator.unwrap(),
-      crossover_operator: config_opt.crossover_operator.unwrap(),
-      selection_operator: config_opt.selection_operator.unwrap(),
-      population_factory: config_opt.population_factory.unwrap(),
-      probe: config_opt.probe.unwrap(),
-    }
+  type Error = ConfigError;
+
+  fn try_from(config_opt: GAConfigOpt<T, M, C, S, P, Pr>) -> Result<Self, Self::Error> {
+    let params = GAParams::try_from(config_opt.params)?;
+
+    let Some(fitness_fn) = config_opt.fitness_fn else {
+			return Err(ConfigError::MissingOperator("No fitness function specified".to_owned()));
+		};
+
+    let Some(mutation_operator) = config_opt.mutation_operator else {
+			return Err(ConfigError::MissingOperator("No mutation operator specified".to_owned()));
+		};
+
+    let Some(crossover_operator) = config_opt.crossover_operator else {
+			return Err(ConfigError::MissingOperator("No crossover operator specified".to_owned()));
+		};
+
+    let Some(selection_operator) = config_opt.selection_operator else {
+			return Err(ConfigError::MissingOperator("No selection operator specified".to_owned()));
+		};
+
+    let Some(population_factory) = config_opt.population_factory else {
+			return Err(ConfigError::MissingPopulationFactory);
+		};
+
+    let Some(probe) = config_opt.probe else {
+			return Err(ConfigError::NoProbe);
+		};
+
+    Ok(GAConfig {
+      params,
+      fitness_fn,
+      mutation_operator,
+      crossover_operator,
+      selection_operator,
+      population_factory,
+      probe,
+    })
   }
 }
 
@@ -82,7 +214,7 @@ impl Builder {
     P: PopulationGenerator<T>,
     Pr: Probe<T>,
   {
-    GenericBuilder::new()
+    GenericBuilder::<T, M, C, S, P, Pr>::new()
   }
 
   pub fn with_rvc() -> RealValuedBuilder {
@@ -94,115 +226,85 @@ impl Builder {
   }
 }
 
-pub struct GenericBuilder<T, M, C, S, P, Pr>
-where
-  T: Chromosome,
-  M: MutationOperator<T>,
-  C: CrossoverOperator<T>,
-  S: SelectionOperator<T>,
-  P: PopulationGenerator<T>,
-  Pr: Probe<T>,
-{
-  config: GAConfigOpt<T, M, C, S, P, Pr>,
-}
+pub trait DefaultParams {
+  const DEFAULT_PARAMS: GAParams = GAParams {
+    selection_rate: 1.0,
+    mutation_rate: 0.05,
+    population_size: 100,
+    generation_limit: usize::MAX,
+    max_duration: std::time::Duration::MAX,
+  };
 
-impl<T, M, C, S, P, Pr> GenericBuilder<T, M, C, S, P, Pr>
-where
-  T: Chromosome,
-  M: MutationOperator<T>,
-  C: CrossoverOperator<T>,
-  S: SelectionOperator<T>,
-  P: PopulationGenerator<T>,
-  Pr: Probe<T>,
-{
-  pub fn new() -> Self {
-    GenericBuilder {
-      config: GAConfigOpt::new(),
-    }
-  }
-
-  pub fn set_selection_rate(mut self, selection_rate: f64) -> Self {
-    debug_assert!((0f64..=1f64).contains(&selection_rate));
-    self.config.params = self.config.params.map(|mut params| {
-      params.selection_rate = selection_rate;
-      params
-    });
-    self
-  }
-
-  pub fn set_mutation_rate(mut self, mutation_rate: f64) -> Self {
-    assert!((0.0..=1.0).contains(&mutation_rate));
-    self.config.params = self.config.params.map(|mut params| {
-      params.mutation_rate = mutation_rate;
-      params
-    });
-    self
-  }
-
-  pub fn set_max_duration(mut self, max_duration: std::time::Duration) -> Self {
-    self.config.params = self.config.params.map(|mut params| {
-      params.max_duration = Some(max_duration);
-      params
-    });
-    self
-  }
-
-  pub fn set_max_generation_count(mut self, max_gen_count: usize) -> Self {
-    debug_assert!(max_gen_count >= 1);
-    self.config.params = self.config.params.map(|mut params| {
-      params.generation_upper_bound = max_gen_count;
-      params
-    });
-    self
-  }
-
-  pub fn set_population_size(mut self, size: usize) -> Self {
-    debug_assert!(size > 0);
-    self.config.params = self.config.params.map(|mut params| {
-      params.population_size = size;
-      params
-    });
-    self
-  }
-
-  pub fn set_fitness_fn(mut self, fitness_fn: FitnessFn<T>) -> Self {
-    self.config.fitness_fn = Some(fitness_fn);
-    self
-  }
-
-  pub fn set_mutation_operator(mut self, mutation_op: M) -> Self {
-    self.config.mutation_operator = Some(mutation_op);
-    self
-  }
-
-  pub fn set_crossover_operator(mut self, crossover_op: C) -> Self {
-    self.config.crossover_operator = Some(crossover_op);
-    self
-  }
-
-  pub fn set_selection_operator(mut self, selection_op: S) -> Self {
-    self.config.selection_operator = Some(selection_op);
-    self
-  }
-
-  pub fn set_population_generator(mut self, generator: P) -> Self {
-    self.config.population_factory = Some(generator);
-    self
-  }
-
-  pub fn set_probe(mut self, probe: Pr) -> Self {
-    self.config.probe = Some(probe);
-    self
-  }
-
-  pub fn build(self) -> GeneticAlgorithm<T, M, C, S, P, Pr> {
-    GeneticAlgorithm::new(self.config.into())
-  }
+  // fn set_selection_rate(self, selection_rate: f64) -> Self;
+  // fn set_mutation_rate(self, mutation_rate: f64) -> Self;
+  // fn set_max_duration(self, max_duration: std::time::Duration) -> Self;
+  // fn set_max_generation_count(self, max_gen_count: usize) -> Self;
+  // fn set_population_size(self, size: usize) -> Self;
+  // fn build(self) -> GeneticAlgorithm<T, M, C, S, P, Pr>;
 }
 
 #[cfg(test)]
 mod test {
+  use super::GAParamsOpt;
+  use crate::ga::{builder::ConfigError, GAParams};
+
+  fn convert_gaparamsopt_to_ga_params(params_opt: GAParamsOpt) -> Result<GAParams, ConfigError> {
+    params_opt.try_into()
+  }
 
   #[test]
-  fn api_test() {}
+  fn new_param_opt_is_empty() {
+    let params = GAParamsOpt::new();
+    assert!(params.selection_rate.is_none());
+    assert!(params.mutation_rate.is_none());
+    assert!(params.population_size.is_none());
+    assert!(params.generation_limit.is_none());
+    assert!(params.max_duration.is_none());
+  }
+
+  #[test]
+  fn param_opt_fills_correctly() {
+    let mut params_opt = GAParamsOpt::new();
+    params_opt.selection_rate = Some(0.5);
+    params_opt.generation_limit = Some(100);
+
+    let params = GAParams {
+      selection_rate: 1.0,
+      mutation_rate: 1.0,
+      population_size: 100,
+      generation_limit: 200,
+      max_duration: std::time::Duration::from_secs(1),
+    };
+
+    params_opt.fill_from(&params);
+
+    assert!(params_opt.selection_rate.is_some() && params_opt.selection_rate.unwrap() == 0.5);
+    assert!(params_opt.mutation_rate.is_some() && params_opt.mutation_rate.unwrap() == 1.0);
+    assert!(params_opt.population_size.is_some() && params_opt.population_size.unwrap() == 100);
+    assert!(params_opt.generation_limit.is_some() && params_opt.generation_limit.unwrap() == 100);
+    assert!(
+      params_opt.max_duration.is_some()
+        && params_opt.max_duration.unwrap() == std::time::Duration::from_secs(1)
+    );
+  }
+
+  #[test]
+  fn conversion_works_as_expected() {
+    let mut params_opt = GAParamsOpt::new();
+
+    params_opt.selection_rate = Some(1.0);
+    assert!(convert_gaparamsopt_to_ga_params(params_opt.clone()).is_err());
+
+    params_opt.mutation_rate = Some(0.0);
+    assert!(convert_gaparamsopt_to_ga_params(params_opt.clone()).is_err());
+
+    params_opt.population_size = Some(200);
+    assert!(convert_gaparamsopt_to_ga_params(params_opt.clone()).is_err());
+
+    params_opt.generation_limit = Some(200);
+    assert!(convert_gaparamsopt_to_ga_params(params_opt.clone()).is_err());
+
+    params_opt.max_duration = Some(std::time::Duration::from_micros(10));
+    assert!(convert_gaparamsopt_to_ga_params(params_opt).is_ok());
+  }
 }
