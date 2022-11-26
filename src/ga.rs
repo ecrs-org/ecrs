@@ -58,7 +58,7 @@ where
   pub probe: Pr,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone, Copy)]
 pub struct GAMetadata {
   start_time: Option<std::time::Instant>,
   duration: Option<std::time::Duration>,
@@ -77,6 +77,12 @@ impl GAMetadata {
       generation,
     }
   }
+}
+
+#[derive(Debug)]
+pub struct GAResult<T: Chromosome> {
+  pub best_individual: Individual<T>,
+  pub metadata: GAMetadata,
 }
 pub struct GeneticAlgorithm<T, M, C, S, P, Pr>
 where
@@ -125,7 +131,7 @@ where
     }
   }
 
-  pub fn run(&mut self) -> Option<Individual<T>> {
+  pub fn run(&mut self) -> GAResult<T> {
     self.metadata.start_time = Some(std::time::Instant::now());
     self.config.probe.on_start(&self.metadata);
 
@@ -214,6 +220,10 @@ where
       .config
       .probe
       .on_end(&self.metadata, &population, &best_individual_all_time);
-    Some(best_individual_all_time)
+    GAResult {
+      best_individual: best_individual_all_time,
+      metadata: self.metadata,
+    }
+    // Some(best_individual_all_time)
   }
 }
