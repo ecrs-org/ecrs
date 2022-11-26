@@ -190,9 +190,9 @@ where
   }
 }
 
-pub struct Builder;
+pub struct Factory;
 
-impl Builder {
+impl Factory {
   #[allow(clippy::new_ret_no_self)]
   pub fn new<T, M, C, S, P, Pr>() -> GenericBuilder<T, M, C, S, P, Pr>
   where
