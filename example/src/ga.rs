@@ -35,27 +35,49 @@ pub fn ga_example() {
   println!("{:?}", res);
 }
 
-pub fn ga_rvc_example() -> Option<ga::Individual<Vec<f64>>> {
+pub fn ga_rvc_example() {
   ecrs::ga::Builder::with_rvc()
     .fitness_fn(rastrigin::rastrigin_fitness)
     .dim(5)
     .build()
-    .run()
+    .run();
 }
 
-pub fn ga_bsc_example() -> Option<ga::Individual<Vec<bool>>> {
+pub fn ga_bsc_example() {
   ecrs::ga::Builder::with_bsc()
     .fitness_fn(wordmax::wordmax_fitness)
-    .dim(10)
-    .population_size(6)
+    .dim(100)
+    .population_size(100)
+    .set_mutation_rate(0.2)
+    .max_generations(4000)
     .build()
-    .run()
+    .run();
 }
 
-pub fn ga_exmaple_test_functions() -> Option<ga::Individual<Vec<f64>>> {
+pub fn ga_wordvec_example() {
+  let gen_count: usize = 50_000;
+
+  let res = ecrs::ga::Builder::new()
+    .set_fitness_fn(wordmax::wordmax_fitness)
+    .set_selection_operator(ecrs::ga::operators::selection::Tournament::new(0.2))
+    .set_crossover_operator(ecrs::ga::operators::crossover::TwoPoint::new())
+    .set_mutation_operator(ecrs::ga::operators::mutation::Interchange::new())
+    .set_probe(ecrs::ga::probe::end::EndProbe::new())
+    .set_population_generator(ecrs::ga::population::BitStrings::new(100))
+    .set_population_size(200)
+    .set_mutation_rate(0.07)
+    .set_max_generation_count(gen_count)
+    .set_max_duration(std::time::Duration::from_secs(2))
+    .build()
+    .run();
+
+  println!("{:?},{:?}", res.best_individual, res.metadata);
+}
+
+pub fn ga_exmaple_test_functions() {
   ecrs::ga::Builder::with_rvc()
     .fitness_fn(ecrs::test_functions::ackley)
     .dim(4)
     .build()
-    .run()
+    .run();
 }
