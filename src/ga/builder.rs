@@ -215,7 +215,7 @@ impl Factory {
   }
 }
 
-pub(self) trait BuilderTrait {
+pub(self) trait Builder {
   const DEFAULT_PARAMS: GAParams = GAParams {
     selection_rate: 1.0,
     mutation_rate: 0.05,
