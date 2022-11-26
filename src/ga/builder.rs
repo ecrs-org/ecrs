@@ -7,7 +7,7 @@ use std::fmt::Display;
 use super::individual::Chromosome;
 use super::operators::selection::SelectionOperator;
 use super::population::PopulationGenerator;
-use super::{CrossoverOperator, FitnessFn, GAConfig, GAParams, GeneticAlgorithm, MutationOperator, Probe};
+use super::{CrossoverOperator, FitnessFn, GAConfig, GAParams, MutationOperator, Probe};
 
 pub use generic::GenericBuilder;
 pub use presets::{BitStringBuilder, RealValuedBuilder};
@@ -49,7 +49,7 @@ pub(self) struct GAParamsOpt {
 }
 
 impl GAParamsOpt {
-	/// Returns new instance of [GAParamsOpt] struct. All fields are `None` initially.
+  /// Returns new instance of [GAParamsOpt] struct. All fields are `None` initially.
   pub fn new() -> Self {
     Self {
       selection_rate: None,
@@ -60,14 +60,14 @@ impl GAParamsOpt {
     }
   }
 
-	/// Sets all `None` values to values form `other`
-	pub fn fill_from(&mut self, other: &GAParams) {
-		self.selection_rate.get_or_insert(other.selection_rate);
-		self.mutation_rate.get_or_insert(other.mutation_rate);
-		self.population_size.get_or_insert(other.population_size);
-		self.generation_limit.get_or_insert(other.generation_limit);
-		self.max_duration.get_or_insert(other.max_duration);
-	}
+  /// Sets all `None` values to values form `other`
+  pub fn fill_from(&mut self, other: &GAParams) {
+    self.selection_rate.get_or_insert(other.selection_rate);
+    self.mutation_rate.get_or_insert(other.mutation_rate);
+    self.population_size.get_or_insert(other.population_size);
+    self.generation_limit.get_or_insert(other.generation_limit);
+    self.max_duration.get_or_insert(other.max_duration);
+  }
 }
 
 impl TryFrom<GAParamsOpt> for GAParams {

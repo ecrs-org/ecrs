@@ -69,33 +69,35 @@ impl RealValuedBuilder {
   pub fn build(
     mut self,
   ) -> GeneticAlgorithm<Rvc, Interchange, SinglePoint, Tournament, RandomPoints, StdoutProbe> {
-    // if self.config.fitness_fn.is_none() {
-    //   panic!("Fitness function must be set");
-    // }
+		self.config.params.fill_from(&Self::DEFAULT_PARAMS);
 
-    // if self.dim.is_none() {
-    //   panic!("Problem dimension must be set");
-    // }
+    if self.config.fitness_fn.is_none() {
+      panic!("Fitness function must be set");
+    }
 
-    // if self.config.crossover_operator.is_none() {
-    //   self.config.crossover_operator = Some(SinglePoint::new());
-    // }
+    if self.dim.is_none() {
+      panic!("Problem dimension must be set");
+    }
 
-    // if self.config.mutation_operator.is_none() {
-    //   self.config.mutation_operator = Some(Interchange::new());
-    // }
+    if self.config.crossover_operator.is_none() {
+      self.config.crossover_operator = Some(SinglePoint::new());
+    }
 
-    // if self.config.selection_operator.is_none() {
-    //   self.config.selection_operator = Some(Tournament::new(0.2));
-    // }
+    if self.config.mutation_operator.is_none() {
+      self.config.mutation_operator = Some(Interchange::new());
+    }
 
-    // if self.config.population_factory.is_none() {
-    //   self.config.population_factory = Some(RandomPoints::new(self.dim.unwrap_or(10)));
-    // }
+    if self.config.selection_operator.is_none() {
+      self.config.selection_operator = Some(Tournament::new(0.2));
+    }
 
-    // if self.config.probe.is_none() {
-    //   self.config.probe = Some(StdoutProbe::new());
-    // }
+    if self.config.population_factory.is_none() {
+      self.config.population_factory = Some(RandomPoints::new(self.dim.unwrap_or(10)));
+    }
+
+    if self.config.probe.is_none() {
+      self.config.probe = Some(StdoutProbe::new());
+    }
 
     let config = match self.config.try_into() {
       Ok(config) => config,
@@ -162,6 +164,8 @@ impl BitStringBuilder {
   }
 
   pub fn build(mut self) -> GeneticAlgorithm<Bsc, FlipBit, SinglePoint, Tournament, BitStrings, StdoutProbe> {
+		self.config.params.fill_from(&Self::DEFAULT_PARAMS);
+
     if self.config.fitness_fn.is_none() {
       panic!("Fitness function must be set");
     }

@@ -2,7 +2,7 @@ use crate::ga::{
   individual::Chromosome,
   operators::{crossover::CrossoverOperator, mutation::MutationOperator, selection::SelectionOperator},
   population::PopulationGenerator,
-  FitnessFn, GAParams, GeneticAlgorithm, Probe,
+  FitnessFn, GeneticAlgorithm, Probe,
 };
 
 use super::{DefaultParams, GAConfigOpt};
