@@ -22,22 +22,22 @@ type FitnessFn<S> = fn(&S) -> f64;
 pub struct GAParams {
   pub selection_rate: f64,
   pub mutation_rate: f64,
-  pub generation_limit: usize,
   pub population_size: usize,
+  pub generation_limit: usize,
   pub max_duration: Option<std::time::Duration>,
 }
 
-impl Default for GAParams {
-  fn default() -> Self {
-    Self {
-      selection_rate: 0.5f64,
-      mutation_rate: 0.05,
-      generation_limit: 200,
-      population_size: 100,
-      max_duration: None,
-    }
-  }
-}
+// impl Default for GAParams {
+//   fn default() -> Self {
+//     Self {
+//       selection_rate: 0.5f64,
+//       mutation_rate: 0.05,
+//       population_size: 100,
+//       generation_limit: 200,
+//       max_duration: None,
+//     }
+//   }
+// }
 
 pub struct GAConfig<T, M, C, S, P, Pr>
 where
