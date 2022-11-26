@@ -2,6 +2,7 @@ use std::ops::IndexMut;
 
 use push_trait::{Nothing, Push};
 use rand::Rng;
+use rayon::iter::Rev;
 
 use crate::ga::{individual::Chromosome, Individual};
 
@@ -120,6 +121,21 @@ where
       }
     }
   }
+}
+
+/// ### Reversing mutation operator
+///
+/// This struct implements [MutationOperator] trait and can be used with GA
+///
+/// If gene is to be mutated ...
+pub struct Reversing;
+impl<T> MutationOperator<T> for Reversing
+where
+	T: Chromosome
+{
+	fn apply(&self, individual: &mut Individual<T>, mutation_rate: f64) {
+
+	}
 }
 
 #[cfg(test)]
