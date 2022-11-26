@@ -440,7 +440,7 @@ where
       }
 
       while index < chromosome_len {
-        let gene = parent_2.chromosome_ref()[index];
+        let gene = p2.chromosome_ref()[index];
         if !substring_set.contains(&gene) {
           child.chromosome_ref_mut().push(gene);
         }
