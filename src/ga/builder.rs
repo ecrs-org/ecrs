@@ -108,7 +108,7 @@ where
   P: PopulationGenerator<T>,
   Pr: Probe<T>,
 {
-  pub params: Option<GAParams>,
+  pub params: GAParamsOpt,
   pub fitness_fn: Option<FitnessFn<T>>,
   pub mutation_operator: Option<M>,
   pub crossover_operator: Option<C>,
@@ -126,10 +126,10 @@ where
   P: PopulationGenerator<T>,
   Pr: Probe<T>,
 {
-  /// Returns new instance of [GAConfigOpt] struct. All fields are `None` initially.
+  /// Returns new instance of [GAConfigOpt] struct. All fields are `None` initially, except params.
   pub fn new() -> Self {
     Self {
-      params: None,
+      params: GAParamsOpt::new(),
       fitness_fn: None,
       mutation_operator: None,
       crossover_operator: None,
@@ -152,9 +152,7 @@ where
   type Error = ConfigError;
 
   fn try_from(config_opt: GAConfigOpt<T, M, C, S, P, Pr>) -> Result<Self, Self::Error> {
-    let Some(params) = config_opt.params else {
-			return Err(ConfigError::NoParams);
-		};
+    let params = GAParams::try_from(config_opt.params)?;
 
     let Some(fitness_fn) = config_opt.fitness_fn else {
 			return Err(ConfigError::MissingOperator("No fitness function specified".to_owned()));
