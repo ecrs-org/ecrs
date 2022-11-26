@@ -1,6 +1,6 @@
+mod bistring;
 mod generic;
-mod presets;
-
+mod realvalued;
 use std::error::Error;
 use std::fmt::Display;
 
@@ -9,8 +9,9 @@ use super::operators::selection::SelectionOperator;
 use super::population::PopulationGenerator;
 use super::{CrossoverOperator, FitnessFn, GAConfig, GAParams, MutationOperator, Probe};
 
+pub use bistring::BitStringBuilder;
 pub use generic::GenericBuilder;
-pub use presets::{BitStringBuilder, RealValuedBuilder};
+pub use realvalued::RealValuedBuilder;
 
 /// Error type for internal use
 #[derive(Debug, Clone)]
