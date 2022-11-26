@@ -54,7 +54,7 @@ where
 
   pub fn set_max_duration(mut self, max_duration: std::time::Duration) -> Self {
     self.config.params = self.config.params.map(|mut params| {
-      params.max_duration = Some(max_duration);
+      params.max_duration = max_duration;
       params
     });
     self
