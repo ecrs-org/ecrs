@@ -130,10 +130,10 @@ where
 pub struct Reversing;
 
 impl Reversing {
-	/// Returns new instance of [Reversing] mutation operator
-	pub fn new() -> Self {
-		Self
-	}
+  /// Returns new instance of [Reversing] mutation operator
+  pub fn new() -> Self {
+    Self
+  }
 }
 
 impl<T, G> MutationOperator<T> for Reversing
@@ -287,24 +287,27 @@ mod tests {
     }
   }
 
-	#[test]
-	fn reversing_bubbles_first_gene_when_rate_1() {
-		let chromosome = rand::thread_rng()
-			.sample_iter(Uniform::from(-1.0..1.0))
-			.take(40)
-			.collect_vec();
+  #[test]
+  fn reversing_bubbles_first_gene_when_rate_1() {
+    let chromosome = rand::thread_rng()
+      .sample_iter(Uniform::from(-1.0..1.0))
+      .take(40)
+      .collect_vec();
 
-		let mut individual = Individual {
-			chromosome,
-			fitness: f64::default()
-		};
+    let mut individual = Individual {
+      chromosome,
+      fitness: f64::default(),
+    };
 
-		let first_gene_value = individual.chromosome_ref()[0];
+    let first_gene_value = individual.chromosome_ref()[0];
 
-		let operator = Reversing::new();
+    let operator = Reversing::new();
 
-		operator.apply(&mut individual, 1.0);
+    operator.apply(&mut individual, 1.0);
 
-		assert_eq!(first_gene_value, individual.chromosome_ref()[individual.chromosome_ref().len() - 1]);
-	}
+    assert_eq!(
+      first_gene_value,
+      individual.chromosome_ref()[individual.chromosome_ref().len() - 1]
+    );
+  }
 }
