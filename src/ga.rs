@@ -8,8 +8,8 @@ pub use builder::*;
 pub use individual::Individual;
 pub use probe::CsvProbe;
 pub use probe::JsonProbe;
-pub use probe::StdoutProbe;
 pub use probe::Probe;
+pub use probe::StdoutProbe;
 
 use self::{
   individual::Chromosome,
