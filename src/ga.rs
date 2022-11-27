@@ -149,6 +149,8 @@ where
       self.metadata.generation = Some(generation_no);
       self.metadata.duration = Some(self.metadata.start_time.unwrap().elapsed());
 
+      self.config.probe.on_iteration_start(generation_no);
+
       // 2. Evaluate fitness for each individual.
       self.evaluate_fitness_in_population(&mut population);
 
@@ -203,6 +205,8 @@ where
           .probe
           .on_new_best(&self.metadata, &best_individual_all_time);
       }
+
+      self.config.probe.on_iteration_end(generation_no);
 
       if self.metadata.start_time.unwrap().elapsed() >= self.config.params.max_duration {
         break;
