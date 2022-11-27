@@ -11,7 +11,7 @@ pub use csv_probe::CsvProbe;
 pub use empty::EmptyProbe;
 pub use json_probe::JsonProbe;
 pub use policy_driven_probe::PolicyDrivenProbe;
-pub use probing_policy::GenerationInterval;
+pub use probing_policy::{GenerationInterval, ElapsedTime};
 pub use stdout_probe::StdoutProbe;
 
 pub trait Probe<T: Chromosome> {
