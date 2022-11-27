@@ -28,7 +28,10 @@ pub fn ga_example() {
       vec![-5.12..5.12, -5.12..5.12, -5.12..5.12],
     ))
     .set_selection_operator(ga::operators::selection::Boltzmann::new(0.05, 80.0, 500, false))
-    .set_probe(ga::probe::stdout_probe::StdoutProbe)
+    .set_probe(ga::probe::PolicyDrivenProbe::new(
+      ga::probe::GenerationInterval::new(30, 1),
+      ga::probe::StdoutProbe,
+    ))
     .build()
     .run();
 
