@@ -415,7 +415,7 @@ where
     let chromosome_len = parent_1.chromosome_ref().len();
 
     let begin: usize = rand::thread_rng().gen_range(0..chromosome_len);
-    let end: usize = begin + rand::thread_rng().gen_range(0..=(chromosome_len - begin));
+    let end: usize = rand::thread_rng().gen_range(begin..=chromosome_len);
 
     let create_child = |p1: &Individual<ChT>, p2: &Individual<ChT>| -> Individual<ChT> {
       let mut substring_set: HashSet<GeneT> = HashSet::new();
