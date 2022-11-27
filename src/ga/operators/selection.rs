@@ -489,7 +489,7 @@ where
     let mut selected: Vec<&Individual<T>> = Vec::with_capacity(count);
     let mut weights: Vec<f64> = Vec::with_capacity(count);
 
-    let k = 1.0 + 100.0 * (metadata.generation.unwrap() as f64) / (self.max_gen_count as f64);
+    let k = 1.0 + 100.0 * (metadata.generation as f64) / (self.max_gen_count as f64);
     let temp = self.temp_0 * (1.0 - self.alpha).powf(k);
 
     for idv in population {

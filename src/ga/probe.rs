@@ -28,9 +28,9 @@ pub trait Probe<T: Chromosome> {
   fn on_best_fit_in_generation(&mut self, _metadata: &GAMetadata, _individual: &Individual<T>) {
     /* defaults to noop */
   }
-  fn on_iteration_start(&mut self, _iteration: usize) { /* defaults to noop */
+  fn on_iteration_start(&mut self, _metadata: &GAMetadata) { /* defaults to noop */
   }
-  fn on_iteration_end(&mut self, _iteration: usize) { /* defaults to noop */
+  fn on_iteration_end(&mut self, _metadata: &GAMetadata) { /* defaults to noop */
   }
   fn on_end(
     &mut self,
@@ -47,8 +47,8 @@ pub trait ProbingPolicy<T: Chromosome> {
   fn on_new_best(&mut self, _metadata: &GAMetadata, _individual: &Individual<T>) -> bool;
   fn on_new_generation(&mut self, _generation: &[Individual<T>]) -> bool;
   fn on_best_fit_in_generation(&mut self, _metadata: &GAMetadata, _individual: &Individual<T>) -> bool;
-  fn on_iteration_start(&mut self, _iteration: usize) -> bool;
-  fn on_iteration_end(&mut self, _iteration: usize) -> bool;
+  fn on_iteration_start(&mut self, _metadata: &GAMetadata) -> bool;
+  fn on_iteration_end(&mut self, _metadata: &GAMetadata) -> bool;
   fn on_end(
     &mut self,
     _metadata: &GAMetadata,

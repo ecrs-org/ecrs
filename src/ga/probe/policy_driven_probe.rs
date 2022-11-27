@@ -62,17 +62,16 @@ impl<T: Chromosome, Pc: ProbingPolicy<T>, Pr: Probe<T>> Probe<T> for PolicyDrive
     }
   }
 
-  fn on_iteration_start(&mut self, iteration: usize) {
+  fn on_iteration_start(&mut self, metadata: &GAMetadata) {
     /* defaults to noop */
-    if self.policy.on_iteration_start(iteration) {
-      self.probe.on_iteration_start(iteration);
+    if self.policy.on_iteration_start(metadata) {
+      self.probe.on_iteration_start(metadata);
     }
   }
 
-  fn on_iteration_end(&mut self, iteration: usize) {
-    /* defaults to noop */
-    if self.policy.on_iteration_end(iteration) {
-      self.probe.on_iteration_end(iteration);
+  fn on_iteration_end(&mut self, metadata: &GAMetadata) {
+    if self.policy.on_iteration_end(metadata) {
+      self.probe.on_iteration_end(metadata);
     }
   }
 

@@ -181,7 +181,7 @@ fn boltzmann_returns_demanded_size() {
   );
 
   // FIXME: We must add mocking!
-  let metadata = GAMetadata::new(Some(std::time::Instant::now()), None, Some(40));
+  let metadata = GAMetadata::new(Some(std::time::Instant::now()), None, 40);
 
   let selected = Boltzmann::new(0.2, 6.0, 300, true).apply(&metadata, &population, expected_selection_size);
 

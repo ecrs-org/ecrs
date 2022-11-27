@@ -22,7 +22,7 @@ impl<T: Chromosome> Probe<T> for StdoutProbe {
     info!(
       "[NEW_BEST] {},{},{:?},{}",
       metadata.duration.unwrap().as_millis(),
-      metadata.generation.unwrap(),
+      metadata.generation,
       individual.chromosome_ref(),
       individual.fitness
     );
@@ -38,7 +38,7 @@ impl<T: Chromosome> Probe<T> for StdoutProbe {
     info!(
       "[BEST_IN_GEN] {},{},{:?},{}",
       metadata.duration.unwrap().as_millis(),
-      metadata.generation.unwrap(),
+      metadata.generation,
       individual.chromosome_ref(),
       individual.fitness
     );
@@ -53,7 +53,7 @@ impl<T: Chromosome> Probe<T> for StdoutProbe {
     info!(
       "[END] {},{},{:?},{}",
       metadata.duration.unwrap().as_millis(),
-      metadata.generation.unwrap(),
+      metadata.generation,
       best_individual.chromosome_ref(),
       best_individual.fitness
     );

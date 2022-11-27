@@ -62,14 +62,14 @@ where
 pub struct GAMetadata {
   start_time: Option<std::time::Instant>,
   duration: Option<std::time::Duration>,
-  generation: Option<usize>,
+  generation: usize,
 }
 
 impl GAMetadata {
   pub fn new(
     start_time: Option<std::time::Instant>,
     duration: Option<std::time::Duration>,
-    generation: Option<usize>,
+    generation: usize,
   ) -> Self {
     GAMetadata {
       start_time,
@@ -104,7 +104,7 @@ where
   pub fn new(config: GAConfig<T, M, C, S, P, Pr>) -> Self {
     GeneticAlgorithm {
       config,
-      metadata: GAMetadata::new(None, None, None),
+      metadata: GAMetadata::new(None, None, 0),
     }
   }
 
@@ -146,10 +146,10 @@ where
     // self.config.probe.on_new_best(&self.metadata, best_individual);
 
     for generation_no in 1..=self.config.params.generation_limit {
-      self.metadata.generation = Some(generation_no);
+      self.metadata.generation = generation_no;
       self.metadata.duration = Some(self.metadata.start_time.unwrap().elapsed());
 
-      self.config.probe.on_iteration_start(generation_no);
+      self.config.probe.on_iteration_start(&self.metadata);
 
       // 2. Evaluate fitness for each individual.
       self.evaluate_fitness_in_population(&mut population);
@@ -206,7 +206,7 @@ where
           .on_new_best(&self.metadata, &best_individual_all_time);
       }
 
-      self.config.probe.on_iteration_end(generation_no);
+      self.config.probe.on_iteration_end(&self.metadata);
 
       if self.metadata.start_time.unwrap().elapsed() >= self.config.params.max_duration {
         break;
