@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+use std::hash::Hash;
 use std::ops::Index;
 
 use crate::ga::individual::{Chromosome, Individual};
@@ -352,6 +354,122 @@ where
           .push(parent_1.chromosome_ref()[locus]);
       }
     }
+
+    (child_1, child_2)
+  }
+}
+
+/// # Ordered crossover operator
+///
+/// This struct implements [CrossoverOperator] trait and can be used with GA.
+///
+/// It works by taking a substring from one parent, and filling the missing places with alleles from
+/// second parent in the order they appear in.
+///
+/// P1 : 2 <b>4 1 3</b> 5 <br>
+/// P2 : 5 2 1 4 3 <br>
+/// Ch : 5 <b>4 1 3</b> 2
+///
+/// Degenerated case when substring has length equal to genome length can occur.
+pub struct OrderedCrossover;
+
+impl OrderedCrossover {
+  /// Creates new [OrderedCrossover] crossover operator
+  pub fn new() -> Self {
+    OrderedCrossover {}
+  }
+
+  /// Helper function for [OrderedCrossover::apply]
+  /// ## Arguments
+  ///
+  /// * `p1` - First parent to take part in crossover
+  /// * `p2` - Second parent to take part in crossover
+  /// * `begin` - Start (inclusive) of substring to transplant
+  /// * `end` - End (exclusive) of substring to transplant
+  fn create_child<GeneT, ChT>(
+    &self,
+    p1: &Individual<ChT>,
+    p2: &Individual<ChT>,
+    begin: usize,
+    end: usize,
+  ) -> Individual<ChT>
+  where
+    ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    GeneT: Copy + Eq + Hash,
+  {
+    let chromosome_len = p1.chromosome_ref().len();
+
+    let mut substring_set: HashSet<GeneT> = HashSet::new();
+
+    for i in begin..end {
+      substring_set.push(p1.chromosome_ref()[i]);
+    }
+
+    let mut child: Individual<ChT> = Individual::new();
+    let mut index: usize = 0;
+
+    while child.chromosome_ref().len() < begin {
+      let gene = p2.chromosome_ref()[index];
+      if !substring_set.contains(&gene) {
+        child.chromosome_ref_mut().push(gene);
+      }
+      index += 1;
+    }
+
+    for i in begin..end {
+      child.chromosome_ref_mut().push(p1.chromosome_ref()[i]);
+    }
+
+    while index < chromosome_len {
+      let gene = p2.chromosome_ref()[index];
+      if !substring_set.contains(&gene) {
+        child.chromosome_ref_mut().push(gene);
+      }
+      index += 1;
+    }
+    child
+  }
+}
+
+impl<GeneT, ChT> CrossoverOperator<ChT> for OrderedCrossover
+where
+  ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+  GeneT: Copy + Eq + Hash,
+{
+  /// Returns a tuple of children, first child is created by taking a substring from parent_1,
+  /// second child is created by using a substring from parent_2
+  ///
+  /// It works by taking a substring from one parent, and filling the missing places with alleles from
+  /// second parent in the order they appear in.
+  ///
+  /// P1 : 2 <b>4 1 3</b> 5 <br>
+  /// P2 : 5 2 1 4 3 <br>
+  /// Ch : 5 <b>4 1 3</b> 2
+  ///
+  /// Degenerated case when substring has length equal to genome length can occur.
+  ///
+  /// ## Arguments
+  ///
+  /// * `parent_1` - First parent to take part in crossover
+  /// * `parent_2` - Second parent to take part in crossover
+  fn apply(
+    &mut self,
+    parent_1: &Individual<ChT>,
+    parent_2: &Individual<ChT>,
+  ) -> (Individual<ChT>, Individual<ChT>) {
+    assert_eq!(
+      parent_1.chromosome_ref().len(),
+      parent_2.chromosome_ref().len(),
+      "Parent chromosome length must match"
+    );
+
+    let chromosome_len = parent_1.chromosome_ref().len();
+
+    let begin: usize = rand::thread_rng().gen_range(0..chromosome_len);
+    let end: usize = rand::thread_rng().gen_range(begin..=chromosome_len);
+
+    let child_1 = self.create_child(parent_1, parent_2, begin, end);
+    let child_2 = self.create_child(parent_2, parent_1, begin, end);
 
     (child_1, child_2)
   }
