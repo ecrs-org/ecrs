@@ -361,7 +361,7 @@ where
 
 /// # Ordered crossover operator
 ///
-/// This struct implements [self::CrossoverOperator] trait and can be used with GA.
+/// This struct implements [CrossoverOperator] trait and can be used with GA.
 ///
 /// It works by taking a substring from one parent, and filling the missing places with alleles from
 /// second parent in the order they appear in.
@@ -374,9 +374,60 @@ where
 pub struct OrderedCrossover;
 
 impl OrderedCrossover {
-  /// Creates new [self::SinglePoint] crossover operator
+  /// Creates new [OrderedCrossover] crossover operator
   pub fn new() -> Self {
     OrderedCrossover {}
+  }
+
+  /// Helper function for [OrderedCrossover::apply]
+  /// ## Arguments
+  ///
+  /// * `p1` - First parent to take part in crossover
+  /// * `p2` - Second parent to take part in crossover
+  /// * `begin` - Start (inclusive) of substring to transplant
+  /// * `end` - End (exclusive) of substring to transplant
+  fn create_child<GeneT, ChT>(
+    &self,
+    p1: &Individual<ChT>,
+    p2: &Individual<ChT>,
+    begin: usize,
+    end: usize,
+  ) -> Individual<ChT>
+  where
+    ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    GeneT: Copy + Eq + Hash,
+  {
+    let chromosome_len = p1.chromosome_ref().len();
+
+    let mut substring_set: HashSet<GeneT> = HashSet::new();
+
+    for i in begin..end {
+      substring_set.push(p1.chromosome_ref()[i]);
+    }
+
+    let mut child: Individual<ChT> = Individual::new();
+    let mut index: usize = 0;
+
+    while child.chromosome_ref().len() < begin {
+      let gene = p2.chromosome_ref()[index];
+      if !substring_set.contains(&gene) {
+        child.chromosome_ref_mut().push(gene);
+      }
+      index += 1;
+    }
+
+    for i in begin..end {
+      child.chromosome_ref_mut().push(p1.chromosome_ref()[i]);
+    }
+
+    while index < chromosome_len {
+      let gene = p2.chromosome_ref()[index];
+      if !substring_set.contains(&gene) {
+        child.chromosome_ref_mut().push(gene);
+      }
+      index += 1;
+    }
+    child
   }
 }
 
@@ -417,40 +468,8 @@ where
     let begin: usize = rand::thread_rng().gen_range(0..chromosome_len);
     let end: usize = rand::thread_rng().gen_range(begin..=chromosome_len);
 
-    let create_child = |p1: &Individual<ChT>, p2: &Individual<ChT>| -> Individual<ChT> {
-      let mut substring_set: HashSet<GeneT> = HashSet::new();
-
-      for i in begin..end {
-        substring_set.push(p1.chromosome_ref()[i]);
-      }
-
-      let mut child: Individual<ChT> = Individual::new();
-      let mut index: usize = 0;
-
-      while child.chromosome_ref().len() < begin {
-        let gene = p2.chromosome_ref()[index];
-        if !substring_set.contains(&gene) {
-          child.chromosome_ref_mut().push(gene);
-        }
-        index += 1;
-      }
-
-      for i in begin..end {
-        child.chromosome_ref_mut().push(p1.chromosome_ref()[i]);
-      }
-
-      while index < chromosome_len {
-        let gene = p2.chromosome_ref()[index];
-        if !substring_set.contains(&gene) {
-          child.chromosome_ref_mut().push(gene);
-        }
-        index += 1;
-      }
-      child
-    };
-
-    let child_1 = create_child(parent_1, parent_2);
-    let child_2 = create_child(parent_2, parent_1);
+    let child_1 = self.create_child(parent_1, parent_2, begin, end);
+    let child_2 = self.create_child(parent_2, parent_1, begin, end);
 
     (child_1, child_2)
   }
