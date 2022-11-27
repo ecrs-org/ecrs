@@ -1,5 +1,7 @@
 use itertools::Itertools;
+use rand::seq::SliceRandom;
 use rand::Rng;
+use std::fmt::Debug;
 use std::ops::Range;
 
 use super::{individual::Chromosome, Individual};
@@ -133,6 +135,46 @@ impl PopulationGenerator<Vec<bool>> for BitStrings {
           .map(|v| v < 0.5)
           .collect_vec(),
       ));
+    }
+
+    population
+  }
+}
+
+/// Implements [PopulationGenerator] trait. Can be used with genetic algorithm.
+///
+/// Generates random permutations of given vector.
+/// Permutations can be repeated
+pub struct RandomPermutations<GeneT: Copy> {
+  genes: Vec<GeneT>,
+}
+
+impl<GeneT: Copy> RandomPermutations<GeneT> {
+  /// Returns [RandomPermutations] population generator.
+  ///
+  /// ### Arguments
+  ///
+  /// * `genes` - Vector which will be permuted
+  pub fn new(genes: Vec<GeneT>) -> Self {
+    RandomPermutations { genes }
+  }
+}
+
+impl<GeneT: Copy + Debug + Sync + Send> PopulationGenerator<Vec<GeneT>> for RandomPermutations<GeneT> {
+  /// Generates vector of `count` random permutations from stored genes.
+  /// Repeated individual are possible.
+  ///
+  /// ### Arguments
+  ///
+  /// * `count` -- Number of random permutations to generate
+  fn generate(&self, count: usize) -> Vec<Individual<Vec<GeneT>>> {
+    let mut population: Vec<Individual<Vec<GeneT>>> = Vec::with_capacity(count);
+    let rng = &mut rand::thread_rng();
+
+    for _ in 0..count {
+      let mut genome = self.genes.clone();
+      genome.shuffle(rng);
+      population.push(Individual::from(genome))
     }
 
     population
