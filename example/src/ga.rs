@@ -18,7 +18,7 @@ pub fn point_generator(restrictions: &Vec<(f64, f64)>) -> Vec<f64> {
 
 pub fn ga_example() {
   let res = ecrs::ga::Builder::new()
-    .set_max_generation_count(500)
+    .set_max_generation_count(50_000)
     .set_population_size(100)
     .set_fitness_fn(rastrigin::rastrigin_fitness)
     .set_crossover_operator(ga::operators::crossover::SinglePoint::new())
@@ -28,7 +28,17 @@ pub fn ga_example() {
       vec![-5.12..5.12, -5.12..5.12, -5.12..5.12],
     ))
     .set_selection_operator(ga::operators::selection::Boltzmann::new(0.05, 80.0, 500, false))
-    .set_probe(ga::probe::stdout_probe::StdoutProbe)
+    .set_probe(
+      ga::probe::AggregatedProbe::new()
+        .add_probe(ga::probe::PolicyDrivenProbe::new(
+          ga::probe::ElapsedTime::new(std::time::Duration::from_millis(200), std::time::Duration::ZERO),
+          ga::probe::StdoutProbe,
+        ))
+        .add_probe(ga::probe::PolicyDrivenProbe::new(
+          ga::probe::GenerationInterval::new(500, 100),
+          ga::probe::StdoutProbe,
+        )),
+    )
     .build()
     .run();
 
