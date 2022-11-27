@@ -1,11 +1,18 @@
 use super::{individual::Chromosome, GAMetadata, Individual};
 
-pub mod csv_probe;
-pub mod empty;
-pub mod json_probe;
-pub mod probing_policy;
-pub mod stdout_probe;
-pub mod policy_driven_probe;
+mod csv_probe;
+mod empty;
+mod json_probe;
+mod policy_driven_probe;
+mod probing_policy;
+mod stdout_probe;
+
+pub use csv_probe::CsvProbe;
+pub use empty::EmptyProbe;
+pub use json_probe::JsonProbe;
+pub use policy_driven_probe::PolicyDrivenProbe;
+pub use probing_policy::GenerationInterval;
+pub use stdout_probe::StdoutProbe;
 
 pub trait Probe<T: Chromosome> {
   fn on_start(&mut self, _metadata: &GAMetadata) { /* defaults to noop */

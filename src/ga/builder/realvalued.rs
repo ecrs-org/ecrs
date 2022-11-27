@@ -1,7 +1,7 @@
 use crate::ga::{
   operators::{crossover::SinglePoint, mutation::Interchange, selection::Tournament},
   population::RandomPoints,
-  FitnessFn, GeneticAlgorithm, StdoutProbe,
+  FitnessFn, GeneticAlgorithm, probe::StdoutProbe,
 };
 
 use super::{DefaultParams, GAConfigOpt};

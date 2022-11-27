@@ -6,9 +6,9 @@ pub mod probe;
 
 pub use builder::*;
 pub use individual::Individual;
-pub use probe::csv_probe::CsvProbe;
-pub use probe::json_probe::JsonProbe;
-pub use probe::stdout_probe::StdoutProbe;
+pub use probe::CsvProbe;
+pub use probe::JsonProbe;
+pub use probe::StdoutProbe;
 pub use probe::Probe;
 
 use self::{

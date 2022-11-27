@@ -14,7 +14,7 @@ fn generic_does_not_panic_with_some_params_unspecified() {
     .set_selection_operator(ecrs::ga::operators::selection::Boltzmann::new(
       0.05, 80.0, 500, false,
     ))
-    .set_probe(ecrs::ga::probe::stdout_probe::StdoutProbe)
+    .set_probe(ecrs::ga::probe::StdoutProbe)
     .build();
 
   // all params omitted
@@ -29,7 +29,7 @@ fn generic_does_not_panic_with_some_params_unspecified() {
     .set_selection_operator(ecrs::ga::operators::selection::Boltzmann::new(
       0.05, 80.0, 500, false,
     ))
-    .set_probe(ecrs::ga::probe::stdout_probe::StdoutProbe)
+    .set_probe(ecrs::ga::probe::StdoutProbe)
     .build();
 }
 
