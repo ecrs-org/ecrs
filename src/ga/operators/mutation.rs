@@ -127,14 +127,33 @@ where
 ///
 /// This struct implements [MutationOperator] trait and can be used with GA
 ///
-/// If gene is to be mutated ...
+/// Random locus is selected and genes next to the selection position are reversed
 pub struct Reversing;
-impl<T> MutationOperator<T> for Reversing
+impl<T, G> MutationOperator<T> for Reversing
 where
-	T: Chromosome
+	G: Copy,
+  T: Chromosome + IndexMut<usize, Output = G> + Push<G, PushedOut = Nothing>,
 {
-	fn apply(&self, individual: &mut Individual<T>, mutation_rate: f64) {
+  /// Mutates provided solution in place
+  ///
+	/// Random locus is selected and genes next to the selection position are reversed
+  ///
+  /// ## Arguments
+  ///
+  /// * `individual` - mutable reference to to-be-mutated individual
+  /// * `mutation_rate` - probability of gene mutation
+  fn apply(&self, individual: &mut Individual<T>, mutation_rate: f64) {
+		let dist = rand::distributions::Uniform::from(0.0..1.0);
+		let chromosome_ref = individual.chromosome_ref_mut();
+		let chromosome_len = chromosome_ref.len();
 
+		for i in 1..chromosome_len {
+			if rand::thread_rng().sample(dist) < mutation_rate {
+				let gene = chromosome_ref[i];
+				chromosome_ref[i] = chromosome_ref[i - 1];
+				chromosome_ref[i - 1] = gene;
+			}
+		}
 	}
 }
 
