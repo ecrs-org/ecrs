@@ -1,5 +1,6 @@
 use super::{individual::Chromosome, GAMetadata, Individual};
 
+mod aggregated_probe;
 mod csv_probe;
 mod empty;
 mod json_probe;
@@ -7,6 +8,7 @@ mod policy_driven_probe;
 mod probing_policy;
 mod stdout_probe;
 
+pub use aggregated_probe::AggregatedProbe;
 pub use csv_probe::CsvProbe;
 pub use empty::EmptyProbe;
 pub use json_probe::JsonProbe;
