@@ -2,7 +2,6 @@ use std::ops::IndexMut;
 
 use push_trait::{Nothing, Push};
 use rand::Rng;
-use rayon::iter::Rev;
 
 use crate::ga::{individual::Chromosome, Individual};
 
@@ -129,32 +128,40 @@ where
 ///
 /// Random locus is selected and genes next to the selection position are reversed
 pub struct Reversing;
+
+impl Reversing {
+	/// Returns new instance of [Reversing] mutation operator
+	pub fn new() -> Self {
+		Self
+	}
+}
+
 impl<T, G> MutationOperator<T> for Reversing
 where
-	G: Copy,
+  G: Copy,
   T: Chromosome + IndexMut<usize, Output = G> + Push<G, PushedOut = Nothing>,
 {
   /// Mutates provided solution in place
   ///
-	/// Random locus is selected and genes next to the selection position are reversed
+  /// Random locus is selected and genes next to the selection position are reversed
   ///
   /// ## Arguments
   ///
   /// * `individual` - mutable reference to to-be-mutated individual
   /// * `mutation_rate` - probability of gene mutation
   fn apply(&self, individual: &mut Individual<T>, mutation_rate: f64) {
-		let dist = rand::distributions::Uniform::from(0.0..1.0);
-		let chromosome_ref = individual.chromosome_ref_mut();
-		let chromosome_len = chromosome_ref.len();
+    let dist = rand::distributions::Uniform::from(0.0..1.0);
+    let chromosome_ref = individual.chromosome_ref_mut();
+    let chromosome_len = chromosome_ref.len();
 
-		for i in 1..chromosome_len {
-			if rand::thread_rng().sample(dist) < mutation_rate {
-				let gene = chromosome_ref[i];
-				chromosome_ref[i] = chromosome_ref[i - 1];
-				chromosome_ref[i - 1] = gene;
-			}
-		}
-	}
+    for i in 1..chromosome_len {
+      if rand::thread_rng().sample(dist) < mutation_rate {
+        let gene = chromosome_ref[i];
+        chromosome_ref[i] = chromosome_ref[i - 1];
+        chromosome_ref[i - 1] = gene;
+      }
+    }
+  }
 }
 
 #[cfg(test)]
@@ -163,7 +170,7 @@ mod tests {
   use itertools::Itertools;
   use rand::{distributions::Uniform, Rng};
 
-  use super::{FlipBit, Identity, Interchange, MutationOperator};
+  use super::{FlipBit, Identity, Interchange, MutationOperator, Reversing};
 
   #[test]
   fn identity_does_not_change_chromosome() {
@@ -279,4 +286,25 @@ mod tests {
       assert_eq!(actual, *expected);
     }
   }
+
+	#[test]
+	fn reversing_bubbles_first_gene_when_rate_1() {
+		let chromosome = rand::thread_rng()
+			.sample_iter(Uniform::from(-1.0..1.0))
+			.take(40)
+			.collect_vec();
+
+		let mut individual = Individual {
+			chromosome,
+			fitness: f64::default()
+		};
+
+		let first_gene_value = individual.chromosome_ref()[0];
+
+		let operator = Reversing::new();
+
+		operator.apply(&mut individual, 1.0);
+
+		assert_eq!(first_gene_value, individual.chromosome_ref()[individual.chromosome_ref().len() - 1]);
+	}
 }
