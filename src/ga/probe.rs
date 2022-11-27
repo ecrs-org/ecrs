@@ -5,6 +5,7 @@ pub mod empty;
 pub mod json_probe;
 pub mod probing_policy;
 pub mod stdout_probe;
+pub mod policy_driven_probe;
 
 pub trait Probe<T: Chromosome> {
   fn on_start(&mut self, _metadata: &GAMetadata) { /* defaults to noop */
