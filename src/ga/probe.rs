@@ -82,8 +82,12 @@ pub trait Probe<T: Chromosome> {
     /* defaults to noop */
   }
 
-  /// This method is called in the very	/// * `metadata` - Structure containing metadata information on genetic algorithm.
-  /// See [GAMetadata] for reference.
+  /// This method is called in the very begining of algorithm's main loop
+  ///
+  /// Default implementation does nothing
+  ///
+  /// ### Arguments
+  ///
   /// * `metadata` - Structure containing metadata information on genetic algorithm.
   /// See [GAMetadata] for reference.
   fn on_iteration_start(&mut self, _metadata: &GAMetadata) { /* defaults to noop */
