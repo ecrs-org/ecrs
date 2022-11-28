@@ -14,7 +14,7 @@ use crate::aco::FMatrix;
 /// * probe - logging probe.
 ///
 /// For more details look [here](http://www.scholarpedia.org/article/Ant_colony_optimization) at Ant system section
-pub struct AntSystemCfg {
+pub(in crate::aco) struct AntSystemCfg {
   pub weights: FMatrix,
   pub heuristic: FMatrix,
   pub alpha: f64,

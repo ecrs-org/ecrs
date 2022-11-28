@@ -7,7 +7,7 @@
 //! * <https://ieeexplore.ieee.org/document/4129846> DOI: 10.1109/MCI.2006.329691
 //! * <http://www.scholarpedia.org/article/Ant_colony_optimization>
 //!
-//! Look at [AntSystemCfg](ant_system_cfg::AntSystemCfg) for parameters overview and
+//! Look at [Builder](Builder) for parameters overview and
 //! at [AntSystem](ants_system::AntSystem) for interface details
 //!
 //! Logging system details can be found [here](ants_system::probe)
@@ -16,12 +16,11 @@
 //! Solving TSP using AntSystem
 //! ```rust
 //! pub fn ants_example_run() {
-//!   let (cities, cost) = ecrs::aco::generate_tsp_cost(30);
-//!   ecrs::aco::write_cities_csv(&cities, "cities.csv").expect("Error while writing city file");
+//!   let (cities, cost) = ecrs::aco::generate_tsp_cost(10);
 //!
 //!   let heuristic = ecrs::aco::create_heuristic_from_weights(&cost);
 //!
-//!   let ant_s = ecrs::aco::builder::Builder::new()
+//!   let ant_s = ecrs::aco::Builder::new()
 //!       .set_weights(cost)
 //!       .set_heuristic(heuristic)
 //!       .build();
@@ -31,8 +30,8 @@
 //! ```
 //!
 
-pub use ant_system_cfg::AntSystemCfg;
-pub use ants_system::builder;
+pub(self) use ant_system_cfg::AntSystemCfg;
+pub use ants_system::builder::Builder;
 pub use ants_system::probe;
 pub use ants_system::AntSystem;
 use nalgebra::{Dynamic, OMatrix};
@@ -60,7 +59,8 @@ pub fn create_heuristic_from_weights(weights: &FMatrix) -> FMatrix {
 
 /// Utility function for generating TSP input data.
 ///
-/// Parameter sol_size determines the number of generated cities.
+/// ## Arguments
+/// * `sol_size` - number of cites.
 pub fn generate_tsp_cost(sol_size: usize) -> (Vec<(f64, f64)>, FMatrix) {
   let mut cities: Vec<(f64, f64)> = Vec::new();
   let mut r = rand::thread_rng();
@@ -90,6 +90,10 @@ pub fn generate_tsp_cost(sol_size: usize) -> (Vec<(f64, f64)>, FMatrix) {
 }
 
 /// Utility function for writing TSP input data to a CSV file.
+///
+/// ## Arguments
+/// * `cities` - Vector of tuples representing cities x and y positions
+/// * `path` - Where to save file.
 pub fn write_cities_csv(cities: &[(f64, f64)], path: &str) -> Result<(), Box<dyn Error>> {
   let mut wtr = csv::Writer::from_path(path)?;
   wtr.write_record(["x", "y"])?;

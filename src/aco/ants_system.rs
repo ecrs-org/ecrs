@@ -31,7 +31,7 @@ impl AntSystem {
 
     self.end()
   }
-  #[doc(hidden)]
+
   fn iterate(&mut self) {
     let sols_m = self.run_ants();
     let sols = self.grade(sols_m);
@@ -56,20 +56,20 @@ impl AntSystem {
       .on_pheromone_update(&self.pheromone, &new_pheromone);
     self.pheromone = new_pheromone;
   }
-  #[doc(hidden)]
+
   fn update_best(&mut self, current_best: &Solution) {
     if self.best_sol > *current_best {
       self.cfg.probe.on_new_best(current_best);
       self.best_sol = (*current_best).clone();
     }
   }
-  #[doc(hidden)]
+
   fn find_best<'a>(&mut self, sols: &'a [Solution]) -> &'a Solution {
     let best = sols.iter().min_by(|a, b| (*a).partial_cmp(*b).unwrap());
 
     best.unwrap()
   }
-  #[doc(hidden)]
+
   fn grade(&self, sols_m: Vec<FMatrix>) -> Vec<Solution> {
     let costs: Vec<f64> = Vec::from_iter(sols_m.iter().map(|s| self.grade_one(s)));
     let mut sols: Vec<Solution> = Vec::new();
@@ -79,11 +79,11 @@ impl AntSystem {
 
     sols
   }
-  #[doc(hidden)]
+
   fn grade_one(&self, s: &FMatrix) -> f64 {
     s.component_mul(&self.cfg.weights).sum() / 2.0
   }
-  #[doc(hidden)]
+
   fn run_ants(&self) -> Vec<FMatrix> {
     let prob_iter = self
       .pheromone
@@ -98,16 +98,15 @@ impl AntSystem {
     sols
   }
 
-  #[doc(hidden)]
   fn calc_prob(&self, p: &f64, h: &f64) -> f64 {
     p.powf(self.cfg.alpha) * h.powf(self.cfg.beta)
   }
-  #[doc(hidden)]
+
   fn end(mut self) {
     self.cfg.probe.on_end();
   }
 }
-#[doc(hidden)]
+
 fn run_ant(prob: &FMatrix) -> FMatrix {
   let n = prob.nrows();
   let mut sol = FMatrix::zeros(n, n);
