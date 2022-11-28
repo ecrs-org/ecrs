@@ -64,6 +64,8 @@ pub trait Probe<T: Chromosome> {
   ///
   /// ### Arguments
   ///
+  /// * `metadata` - Structure containing metadata information on genetic algorithm.
+  /// See [GAMetadata] for reference.
   /// * `generation` - Newly created generation
   fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[Individual<T>]) {
     /* defaults to noop */
@@ -72,7 +74,10 @@ pub trait Probe<T: Chromosome> {
   /// This method is called once per generation with best individual in it
   ///
   /// Default implementation does nothing
-  ///  /// * `population` - Freshly generated population- Structure containing metadata information on genetic algorithm.
+  ///
+  /// ### Arguments
+  ///
+  /// * `metadata` - Structure containing metadata information on genetic algorithm.
   /// See [GAMetadata] for reference.
   /// * `individual` - Best individual in current generation
   fn on_best_fit_in_generation(&mut self, _metadata: &GAMetadata, _individual: &Individual<T>) {
@@ -92,7 +97,8 @@ pub trait Probe<T: Chromosome> {
 
   /// This method is called in the very end of algorithm's main loop, just before
   /// termination conditions are evaluated
-  ///  /// * `population` - Freshly generated populations
+  ///
+  /// ### Arguments
   ///
   /// * `metadata` - Structure containing metadata information on genetic algorithm.
   /// See [GAMetadata] for reference.
