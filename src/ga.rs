@@ -135,10 +135,11 @@ where
       .config
       .population_factory
       .generate(self.config.params.population_size);
-    self.config.probe.on_initial_population_created(&population);
 
     // 2. Evaluate fitness for each individual.
     self.evaluate_fitness_in_population(&mut population);
+
+    self.config.probe.on_initial_population_created(&population);
 
     // 3. Store best individual.
     let mut best_individual_all_time =
