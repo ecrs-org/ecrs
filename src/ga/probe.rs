@@ -129,7 +129,7 @@ pub trait Probe<T: Chromosome> {
 /// is notified of given event
 ///
 /// This trait defines a series of method mirroring `Probe` trait, except the fact that all
-/// the methods return a boolean indicating whether to log or no
+/// the methods return a boolean indicating whether to log or not
 ///
 /// You can implement this trait to define your custom logggin policy.
 ///
