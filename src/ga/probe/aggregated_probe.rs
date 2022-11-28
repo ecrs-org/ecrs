@@ -36,10 +36,10 @@ impl<T: Chromosome> Probe<T> for AggregatedProbe<T> {
     }
   }
 
-  fn on_new_generation(&mut self, generation: &[Individual<T>]) {
+  fn on_new_generation(&mut self, metadata: &GAMetadata, generation: &[Individual<T>]) {
     /* defaults to noop */
     for probe in &mut self.probes {
-      probe.on_new_generation(generation);
+      probe.on_new_generation(metadata, generation);
     }
   }
 

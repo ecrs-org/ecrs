@@ -47,7 +47,7 @@ impl<T: Chromosome> ProbingPolicy<T> for GenerationInterval {
   }
 
   #[inline(always)]
-  fn on_new_generation(&mut self, _generation: &[crate::ga::Individual<T>]) -> bool {
+  fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[crate::ga::Individual<T>]) -> bool {
     self.should_log
   }
 
@@ -132,7 +132,7 @@ impl<T: Chromosome> ProbingPolicy<T> for ElapsedTime {
   }
 
   #[inline(always)]
-  fn on_new_generation(&mut self, _generation: &[crate::ga::Individual<T>]) -> bool {
+  fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[crate::ga::Individual<T>]) -> bool {
     self.should_log
   }
 

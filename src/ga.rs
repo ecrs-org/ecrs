@@ -60,9 +60,9 @@ where
 
 #[derive(Default)]
 pub struct GAMetadata {
-  start_time: Option<std::time::Instant>,
-  duration: Option<std::time::Duration>,
-  generation: usize,
+  pub start_time: Option<std::time::Instant>,
+  pub duration: Option<std::time::Duration>,
+  pub generation: usize,
 }
 
 impl GAMetadata {
@@ -192,6 +192,8 @@ where
 
       // 6. Check for stop condition (Is good enough individual found)? If not goto 2.
       self.evaluate_fitness_in_population(&mut population);
+
+      self.config.probe.on_new_generation(&self.metadata, &population);
 
       let best_individual = GeneticAlgorithm::<T, M, C, S, P, Pr>::find_best_individual(&population);
       self

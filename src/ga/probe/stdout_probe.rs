@@ -28,7 +28,7 @@ impl<T: Chromosome> Probe<T> for StdoutProbe {
     );
   }
 
-  fn on_new_generation(&mut self, _generation: &[Individual<T>]) {
+  fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[Individual<T>]) {
     // TODO: Take reference to whole generation as a parameter and display it here!
     // We don't want to print anything on new generation right now
   }

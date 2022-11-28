@@ -49,10 +49,10 @@ impl<T: Chromosome, Pc: ProbingPolicy<T>, Pr: Probe<T>> Probe<T> for PolicyDrive
     }
   }
 
-  fn on_new_generation(&mut self, generation: &[Individual<T>]) {
+  fn on_new_generation(&mut self, metadata: &GAMetadata, generation: &[Individual<T>]) {
     /* defaults to noop */
-    if self.policy.on_new_generation(generation) {
-      self.probe.on_new_generation(generation);
+    if self.policy.on_new_generation(metadata, generation) {
+      self.probe.on_new_generation(metadata, generation);
     }
   }
 
