@@ -12,7 +12,7 @@ type Rvc = Vec<f64>;
 pub struct RealValuedBuilder {
   config: GAConfigOpt<
     Rvc,
-    Interchange,
+    Interchange<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
     RandomPoints,
@@ -73,7 +73,7 @@ impl RealValuedBuilder {
     mut self,
   ) -> GeneticAlgorithm<
     Rvc,
-    Interchange,
+    Interchange<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
     RandomPoints,

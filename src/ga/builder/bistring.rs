@@ -12,7 +12,7 @@ type Bsc = Vec<bool>;
 pub struct BitStringBuilder {
   config: GAConfigOpt<
     Bsc,
-    FlipBit,
+    FlipBit<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
     BitStrings,
@@ -73,7 +73,7 @@ impl BitStringBuilder {
     mut self,
   ) -> GeneticAlgorithm<
     Bsc,
-    FlipBit,
+    FlipBit<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
     BitStrings,
