@@ -4,7 +4,7 @@ use std::ops::Index;
 
 use crate::ga::individual::{Chromosome, Individual};
 use push_trait::{Nothing, Push};
-use rand::Rng;
+use rand::{rngs::ThreadRng, Rng};
 
 /// # Crossover Operator
 ///
@@ -29,19 +29,29 @@ pub trait CrossoverOperator<T: Chromosome> {
 /// Second child gets `parent_2`'s first part and `parent_1`'s second part.
 ///
 /// Degenerated case when cutpoint is selected at index 0 or last can occur.
-pub struct SinglePoint;
+pub struct SinglePoint<R: Rng> {
+  rng: R,
+}
 
-impl SinglePoint {
-  /// Creates new [self::SinglePoint] crossover operator
+impl SinglePoint<ThreadRng> {
+  /// Creates new [SinglePoint] crossover operator with default RNG
   pub fn new() -> Self {
-    SinglePoint {}
+    Self::with_rng(rand::thread_rng())
   }
 }
 
-impl<GeneT, ChT> CrossoverOperator<ChT> for SinglePoint
+impl<R: Rng> SinglePoint<R> {
+  /// Creates new [SinglePoint] crossover operator with custom RNG
+  pub fn with_rng(rng: R) -> Self {
+    Self { rng }
+  }
+}
+
+impl<GeneT, ChT, R> CrossoverOperator<ChT> for SinglePoint<R>
 where
   ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
   GeneT: Copy,
+  R: Rng,
 {
   /// Returns a tuple of children
   ///
@@ -61,7 +71,7 @@ where
     parent_2: &Individual<ChT>,
   ) -> (Individual<ChT>, Individual<ChT>) {
     let chromosome_len = parent_1.chromosome_ref().len();
-    let cut_point = rand::thread_rng().gen_range(0..chromosome_len);
+    let cut_point = self.rng.gen_range(0..chromosome_len);
 
     let mut child_1: Individual<ChT> = Individual::new();
     let mut child_2: Individual<ChT> = Individual::new();
@@ -97,19 +107,29 @@ where
 /// Its mechanism is analoguous to [self::SinglePoint].
 ///
 /// Degenerate case when both cutpoints are in the same place or at position 0 or last can occur.
-pub struct TwoPoint;
+pub struct TwoPoint<R: Rng> {
+  rng: R,
+}
 
-impl TwoPoint {
-  /// Creates new [self::TwoPoint] crossover operator
+impl TwoPoint<ThreadRng> {
+  /// Creates new [TwoPoint] crossover operator with default RNG
   pub fn new() -> Self {
-    TwoPoint {}
+    Self::with_rng(rand::thread_rng())
   }
 }
 
-impl<GeneT, ChT> CrossoverOperator<ChT> for TwoPoint
+impl<R: Rng> TwoPoint<R> {
+  /// Creates new [TwoPoint] crossover operator with custom RNG
+  pub fn with_rng(rng: R) -> Self {
+    TwoPoint { rng }
+  }
+}
+
+impl<GeneT, ChT, R> CrossoverOperator<ChT> for TwoPoint<R>
 where
   ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
   GeneT: Copy,
+  R: Rng,
 {
   /// Returns a tuple of children
   ///
@@ -137,8 +157,8 @@ where
     let chromosome_len = parent_1.chromosome_ref().len();
 
     let cut_points = (
-      rand::thread_rng().gen_range(0..chromosome_len),
-      rand::thread_rng().gen_range(0..chromosome_len),
+      self.rng.gen_range(0..chromosome_len),
+      self.rng.gen_range(0..chromosome_len),
     );
 
     let (cut_point_1, cut_point_2) = if cut_points.0 <= cut_points.1 {
@@ -188,33 +208,47 @@ where
 /// It works analogously to [self::SinglePoint] or [self::TwoPoint]. One important difference is that
 /// all cutpoints are distinct, thus single or two point crossover with guarantee of distinct cutpoints
 /// can be achieved.
-pub struct MultiPoint {
+pub struct MultiPoint<R: Rng> {
   cut_points_no: usize,
+  rng: R,
 }
 
-impl MultiPoint {
-  /// Creates new [self::MultiPoint] crossover operator
+impl MultiPoint<ThreadRng> {
+  /// Creates new [self::MultiPoint] crossover operator with default RNG
   ///
   /// ## Arguments
   ///
   /// * `cut_points_no` - Number of cutpoints (crossover points)
   pub fn new(cut_points_no: usize) -> Self {
-    assert!(cut_points_no >= 1, "Number of cut points must be >= 1");
-    MultiPoint { cut_points_no }
+    Self::with_rng(cut_points_no, rand::thread_rng())
   }
 }
 
-impl Default for MultiPoint {
-  /// Creates new [self::MultiPoint] crossover operator with 4 cutpoints
+impl Default for MultiPoint<ThreadRng> {
+  /// Creates new [self::MultiPoint] crossover operator with 4 cutpoints and default RNG
   fn default() -> Self {
-    MultiPoint { cut_points_no: 4 }
+    Self::with_rng(4, rand::thread_rng())
   }
 }
 
-impl<GeneT, ChT> CrossoverOperator<ChT> for MultiPoint
+impl<R: Rng> MultiPoint<R> {
+  /// Creates new [self::MultiPoint] crossover operator with custom RNG
+  ///
+  /// ## Arguments
+  ///
+  /// * `cut_points_no` - Number of cutpoints (crossover points)
+  /// * `rng` - Custom random number generator
+  pub fn with_rng(cut_points_no: usize, rng: R) -> Self {
+    assert!(cut_points_no >= 1, "Number of cut points must be >= 1");
+    Self { cut_points_no, rng }
+  }
+}
+
+impl<GeneT, ChT, R> CrossoverOperator<ChT> for MultiPoint<R>
 where
   ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
   GeneT: Copy,
+  R: Rng,
 {
   /// Returns a tuple of children
   ///
@@ -245,7 +279,7 @@ where
     let chromosome_len = parent_1.chromosome_ref().len();
 
     let mut cut_points =
-      rand::seq::index::sample(&mut rand::thread_rng(), chromosome_len, self.cut_points_no).into_vec();
+      rand::seq::index::sample(&mut self.rng, chromosome_len, self.cut_points_no).into_vec();
     cut_points.sort_unstable();
 
     let mut child_1: Individual<ChT> = Individual::new();
@@ -294,19 +328,29 @@ where
 ///
 /// It works by creating a bit-mask of chromosome length. 1 means that gene should be taken from first
 /// parent, 0 means that gene should be take from second parent. This is inverted when creating second child.
-pub struct Uniform;
+pub struct Uniform<R: Rng + Clone> {
+  rng: R,
+}
 
-impl Uniform {
-  /// Creates new [self::Uniform] crossover operator
+impl Uniform<ThreadRng> {
+  /// Creates new [Uniform] crossover operator with default RNG
   pub fn new() -> Self {
-    Uniform {}
+    Self::with_rng(rand::thread_rng())
   }
 }
 
-impl<GeneT, ChT> CrossoverOperator<ChT> for Uniform
+impl<R: Rng + Clone> Uniform<R> {
+  /// Creates new [Uniform] crossover operator with custom RNG
+  pub fn with_rng(rng: R) -> Self {
+    Self { rng }
+  }
+}
+
+impl<GeneT, ChT, R> CrossoverOperator<ChT> for Uniform<R>
 where
   ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
   GeneT: Copy,
+  R: Rng + Clone,
 {
   /// Returns a tuple of children
   ///
@@ -333,7 +377,9 @@ where
     let mut child_1: Individual<ChT> = Individual::new();
     let mut child_2: Individual<ChT> = Individual::new();
 
-    let mask = rand::thread_rng()
+    let mask = self
+      .rng
+      .clone()
       .sample_iter(rand::distributions::Uniform::new(0.0, 1.0))
       .take(chromosome_len);
 
@@ -371,12 +417,20 @@ where
 /// Ch : 5 <b>4 1 3</b> 2
 ///
 /// Degenerated case when substring has length equal to genome length can occur.
-pub struct OrderedCrossover;
+pub struct OrderedCrossover<R: Rng> {
+  rng: R,
+}
 
-impl OrderedCrossover {
-  /// Creates new [OrderedCrossover] crossover operator
+impl OrderedCrossover<ThreadRng> {
+  /// Creates new [OrderedCrossover] crossover operator with default RNG
   pub fn new() -> Self {
-    OrderedCrossover {}
+    Self::with_rng(rand::thread_rng())
+  }
+}
+
+impl<R: Rng> OrderedCrossover<R> {
+  pub fn with_rng(rng: R) -> Self {
+    Self { rng }
   }
 
   /// Helper function for [OrderedCrossover::apply]
@@ -431,10 +485,11 @@ impl OrderedCrossover {
   }
 }
 
-impl<GeneT, ChT> CrossoverOperator<ChT> for OrderedCrossover
+impl<GeneT, ChT, R> CrossoverOperator<ChT> for OrderedCrossover<R>
 where
   ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
   GeneT: Copy + Eq + Hash,
+  R: Rng,
 {
   /// Returns a tuple of children, first child is created by taking a substring from parent_1,
   /// second child is created by using a substring from parent_2
@@ -465,8 +520,8 @@ where
 
     let chromosome_len = parent_1.chromosome_ref().len();
 
-    let begin: usize = rand::thread_rng().gen_range(0..chromosome_len);
-    let end: usize = rand::thread_rng().gen_range(begin..=chromosome_len);
+    let begin: usize = self.rng.gen_range(0..chromosome_len);
+    let end: usize = self.rng.gen_range(begin..=chromosome_len);
 
     let child_1 = self.create_child(parent_1, parent_2, begin, end);
     let child_2 = self.create_child(parent_2, parent_1, begin, end);
