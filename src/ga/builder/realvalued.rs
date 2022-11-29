@@ -10,7 +10,8 @@ use super::{DefaultParams, GAConfigOpt};
 type Rvc = Vec<f64>;
 
 pub struct RealValuedBuilder {
-  config: GAConfigOpt<Rvc, Interchange, SinglePoint, Tournament, RandomPoints, StdoutProbe>,
+  config:
+    GAConfigOpt<Rvc, Interchange, SinglePoint, Tournament<rand::rngs::ThreadRng>, RandomPoints, StdoutProbe>,
   dim: Option<usize>,
 }
 
@@ -64,7 +65,14 @@ impl RealValuedBuilder {
 
   pub fn build(
     mut self,
-  ) -> GeneticAlgorithm<Rvc, Interchange, SinglePoint, Tournament, RandomPoints, StdoutProbe> {
+  ) -> GeneticAlgorithm<
+    Rvc,
+    Interchange,
+    SinglePoint,
+    Tournament<rand::rngs::ThreadRng>,
+    RandomPoints,
+    StdoutProbe,
+  > {
     self.config.params.fill_from(&Self::DEFAULT_PARAMS);
 
     if self.config.fitness_fn.is_none() {
