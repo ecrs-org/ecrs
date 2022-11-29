@@ -191,3 +191,18 @@ fn boltzmann_returns_demanded_size() {
     "Selection operator must return population of expected size"
   );
 }
+
+#[test]
+fn random_returns_whole_population_in_order() {
+  let population_size = 42;
+  let dim = 21;
+
+  let population = RandomPoints::new(dim).generate(population_size);
+  let mut operator = Random::with_rng(rand::rngs::mock::StepRng::new(0, 1));
+
+  let selected = operator.apply(&GAMetadata::default(), &population, population_size);
+
+  for (expected, actual) in std::iter::zip(&population, selected) {
+    assert_eq!(expected, actual);
+  }
+}
