@@ -1,6 +1,6 @@
 use std::ops::Index;
 
-use rand::Rng;
+use rand::{rngs::ThreadRng, Rng};
 
 use crate::ga::{
   individual::{Chromosome, Individual},
@@ -51,19 +51,28 @@ pub trait SelectionOperator<T: Chromosome> {
 ///
 /// Individuals are selected with probability proportional to their fitness value. More specifically:
 /// probability of selecting chromosome `C` from population `P` is `fitness(C)` / `sum_of_fitness_in_whole_population`.
-pub struct RouletteWheel;
+pub struct RouletteWheel<R: Rng> {
+  rng: R,
+}
 
-impl RouletteWheel {
-  /// Returns new instance of [RouletteWheel] selection operator
+impl RouletteWheel<ThreadRng> {
+  /// Returns new instance of [RouletteWheel] selection operator with default RNG
   pub fn new() -> Self {
-    RouletteWheel {}
+    RouletteWheel::with_rng(rand::thread_rng())
+  }
+}
+
+impl<R: Rng> RouletteWheel<R> {
+  /// Returns new instance of [RouletteWheel] selection operator with custom RNG
+  pub fn with_rng(rng: R) -> Self {
+    RouletteWheel { rng }
   }
 }
 
 // FIXME: It will return empty vector if total_fitness == 0
 // WORKING CHANGE: crt >= threshold instead of crt_sum > threshold
 // But this should be resolved some other way
-impl<T: Chromosome> SelectionOperator<T> for RouletteWheel {
+impl<T: Chromosome, R: Rng> SelectionOperator<T> for RouletteWheel<R> {
   /// Returns a vector of references to individuals selected to mating pool
   ///
   /// **Note 1**: This selection operator requires positive fitness function. No runtime checks are performed
@@ -91,7 +100,7 @@ impl<T: Chromosome> SelectionOperator<T> for RouletteWheel {
     let mut selected: Vec<&Individual<T>> = Vec::with_capacity(count);
 
     for _ in 0..count {
-      let threshold = total_fitness * rand::random::<f64>();
+      let threshold = total_fitness * self.rng.gen::<f64>();
 
       let mut crt_sum = 0.0;
       for indiv in population {
@@ -114,16 +123,25 @@ impl<T: Chromosome> SelectionOperator<T> for RouletteWheel {
 /// Individuals are selected with uniform probability.
 ///
 /// **Note**: The same individual *can not* be selected mutiple times.
-pub struct Random;
+pub struct Random<R: Rng> {
+  rng: R,
+}
 
-impl Random {
-  /// Returns new instance of [Random] selection operator
+impl Random<ThreadRng> {
+  /// Returns new instance of [Random] selection operator with default RNG
   pub fn new() -> Self {
-    Random {}
+    Random::with_rng(rand::thread_rng())
   }
 }
 
-impl<T: Chromosome> SelectionOperator<T> for Random {
+impl<R: Rng> Random<R> {
+  /// Returns new instance of [Random] selection operator with custom RNG
+  pub fn with_rng(rng: R) -> Self {
+    Random { rng }
+  }
+}
+
+impl<T: Chromosome, R: Rng> SelectionOperator<T> for Random<R> {
   /// Returns a vector of references to individuals selected to mating pool.
   ///
   /// Individuals are selected with uniform probability.
@@ -142,7 +160,7 @@ impl<T: Chromosome> SelectionOperator<T> for Random {
     count: usize,
   ) -> Vec<&'a Individual<T>> {
     // We must use index API, as we want to return vector of references, not vector of actual items
-    let indices = rand::seq::index::sample(&mut rand::thread_rng(), population.len(), count);
+    let indices = rand::seq::index::sample(&mut self.rng, population.len(), count);
     let mut selected: Vec<&Individual<T>> = Vec::with_capacity(count);
 
     for i in indices {
@@ -160,16 +178,25 @@ impl<T: Chromosome> SelectionOperator<T> for Random {
 /// rated individual from selected pair goes to mating pool. In case of equal fitness - only one goes to mating pool.
 ///
 /// **Note**: The same individual *can* be selected multiple times.
-pub struct Rank;
+pub struct Rank<R: Rng> {
+  rng: R,
+}
 
-impl Rank {
-  /// Returns new instance of [Rank] selection operator
+impl Rank<ThreadRng> {
+  /// Returns new instance of [Rank] selection operator with default RNG
   pub fn new() -> Self {
-    Rank {}
+    Rank::with_rng(rand::thread_rng())
   }
 }
 
-impl<T: Chromosome> SelectionOperator<T> for Rank {
+impl<R: Rng> Rank<R> {
+  /// Returns new instance of [Rank] selection operator with custom RNG
+  pub fn with_rng(rng: R) -> Self {
+    Rank { rng }
+  }
+}
+
+impl<T: Chromosome, R: Rng> SelectionOperator<T> for Rank<R> {
   /// Returns a vector of references to individuals selected to mating pool.
   ///
   /// Individuals are selected by randomly (uniform distribution) choosing pairs of individuals - better
@@ -194,8 +221,8 @@ impl<T: Chromosome> SelectionOperator<T> for Rank {
     for _ in 0..count {
       // TODO: Consider creating two random index permutations and then iterating over them
       // instead of N times using random.
-      let p1 = &population[rand::thread_rng().gen_range(0..population_len)];
-      let p2 = &population[rand::thread_rng().gen_range(0..population_len)];
+      let p1 = &population[self.rng.gen_range(0..population_len)];
+      let p2 = &population[self.rng.gen_range(0..population_len)];
 
       selected.push(if p1.fitness >= p2.fitness { p1 } else { p2 })
     }
@@ -216,23 +243,36 @@ impl<T: Chromosome> SelectionOperator<T> for Rank {
 /// 4. Repeat 1-3 necessary number of times to create mating pool of demanded size
 ///
 /// **Note**: The same individual can be selected multiple times
-pub struct RankR {
+pub struct RankR<R: Rng> {
   r: f64,
+  rng: R,
 }
 
-impl RankR {
-  /// Returns new instance of [RankR] selection operator
+impl RankR<ThreadRng> {
+  /// Returns new instance of [RankR] selection operator with default RNG
   ///
   /// ### Arguments
   ///
   /// * `r` - threshold in range [0, 1]; see [RankR] description for explaination
   pub fn new(r: f64) -> Self {
-    assert!((0.0..=1.0).contains(&r));
-    RankR { r }
+    RankR::with_rng(r, rand::thread_rng())
   }
 }
 
-impl<T: Chromosome> SelectionOperator<T> for RankR {
+impl<R: Rng> RankR<R> {
+  /// Returns new instance of [RankR] selection operator with custom RNG
+  ///
+  /// ### Arguments
+  ///
+  /// * `r` - threshold in range [0, 1]; see [RankR] description for details
+  /// * `rng` - custom random number generator
+  pub fn with_rng(r: f64, rng: R) -> Self {
+    assert!((0.0..=1.0).contains(&r));
+    RankR { r, rng }
+  }
+}
+
+impl<T: Chromosome, R: Rng> SelectionOperator<T> for RankR<R> {
   /// Returns a vector of references to individuals selected to mating pool.
   ///
   /// Individuals are selected in following process:
@@ -263,10 +303,10 @@ impl<T: Chromosome> SelectionOperator<T> for RankR {
     for _ in 0..count {
       // TODO: Consider creating two random index permutations and then iterating over them
       // instead of N times using random.
-      let p1 = &population[rand::thread_rng().sample(distribution_for_ind)];
-      let p2 = &population[rand::thread_rng().sample(distribution_for_ind)];
+      let p1 = &population[self.rng.sample(distribution_for_ind)];
+      let p2 = &population[self.rng.sample(distribution_for_ind)];
 
-      selected.push(if rand::thread_rng().sample(distribution_for_rand) < self.r {
+      selected.push(if self.rng.sample(distribution_for_rand) < self.r {
         p1
       } else {
         p2
@@ -287,23 +327,35 @@ impl<T: Chromosome> SelectionOperator<T> for RankR {
 /// 1. Select `ceil(size_factor * population_size)` distinct, random individuals
 /// 2. Select one with the highest fitness
 /// 3. Repeat 1-2 number of times necessary to fill mating pool
-pub struct Tournament {
+pub struct Tournament<R: Rng> {
   size_factor: f64,
+  rng: R,
 }
 
-impl Tournament {
-  /// Returns new instance of [Tournament] selection operator
+impl Tournament<ThreadRng> {
+  /// Returns new instance of [Tournament] selection operator with default RNG
   ///
   /// ### Arguments
   ///
   /// * `size_factor` - part of population to take part in tournament for choosing single individual; must be in range [0, 1]
   pub fn new(size_factor: f64) -> Self {
-    assert!((0.0..=1.0).contains(&size_factor));
-    Tournament { size_factor }
+    Tournament::with_rng(size_factor, rand::thread_rng())
   }
 }
 
-impl<T: Chromosome> SelectionOperator<T> for Tournament {
+impl<R: Rng> Tournament<R> {
+  /// Returns new instance of [Tournament] selection operator with custom RNG
+  ///
+  /// ### Arguments
+  ///
+  /// * `size_factor` - part of population to take part in tournament for choosing single individual; must be in range [0, 1]
+  pub fn with_rng(size_factor: f64, rng: R) -> Self {
+    assert!((0.0..=1.0).contains(&size_factor));
+    Tournament { size_factor, rng }
+  }
+}
+
+impl<T: Chromosome, R: Rng> SelectionOperator<T> for Tournament<R> {
   /// Returns a vector of references to individuals selected to mating pool
   ///
   /// Individuals are selected by conducting given number of tournaments with single winner:
@@ -332,8 +384,7 @@ impl<T: Chromosome> SelectionOperator<T> for Tournament {
     let mut selected: Vec<&Individual<T>> = Vec::with_capacity(count);
 
     for _ in 0..count {
-      let tournament_indices =
-        rand::seq::index::sample(&mut rand::thread_rng(), population.len(), tournament_size);
+      let tournament_indices = rand::seq::index::sample(&mut self.rng, population.len(), tournament_size);
       // FIXME: Check wheter the tournament_indices is empty or handle option below.
       let best_idv = tournament_indices
         .into_iter()
@@ -368,18 +419,27 @@ impl<T: Chromosome> SelectionOperator<T> for Tournament {
 /// 3. Iterate over the pointers and select the individuals they point to
 ///
 /// See the source code for implemenation details
-pub struct StochasticUniversalSampling;
+pub struct StochasticUniversalSampling<R: Rng> {
+  rng: R,
+}
 
-impl StochasticUniversalSampling {
-  /// Returns new instance of [StochasticUniversalSampling] selection operator
+impl StochasticUniversalSampling<ThreadRng> {
+  /// Returns new instance of [StochasticUniversalSampling] selection operator with default RNG
   pub fn new() -> Self {
-    StochasticUniversalSampling {}
+    Self::with_rng(rand::thread_rng())
+  }
+}
+
+impl<R: Rng> StochasticUniversalSampling<R> {
+  /// Returns new instance of [StochasticUniversalSampling] selection operator with custom RNG
+  pub fn with_rng(rng: R) -> Self {
+    Self { rng }
   }
 }
 
 // FIXME: Panics then total_fitness == 0
 // Should this be expected or do we want to handle this?
-impl<T: Chromosome> SelectionOperator<T> for StochasticUniversalSampling {
+impl<T: Chromosome, R: Rng> SelectionOperator<T> for StochasticUniversalSampling<R> {
   /// Returns a vector of references to individuals selected to mating pool
   ///
   /// **Note**: This selection operator requires positive fitenss function. No runtime checks
@@ -419,7 +479,7 @@ impl<T: Chromosome> SelectionOperator<T> for StochasticUniversalSampling {
 
     assert!(distance_between_pointers > 0.0);
 
-    let mut pointer_pos = rand::thread_rng().gen_range(0.0..=distance_between_pointers);
+    let mut pointer_pos = self.rng.gen_range(0.0..=distance_between_pointers);
 
     let mut curr_sum = 0.0;
     for idv in population {
@@ -441,15 +501,16 @@ impl<T: Chromosome> SelectionOperator<T> for StochasticUniversalSampling {
 ///
 /// This struct implements [SelectionOperator] trait and can be used with GA
 ///
-pub struct Boltzmann {
+pub struct Boltzmann<R: Rng> {
   alpha: f64,
   max_gen_count: usize, // FIXME: This should be removed after operators are passed whole algorithm state & config
   temp_0: f64,
   elitism: bool, // FIXME: Make use of elitism strategy
+  rng: R,
 }
 
-impl Boltzmann {
-  /// Returns new instance of [Boltzmann] selection operator
+impl Boltzmann<ThreadRng> {
+  /// Returns new instance of [Boltzmann] selection operator with default RNG
   ///
   /// ### Arguments
   ///
@@ -458,6 +519,21 @@ impl Boltzmann {
   /// * `max_gen_count` - maximum number of generations GA can run; this param will be removed in future version of the library
   /// * `elitism` - set to true to ensure that best individuals end in mating pool no matter operator results; **not supported yet**
   pub fn new(alpha: f64, temp_0: f64, max_gen_count: usize, elitism: bool) -> Self {
+    Self::with_rng(alpha, temp_0, max_gen_count, elitism, rand::thread_rng())
+  }
+}
+
+impl<R: Rng> Boltzmann<R> {
+  /// Returns new instance of [Boltzmann] selection operator with default RNG
+  ///
+  /// ### Arguments
+  ///
+  /// * `alpha` - prameter that controlls temperature scaling; must be in [0, 1] range
+  /// * `temp_0` - initial temperature for the operator
+  /// * `max_gen_count` - maximum number of generations GA can run; this param will be removed in future version of the library
+  /// * `elitism` - set to true to ensure that best individuals end in mating pool no matter operator results; **not supported yet**
+  /// * `rng` - custom random number generator
+  pub fn with_rng(alpha: f64, temp_0: f64, max_gen_count: usize, elitism: bool, rng: R) -> Self {
     assert!(
       (0.0..=1.0).contains(&alpha),
       "Alpha parameter must be a value from [0, 1] interval"
@@ -472,13 +548,15 @@ impl Boltzmann {
       max_gen_count,
       temp_0,
       elitism,
+      rng,
     }
   }
 }
 
-impl<T> SelectionOperator<T> for Boltzmann
+impl<T, R> SelectionOperator<T> for Boltzmann<R>
 where
   T: Chromosome + Index<usize, Output = f64>,
+  R: Rng,
 {
   fn apply<'a>(
     &mut self,
@@ -496,7 +574,7 @@ where
       weights.push((-idv.fitness / temp).exp())
     }
 
-    let Ok(indices) = rand::seq::index::sample_weighted(&mut rand::thread_rng(), population.len(), |i| weights[i], count) else {
+    let Ok(indices) = rand::seq::index::sample_weighted(&mut self.rng, population.len(), |i| weights[i], count) else {
 			panic!("Some error occured while generating indices. This is most likely an library implementation error. Please file an issue: https://github.com/kkafar/evolutionary-algorithms");
 		};
 
