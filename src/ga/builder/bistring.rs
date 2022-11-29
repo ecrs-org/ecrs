@@ -10,7 +10,14 @@ use super::{DefaultParams, GAConfigOpt};
 type Bsc = Vec<bool>;
 
 pub struct BitStringBuilder {
-  config: GAConfigOpt<Bsc, FlipBit, SinglePoint, Tournament, BitStrings, StdoutProbe>,
+  config: GAConfigOpt<
+    Bsc,
+    FlipBit<rand::rngs::ThreadRng>,
+    SinglePoint<rand::rngs::ThreadRng>,
+    Tournament<rand::rngs::ThreadRng>,
+    BitStrings,
+    StdoutProbe,
+  >,
   dim: Option<usize>,
 }
 
@@ -62,7 +69,16 @@ impl BitStringBuilder {
     self
   }
 
-  pub fn build(mut self) -> GeneticAlgorithm<Bsc, FlipBit, SinglePoint, Tournament, BitStrings, StdoutProbe> {
+  pub fn build(
+    mut self,
+  ) -> GeneticAlgorithm<
+    Bsc,
+    FlipBit<rand::rngs::ThreadRng>,
+    SinglePoint<rand::rngs::ThreadRng>,
+    Tournament<rand::rngs::ThreadRng>,
+    BitStrings,
+    StdoutProbe,
+  > {
     self.config.params.fill_from(&Self::DEFAULT_PARAMS);
 
     if self.config.fitness_fn.is_none() {
