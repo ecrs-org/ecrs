@@ -81,7 +81,7 @@ where
   /// Population generator. See [PopulationGenerator](crate::ga::population::PopulationGenerator) for details.
   pub population_factory: P,
 
-	/// Probe. See [Probe](crate::ga::probe::Probe) for details.
+  /// Probe. See [Probe](crate::ga::probe::Probe) for details.
   pub probe: Pr,
 }
 
@@ -90,14 +90,14 @@ where
 /// This struct is passed to probes, so they can make better decisions whether to log or not.
 #[derive(Default)]
 pub struct GAMetadata {
-	/// Computations start time. This field is filled just after GA's `run` method starts executing.
-	/// You can expect it to be always defined (the value is `Some`).
+  /// Computations start time. This field is filled just after GA's `run` method starts executing.
+  /// You can expect it to be always defined (the value is `Some`).
   pub start_time: Option<std::time::Instant>,
 
-	/// Duration of the computations. Measured in the very beginning of main loop (each iteration).
+  /// Duration of the computations. Measured in the very beginning of main loop (each iteration).
   pub duration: Option<std::time::Duration>,
 
-	/// Current generation number. Before entering the main loop it is equal to `0`.
+  /// Current generation number. Before entering the main loop it is equal to `0`.
   pub generation: usize,
 }
 
