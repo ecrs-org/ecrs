@@ -25,33 +25,33 @@ pub struct GAParams {
   pub selection_rate: f64,
 
   /// Describes chance of a individual gene to be mutated
-  /// 
+  ///
   /// This parameter is passed down to a mutation operator
-  /// 
+  ///
   /// Must be in range [0, 1]
   pub mutation_rate: f64,
 
   /// Number of individuals in population
-  /// 
+  ///
   /// In current implementation of the algorithm the size of population
   /// is constant throughout generations
   pub population_size: usize,
 
   /// Maximum number of generations (search termination)
-  /// 
+  ///
   /// This works interchangeably with `max_duration` - first limit hit terminates the algorithm
   pub generation_limit: usize,
 
   /// Maximum duration of computations (search termination)
-  /// 
+  ///
   /// This works interchangeably with `generation_limit` - first limit hit terminates the algorithm
   pub max_duration: std::time::Duration,
 }
 
 /// Configuration for the genetic algorithm
-/// 
+///
 /// It describes initial parameters & operators for the algorithm
-/// 
+///
 /// Configuration of genetic algorithm is done via builder interface though
 pub struct GAConfig<T, M, C, S, P, Pr>
 where
@@ -66,7 +66,7 @@ where
   pub params: GAParams,
 
   /// Fitness function. It must operate on a solution representation - chromosome. Should return `f64`.
-  /// Please note that some of the genetic operators require fitness function to be positive. 
+  /// Please note that some of the genetic operators require fitness function to be positive.
   pub fitness_fn: FitnessFn<T>,
 
   /// Mutation operator. See [MutationOperator](crate::ga::operators::mutation::MutationOperator) for details.
@@ -81,14 +81,23 @@ where
   /// Population generator. See [PopulationGenerator](crate::ga::population::PopulationGenerator) for details.
   pub population_factory: P,
 
-  
+	/// Probe. See [Probe](crate::ga::probe::Probe) for details.
   pub probe: Pr,
 }
 
+/// Structure representing advancement of the computations
+///
+/// This struct is passed to probes, so they can make better decisions whether to log or not.
 #[derive(Default)]
 pub struct GAMetadata {
+	/// Computations start time. This field is filled just after GA's `run` method starts executing.
+	/// You can expect it to be always defined (the value is `Some`).
   pub start_time: Option<std::time::Instant>,
+
+	/// Duration of the computations. Measured in the very beginning of main loop (each iteration).
   pub duration: Option<std::time::Duration>,
+
+	/// Current generation number. Before entering the main loop it is equal to `0`.
   pub generation: usize,
 }
 
@@ -106,6 +115,9 @@ impl GAMetadata {
   }
 }
 
+/// Custom implementation of genetic algorithm.
+///
+/// TODO: Extensive description
 pub struct GeneticAlgorithm<T, M, C, S, P, Pr>
 where
   T: Chromosome,
