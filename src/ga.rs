@@ -48,6 +48,11 @@ pub struct GAParams {
   pub max_duration: std::time::Duration,
 }
 
+/// Configuration for the genetic algorithm
+/// 
+/// It describes initial parameters & operators for the algorithm
+/// 
+/// Configuration of genetic algorithm is done via builder interface though
 pub struct GAConfig<T, M, C, S, P, Pr>
 where
   T: Chromosome,
@@ -57,13 +62,26 @@ where
   P: PopulationGenerator<T>,
   Pr: Probe<T>,
 {
+  /// Set of parameters for the genetic algorithm. See [GAParams] for details.
   pub params: GAParams,
-  // pub ops: GAOps<S>,
+
+  /// Fitness function. It must operate on a solution representation - chromosome. Should return `f64`.
+  /// Please note that some of the genetic operators require fitness function to be positive. 
   pub fitness_fn: FitnessFn<T>,
+
+  /// Mutation operator. See [MutationOperator](crate::ga::operators::mutation::MutationOperator) for details.
   pub mutation_operator: M,
+
+  /// Crossover operator. See [CrossoverOperator](create::ga::operators::crossover::CrossoverOperator) for details.
   pub crossover_operator: C,
+
+  /// Selection operator. See [SelectionOperator](crate::ga::operators::selection::SelectionOperator) for details.
   pub selection_operator: S,
+
+  /// Population generator. See [PopulationGenerator](crate::ga::population::PopulationGenerator) for details.
   pub population_factory: P,
+
+  
   pub probe: Pr,
 }
 
