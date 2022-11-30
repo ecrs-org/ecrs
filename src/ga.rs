@@ -19,25 +19,34 @@ use self::{
 
 type FitnessFn<S> = fn(&S) -> f64;
 
+/// Parameters for the genetic algorithm
 pub struct GAParams {
+  /// **Unused for now**
   pub selection_rate: f64,
+
+  /// Describes chance of a individual gene to be mutated
+  /// 
+  /// This parameter is passed down to a mutation operator
+  /// 
+  /// Must be in range [0, 1]
   pub mutation_rate: f64,
+
+  /// Number of individuals in population
+  /// 
+  /// In current implementation of the algorithm the size of population
+  /// is constant throughout generations
   pub population_size: usize,
+
+  /// Maximum number of generations (search termination)
+  /// 
+  /// This works interchangeably with `max_duration` - first limit hit terminates the algorithm
   pub generation_limit: usize,
+
+  /// Maximum duration of computations (search termination)
+  /// 
+  /// This works interchangeably with `generation_limit` - first limit hit terminates the algorithm
   pub max_duration: std::time::Duration,
 }
-
-// impl Default for GAParams {
-//   fn default() -> Self {
-//     Self {
-//       selection_rate: 0.5f64,
-//       mutation_rate: 0.05,
-//       population_size: 100,
-//       generation_limit: 200,
-//       max_duration: None,
-//     }
-//   }
-// }
 
 pub struct GAConfig<T, M, C, S, P, Pr>
 where
