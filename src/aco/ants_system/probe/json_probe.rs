@@ -39,6 +39,9 @@ impl Serialize for IterationData {
   }
 }
 
+/// Probe implementation for writing algorithm output into a json file.
+///
+/// Data is flushed only after algorithm ends.
 pub struct JsonProbe {
   file_path: String,
   iterations: Vec<IterationData>,

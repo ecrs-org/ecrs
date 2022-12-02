@@ -1,7 +1,3 @@
-//! Probe implementation for writing algorithm output into a csv file.
-//!
-//! Data is flushed only after algorithm ends.
-
 use serde::Serialize;
 
 use crate::aco::ants_system::probe::Probe;
@@ -25,6 +21,9 @@ struct FMatrixRecord {
   val: f64,
 }
 
+/// Probe implementation for writing algorithm output into a csv file.
+///
+/// Data is flushed only after algorithm ends.
 pub struct CsvProbe {
   iteration: usize,
   best_sols: Vec<BestSolutionRecord>,
