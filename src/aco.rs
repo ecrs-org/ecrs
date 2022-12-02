@@ -8,9 +8,9 @@
 //! * <http://www.scholarpedia.org/article/Ant_colony_optimization>
 //!
 //! Look at [Builder](Builder) for parameters overview and
-//! at [AntSystem](ants_system::AntSystem) for interface details
+//! at [AntSystem](AntSystem) for interface details
 //!
-//! Logging system details can be found [here](ants_system::probe)
+//! Logging system details can be found [here](probe)
 //!
 //! ## Example
 //! Solving TSP using AntSystem
@@ -48,7 +48,7 @@ fn into_vec(m: &FMatrix) -> Vec<Vec<f64>> {
   let mut m_vec: Vec<Vec<f64>> = Vec::new();
 
   for row in m.row_iter() {
-    m_vec.push(row.iter().map(|x| x.clone()).collect_vec());
+    m_vec.push(row.iter().copied().collect_vec());
   }
   m_vec
 }

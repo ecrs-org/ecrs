@@ -1,4 +1,4 @@
-use crate::aco::probe::{StdoutProbe, Probe};
+use crate::aco::probe::{Probe, StdoutProbe};
 use crate::aco::FMatrix;
 
 /// Struct wrapping all parameters needed for Ant System Algorithm.
