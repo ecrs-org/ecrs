@@ -1,4 +1,4 @@
-use crate::aco::probe::{ConsoleProbe, Probe};
+use crate::aco::probe::{StdoutProbe, Probe};
 use crate::aco::FMatrix;
 
 /// Struct wrapping all parameters needed for Ant System Algorithm.
@@ -35,7 +35,7 @@ impl Default for AntSystemCfg {
       evaporation_rate: 0.1,
       ants_num: 10,
       iteration: 300,
-      probe: Box::new(ConsoleProbe::new()),
+      probe: Box::new(StdoutProbe::new()),
     }
   }
 }

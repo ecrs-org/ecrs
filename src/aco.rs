@@ -34,6 +34,7 @@ pub(self) use ant_system_cfg::AntSystemCfg;
 pub use ants_system::builder::Builder;
 pub use ants_system::probe;
 pub use ants_system::AntSystem;
+use itertools::Itertools;
 use nalgebra::{Dynamic, OMatrix};
 use rand::Rng;
 use std::error::Error;
@@ -42,6 +43,15 @@ mod ant_system_cfg;
 mod ants_system;
 
 pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
+
+fn into_vec(m: &FMatrix) -> Vec<Vec<f64>> {
+  let mut m_vec: Vec<Vec<f64>> = Vec::new();
+
+  for row in m.row_iter() {
+    m_vec.push(row.iter().map(|x| x.clone()).collect_vec());
+  }
+  m_vec
+}
 
 /// Utility function for generating heuristic from cost(weights)
 pub fn create_heuristic_from_weights(weights: &FMatrix) -> FMatrix {

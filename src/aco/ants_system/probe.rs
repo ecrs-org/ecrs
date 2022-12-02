@@ -3,14 +3,15 @@
 //! To get data fom algorithm you must pass some kind of probe to AntSystem class.
 //! you can implement your own probe using [Probe](Probe) trait or use one of provided implementations.
 
-pub use console_probe::ConsoleProbe;
 pub use csv_probe::CsvProbe;
+pub use stdout_probe::StdoutProbe;
 
 use crate::aco::ants_system::Solution;
 use crate::aco::FMatrix;
 
-mod console_probe;
 mod csv_probe;
+mod json_probe;
+mod stdout_probe;
 
 pub trait Probe {
   /// Called when algorithm finds a new best solution overall.
