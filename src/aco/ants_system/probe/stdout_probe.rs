@@ -1,11 +1,11 @@
-//! Simple Probe implementation for writing algorithm output onto console.
 use crate::aco::ants_system::probe::Probe;
 use crate::aco::ants_system::Solution;
 use crate::aco::FMatrix;
 
-pub struct ConsoleProbe {}
+/// Simple Probe implementation for writing algorithm output onto standard output.
+pub struct StdoutProbe {}
 
-impl Probe for ConsoleProbe {
+impl Probe for StdoutProbe {
   fn on_new_best(&mut self, _best_sol: &Solution) {
     println!("New best!!!");
   }
@@ -29,9 +29,9 @@ impl Probe for ConsoleProbe {
   }
 }
 
-impl ConsoleProbe {
+impl StdoutProbe {
   /// Constructor
-  pub fn new() -> ConsoleProbe {
-    ConsoleProbe {}
+  pub fn new() -> StdoutProbe {
+    StdoutProbe {}
   }
 }

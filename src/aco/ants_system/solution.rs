@@ -1,6 +1,9 @@
 use std::cmp::Ordering;
 
+use crate::aco::into_vec;
 use nalgebra::{Dynamic, OMatrix, RealField};
+use serde::ser::SerializeStruct;
+use serde::{Serialize, Serializer};
 
 type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 
@@ -17,6 +20,20 @@ impl Default for Solution {
       matrix: FMatrix::zeros(0, 0),
       cost: f64::max_value().unwrap(),
     }
+  }
+}
+
+impl Serialize for Solution {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    let mut s_struct = serializer.serialize_struct("solution", 2)?;
+    let solution = into_vec(&self.matrix);
+    s_struct.serialize_field("matrix", &solution)?;
+    s_struct.serialize_field("cost", &self.cost)?;
+
+    s_struct.end()
   }
 }
 

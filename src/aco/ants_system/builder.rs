@@ -109,7 +109,7 @@ impl Builder {
   /// * `evaporation_rate` - 0.1
   /// * `ants_num` - 10
   /// * `iterations` - 300
-  /// * `probe` - [crate::aco::probe::ConsoleProbe]
+  /// * `probe` - [crate::aco::probe::StdoutProbe]
   pub fn build(mut self) -> AntSystem {
     let (nrow, ncol) = self.conf.weights.shape();
 
