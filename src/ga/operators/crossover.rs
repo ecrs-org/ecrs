@@ -571,7 +571,7 @@ impl<R: Rng> PPXCrossover<R> {
     &self,
     p1: &Individual<ChT>,
     p2: &Individual<ChT>,
-    take_from_p1: &Vec<bool>,
+    take_from_p1: &[bool],
   ) -> Individual<ChT>
   where
     ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
