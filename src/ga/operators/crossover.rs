@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use std::collections::HashSet;
 use std::hash::Hash;
 use std::ops::Index;
@@ -525,6 +526,125 @@ where
 
     let child_1 = self.create_child(parent_1, parent_2, begin, end);
     let child_2 = self.create_child(parent_2, parent_1, begin, end);
+
+    (child_1, child_2)
+  }
+}
+
+/// # PPX crossover operator
+///
+/// This struct implements [CrossoverOperator] trait and can be used with GA.
+///
+/// PPX (Precedence Preservative Crossover), genes are taken in order they appear in parent,
+/// parent is chosen at random, if gene was already taken from other parent then the next un-taken gene
+/// is chosen
+///
+/// P1         : <i>2 4 1 3 5</i> <br>
+/// P2         : <b>5 2 1 4 3</b> <br>
+/// Gene source: 1 1 2 1 2 <br>
+/// Ch         : <i> 2 4 </i> <b> 5 </b> <i> 1<i/> <b> 3</b>
+///
+/// Degenerated case when all genes are taken from the same parent.
+pub struct PPXCrossover<R: Rng> {
+  rng: R,
+}
+
+impl PPXCrossover<ThreadRng> {
+  /// Creates new [PPXCrossover] crossover operator with default RNG
+  pub fn new() -> Self {
+    Self::with_rng(rand::thread_rng())
+  }
+}
+
+impl<R: Rng> PPXCrossover<R> {
+  pub fn with_rng(rng: R) -> Self {
+    Self { rng }
+  }
+
+  /// Helper function for [PPXCrossover::apply]
+  /// ## Arguments
+  ///
+  /// * `p1` - First parent to take part in crossover
+  /// * `p2` - Second parent to take part in crossover
+  /// * `take_from_p1` - Which genes should be taken from p1
+  fn create_child<GeneT, ChT>(
+    &self,
+    p1: &Individual<ChT>,
+    p2: &Individual<ChT>,
+    take_from_p1: &Vec<bool>,
+  ) -> Individual<ChT>
+  where
+    ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    GeneT: Copy + Eq + Hash,
+  {
+    let chromosome_len = p1.chromosome_ref().len();
+
+    let mut already_taken: HashSet<GeneT> = HashSet::new();
+
+    let mut child: Individual<ChT> = Individual::new();
+    let mut index_p: [usize; 2] = [0, 0];
+    let parents = [p1, p2];
+
+    while child.chromosome_ref().len() < chromosome_len {
+      let index_child = child.chromosome_ref().len();
+      let parent_i: usize = if take_from_p1[index_child] { 0 } else { 1 };
+
+      while child.chromosome_ref().len() == index_child {
+        let gene = parents[parent_i].chromosome_ref()[index_p[parent_i]];
+        index_p[parent_i] += 1;
+
+        if !already_taken.contains(&gene) {
+          already_taken.push(gene);
+          child.chromosome_ref_mut().push(gene);
+        }
+      }
+    }
+
+    child
+  }
+}
+
+impl<GeneT, ChT, R> CrossoverOperator<ChT> for PPXCrossover<R>
+where
+  ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+  GeneT: Copy + Eq + Hash,
+  R: Rng,
+{
+  /// Returns a tuple of children, first child is created by using parent_1 as first parent,
+  /// second child is created by using a parent_1 as the second parent.
+  ///
+  /// PPX (Precedence Preservative Crossover), genes are taken in order they appear in parent,
+  /// parent is chosen at random, if gene was already taken from other parent then the next un-taken gene
+  /// is chosen
+  ///
+  /// P1         : <i>2 4 1 3 5</i> <br>
+  /// P2         : <b>5 2 1 4 3</b> <br>
+  /// Gene source: 1 1 2 1 2 <br>
+  /// Ch         : <i> 2 4 </i> <b> 5 </b> <i> 1<i/> <b> 3</b>
+  ///
+  /// Degenerated case when all genes are taken from the same parent.
+  ///
+  /// ## Arguments
+  ///
+  /// * `parent_1` - one of the parents to take part in crossover
+  /// * `parent_2` - one of the parents to take part in crossover
+  fn apply(
+    &mut self,
+    parent_1: &Individual<ChT>,
+    parent_2: &Individual<ChT>,
+  ) -> (Individual<ChT>, Individual<ChT>) {
+    assert_eq!(
+      parent_1.chromosome_ref().len(),
+      parent_2.chromosome_ref().len(),
+      "Parent chromosome length must match"
+    );
+
+    let chromosome_len = parent_1.chromosome_ref().len();
+
+    let take_from_p1: Vec<bool> = (0..chromosome_len).map(|_| self.rng.gen()).collect_vec();
+
+    let child_1 = self.create_child(parent_1, parent_2, &take_from_p1);
+    let child_2 = self.create_child(parent_2, parent_1, &take_from_p1);
 
     (child_1, child_2)
   }
