@@ -557,6 +557,7 @@ impl PPXCrossover<ThreadRng> {
 }
 
 impl<R: Rng> PPXCrossover<R> {
+  /// Creates new [PPXCrossover] crossover operator with custom RNG
   pub fn with_rng(rng: R) -> Self {
     Self { rng }
   }
@@ -622,7 +623,7 @@ where
   /// Gene source: 1 1 2 1 2 <br>
   /// Ch         : <i> 2 4 </i> <b> 5 </b> <i> 1<i/> <b> 3</b>
   ///
-  /// Degenerated case when all genes are taken from the same parent.
+  /// Degenerated case when all genes are taken from the same parent can occur.
   ///
   /// ## Arguments
   ///
