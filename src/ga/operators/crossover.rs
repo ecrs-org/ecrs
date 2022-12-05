@@ -642,7 +642,10 @@ where
 
     let chromosome_len = parent_1.chromosome_ref().len();
 
-    let take_from_p1: Vec<bool> = (0..chromosome_len).map(|_| self.rng.gen()).collect_vec();
+    let take_from_p1: Vec<bool> = (&mut self.rng)
+      .sample_iter(&rand::distributions::Standard)
+      .take(chromosome_len)
+      .collect_vec();
 
     let child_1 = self.create_child(parent_1, parent_2, &take_from_p1);
     let child_2 = self.create_child(parent_2, parent_1, &take_from_p1);
