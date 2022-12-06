@@ -1,4 +1,4 @@
-use ecrs::ga::operators::crossover::PPXCrossover;
+use ecrs::ga::operators::crossover::Ppx;
 use ecrs::ga::{
   operators::crossover::{CrossoverOperator, MultiPoint, SinglePoint, TwoPoint, Uniform},
   population::{PopulationGenerator, RandomPoints},
@@ -43,7 +43,7 @@ fn uniform_takes_values_from_parents() {
 #[test]
 // Can't think about a name for this test
 fn ppx_test() {
-  let mut op = PPXCrossover::new();
+  let mut op = Ppx::new();
 
   let p1 = Individual::from((0..10).collect_vec());
   let p2 = Individual::from((0..10).rev().collect_vec());

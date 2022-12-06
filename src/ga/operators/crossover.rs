@@ -545,24 +545,24 @@ where
 /// Ch         : <i> 2 4 </i> <b> 5 </b> <i> 1<i/> <b> 3</b>
 ///
 /// Degenerated case when all genes are taken from the same parent.
-pub struct PPXCrossover<R: Rng> {
+pub struct Ppx<R: Rng> {
   rng: R,
 }
 
-impl PPXCrossover<ThreadRng> {
-  /// Creates new [PPXCrossover] crossover operator with default RNG
+impl Ppx<ThreadRng> {
+  /// Creates new [Ppx] crossover operator with default RNG
   pub fn new() -> Self {
     Self::with_rng(rand::thread_rng())
   }
 }
 
-impl<R: Rng> PPXCrossover<R> {
+impl<R: Rng> Ppx<R> {
   /// Creates new [PPXCrossover] crossover operator with custom RNG
   pub fn with_rng(rng: R) -> Self {
     Self { rng }
   }
 
-  /// Helper function for [PPXCrossover::apply]
+  /// Helper function for [Ppx::apply]
   /// ## Arguments
   ///
   /// * `p1` - First parent to take part in crossover
@@ -605,7 +605,7 @@ impl<R: Rng> PPXCrossover<R> {
   }
 }
 
-impl<GeneT, ChT, R> CrossoverOperator<ChT> for PPXCrossover<R>
+impl<GeneT, ChT, R> CrossoverOperator<ChT> for Ppx<R>
 where
   ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
   GeneT: Copy + Eq + Hash,
