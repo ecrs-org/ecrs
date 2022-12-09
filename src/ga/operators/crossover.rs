@@ -1,4 +1,5 @@
-use std::collections::HashSet;
+use itertools::{enumerate, Itertools};
+use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::ops::Index;
 
@@ -527,5 +528,186 @@ where
     let child_2 = self.create_child(parent_2, parent_1, begin, end);
 
     (child_1, child_2)
+  }
+}
+
+/// # PMX crossover operator
+///
+/// This struct implements [CrossoverOperator] trait and can be used with GA.
+///
+/// Returns a tuple of children, first child is created by taking a substring from parent_1,
+/// second child is created by using a substring from parent_2
+///
+/// It works by taking a substring from one parent, then in second parent we look at genes one by one
+/// that would be transplanted if we were transplanting from second parent, if the gene (gene_1) appares in transplanted string from parent one
+/// then we ignore it, else:
+/// * I. We remember the gene place index (index_1)
+/// * II. We look what gene (gene_2) is at this place (index_1) in first parent
+/// * III. We look for gene (gene_3) place (index_2) in second parent
+/// * IV. If this gene (gene_3) can be found in transplanted genes then we place gene_1 in index_2 place,
+/// else we go to step I. with gene_1 = gene_3
+///
+/// P1 : 8 4 7 <b>3 6 2 5 1</b> 9 0 <br>
+/// P2 : 0 1 2 3 4 5 6 7 8 9 <br>
+/// Ch : 0 7 4 3 6 2 5 1 8 9
+///
+/// Degenerated case when substring has length equal to genome length can occur.
+///
+pub struct Pmx<R: Rng> {
+  rng: R,
+}
+
+impl Pmx<ThreadRng> {
+  /// Creates new [Pmx] crossover operator with default RNG
+  pub fn new() -> Self {
+    Self::with_rng(rand::thread_rng())
+  }
+}
+
+impl<R: Rng> Pmx<R> {
+  pub fn with_rng(rng: R) -> Self {
+    Self { rng }
+  }
+
+  fn to_val_index_map<GeneT, ChT>(&self, chromosome_ref: &ChT) -> HashMap<GeneT, usize>
+  where
+    ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    GeneT: Copy + Eq + Hash,
+  {
+    let chromosome_len = chromosome_ref.len();
+    let mut val_index_map: HashMap<GeneT, usize> = HashMap::new();
+
+    for i in 0..chromosome_len {
+      val_index_map.push((chromosome_ref[i], i));
+    }
+
+    val_index_map
+  }
+
+  /// Helper function for [Pmx::apply]
+  /// ## Arguments
+  ///
+  /// * `p1` - First parent to take part in crossover
+  /// * `p2` - Second parent to take part in crossover
+  /// * `begin` - Start (inclusive) of substring to transplant
+  /// * `end` - End (exclusive) of substring to transplant
+  fn create_child<GeneT, ChT>(
+    &self,
+    p1: &Individual<ChT>,
+    p2: &Individual<ChT>,
+    begin: usize,
+    end: usize,
+  ) -> Individual<ChT>
+  where
+    ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    GeneT: Copy + Eq + Hash,
+  {
+    let chromosome_len = p1.chromosome_ref().len();
+
+    let mut substring_set: HashSet<GeneT> = HashSet::new();
+    let mut new_chromosome: Vec<Option<GeneT>> = (0..chromosome_len).map(|_| None).collect_vec();
+    let val_to_t_p2 = self.to_val_index_map(p2.chromosome_ref());
+
+    for i in begin..end {
+      substring_set.push(p1.chromosome_ref()[i]);
+      new_chromosome[i] = Some(p1.chromosome_ref()[i])
+    }
+
+    for i in begin..end {
+      let gene = p2.chromosome_ref()[i];
+      if substring_set.contains(&gene) {
+        continue;
+      }
+
+      let mut j = i;
+      loop {
+        let val = &p1.chromosome_ref()[j];
+        let gene_place_candidate = val_to_t_p2.get(val).unwrap();
+        if !(begin..end).contains(gene_place_candidate) {
+          new_chromosome[*gene_place_candidate] = Some(gene);
+          break;
+        }
+        j = *gene_place_candidate;
+      }
+    }
+
+    let mut child: Individual<ChT> = Individual::new();
+    for (index, gene_opt) in enumerate(new_chromosome) {
+      match gene_opt {
+        Some(gene) => child.chromosome_ref_mut().push(gene),
+        None => child.chromosome_ref_mut().push(p2.chromosome_ref()[index]),
+      };
+    }
+    child
+  }
+}
+
+impl<GeneT, ChT, R> CrossoverOperator<ChT> for Pmx<R>
+where
+  ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+  GeneT: Copy + Eq + Hash,
+  R: Rng,
+{
+  /// Returns a tuple of children, first child is created by taking a substring from parent_1,
+  /// second child is created by using a substring from parent_2
+  ///
+  /// It works by taking a substring from one parent, then in second parent we look at genes one by one
+  /// that would be transplanted if we were transplanting from second parent, if the gene (gene_1) appares in transplanted string from parent one
+  /// then we ignore it, else:
+  /// * I. We remember the gene place index (index_1)
+  /// * II. We look what gene (gene_2) is at this place (index_1) in first parent
+  /// * III. We look for gene (gene_3) place (index_2) in second parent
+  /// * IV. If this gene (gene_3) can be found in transplanted genes then we place gene_1 in index_2 place,
+  /// else we go to step I. with gene_1 = gene_3
+  ///
+  /// P1 : 8 4 7 <b>3 6 2 5 1</b> 9 0 <br>
+  /// P2 : 0 1 2 3 4 5 6 7 8 9 <br>
+  /// Ch : 0 7 4 3 6 2 5 1 8 9
+  ///
+  /// Degenerated case when substring has length equal to genome length can occur.
+  ///
+  /// ## Arguments
+  ///
+  /// * `parent_1` - First parent to take part in crossover
+  /// * `parent_2` - Second parent to take part in crossover
+  fn apply(
+    &mut self,
+    parent_1: &Individual<ChT>,
+    parent_2: &Individual<ChT>,
+  ) -> (Individual<ChT>, Individual<ChT>) {
+    assert_eq!(
+      parent_1.chromosome_ref().len(),
+      parent_2.chromosome_ref().len(),
+      "Parent chromosome length must match"
+    );
+
+    let chromosome_len = parent_1.chromosome_ref().len();
+
+    let begin: usize = self.rng.gen_range(0..chromosome_len);
+    let end: usize = self.rng.gen_range(begin..=chromosome_len);
+
+    let child_1 = self.create_child(parent_1, parent_2, begin, end);
+    let child_2 = self.create_child(parent_2, parent_1, begin, end);
+
+    (child_1, child_2)
+  }
+}
+#[cfg(test)]
+mod test {
+  use crate::ga::operators::crossover::Pmx;
+  use crate::ga::Individual;
+  use std::iter::zip;
+  #[test]
+  fn run_example() {
+    // https://www.rubicite.com/Tutorials/GeneticAlgorithms/CrossoverOperators/PMXCrossoverOperator.aspx/
+    let op = Pmx::new();
+
+    let p1 = Individual::from(vec![8, 4, 7, 3, 6, 2, 5, 1, 9, 0]);
+    let p2 = Individual::from(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    let child = op.create_child(&p1, &p2, 3, 8);
+    for (i, j) in zip(child.chromosome, vec![0, 7, 4, 3, 6, 2, 5, 1, 8, 9]) {
+      assert_eq!(i, j);
+    }
   }
 }
