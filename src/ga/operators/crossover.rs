@@ -606,7 +606,7 @@ impl<R: Rng> Pmx<R> {
 
     let mut substring_set: HashSet<GeneT> = HashSet::new();
     let mut new_chromosome: Vec<Option<GeneT>> = (0..chromosome_len).map(|_| None).collect_vec();
-    let val_to_t_p2 = self.to_val_index_map(p2.chromosome_ref());
+    let val_to_i_p2 = self.to_val_index_map(p2.chromosome_ref());
 
     for i in begin..end {
       substring_set.push(p1.chromosome_ref()[i]);
@@ -622,7 +622,7 @@ impl<R: Rng> Pmx<R> {
       let mut j = i;
       loop {
         let val = &p1.chromosome_ref()[j];
-        let gene_place_candidate = val_to_t_p2.get(val).unwrap();
+        let gene_place_candidate = val_to_i_p2.get(val).unwrap();
         if !(begin..end).contains(gene_place_candidate) {
           new_chromosome[*gene_place_candidate] = Some(gene);
           break;
