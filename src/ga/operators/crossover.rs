@@ -608,6 +608,7 @@ impl<R: Rng> Pmx<R> {
     let mut new_chromosome: Vec<Option<GeneT>> = (0..chromosome_len).map(|_| None).collect_vec();
     let val_to_i_p2 = self.to_val_index_map(p2.chromosome_ref());
 
+    #[allow(clippy::needless_range_loop)]
     for i in begin..end {
       substring_set.push(p1.chromosome_ref()[i]);
       new_chromosome[i] = Some(p1.chromosome_ref()[i])
