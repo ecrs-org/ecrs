@@ -547,6 +547,7 @@ where
 /// Degenerated case when all genes are taken from the same parent.
 pub struct Ppx<R: Rng> {
   rng: R,
+  distribution: rand::distributions::Standard,
 }
 
 impl Ppx<ThreadRng> {
@@ -559,7 +560,10 @@ impl Ppx<ThreadRng> {
 impl<R: Rng> Ppx<R> {
   /// Creates new [PPXCrossover] crossover operator with custom RNG
   pub fn with_rng(rng: R) -> Self {
-    Self { rng }
+    Self {
+      rng,
+      distribution: rand::distributions::Standard,
+    }
   }
 
   /// Helper function for [Ppx::apply]
@@ -643,7 +647,7 @@ where
     let chromosome_len = parent_1.chromosome_ref().len();
 
     let take_from_p1: Vec<bool> = (&mut self.rng)
-      .sample_iter(&rand::distributions::Standard)
+      .sample_iter(self.distribution)
       .take(chromosome_len)
       .collect_vec();
 
@@ -653,3 +657,6 @@ where
     (child_1, child_2)
   }
 }
+
+#[cfg(test)]
+mod tests {}
