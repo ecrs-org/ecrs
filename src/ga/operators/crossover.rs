@@ -23,7 +23,7 @@ pub trait CrossoverOperator<T: Chromosome> {
 
 /// # Single point crossover operator
 ///
-/// This struct implements [self::CrossoverOperator] trait and can be used with GA.
+/// This struct implements [CrossoverOperator] trait and can be used with GA.
 ///
 /// It works by defininig single cutpoint splitting both parent chromosomes in two parts.
 /// First child gets `parent_1`'s first part and `parent_2`'s second part.
@@ -101,11 +101,11 @@ where
 
 /// # Two point crossover operator
 ///
-/// This struct implements [self::CrossoverOperator] and can be used with GA.
+/// This struct implements [CrossoverOperator] and can be used with GA.
 ///
 /// It works by randomly selecting two cutpoints splitting parents chromosomes in three parts.
 /// Then it creates children by taking parents chromosome parts interchangeably.
-/// Its mechanism is analoguous to [self::SinglePoint].
+/// Its mechanism is analoguous to [SinglePoint].
 ///
 /// Degenerate case when both cutpoints are in the same place or at position 0 or last can occur.
 pub struct TwoPoint<R: Rng> {
@@ -136,7 +136,7 @@ where
   ///
   /// It works by randomly selecting two cutpoints splitting parents chromosomes in three parts.
   /// Then it creates children by taking parents chromosome parts interchangeably.
-  /// Its mechanism is analoguous to [self::SinglePoint].
+  /// Its mechanism is analoguous to [SinglePoint].
   ///
   /// Degenerate case when both cutpoints are in the same place or at position 0 or last can occur.
   ///
@@ -204,9 +204,9 @@ where
 
 /// # Mutli-point crossover operator
 ///
-/// This struct implements [self::CrossoverOperator] and can be used with GA.
+/// This struct implements [CrossoverOperator] and can be used with GA.
 ///
-/// It works analogously to [self::SinglePoint] or [self::TwoPoint]. One important difference is that
+/// It works analogously to [SinglePoint] or [TwoPoint]. One important difference is that
 /// all cutpoints are distinct, thus single or two point crossover with guarantee of distinct cutpoints
 /// can be achieved.
 pub struct MultiPoint<R: Rng> {
@@ -215,7 +215,7 @@ pub struct MultiPoint<R: Rng> {
 }
 
 impl MultiPoint<ThreadRng> {
-  /// Creates new [self::MultiPoint] crossover operator with default RNG
+  /// Creates new [MultiPoint] crossover operator with default RNG
   ///
   /// ## Arguments
   ///
@@ -226,14 +226,14 @@ impl MultiPoint<ThreadRng> {
 }
 
 impl Default for MultiPoint<ThreadRng> {
-  /// Creates new [self::MultiPoint] crossover operator with 4 cutpoints and default RNG
+  /// Creates new [MultiPoint] crossover operator with 4 cutpoints and default RNG
   fn default() -> Self {
     Self::with_rng(4, rand::thread_rng())
   }
 }
 
 impl<R: Rng> MultiPoint<R> {
-  /// Creates new [self::MultiPoint] crossover operator with custom RNG
+  /// Creates new [MultiPoint] crossover operator with custom RNG
   ///
   /// ## Arguments
   ///
@@ -253,7 +253,7 @@ where
 {
   /// Returns a tuple of children
   ///
-  /// It works analogously to [self::SinglePoint] or [self::TwoPoint]. One important difference is that
+  /// It works analogously to [SinglePoint] or [TwoPoint]. One important difference is that
   /// all cutpoints are distinct, thus single or two point crossover with guarantee of distinct cutpoints
   /// can be achieved.
   ///
@@ -325,7 +325,7 @@ where
 
 /// # Uniform crossover operator
 ///
-/// This struct implements [self::CrossoverOperator] and can be used with GA.
+/// This struct implements [CrossoverOperator] and can be used with GA.
 ///
 /// It works by creating a bit-mask of chromosome length. 1 means that gene should be taken from first
 /// parent, 0 means that gene should be take from second parent. This is inverted when creating second child.
