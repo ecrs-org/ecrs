@@ -659,4 +659,23 @@ where
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+  use crate::ga::operators::crossover::Ppx;
+  use crate::ga::Individual;
+
+  #[test]
+  fn ppx_example_1() {
+    let op = Ppx::new();
+    let p1 = Individual::from(vec![1, 2, 3, 4, 5, 6]);
+    let p2 = Individual::from(vec![3, 1, 2, 6, 4, 5]);
+    let take_from_p1 = [true, false, true, true, false, false];
+
+    let child = op.create_child(&p1, &p2, &take_from_p1);
+
+    child
+      .chromosome_ref()
+      .iter()
+      .zip(vec![1, 3, 2, 4, 6, 5].iter())
+      .for_each(|(x, x_expected)| assert_eq!(x, x_expected))
+  }
+}
