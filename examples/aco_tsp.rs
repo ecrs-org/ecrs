@@ -1,4 +1,4 @@
-pub fn ants_example_run() {
+pub fn main() {
   let (cities, cost) = ecrs::aco::generate_tsp_cost(30);
   ecrs::aco::write_cities_csv(&cities, "cities.csv").expect("Error while writing city file");
 
