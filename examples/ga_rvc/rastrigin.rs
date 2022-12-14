@@ -1,3 +1,4 @@
+#[allow(clippy::ptr_arg)]
 pub fn rastrigin_fitness(chromosome: &Vec<f64>) -> f64 {
   1000.0 * f64::exp(-rastrigin(chromosome))
 }
