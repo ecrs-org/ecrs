@@ -23,7 +23,7 @@ pub trait CrossoverOperator<T: Chromosome> {
 
 /// # Single point crossover operator
 ///
-/// This struct implements [self::CrossoverOperator] trait and can be used with GA.
+/// This struct implements [CrossoverOperator] trait and can be used with GA.
 ///
 /// It works by defininig single cutpoint splitting both parent chromosomes in two parts.
 /// First child gets `parent_1`'s first part and `parent_2`'s second part.
@@ -101,11 +101,11 @@ where
 
 /// # Two point crossover operator
 ///
-/// This struct implements [self::CrossoverOperator] and can be used with GA.
+/// This struct implements [CrossoverOperator] and can be used with GA.
 ///
 /// It works by randomly selecting two cutpoints splitting parents chromosomes in three parts.
 /// Then it creates children by taking parents chromosome parts interchangeably.
-/// Its mechanism is analoguous to [self::SinglePoint].
+/// Its mechanism is analoguous to [SinglePoint].
 ///
 /// Degenerate case when both cutpoints are in the same place or at position 0 or last can occur.
 pub struct TwoPoint<R: Rng> {
@@ -136,7 +136,7 @@ where
   ///
   /// It works by randomly selecting two cutpoints splitting parents chromosomes in three parts.
   /// Then it creates children by taking parents chromosome parts interchangeably.
-  /// Its mechanism is analoguous to [self::SinglePoint].
+  /// Its mechanism is analoguous to [SinglePoint].
   ///
   /// Degenerate case when both cutpoints are in the same place or at position 0 or last can occur.
   ///
@@ -204,9 +204,9 @@ where
 
 /// # Mutli-point crossover operator
 ///
-/// This struct implements [self::CrossoverOperator] and can be used with GA.
+/// This struct implements [CrossoverOperator] and can be used with GA.
 ///
-/// It works analogously to [self::SinglePoint] or [self::TwoPoint]. One important difference is that
+/// It works analogously to [SinglePoint] or [TwoPoint]. One important difference is that
 /// all cutpoints are distinct, thus single or two point crossover with guarantee of distinct cutpoints
 /// can be achieved.
 pub struct MultiPoint<R: Rng> {
@@ -215,7 +215,7 @@ pub struct MultiPoint<R: Rng> {
 }
 
 impl MultiPoint<ThreadRng> {
-  /// Creates new [self::MultiPoint] crossover operator with default RNG
+  /// Creates new [MultiPoint] crossover operator with default RNG
   ///
   /// ## Arguments
   ///
@@ -226,14 +226,14 @@ impl MultiPoint<ThreadRng> {
 }
 
 impl Default for MultiPoint<ThreadRng> {
-  /// Creates new [self::MultiPoint] crossover operator with 4 cutpoints and default RNG
+  /// Creates new [MultiPoint] crossover operator with 4 cutpoints and default RNG
   fn default() -> Self {
     Self::with_rng(4, rand::thread_rng())
   }
 }
 
 impl<R: Rng> MultiPoint<R> {
-  /// Creates new [self::MultiPoint] crossover operator with custom RNG
+  /// Creates new [MultiPoint] crossover operator with custom RNG
   ///
   /// ## Arguments
   ///
@@ -253,7 +253,7 @@ where
 {
   /// Returns a tuple of children
   ///
-  /// It works analogously to [self::SinglePoint] or [self::TwoPoint]. One important difference is that
+  /// It works analogously to [SinglePoint] or [TwoPoint]. One important difference is that
   /// all cutpoints are distinct, thus single or two point crossover with guarantee of distinct cutpoints
   /// can be achieved.
   ///
@@ -325,7 +325,7 @@ where
 
 /// # Uniform crossover operator
 ///
-/// This struct implements [self::CrossoverOperator] and can be used with GA.
+/// This struct implements [CrossoverOperator] and can be used with GA.
 ///
 /// It works by creating a bit-mask of chromosome length. 1 means that gene should be taken from first
 /// parent, 0 means that gene should be take from second parent. This is inverted when creating second child.
@@ -531,6 +531,133 @@ where
   }
 }
 
+/// # PPX crossover operator
+///
+/// This struct implements [CrossoverOperator] trait and can be used with GA.
+///
+/// PPX (Precedence Preservative Crossover), genes are taken in order they appear in parent,
+/// parent is chosen at random, if gene was already taken from other parent then the next un-taken gene
+/// is chosen
+///
+/// P1         : <i>2 4 1 3 5</i> <br>
+/// P2         : <b>5 2 1 4 3</b> <br>
+/// Gene source: 1 1 2 1 2 <br>
+/// Ch         : <i> 2 4 </i> <b> 5 </b> <i> 1<i/> <b> 3</b>
+///
+/// Degenerated case when all genes are taken from the same parent.
+pub struct Ppx<R: Rng> {
+  rng: R,
+  distribution: rand::distributions::Standard,
+}
+
+impl Ppx<ThreadRng> {
+  /// Creates new [Ppx] crossover operator with default RNG
+  pub fn new() -> Self {
+    Self::with_rng(rand::thread_rng())
+  }
+}
+
+impl<R: Rng> Ppx<R> {
+  /// Creates new [PPXCrossover] crossover operator with custom RNG
+  pub fn with_rng(rng: R) -> Self {
+    Self {
+      rng,
+      distribution: rand::distributions::Standard,
+    }
+  }
+
+  /// Helper function for [Ppx::apply]
+  /// ## Arguments
+  ///
+  /// * `p1` - First parent to take part in crossover
+  /// * `p2` - Second parent to take part in crossover
+  /// * `take_from_p1` - Which genes should be taken from p1
+  fn create_child<GeneT, ChT>(
+    &self,
+    p1: &Individual<ChT>,
+    p2: &Individual<ChT>,
+    take_from_p1: &[bool],
+  ) -> Individual<ChT>
+  where
+    ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    GeneT: Copy + Eq + Hash,
+  {
+    let chromosome_len = p1.chromosome_ref().len();
+
+    let mut already_taken: HashSet<GeneT> = HashSet::new();
+
+    let mut child: Individual<ChT> = Individual::new();
+    let mut index_p: [usize; 2] = [0, 0];
+    let parents = [p1, p2];
+
+    while child.chromosome_ref().len() < chromosome_len {
+      let index_child = child.chromosome_ref().len();
+      let parent_i: usize = if take_from_p1[index_child] { 0 } else { 1 };
+
+      while child.chromosome_ref().len() == index_child {
+        let gene = parents[parent_i].chromosome_ref()[index_p[parent_i]];
+        index_p[parent_i] += 1;
+
+        if !already_taken.contains(&gene) {
+          already_taken.push(gene);
+          child.chromosome_ref_mut().push(gene);
+        }
+      }
+    }
+
+    child
+  }
+}
+
+impl<GeneT, ChT, R> CrossoverOperator<ChT> for Ppx<R>
+where
+  ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+  GeneT: Copy + Eq + Hash,
+  R: Rng,
+{
+  /// Returns a tuple of children, first child is created by using parent_1 as first parent,
+  /// second child is created by using a parent_1 as the second parent.
+  ///
+  /// PPX (Precedence Preservative Crossover), genes are taken in order they appear in parent,
+  /// parent is chosen at random, if gene was already taken from other parent then the next un-taken gene
+  /// is chosen
+  ///
+  /// P1         : <i>2 4 1 3 5</i> <br>
+  /// P2         : <b>5 2 1 4 3</b> <br>
+  /// Gene source: 1 1 2 1 2 <br>
+  /// Ch         : <i> 2 4 </i> <b> 5 </b> <i> 1<i/> <b> 3</b>
+  ///
+  /// Degenerated case when all genes are taken from the same parent can occur.
+  ///
+  /// ## Arguments
+  ///
+  /// * `parent_1` - one of the parents to take part in crossover
+  /// * `parent_2` - one of the parents to take part in crossover
+  fn apply(
+    &mut self,
+    parent_1: &Individual<ChT>,
+    parent_2: &Individual<ChT>,
+  ) -> (Individual<ChT>, Individual<ChT>) {
+    assert_eq!(
+      parent_1.chromosome_ref().len(),
+      parent_2.chromosome_ref().len(),
+      "Parent chromosome length must match"
+    );
+
+    let chromosome_len = parent_1.chromosome_ref().len();
+
+    let take_from_p1: Vec<bool> = (&mut self.rng)
+      .sample_iter(self.distribution)
+      .take(chromosome_len)
+      .collect_vec();
+
+    let child_1 = self.create_child(parent_1, parent_2, &take_from_p1);
+    let child_2 = self.create_child(parent_2, parent_1, &take_from_p1);
+
+    (child_1, child_2)
+  }
+}
+
 /// # PMX crossover operator
 ///
 /// This struct implements [CrossoverOperator] trait and can be used with GA.
@@ -696,8 +823,26 @@ where
 #[cfg(test)]
 mod test {
   use crate::ga::operators::crossover::Pmx;
+  use crate::ga::operators::crossover::Ppx;
   use crate::ga::Individual;
   use std::iter::zip;
+
+  #[test]
+  fn ppx_example_1() {
+    let op = Ppx::new();
+    let p1 = Individual::from(vec![1, 2, 3, 4, 5, 6]);
+    let p2 = Individual::from(vec![3, 1, 2, 6, 4, 5]);
+    let take_from_p1 = [true, false, true, true, false, false];
+
+    let child = op.create_child(&p1, &p2, &take_from_p1);
+
+    child
+      .chromosome_ref()
+      .iter()
+      .zip(vec![1, 3, 2, 4, 6, 5].iter())
+      .for_each(|(x, x_expected)| assert_eq!(x, x_expected))
+  }
+
   #[test]
   fn run_example() {
     // https://www.rubicite.com/Tutorials/GeneticAlgorithms/CrossoverOperators/PMXCrossoverOperator.aspx/
