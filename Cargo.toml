@@ -14,6 +14,7 @@ license-file = "LICENSE.md"
 license = "MIT"
 exclude = [
 	".github/*",
+	"Cargo.lock",
 ]
 
 

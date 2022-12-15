@@ -12,5 +12,10 @@ target/
 *.json
 
 # algorithms ouput directory
+#
 output/
 *local.*
+
+# Lock files
+#
+Cargo.lock
