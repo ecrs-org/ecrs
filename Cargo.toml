@@ -1,6 +1,6 @@
 [package]
 name = "ecrs"
-version = "0.1.0-beta.0"
+version = "0.1.0-beta.1"
 edition = "2021"
 readme = "README.md"
 repository = "https://github.com/ecrs-org/ecrs"
@@ -14,7 +14,6 @@ license-file = "LICENSE.md"
 license = "MIT"
 exclude = [
 	".github/*",
-	"example/*"
 ]
 
 
