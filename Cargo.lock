@@ -247,7 +247,7 @@ checksum = "3c877555693c14d2f84191cfd3ad8582790fc52b5e2274b40b59cf5f5cea25c7"
 
 [[package]]
 name = "ecrs"
-version = "0.1.0-beta.0"
+version = "0.1.0-beta.1"
 dependencies = [
  "csv",
  "itertools",
