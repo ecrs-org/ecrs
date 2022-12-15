@@ -39,7 +39,7 @@ For genetic algorithm there are various genetic operators & utility predefined:
 
 Each operator can be used in plug-in style to alternate algorithm behaviour.
 
-The library also offers highly customizable logging system based on "probing". You can check out our [examples](example/)
+The library also offers highly customizable logging system based on "probing". You can check out our [examples](examples/)
 
 ## Get started
 
@@ -55,7 +55,7 @@ cargo add ecrs
 
 Work in progess...
 
-For now the best method to get started is checking out our [examples](example/)
+For now the best method to get started is checking out our [examples](examples/)
 
 ## MSRV
 

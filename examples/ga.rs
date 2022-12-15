@@ -1,10 +1,13 @@
 use ecrs::ga;
+mod util;
 
 fn rastrigin_fitness(chromosome: &Vec<f64>) -> f64 {
   1000.0 * f64::exp(-ecrs::test_functions::rastrigin(chromosome))
 }
 
 fn main() {
+  let _ = util::init_logging();
+
   let res = ga::Builder::new()
     .set_max_generation_count(50_000)
     .set_population_size(100)
