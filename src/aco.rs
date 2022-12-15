@@ -44,7 +44,7 @@ mod ants_system;
 
 pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 
-fn into_vec(m: &FMatrix) -> Vec<Vec<f64>> {
+pub fn into_vec(m: &FMatrix) -> Vec<Vec<f64>> {
   let mut m_vec: Vec<Vec<f64>> = Vec::new();
 
   for row in m.row_iter() {

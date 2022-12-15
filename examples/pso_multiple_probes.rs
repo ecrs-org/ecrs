@@ -1,6 +1,6 @@
 use ecrs::pso::{self, builder::PSOAlgorithmBuilder};
 
-pub fn pso_example() {
+fn main() {
   let iterations = 2000;
 
   let console_probe = Box::new(pso::probe::console_probe::ConsoleProbe::new());
