@@ -592,7 +592,7 @@ impl<R: Rng> Ppx<R> {
 
     while child.chromosome_ref().len() < chromosome_len {
       let index_child = child.chromosome_ref().len();
-      let parent_i: usize = if take_from_p1[index_child] { 0 } else { 1 };
+      let parent_i = usize::from(!take_from_p1[index_child]);
 
       while child.chromosome_ref().len() == index_child {
         let gene = parents[parent_i].chromosome_ref()[index_p[parent_i]];

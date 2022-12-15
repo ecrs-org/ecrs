@@ -69,7 +69,7 @@ impl FireflyAlgorithm {
       //Generate initial population
       let mut temp: Vec<f64> = Vec::new();
       for _dim in 0..self.config.dimensions {
-        temp.push(thread_rng().gen_range(self.config.lower_bound as f64..self.config.upper_bound as f64));
+        temp.push(thread_rng().gen_range(self.config.lower_bound..self.config.upper_bound));
       }
       population.push(temp);
     }
