@@ -6,25 +6,19 @@ on:
   pull_request:
     branches: [ "main", "development", "@*/*" ]
     paths:
-      - 'example/**'
+      - 'examples/**'
       - '.github/workflows/build-test-example.yaml'
       - 'Cargo.toml'
 
 env:
   CARGO_TERM_COLOR: always
-  WORKING_DIR: example
-
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Update toolchain
-      run: rustup update
-    - name: Build
-      working-directory: ${{ env.WORKING_DIR }}
-      run: cargo build --verbose
-    - name: Run tests
-      working-directory: ${{ env.WORKING_DIR }}
-      run: RUST_BACKTRACE=1 cargo test --verbose
+      - uses: actions/checkout@v3
+      - name: Update toolchain
+        run: rustup update
+      - name: Build
+        run: cargo build --examples --verbose

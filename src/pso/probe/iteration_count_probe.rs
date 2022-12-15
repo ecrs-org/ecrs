@@ -25,7 +25,7 @@ impl Probe for IterationCountProbe {
   }
 
   fn on_end(&mut self, swarm: &Swarm) {
-    if self.total_generations > self.last_log_generation as usize {
+    if self.total_generations > self.last_log_generation {
       self.on_new_generation(swarm, self.total_generations);
     }
     self.probe.on_end(swarm);

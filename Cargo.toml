@@ -17,10 +17,6 @@ exclude = [
 	"example/*"
 ]
 
-[workspace]
-members = [
-	"example",
-]
 
 [lib]
 name = "ecrs"
