@@ -22,7 +22,7 @@ pub struct AntSystem {
 
 impl AntSystem {
   /// Executes the algorithm
-  pub fn execute(mut self) {
+  pub fn run(mut self) {
     for i in 0..self.cfg.iteration {
       self.cfg.probe.on_iteration_start(i);
       self.iterate();

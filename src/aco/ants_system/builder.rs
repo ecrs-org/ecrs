@@ -56,13 +56,14 @@ impl Builder {
 
   /// Sets the evaporation rate.
   ///
-  /// If 0 then new pheromone won't be influenced by old pheromone.
+  /// If 1 then old pheromone will fully evaporate every iteration. In other words old pheromone
+  /// will be fully replaced with new pheromone.
   ///
   /// ## Arguments
   /// * `evaporation rate` - number in interval \[0, 1].
   pub fn set_evaporation_rate(mut self, evaporation_rate: f64) -> Self {
     assert!(
-      !(0.0..=1.0).contains(&evaporation_rate),
+      (0.0..=1.0).contains(&evaporation_rate),
       "Evaporation rate must be between 0 and 1"
     );
     self.conf.evaporation_rate = evaporation_rate;
@@ -100,10 +101,10 @@ impl Builder {
 
   /// Builds [AntSystem] with provided building blocks.
   ///
-  /// If specific bulding block is not provided a default value will be used.
+  /// If specific building block is not provided a default value will be used.
   /// ### Defaults
   /// * `weights` - 0 x 0 matrix
-  /// * `heuristic` - matrix of zeros with `weights` shape
+  /// * `heuristic` - matrix of ones with `weights` shape
   /// * `alpha` - 1.0
   /// * `beta` - 1.0
   /// * `evaporation_rate` - 0.1
@@ -114,7 +115,7 @@ impl Builder {
     let (nrow, ncol) = self.conf.weights.shape();
 
     if self.conf.heuristic.shape() != (nrow, ncol) {
-      self.conf.heuristic = FMatrix::repeat(nrow, ncol, 0.0);
+      self.conf.heuristic = FMatrix::repeat(nrow, ncol, 1.0);
     }
 
     let pheromone = FMatrix::repeat(nrow, ncol, 0.5f64);
