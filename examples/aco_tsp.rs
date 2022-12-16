@@ -9,5 +9,5 @@ fn main() {
     .set_heuristic(heuristic)
     .build();
 
-  ant_s.execute();
+  ant_s.run();
 }
