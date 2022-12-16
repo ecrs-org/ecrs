@@ -56,13 +56,14 @@ impl Builder {
 
   /// Sets the evaporation rate.
   ///
-  /// If 0 then new pheromone won't be influenced by old pheromone.
+  /// If 1 then old pheromone will fully evaporate every iteration. In other words old pheromone
+  /// will be fully replaced with new pheromone.
   ///
   /// ## Arguments
   /// * `evaporation rate` - number in interval \[0, 1].
   pub fn set_evaporation_rate(mut self, evaporation_rate: f64) -> Self {
     assert!(
-      !(0.0..=1.0).contains(&evaporation_rate),
+      (0.0..=1.0).contains(&evaporation_rate),
       "Evaporation rate must be between 0 and 1"
     );
     self.conf.evaporation_rate = evaporation_rate;
