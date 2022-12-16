@@ -3,15 +3,19 @@ mod generic;
 mod realvalued;
 use std::error::Error;
 use std::fmt::Display;
+use std::marker::PhantomData;
 
 use super::individual::Chromosome;
 use super::operators::selection::SelectionOperator;
 use super::population::PopulationGenerator;
-use super::{CrossoverOperator, FitnessFn, GAConfig, GAParams, MutationOperator, Probe};
+use super::{CrossoverOperator, GAConfig, GAParams, MutationOperator, Probe};
 
+use crate::ga::operators::fitness::Fitness;
 pub use bistring::BitStringBuilder;
 pub use generic::GenericBuilder;
 pub use realvalued::RealValuedBuilder;
+
+type FitnessFn<S> = fn(&S) -> f64;
 
 /// Error type for internal use
 #[derive(Debug, Clone)]
@@ -110,31 +114,34 @@ impl TryFrom<GAParamsOpt> for GAParams {
 /// inside `Option` type, so that builders can incrementally fill it up.
 // TODO: We should really consider creating a macro here, so that we
 // don't have to write it by hand...
-pub(self) struct GAConfigOpt<T, M, C, S, P, Pr>
+pub(self) struct GAConfigOpt<T, M, C, S, P, F, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
   P: PopulationGenerator<T>,
+  F: Fitness<T>,
   Pr: Probe<T>,
 {
   pub params: GAParamsOpt,
-  pub fitness_fn: Option<FitnessFn<T>>,
+  pub fitness_fn: Option<F>,
   pub mutation_operator: Option<M>,
   pub crossover_operator: Option<C>,
   pub selection_operator: Option<S>,
   pub population_factory: Option<P>,
   pub probe: Option<Pr>,
+  phantom: PhantomData<T>,
 }
 
-impl<T, M, C, S, P, Pr> GAConfigOpt<T, M, C, S, P, Pr>
+impl<T, M, C, S, P, F, Pr> GAConfigOpt<T, M, C, S, P, F, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
   P: PopulationGenerator<T>,
+  F: Fitness<T>,
   Pr: Probe<T>,
 {
   /// Returns new instance of [GAConfigOpt] struct. All fields are `None` initially, except params.
@@ -147,22 +154,24 @@ where
       selection_operator: None,
       population_factory: None,
       probe: None,
+      phantom: Default::default(),
     }
   }
 }
 
-impl<T, M, C, S, P, Pr> TryFrom<GAConfigOpt<T, M, C, S, P, Pr>> for GAConfig<T, M, C, S, P, Pr>
+impl<T, M, C, S, P, F, Pr> TryFrom<GAConfigOpt<T, M, C, S, P, F, Pr>> for GAConfig<T, M, C, S, P, F, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
   P: PopulationGenerator<T>,
+  F: Fitness<T>,
   Pr: Probe<T>,
 {
   type Error = ConfigError;
 
-  fn try_from(config_opt: GAConfigOpt<T, M, C, S, P, Pr>) -> Result<Self, Self::Error> {
+  fn try_from(config_opt: GAConfigOpt<T, M, C, S, P, F, Pr>) -> Result<Self, Self::Error> {
     let params = GAParams::try_from(config_opt.params)?;
 
     let Some(fitness_fn) = config_opt.fitness_fn else {
@@ -197,6 +206,7 @@ where
       selection_operator,
       population_factory,
       probe,
+      phantom: PhantomData::default(),
     })
   }
 }
@@ -205,23 +215,24 @@ pub struct Builder;
 
 impl Builder {
   #[allow(clippy::new_ret_no_self)]
-  pub fn new<T, M, C, S, P, Pr>() -> GenericBuilder<T, M, C, S, P, Pr>
+  pub fn new<T, M, C, S, P, F, Pr>() -> GenericBuilder<T, M, C, S, P, F, Pr>
   where
     T: Chromosome,
     M: MutationOperator<T>,
     C: CrossoverOperator<T>,
     S: SelectionOperator<T>,
     P: PopulationGenerator<T>,
+    F: Fitness<T>,
     Pr: Probe<T>,
   {
-    GenericBuilder::<T, M, C, S, P, Pr>::new()
+    GenericBuilder::<T, M, C, S, P, F, Pr>::new()
   }
 
-  pub fn with_rvc() -> RealValuedBuilder {
+  pub fn with_rvc<F: Fitness<realvalued::Rvc>>() -> RealValuedBuilder<F> {
     RealValuedBuilder::new()
   }
 
-  pub fn with_bsc() -> BitStringBuilder {
+  pub fn with_bsc<F: Fitness<bistring::Bsc>>() -> BitStringBuilder<F> {
     BitStringBuilder::new()
   }
 }

@@ -4,20 +4,20 @@ pub mod operators;
 pub mod population;
 pub mod probe;
 
+use crate::ga::operators::fitness::Fitness;
 pub use builder::*;
 pub use individual::Individual;
 pub use probe::CsvProbe;
 pub use probe::JsonProbe;
 pub use probe::Probe;
 pub use probe::StdoutProbe;
+use std::marker::PhantomData;
 
 use self::{
   individual::Chromosome,
   operators::{crossover::CrossoverOperator, mutation::MutationOperator, selection::SelectionOperator},
   population::PopulationGenerator,
 };
-
-type FitnessFn<S> = fn(&S) -> f64;
 
 pub struct GAParams {
   pub selection_rate: f64,
@@ -39,23 +39,25 @@ pub struct GAParams {
 //   }
 // }
 
-pub struct GAConfig<T, M, C, S, P, Pr>
+pub struct GAConfig<T, M, C, S, P, F, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
   P: PopulationGenerator<T>,
+  F: Fitness<T>,
   Pr: Probe<T>,
 {
   pub params: GAParams,
   // pub ops: GAOps<S>,
-  pub fitness_fn: FitnessFn<T>,
+  pub fitness_fn: F,
   pub mutation_operator: M,
   pub crossover_operator: C,
   pub selection_operator: S,
   pub population_factory: P,
   pub probe: Pr,
+  phantom: PhantomData<T>,
 }
 
 #[derive(Default)]
@@ -79,29 +81,31 @@ impl GAMetadata {
   }
 }
 
-pub struct GeneticAlgorithm<T, M, C, S, P, Pr>
+pub struct GeneticAlgorithm<T, M, C, S, P, F, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
   P: PopulationGenerator<T>,
+  F: Fitness<T>,
   Pr: Probe<T>,
 {
-  config: GAConfig<T, M, C, S, P, Pr>,
+  config: GAConfig<T, M, C, S, P, F, Pr>,
   metadata: GAMetadata,
 }
 
-impl<T, M, C, S, P, Pr> GeneticAlgorithm<T, M, C, S, P, Pr>
+impl<T, M, C, S, P, F, Pr> GeneticAlgorithm<T, M, C, S, P, F, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
   P: PopulationGenerator<T>,
+  F: Fitness<T>,
   Pr: Probe<T>,
 {
-  pub fn new(config: GAConfig<T, M, C, S, P, Pr>) -> Self {
+  pub fn new(config: GAConfig<T, M, C, S, P, F, Pr>) -> Self {
     GeneticAlgorithm {
       config,
       metadata: GAMetadata::new(None, None, 0),
@@ -121,7 +125,7 @@ where
 
   fn evaluate_fitness_in_population(&self, population: &mut Vec<Individual<T>>) {
     for idv in population {
-      let fitness = (self.config.fitness_fn)(idv);
+      let fitness = (self.config.fitness_fn).apply(idv);
       idv.fitness = fitness;
     }
   }
@@ -142,8 +146,7 @@ where
     self.config.probe.on_initial_population_created(&population);
 
     // 3. Store best individual.
-    let mut best_individual_all_time =
-      GeneticAlgorithm::<T, M, C, S, P, Pr>::find_best_individual(&population).clone();
+    let mut best_individual_all_time = Self::find_best_individual(&population).clone();
     // self.config.probe.on_new_best(&self.metadata, best_individual);
 
     for generation_no in 1..=self.config.params.generation_limit {
@@ -195,7 +198,7 @@ where
 
       self.config.probe.on_new_generation(&self.metadata, &population);
 
-      let best_individual = GeneticAlgorithm::<T, M, C, S, P, Pr>::find_best_individual(&population);
+      let best_individual = GeneticAlgorithm::<T, M, C, S, P, F, Pr>::find_best_individual(&population);
       self
         .config
         .probe

@@ -1,13 +1,28 @@
+use crate::ga::builder::FitnessFn;
+use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
 use crate::ga::{
   individual::Chromosome,
   operators::{crossover::CrossoverOperator, mutation::MutationOperator, selection::SelectionOperator},
   population::PopulationGenerator,
-  FitnessFn, GeneticAlgorithm, Probe,
+  GeneticAlgorithm, Probe,
 };
 
 use super::{DefaultParams, GAConfigOpt};
 
-pub struct GenericBuilder<T, M, C, S, P, Pr>
+pub struct GenericBuilder<T, M, C, S, P, F, Pr>
+where
+  T: Chromosome,
+  M: MutationOperator<T>,
+  C: CrossoverOperator<T>,
+  S: SelectionOperator<T>,
+  P: PopulationGenerator<T>,
+  F: Fitness<T>,
+  Pr: Probe<T>,
+{
+  config: GAConfigOpt<T, M, C, S, P, F, Pr>,
+}
+
+impl<T, M, C, S, P, Pr> GenericBuilder<T, M, C, S, P, FnBasedFitness<T>, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
@@ -16,16 +31,19 @@ where
   P: PopulationGenerator<T>,
   Pr: Probe<T>,
 {
-  config: GAConfigOpt<T, M, C, S, P, Pr>,
+  pub fn set_fitness_fn(self, fitness_fn: FitnessFn<T>) -> Self {
+    self.set_fitness(FnBasedFitness::new(fitness_fn))
+  }
 }
 
-impl<T, M, C, S, P, Pr> GenericBuilder<T, M, C, S, P, Pr>
+impl<T, M, C, S, P, F, Pr> GenericBuilder<T, M, C, S, P, F, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
   P: PopulationGenerator<T>,
+  F: Fitness<T>,
   Pr: Probe<T>,
 {
   pub fn new() -> Self {
@@ -63,8 +81,8 @@ where
     self
   }
 
-  pub fn set_fitness_fn(mut self, fitness_fn: FitnessFn<T>) -> Self {
-    self.config.fitness_fn = Some(fitness_fn);
+  pub fn set_fitness(mut self, fitness: F) -> Self {
+    self.config.fitness_fn = Some(fitness);
     self
   }
 
@@ -93,7 +111,7 @@ where
     self
   }
 
-  pub fn build(mut self) -> GeneticAlgorithm<T, M, C, S, P, Pr> {
+  pub fn build(mut self) -> GeneticAlgorithm<T, M, C, S, P, F, Pr> {
     self.config.params.fill_from(&Self::DEFAULT_PARAMS);
 
     let config = match self.config.try_into() {
@@ -105,13 +123,14 @@ where
   }
 }
 
-impl<T, M, C, S, P, Pr> DefaultParams for GenericBuilder<T, M, C, S, P, Pr>
+impl<T, M, C, S, P, F, Pr> DefaultParams for GenericBuilder<T, M, C, S, P, F, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
   P: PopulationGenerator<T>,
+  F: Fitness<T>,
   Pr: Probe<T>,
 {
 }

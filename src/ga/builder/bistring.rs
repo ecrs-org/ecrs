@@ -1,27 +1,36 @@
+use crate::ga::builder::FitnessFn;
+use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
 use crate::ga::{
   operators::{crossover::SinglePoint, mutation::FlipBit, selection::Tournament},
   population::BitStrings,
   probe::StdoutProbe,
-  FitnessFn, GeneticAlgorithm,
+  GeneticAlgorithm,
 };
 
 use super::{DefaultParams, GAConfigOpt};
 
-type Bsc = Vec<bool>;
+pub(super) type Bsc = Vec<bool>;
 
-pub struct BitStringBuilder {
+pub struct BitStringBuilder<F: Fitness<Bsc>> {
   config: GAConfigOpt<
     Bsc,
     FlipBit<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
     BitStrings,
+    F,
     StdoutProbe,
   >,
   dim: Option<usize>,
 }
 
-impl BitStringBuilder {
+impl BitStringBuilder<FnBasedFitness<Bsc>> {
+  pub fn fitness_fn(self, fitness_fn: FitnessFn<Bsc>) -> Self {
+    self.fitness(FnBasedFitness::new(fitness_fn))
+  }
+}
+
+impl<F: Fitness<Bsc>> BitStringBuilder<F> {
   pub(super) fn new() -> Self {
     BitStringBuilder {
       config: GAConfigOpt::new(),
@@ -64,8 +73,8 @@ impl BitStringBuilder {
     self
   }
 
-  pub fn fitness_fn(mut self, fitness_fn: FitnessFn<Bsc>) -> Self {
-    self.config.fitness_fn = Some(fitness_fn);
+  pub fn fitness(mut self, fitness: F) -> Self {
+    self.config.fitness_fn = Some(fitness);
     self
   }
 
@@ -77,6 +86,7 @@ impl BitStringBuilder {
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
     BitStrings,
+    F,
     StdoutProbe,
   > {
     self.config.params.fill_from(&Self::DEFAULT_PARAMS);
@@ -110,4 +120,4 @@ impl BitStringBuilder {
   }
 }
 
-impl DefaultParams for BitStringBuilder {}
+impl<F: Fitness<Bsc>> DefaultParams for BitStringBuilder<F> {}
