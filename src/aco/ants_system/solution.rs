@@ -1,11 +1,7 @@
-use std::cmp::Ordering;
-
-use crate::aco::into_vec;
-use nalgebra::{Dynamic, OMatrix, RealField};
+use crate::aco::{into_vec, FMatrix};
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
-
-type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
+use std::cmp::Ordering;
 
 /// Struct with matrix representing path and its cost
 #[derive(Clone)]
@@ -18,7 +14,7 @@ impl Default for Solution {
   fn default() -> Self {
     Self {
       matrix: FMatrix::zeros(0, 0),
-      cost: f64::max_value().unwrap(),
+      cost: f64::MAX,
     }
   }
 }
