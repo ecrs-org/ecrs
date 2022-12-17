@@ -235,6 +235,8 @@ where
 #[cfg(test)]
 mod tests {
   use super::{BitStrings, PopulationGenerator, RandomPoints};
+  use crate::ga::population::RandomPermutations;
+  use itertools::Itertools;
 
   #[test]
   fn points_have_appropriate_len() {
@@ -285,6 +287,29 @@ mod tests {
 
     for p in points {
       assert_eq!(p.chromosome_ref().len(), dim)
+    }
+  }
+
+  #[test]
+  fn permutations_have_appropriate_len() {
+    let dim = 30;
+    let mut gen = RandomPermutations::new((0..dim).collect_vec());
+    let points = gen.generate(30);
+
+    for p in points {
+      assert_eq!(p.chromosome_ref().len(), dim)
+    }
+  }
+
+  #[test]
+  fn permutations_have_every_gene() {
+    let dim: usize = 30;
+    let mut gen = RandomPermutations::new((1..=dim).collect_vec());
+    let points = gen.generate(10);
+
+    for p in points {
+      let sum: usize = p.chromosome_ref().iter().sum();
+      assert_eq!(sum, ((dim + 1) * dim) / 2)
     }
   }
 }
