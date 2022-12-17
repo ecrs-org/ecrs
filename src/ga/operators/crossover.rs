@@ -902,13 +902,13 @@ where
 
 #[cfg(test)]
 mod test {
-  use crate::ga::operators::crossover::Pmx;
   use crate::ga::operators::crossover::Ppx;
+  use crate::ga::operators::crossover::{CrossoverOperator, Pmx, Shuffle};
   use crate::ga::Individual;
   use std::iter::zip;
 
   #[test]
-  fn ppx_example_1() {
+  fn check_ppx_example() {
     let op = Ppx::new();
     let p1 = Individual::from(vec![1, 2, 3, 4, 5, 6]);
     let p2 = Individual::from(vec![3, 1, 2, 6, 4, 5]);
@@ -924,7 +924,7 @@ mod test {
   }
 
   #[test]
-  fn run_example() {
+  fn check_pmx_example() {
     // https://www.rubicite.com/Tutorials/GeneticAlgorithms/CrossoverOperators/PMXCrossoverOperator.aspx/
     let op = Pmx::new();
 
@@ -934,6 +934,32 @@ mod test {
     let child = op.create_child(&p1, &p2, 3, 8);
     for (i, j) in zip(child.chromosome, vec![0, 7, 4, 3, 6, 2, 5, 1, 8, 9]) {
       assert_eq!(i, j);
+    }
+  }
+
+  #[test]
+  fn shuffle_gives_appropriate_len() {
+    let mut op = Shuffle::new();
+
+    let p1 = Individual::from(vec![8, 4, 7, 3, 6, 2, 5, 1, 9, 0]);
+    let p2 = Individual::from(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    let (child_1, child_2) = op.apply(&p1, &p2);
+    assert_eq!(child_1.chromosome.len(), 10);
+    assert_eq!(child_2.chromosome.len(), 10);
+  }
+
+  #[test]
+  fn shuffle_fulfills_conditions() {
+    let mut op = Shuffle::new();
+
+    let p1 = Individual::from(vec![1, 0, 0, 1, 0, 1, 0, 1, 0, 0]);
+    let p2 = Individual::from(vec![0, 1, 1, 0, 1, 0, 1, 0, 1, 1]);
+
+    let (c1, c2) = op.apply(&p1, &p2);
+    for (g1, g2) in c1.chromosome.iter().zip(c2.chromosome.iter()) {
+      assert_eq!(g1 * g2, 0);
+      assert_eq!(g1 + g2, 1);
     }
   }
 }
