@@ -126,23 +126,36 @@ impl<R: Rng> PopulationGenerator<Vec<f64>> for RandomPoints<R> {
 /// Implements [PopulationGenerator] trait. Can be used with genetic algorithm.
 ///
 /// Generates vector of random bit-strings.
-pub struct BitStrings {
+pub struct BitStrings<R: Rng> {
   dim: usize,
+  rng: R,
 }
 
-impl BitStrings {
-  /// Returns [BitString] population generator
+impl BitStrings<ThreadRng> {
+  /// Returns [BitString] population generator wit default RNG
   ///
   /// ### Arguments
   ///
   /// * `dim` -- Dimension of the sampling space
   pub fn new(dim: usize) -> Self {
-    assert!(dim > 0, "Space dimension must be > 0");
-    BitStrings { dim }
+    Self::with_rng(dim, thread_rng())
   }
 }
 
-impl PopulationGenerator<Vec<bool>> for BitStrings {
+impl<R: Rng> BitStrings<R> {
+  /// Returns [BitString] population generator wit custom RNG
+  ///
+  /// ### Arguments
+  ///
+  /// * `dim` -- Dimension of the sampling space
+  /// * `rng` -- Random numbers generator
+  pub fn with_rng(dim: usize, rng: R) -> Self {
+    assert!(dim > 0, "Space dimension must be > 0");
+    BitStrings { dim, rng }
+  }
+}
+
+impl<R: Rng> PopulationGenerator<Vec<bool>> for BitStrings<R> {
   /// Generates vector of `count` random bitstrings
   ///
   /// ### Arguments
@@ -151,16 +164,11 @@ impl PopulationGenerator<Vec<bool>> for BitStrings {
   fn generate(&mut self, count: usize) -> Vec<Individual<Vec<bool>>> {
     let mut population: Vec<Individual<Vec<bool>>> = Vec::with_capacity(count);
 
-    let distr = rand::distributions::Uniform::from(0.0..1.0);
-    let rng = &mut rand::thread_rng();
+    let distr = rand::distributions::Standard;
 
     for _ in 0..count {
       population.push(Individual::from(
-        rng
-          .sample_iter(distr)
-          .take(self.dim)
-          .map(|v| v < 0.5)
-          .collect_vec(),
+        (&mut self.rng).sample_iter(distr).take(self.dim).collect_vec(),
       ));
     }
 
