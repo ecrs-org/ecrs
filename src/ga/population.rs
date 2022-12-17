@@ -180,22 +180,39 @@ impl<R: Rng> PopulationGenerator<Vec<bool>> for BitStrings<R> {
 ///
 /// Generates random permutations of given vector.
 /// Permutations can be repeated
-pub struct RandomPermutations<GeneT: Copy> {
+pub struct RandomPermutations<GeneT: Copy, R: Rng> {
   genes: Vec<GeneT>,
+  rng: R,
 }
 
-impl<GeneT: Copy> RandomPermutations<GeneT> {
-  /// Returns [RandomPermutations] population generator.
+impl<GeneT: Copy> RandomPermutations<GeneT, ThreadRng> {
+  /// Returns [RandomPermutations] population generator with default rng.
   ///
   /// ### Arguments
   ///
   /// * `genes` - Vector which will be permuted
   pub fn new(genes: Vec<GeneT>) -> Self {
-    RandomPermutations { genes }
+    Self::with_rng(genes, thread_rng())
   }
 }
 
-impl<GeneT: Copy + Debug + Sync + Send> PopulationGenerator<Vec<GeneT>> for RandomPermutations<GeneT> {
+impl<GeneT: Copy, R: Rng> RandomPermutations<GeneT, R> {
+  /// Returns [RandomPermutations] population generator with custom rng.
+  ///
+  /// ### Arguments
+  ///
+  /// * `genes` - Vector which will be permuted
+  /// * `rng` - Random numbers generator
+  pub fn with_rng(genes: Vec<GeneT>, rng: R) -> Self {
+    RandomPermutations { genes, rng }
+  }
+}
+
+impl<GeneT, R> PopulationGenerator<Vec<GeneT>> for RandomPermutations<GeneT, R>
+where
+  GeneT: Copy + Debug + Sync + Send,
+  R: Rng,
+{
   /// Generates vector of `count` random permutations from stored genes.
   /// Repeated individual are possible.
   ///
@@ -204,11 +221,10 @@ impl<GeneT: Copy + Debug + Sync + Send> PopulationGenerator<Vec<GeneT>> for Rand
   /// * `count` -- Number of random permutations to generate
   fn generate(&mut self, count: usize) -> Vec<Individual<Vec<GeneT>>> {
     let mut population: Vec<Individual<Vec<GeneT>>> = Vec::with_capacity(count);
-    let rng = &mut rand::thread_rng();
 
     for _ in 0..count {
       let mut genome = self.genes.clone();
-      genome.shuffle(rng);
+      genome.shuffle(&mut self.rng);
       population.push(Individual::from(genome))
     }
 
