@@ -1,10 +1,29 @@
+//! Implementation of pheromone calculations strategies.
+//!
 use crate::aco::{FMatrix, Solution};
 use std::ops::Add;
 
+/// # Pheromone Update
+///
+/// This trait defines common behaviour for pheromone update calculations.
+/// You can implement this trait to provide your custom way of calculating new pheromone to the ACO.
 pub trait PheromoneUpdate {
+  /// Returns the new pheromone
+  ///
+  /// ## Arguments
+  ///
+  /// * `old_pheromone` - Pheromone used to generate current solutions
+  /// * `solutions` - Current generated solution.
+  /// * `evaporation_rate` - rate of old pheromone evaporation
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix;
 }
 
+/// # Ant System Pheromone Update
+///
+/// Implements [PheromoneUpdate]. The pheromone is updated as first proposed by Marco Dorigo,
+/// every ant leaves pheromone trail on its way, the pheromone trail strength is inversely proportional
+/// to the way cost. New pheromone a sum of old pheromone scaled by (1 - evaporation rate) and sum
+/// of pheromone trails left by ants.
 pub struct AntSystemPU;
 
 impl PheromoneUpdate for AntSystemPU {

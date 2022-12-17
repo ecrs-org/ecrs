@@ -7,7 +7,6 @@ use crate::aco::{AntSystem, AntSystemCfg, FMatrix};
 
 /// Builder for [AntSystem]
 ///
-/// For more details about parameters look [here](http://www.scholarpedia.org/article/Ant_colony_optimization) at Ant system section
 pub struct Builder<P: PheromoneUpdate> {
   conf: AntSystemCfgOpt<P>,
 }
@@ -113,12 +112,20 @@ impl<P: PheromoneUpdate> Builder<P> {
     self
   }
 
+  /// Sets the the way to calculate pheromone update.
+  ///
+  /// For more info see [aco::pheromone] module.
+  ///
+  /// ## Arguments
+  /// * `pheromone_update` - Implementation of [PheromoneUpdate] trait.
   pub fn set_pheromone_update(mut self, pheromone_update: P) -> Self {
     self.conf.pheromone_update = Some(pheromone_update);
     self
   }
 
   /// Builds [AntSystem] with provided building blocks.
+  ///
+  /// * `pheromone_update` needs to be specified, if not program will panic
   ///
   /// If specific building block is not provided a default value will be used.
   /// ### Defaults
