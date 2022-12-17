@@ -23,6 +23,7 @@
 //!   let ant_s = ecrs::aco::Builder::new()
 //!       .set_weights(cost)
 //!       .set_heuristic(heuristic)
+//!       .set_pheromone_update(ecrs::aco::pheromone::AntSystemPU)
 //!       .build();
 //!
 //!   ant_s.run();
@@ -41,6 +42,7 @@ use std::error::Error;
 
 mod ant_system_cfg;
 mod ants_system;
+pub mod pheromone;
 
 pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 pub use ants_system::Solution;
