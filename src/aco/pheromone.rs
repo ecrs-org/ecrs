@@ -1,7 +1,10 @@
 //! Implementation of pheromone calculations strategies.
 //!
+use crate::aco::pheromone::best_policy::BestPolicy;
 use crate::aco::{FMatrix, Solution};
 use std::ops::Add;
+
+mod best_policy;
 
 /// # Pheromone Update
 ///
@@ -86,6 +89,63 @@ impl PheromoneUpdate for ElitistAntSystemPU {
   }
 }
 
+/// # MAX-MIN Ant System Pheromone Update
+///
+/// Implements [PheromoneUpdate].
+/// the pheromone trail strength is inversely proportional
+/// to the way cost. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and
+/// pheromone trail left by ant chosen by [BestPolicy], additionally the pheromone value is clamped.
+struct MMAntSystemPU<B: BestPolicy> {
+  best_policy: B,
+  lower_bound: f64,
+  upper_bound: f64,
+}
+
+impl<B: BestPolicy> MMAntSystemPU<B> {
+  /// Creates an [MMAntSystemPU] with user provided implementation of [BestPolicy].
+  ///
+  /// ## Arguments
+  /// * `lower_bound` - Minimal possible pheromone value.
+  /// * `upper_bound` - Maximal possible pheromone value.
+  /// * `best_policy` - Implementation of [BestPolicy]
+  pub fn with_best_policy(lower_bound: f64, upper_bound: f64, best_policy: B) -> Self {
+    assert!(lower_bound > 0.0, "Lower bound must be grater than 0");
+    assert!(
+      upper_bound > lower_bound,
+      "Lower bound must be smaller than upper bound"
+    );
+
+    Self {
+      lower_bound,
+      upper_bound,
+      best_policy,
+    }
+  }
+}
+
+impl MMAntSystemPU<best_policy::OverallBest> {
+  /// Creates an [MMAntSystemPU] with [best_policy::OverallBest] best ant choosing policy
+  ///
+  /// ## Arguments
+  /// * `lower_bound` - Minimal possible pheromone value.
+  /// * `upper_bound` - Maximal possible pheromone value.
+  pub fn new(lower_bound: f64, upper_bound: f64) -> Self {
+    Self::with_best_policy(lower_bound, upper_bound, best_policy::OverallBest::new())
+  }
+}
+
+impl<B: BestPolicy> PheromoneUpdate for MMAntSystemPU<B> {
+  fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
+    self.best_policy.update_best(solutions);
+    let best_pheromone = self.best_policy.get_best_pheromone();
+
+    old_pheromone
+      .scale(1.0 - evaporation_rate)
+      .add(best_pheromone)
+      .map(|a| a.clamp(self.lower_bound, self.upper_bound))
+  }
+}
+
 #[inline]
 fn scale_and_sum(solutions: &[Solution]) -> FMatrix {
   solutions
@@ -97,7 +157,7 @@ fn scale_and_sum(solutions: &[Solution]) -> FMatrix {
 
 #[cfg(test)]
 mod tests {
-  use crate::aco::pheromone::{AntSystemPU, ElitistAntSystemPU, PheromoneUpdate};
+  use crate::aco::pheromone::{AntSystemPU, ElitistAntSystemPU, MMAntSystemPU, PheromoneUpdate};
   use crate::aco::{FMatrix, Solution};
 
   #[test]
@@ -146,6 +206,32 @@ mod tests {
     let mut pu = ElitistAntSystemPU::new();
     let new_pheromone = pu.apply(&pheromone, &sols, 0.25);
     let pheromone = vec![0.0, 1.375, 2.125, 1.375, 0.0, 3.625, 2.125, 3.625, 0.0];
+
+    for (p, p_exp) in new_pheromone.iter().zip(pheromone.iter()) {
+      assert_eq!(p, p_exp);
+    }
+  }
+
+  #[test]
+  fn check_max_min_ant_system_pu_with_example() {
+    let pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
+
+    let s1 = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0]);
+    let s2 = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0]);
+    let sols = [
+      Solution {
+        matrix: s1,
+        cost: 8.0,
+      },
+      Solution {
+        matrix: s2,
+        cost: 4.0,
+      },
+    ];
+
+    let mut pu = MMAntSystemPU::new(1.5, 3.0);
+    let new_pheromone = pu.apply(&pheromone, &sols, 0.25);
+    let pheromone = vec![1.5, 1.5, 1.75, 1.5, 1.5, 3.0, 1.75, 3.0, 1.5];
 
     for (p, p_exp) in new_pheromone.iter().zip(pheromone.iter()) {
       assert_eq!(p, p_exp);
