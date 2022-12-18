@@ -146,11 +146,19 @@ impl<B: BestPolicy> PheromoneUpdate for MMAntSystemPU<B> {
   }
 }
 
+/// # Ant Colony System Pheromone Update
+///
+/// Implements [PheromoneUpdate].
+/// the pheromone trail strength is inversely proportional
+/// to the way cost. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and
+/// best ant pheromone trail scaled by evaporation rate. Best ant pheromone is selected based
+/// on [BestPolicy] implementation.
 struct AntColonySystemPU<B: BestPolicy> {
   best_policy: B,
 }
 
 impl AntColonySystemPU<best_policy::OverallBest> {
+  /// Creates an [AntColonySystemPU] with [best_policy::OverallBest] best ant choosing policy
   pub fn new() -> Self {
     Self {
       best_policy: best_policy::OverallBest::new(),
@@ -159,6 +167,10 @@ impl AntColonySystemPU<best_policy::OverallBest> {
 }
 
 impl<B: BestPolicy> AntColonySystemPU<B> {
+  /// Creates an [AntColonySystemPU] with user provided implementation of [BestPolicy].
+  ///
+  /// ## Arguments
+  /// * `best_policy` - Implementation of [BestPolicy]
   pub fn with_policy(best_policy: B) -> Self {
     Self { best_policy }
   }
