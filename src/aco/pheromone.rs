@@ -3,6 +3,8 @@
 use crate::aco::{FMatrix, Solution};
 use std::ops::Add;
 
+mod best_policy;
+
 /// # Pheromone Update
 ///
 /// This trait defines common behaviour for pheromone update calculations.
@@ -74,6 +76,12 @@ impl ElitistAntSystemPU {
   }
 }
 
+/// # MAX-MIN Ant System Pheromone Update
+///
+/// Implements [PheromoneUpdate].
+/// the pheromone trail strength is inversely proportional
+/// to the way cost. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and sum
+/// of pheromone trails left by ants, additionally we are adding pheromone left by the best ant overall.
 impl PheromoneUpdate for ElitistAntSystemPU {
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
     self.update_best(solutions);
@@ -85,6 +93,8 @@ impl PheromoneUpdate for ElitistAntSystemPU {
       .add(&self.best_solution_pheromone)
   }
 }
+
+struct MMAntSystemPU {}
 
 #[inline]
 fn scale_and_sum(solutions: &[Solution]) -> FMatrix {
