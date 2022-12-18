@@ -77,12 +77,6 @@ impl ElitistAntSystemPU {
   }
 }
 
-/// # MAX-MIN Ant System Pheromone Update
-///
-/// Implements [PheromoneUpdate].
-/// the pheromone trail strength is inversely proportional
-/// to the way cost. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and sum
-/// of pheromone trails left by ants, additionally we are adding pheromone left by the best ant overall.
 impl PheromoneUpdate for ElitistAntSystemPU {
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
     self.update_best(solutions);
@@ -95,6 +89,12 @@ impl PheromoneUpdate for ElitistAntSystemPU {
   }
 }
 
+/// # MAX-MIN Ant System Pheromone Update
+///
+/// Implements [PheromoneUpdate].
+/// the pheromone trail strength is inversely proportional
+/// to the way cost. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and
+/// pheromone trail left by ant chosen by [BestPolicy], additionally the pheromone value is clamped.
 struct MMAntSystemPU<B: BestPolicy> {
   best_policy: B,
   lower_bound: f64,
@@ -102,6 +102,12 @@ struct MMAntSystemPU<B: BestPolicy> {
 }
 
 impl<B: BestPolicy> MMAntSystemPU<B> {
+  /// Creates an [MMAntSystemPU] with user provided implementation of [BestPolicy].
+  ///
+  /// ## Arguments
+  /// * `lower_bound` - Minimal possible pheromone value.
+  /// * `upper_bound` - Maximal possible pheromone value.
+  /// * `best_policy` - Implementation of [BestPolicy]
   pub fn with_best_policy(lower_bound: f64, upper_bound: f64, best_policy: B) -> Self {
     assert!(lower_bound > 0.0, "Lower bound must be grater than 0");
     assert!(
@@ -118,6 +124,11 @@ impl<B: BestPolicy> MMAntSystemPU<B> {
 }
 
 impl MMAntSystemPU<best_policy::OverallBest> {
+  /// Creates an [MMAntSystemPU] with [best_policy::OverallBest] best ant choosing policy
+  ///
+  /// ## Arguments
+  /// * `lower_bound` - Minimal possible pheromone value.
+  /// * `upper_bound` - Maximal possible pheromone value.
   pub fn new(lower_bound: f64, upper_bound: f64) -> Self {
     Self::with_best_policy(lower_bound, upper_bound, best_policy::OverallBest::new())
   }
