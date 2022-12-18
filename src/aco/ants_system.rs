@@ -5,22 +5,23 @@ mod solution;
 use rand::Rng;
 use std::collections::HashSet;
 use std::iter::zip;
-use std::ops::Add;
 
 pub use solution::Solution;
 
+use crate::aco::pheromone::PheromoneUpdate;
 use crate::aco::AntSystemCfg;
 use crate::aco::FMatrix;
+
 /// Wrapper class for AntSystem algorithm.
 ///
 /// To extract data use a [probe](probe)
-pub struct AntSystem {
-  cfg: AntSystemCfg,
+pub struct AntSystem<P: PheromoneUpdate> {
+  cfg: AntSystemCfg<P>,
   pheromone: FMatrix,
   best_sol: Solution,
 }
 
-impl AntSystem {
+impl<P: PheromoneUpdate> AntSystem<P> {
   /// Executes the algorithm
   pub fn run(mut self) {
     for i in 0..self.cfg.iteration {
@@ -39,16 +40,11 @@ impl AntSystem {
     let best = self.find_best(&sols);
     self.cfg.probe.on_current_best(best);
     self.update_best(best);
-    let d_pheromone = sols
-      .iter()
-      .map(|sol| sol.matrix.scale(1.0 / sol.cost))
-      .reduce(|s1, s2| s1.add(s2))
-      .expect("d_pheromone creation error");
 
-    let new_pheromone: FMatrix = self
-      .pheromone
-      .scale(1.0 - self.cfg.evaporation_rate)
-      .add(&d_pheromone);
+    let new_pheromone = self
+      .cfg
+      .pheromone_update
+      .apply(&self.pheromone, &sols, self.cfg.evaporation_rate);
 
     self
       .cfg
