@@ -22,9 +22,16 @@ pub trait PheromoneUpdate {
 ///
 /// Implements [PheromoneUpdate]. The pheromone is updated as first proposed by Marco Dorigo,
 /// every ant leaves pheromone trail on its way, the pheromone trail strength is inversely proportional
-/// to the way cost. New pheromone a sum of old pheromone scaled by (1 - evaporation rate) and sum
+/// to the way cost. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and sum
 /// of pheromone trails left by ants.
 pub struct AntSystemPU;
+
+impl AntSystemPU {
+  /// Creates a new instance of [AntSystemPU]
+  pub fn new() -> Self {
+    AntSystemPU
+  }
+}
 
 impl PheromoneUpdate for AntSystemPU {
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
@@ -34,12 +41,19 @@ impl PheromoneUpdate for AntSystemPU {
   }
 }
 
+/// # Elitist Ant System Pheromone Update
+///
+/// Implements [PheromoneUpdate]. Similarity to [AntSystemPU], every ant leaves pheromone trail on its way,
+/// the pheromone trail strength is inversely proportional
+/// to the way cost. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and sum
+/// of pheromone trails left by ants, additionally we are adding pheromone left by the best ant overall.
 pub struct ElitistAntSystemPU {
   best_solution_pheromone: FMatrix,
   best_solution_cost: f64,
 }
 
 impl ElitistAntSystemPU {
+  /// Creates a new instance of [ElitistAntSystemPU]
   pub fn new() -> Self {
     ElitistAntSystemPU {
       best_solution_pheromone: FMatrix::zeros(0, 0),
