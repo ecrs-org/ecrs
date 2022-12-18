@@ -1,5 +1,6 @@
 //! Implementation of pheromone calculations strategies.
 //!
+use crate::aco::pheromone::best_policy::BestPolicy;
 use crate::aco::{FMatrix, Solution};
 use std::ops::Add;
 
@@ -94,7 +95,45 @@ impl PheromoneUpdate for ElitistAntSystemPU {
   }
 }
 
-struct MMAntSystemPU {}
+struct MMAntSystemPU<B: BestPolicy> {
+  best_policy: B,
+  lower_bound: f64,
+  upper_bound: f64,
+}
+
+impl<B: BestPolicy> MMAntSystemPU<B> {
+  pub fn with_best_policy(lower_bound: f64, upper_bound: f64, best_policy: B) -> Self {
+    assert!(lower_bound > 0.0, "Lower bound must be grater than 0");
+    assert!(
+      upper_bound > lower_bound,
+      "Lower bound must be smaller than upper bound"
+    );
+
+    Self {
+      lower_bound,
+      upper_bound,
+      best_policy,
+    }
+  }
+}
+
+impl MMAntSystemPU<best_policy::OverallBest> {
+  pub fn new(lower_bound: f64, upper_bound: f64) -> Self {
+    Self::with_best_policy(lower_bound, upper_bound, best_policy::OverallBest::new())
+  }
+}
+
+impl<B: BestPolicy> PheromoneUpdate for MMAntSystemPU<B> {
+  fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
+    self.best_policy.update_best(solutions);
+    let best_pheromone = self.best_policy.get_best_pheromone();
+
+    old_pheromone
+      .scale(1.0 - evaporation_rate)
+      .add(best_pheromone)
+      .map(|a| a.clamp(self.lower_bound, self.upper_bound))
+  }
+}
 
 #[inline]
 fn scale_and_sum(solutions: &[Solution]) -> FMatrix {
