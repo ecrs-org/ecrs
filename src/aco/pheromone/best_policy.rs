@@ -73,6 +73,7 @@ impl BestPolicy for OverallBest {
 
     if iter_best.cost < self.cost {
       self.best_pheromone = iter_best.matrix.scale(1.0 / iter_best.cost);
+      self.cost = iter_best.cost;
     }
   }
 
@@ -87,4 +88,82 @@ fn find_best(solutions: &[Solution]) -> &Solution {
     .iter()
     .reduce(|a, b| if a.cost > b.cost { b } else { a })
     .unwrap()
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::aco::pheromone::best_policy::{BestPolicy, IterationBest, OverallBest};
+  use crate::aco::{FMatrix, Solution};
+
+  #[test]
+  fn iteration_best_returns_correct_pheromones() {
+    let gen1 = [
+      Solution {
+        matrix: FMatrix::repeat(1, 1, 1.0),
+        cost: 2.0,
+      },
+      Solution {
+        matrix: FMatrix::repeat(1, 1, 1.0),
+        cost: 4.0,
+      },
+    ];
+
+    let gen2 = [
+      Solution {
+        matrix: FMatrix::repeat(1, 1, 1.0),
+        cost: 8.0,
+      },
+      Solution {
+        matrix: FMatrix::repeat(1, 1, 1.0),
+        cost: 16.0,
+      },
+    ];
+
+    let mut best_pol = IterationBest::new();
+    best_pol.update_best(&gen1);
+    let pheromone = best_pol.get_best_pheromone();
+
+    assert_eq!(pheromone[0], 0.5);
+
+    best_pol.update_best(&gen2);
+    let pheromone = best_pol.get_best_pheromone();
+
+    assert_eq!(pheromone[0], 0.125);
+  }
+
+  #[test]
+  fn overall_best_returns_correct_pheromones() {
+    let gen1 = [
+      Solution {
+        matrix: FMatrix::repeat(1, 1, 1.0),
+        cost: 2.0,
+      },
+      Solution {
+        matrix: FMatrix::repeat(1, 1, 1.0),
+        cost: 4.0,
+      },
+    ];
+
+    let gen2 = [
+      Solution {
+        matrix: FMatrix::repeat(1, 1, 1.0),
+        cost: 8.0,
+      },
+      Solution {
+        matrix: FMatrix::repeat(1, 1, 1.0),
+        cost: 16.0,
+      },
+    ];
+
+    let mut best_pol = OverallBest::new();
+    best_pol.update_best(&gen1);
+    let pheromone = best_pol.get_best_pheromone();
+
+    assert_eq!(pheromone[0], 0.5);
+
+    best_pol.update_best(&gen2);
+    let pheromone = best_pol.get_best_pheromone();
+
+    assert_eq!(pheromone[0], 0.5);
+  }
 }

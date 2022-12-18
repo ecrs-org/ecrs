@@ -157,7 +157,7 @@ fn scale_and_sum(solutions: &[Solution]) -> FMatrix {
 
 #[cfg(test)]
 mod tests {
-  use crate::aco::pheromone::{AntSystemPU, ElitistAntSystemPU, PheromoneUpdate};
+  use crate::aco::pheromone::{AntSystemPU, ElitistAntSystemPU, MMAntSystemPU, PheromoneUpdate};
   use crate::aco::{FMatrix, Solution};
 
   #[test]
@@ -206,6 +206,32 @@ mod tests {
     let mut pu = ElitistAntSystemPU::new();
     let new_pheromone = pu.apply(&pheromone, &sols, 0.25);
     let pheromone = vec![0.0, 1.375, 2.125, 1.375, 0.0, 3.625, 2.125, 3.625, 0.0];
+
+    for (p, p_exp) in new_pheromone.iter().zip(pheromone.iter()) {
+      assert_eq!(p, p_exp);
+    }
+  }
+
+  #[test]
+  fn check_max_min_ant_system_pu_with_example() {
+    let pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
+
+    let s1 = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0]);
+    let s2 = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0]);
+    let sols = [
+      Solution {
+        matrix: s1,
+        cost: 8.0,
+      },
+      Solution {
+        matrix: s2,
+        cost: 4.0,
+      },
+    ];
+
+    let mut pu = MMAntSystemPU::new(1.5, 3.0);
+    let new_pheromone = pu.apply(&pheromone, &sols, 0.25);
+    let pheromone = vec![1.5, 1.5, 1.75, 1.5, 1.5, 3.0, 1.75, 3.0, 1.5];
 
     for (p, p_exp) in new_pheromone.iter().zip(pheromone.iter()) {
       assert_eq!(p, p_exp);
