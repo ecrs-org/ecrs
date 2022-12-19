@@ -87,7 +87,7 @@ impl PSOAlgorithm {
       config.dimensions,
       config.lower_bound,
       config.upper_bound,
-      config.function.borrow(),
+      config.function,
     );
     PSOAlgorithm { config, swarm }
   }
