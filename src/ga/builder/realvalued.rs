@@ -1,27 +1,36 @@
+use crate::ga::builder::FitnessFn;
+use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
 use crate::ga::{
   operators::{crossover::SinglePoint, mutation::Interchange, selection::Tournament},
   population::RandomPoints,
   probe::StdoutProbe,
-  FitnessFn, GeneticAlgorithm,
+  GeneticAlgorithm,
 };
 
 use super::{DefaultParams, GAConfigOpt};
 
-type Rvc = Vec<f64>;
+pub(super) type Rvc = Vec<f64>;
 
-pub struct RealValuedBuilder {
+pub struct RealValuedBuilder<F: Fitness<Rvc>> {
   config: GAConfigOpt<
     Rvc,
     Interchange<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
-    RandomPoints,
+    RandomPoints<rand::rngs::ThreadRng>,
+    F,
     StdoutProbe,
   >,
   dim: Option<usize>,
 }
 
-impl RealValuedBuilder {
+impl RealValuedBuilder<FnBasedFitness<Rvc>> {
+  pub fn fitness_fn(self, fitness_fn: FitnessFn<Rvc>) -> Self {
+    self.fitness(FnBasedFitness::new(fitness_fn))
+  }
+}
+
+impl<F: Fitness<Rvc>> RealValuedBuilder<F> {
   pub(super) fn new() -> Self {
     RealValuedBuilder {
       config: GAConfigOpt::new(),
@@ -64,8 +73,8 @@ impl RealValuedBuilder {
     self
   }
 
-  pub fn fitness_fn(mut self, fitness_fn: FitnessFn<Rvc>) -> Self {
-    self.config.fitness_fn = Some(fitness_fn);
+  pub fn fitness(mut self, fitness: F) -> Self {
+    self.config.fitness_fn = Some(fitness);
     self
   }
 
@@ -76,7 +85,8 @@ impl RealValuedBuilder {
     Interchange<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
-    RandomPoints,
+    RandomPoints<rand::rngs::ThreadRng>,
+    F,
     StdoutProbe,
   > {
     self.config.params.fill_from(&Self::DEFAULT_PARAMS);
@@ -113,4 +123,4 @@ impl RealValuedBuilder {
   }
 }
 
-impl DefaultParams for RealValuedBuilder {}
+impl<F: Fitness<Rvc>> DefaultParams for RealValuedBuilder<F> {}
