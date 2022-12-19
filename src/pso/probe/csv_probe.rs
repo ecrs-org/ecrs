@@ -27,7 +27,7 @@ impl Probe for CsvProbe {
     self.on_new_generation(swarm, 0);
   }
 
-  fn on_end(&mut self, _swarm: &Swarm) {
+  fn on_end(&mut self, _swarm: &Swarm, generation: usize) {
     let mut writer = csv::WriterBuilder::new().from_path(self.filename).unwrap();
     for record in self.records.iter() {
       if writer.serialize(record).is_err() {

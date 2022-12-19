@@ -18,9 +18,9 @@ impl Probe for MultiProbe {
     }
   }
 
-  fn on_end(&mut self, swarm: &Swarm) {
+  fn on_end(&mut self, swarm: &Swarm, generation: usize) {
     for probe in self.probes.iter_mut() {
-      probe.on_end(swarm);
+      probe.on_end(swarm, generation);
     }
   }
 
