@@ -9,8 +9,8 @@ pub trait AntsBehaviour {
 }
 
 pub struct AntSystemAB<R: Rng, G: Goodness> {
-  ants: Vec<Ant<R>>,
-  goodness: G,
+  pub(crate) ants: Vec<Ant<R>>,
+  pub(crate) goodness: G,
 }
 
 impl<R: Rng, G: Goodness> AntsBehaviour for AntSystemAB<R, G> {

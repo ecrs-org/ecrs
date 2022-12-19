@@ -1,10 +1,13 @@
 use crate::aco;
 use crate::aco::aco_cfg::AntColonyOptimizationCfgOpt;
 use crate::aco::ant::Ant;
+use crate::aco::ants_behaviour::AntSystemAB;
+use crate::aco::goodness::CanonicalGoodness;
 use crate::aco::pheromone::PheromoneUpdate;
 use crate::aco::probe::Probe;
 use crate::aco::{AntColonyOptimization, AntColonyOptimizationCfg, FMatrix};
 use itertools::Itertools;
+use rand::rngs::ThreadRng;
 
 /// Builder for [AntColonyOptimization]
 ///
@@ -138,7 +141,7 @@ impl<P: PheromoneUpdate> Builder<P> {
   /// * `ants_num` - 10
   /// * `iterations` - 300
   /// * `probe` - [aco::probe::StdoutProbe]
-  pub fn build(mut self) -> AntColonyOptimization<P> {
+  pub fn build(mut self) -> AntColonyOptimization<P, AntSystemAB<ThreadRng, CanonicalGoodness>> {
     let (nrow, ncol) = self.conf.weights.shape();
 
     if self.conf.heuristic.shape() != (nrow, ncol) {
@@ -157,6 +160,13 @@ impl<P: PheromoneUpdate> Builder<P> {
       .map(|_| Ant::new(cfg.weights.ncols()))
       .collect_vec();
 
-    AntColonyOptimization { cfg, pheromone, ants }
+    let goodness = CanonicalGoodness::new(cfg.alpha, cfg.beta, cfg.heuristic.clone());
+    let ants_behaviour = AntSystemAB { ants, goodness };
+
+    AntColonyOptimization {
+      cfg,
+      pheromone,
+      ants_behaviour,
+    }
   }
 }

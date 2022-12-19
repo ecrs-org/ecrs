@@ -29,23 +29,22 @@
 //! ```
 mod aco_cfg;
 mod ant;
+mod ants_behaviour;
 pub mod builder;
+pub mod goodness;
 pub mod pheromone;
 pub mod probe;
 mod solution;
 pub mod util;
-pub mod goodness;
-mod ants_behaviour;
 
 pub(self) use aco_cfg::AntColonyOptimizationCfg;
 pub use builder::Builder;
 pub use solution::Solution;
 
-use crate::aco::ant::Ant;
+use crate::aco::ants_behaviour::AntsBehaviour;
 use crate::aco::pheromone::PheromoneUpdate;
 use itertools::Itertools;
 use nalgebra::{Dynamic, OMatrix};
-use rand::rngs::ThreadRng;
 use std::iter::zip;
 
 pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
@@ -55,13 +54,13 @@ pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 /// Encapsulates common ACO algorithm patterns.
 ///
 /// To extract data use a [probe](probe)
-pub struct AntColonyOptimization<P: PheromoneUpdate> {
+pub struct AntColonyOptimization<P: PheromoneUpdate, AB: AntsBehaviour> {
   cfg: AntColonyOptimizationCfg<P>,
+  ants_behaviour: AB,
   pheromone: FMatrix,
-  ants: Vec<Ant<ThreadRng>>,
 }
 
-impl<P: PheromoneUpdate> AntColonyOptimization<P> {
+impl<P: PheromoneUpdate, AB: AntsBehaviour> AntColonyOptimization<P, AB> {
   /// Executes the algorithm
   pub fn run(mut self) {
     for i in 0..self.cfg.iteration {
@@ -74,7 +73,7 @@ impl<P: PheromoneUpdate> AntColonyOptimization<P> {
   }
 
   fn iterate(&mut self) {
-    let sols_m = self.run_ants();
+    let sols_m = self.ants_behaviour.simulate_ants(&mut self.pheromone);
     let sols = self.grade(sols_m);
 
     let best = self.find_best(&sols);
@@ -110,38 +109,6 @@ impl<P: PheromoneUpdate> AntColonyOptimization<P> {
 
   fn grade_one(&self, s: &FMatrix) -> f64 {
     s.component_mul(&self.cfg.weights).sum() / 2.0
-  }
-
-  fn run_ants(&mut self) -> Vec<FMatrix> {
-    let prob_iter = self
-      .pheromone
-      .iter()
-      .zip(self.cfg.heuristic.iter())
-      .map(|(p, h)| self.calc_prob(p, h));
-
-    let solution_size: usize = self.pheromone.nrows();
-    let prob = FMatrix::from_iterator(solution_size, solution_size, prob_iter);
-
-    let mut sols: Vec<FMatrix> = Vec::with_capacity(self.cfg.ants_num);
-    for ant in self.ants.iter_mut() {
-      ant.clear();
-      ant.chose_staring_place();
-      for _ in 1..solution_size {
-        ant.go_to_next_place(&prob);
-      }
-
-      if ant.is_stuck() {
-        break;
-      }
-      let path = ant.get_path();
-      sols.push(path_to_matrix(path));
-    }
-
-    sols
-  }
-
-  fn calc_prob(&self, p: &f64, h: &f64) -> f64 {
-    p.powf(self.cfg.alpha) * h.powf(self.cfg.beta)
   }
 
   fn end(mut self) {
