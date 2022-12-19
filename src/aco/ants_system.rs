@@ -2,7 +2,8 @@ pub mod builder;
 pub mod probe;
 mod solution;
 
-use rand::Rng;
+use push_trait::Push;
+use rand::{thread_rng, Rng};
 use std::collections::HashSet;
 use std::iter::zip;
 
@@ -103,10 +104,95 @@ impl<P: PheromoneUpdate> AntSystem<P> {
   }
 }
 
-fn run_ant(prob: &FMatrix) -> FMatrix {
+pub struct Ant<R: Rng> {
+  unvisited: HashSet<usize>,
+  path: Vec<usize>,
+  solution_size: usize,
+  stuck: bool,
+  rng: R,
+}
+
+impl Ant<rand::prelude::ThreadRng> {
+  pub fn new(solution_size: usize) -> Self {
+    Self::with_rng(solution_size, thread_rng())
+  }
+}
+
+impl<R: Rng> Ant<R> {
+  pub fn with_rng(solution_size: usize, rng: R) -> Self {
+    Self {
+      unvisited: HashSet::with_capacity(solution_size),
+      path: Vec::with_capacity(solution_size),
+      stuck: false,
+      solution_size,
+      rng,
+    }
+  }
+
+  pub fn clear(&mut self) {
+    for i in 0..self.solution_size {
+      self.unvisited.push(i);
+    }
+    self.path.clear();
+    self.stuck = false;
+  }
+
+  pub fn get_path(&self) -> &[usize] {
+    &self.path
+  }
+
+  pub fn chose_staring_place(&mut self) -> usize {
+    let start: usize = self.rng.gen_range(0..self.solution_size);
+    self.unvisited.remove(&start);
+    self.path.push(start);
+    start
+  }
+
+  fn is_stuck(&self) -> bool {
+    self.stuck
+  }
+
+  pub fn go_to_next_place(&mut self, edges_goodness: &FMatrix) -> (usize, usize) {
+    let last = *self
+      .path
+      .last()
+      .expect("Path is empty. Did you forget to call Ant::chose_staring_place");
+    if self.is_stuck() {
+      return (last, last);
+    }
+    let row = edges_goodness.row(last);
+
+    if self.unvisited.is_empty() {
+      panic!("Ant had already visited every place");
+    }
+
+    let mut goodness_sum = 0.0f64;
+    for v in self.unvisited.iter() {
+      goodness_sum += row[*v];
+    }
+
+    let mut random: f64 = self.rng.gen_range(0.0..=goodness_sum);
+    let mut next: usize = last;
+    for v in self.unvisited.iter() {
+      random -= row[*v];
+      if random <= 0.0 {
+        next = *v;
+        break;
+      }
+    }
+
+    if next == last {
+      self.stuck = true;
+    }
+
+    (last, next)
+  }
+}
+
+pub fn run_ant(prob: &FMatrix) -> FMatrix {
   let n = prob.nrows();
   let mut sol = FMatrix::zeros(n, n);
-  let mut random = rand::thread_rng();
+  let mut random = thread_rng();
   let mut unvisited: HashSet<usize> = HashSet::from_iter(0..n);
 
   let first: usize = random.gen_range(0..n);
