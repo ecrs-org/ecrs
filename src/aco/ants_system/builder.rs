@@ -1,9 +1,10 @@
 use crate::aco;
 use crate::aco::ant_system_cfg::AntSystemCfgOpt;
-use crate::aco::ants_system::Solution;
+use crate::aco::ants_system::{Ant, Solution};
 use crate::aco::pheromone::PheromoneUpdate;
 use crate::aco::probe::Probe;
 use crate::aco::{AntSystem, AntSystemCfg, FMatrix};
+use itertools::Itertools;
 
 /// Builder for [AntSystem]
 ///
@@ -151,9 +152,15 @@ impl<P: PheromoneUpdate> Builder<P> {
       panic!("{}", err);
     }
 
+    let cfg = cfg_opt.unwrap();
+    let ants = (0..cfg.ants_num)
+      .map(|_| Ant::new(cfg.weights.ncols()))
+      .collect_vec();
+
     AntSystem {
-      cfg: cfg_opt.unwrap(),
+      cfg,
       pheromone,
+      ants,
       best_sol: Solution::default(),
     }
   }

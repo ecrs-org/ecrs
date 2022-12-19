@@ -6,6 +6,7 @@ use push_trait::Push;
 use rand::{thread_rng, Rng};
 use std::collections::HashSet;
 use std::iter::zip;
+use rand::rngs::ThreadRng;
 
 pub use solution::Solution;
 
@@ -20,6 +21,7 @@ pub struct AntSystem<P: PheromoneUpdate> {
   cfg: AntSystemCfg<P>,
   pheromone: FMatrix,
   best_sol: Solution,
+  ants: Vec<Ant<ThreadRng>>
 }
 
 impl<P: PheromoneUpdate> AntSystem<P> {
