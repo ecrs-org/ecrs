@@ -56,7 +56,6 @@ pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 pub struct AntColonyOptimization<P: PheromoneUpdate> {
   cfg: AntColonyOptimizationCfg<P>,
   pheromone: FMatrix,
-  best_sol: Solution,
   ants: Vec<Ant<ThreadRng>>,
 }
 
@@ -78,7 +77,6 @@ impl<P: PheromoneUpdate> AntColonyOptimization<P> {
 
     let best = self.find_best(&sols);
     self.cfg.probe.on_current_best(best);
-    self.update_best(best);
 
     let new_pheromone = self
       .cfg
@@ -90,13 +88,6 @@ impl<P: PheromoneUpdate> AntColonyOptimization<P> {
       .probe
       .on_pheromone_update(&self.pheromone, &new_pheromone);
     self.pheromone = new_pheromone;
-  }
-
-  fn update_best(&mut self, current_best: &Solution) {
-    if self.best_sol > *current_best {
-      self.cfg.probe.on_new_best(current_best);
-      self.best_sol = (*current_best).clone();
-    }
   }
 
   fn find_best<'a>(&mut self, sols: &'a [Solution]) -> &'a Solution {
