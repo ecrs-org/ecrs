@@ -7,7 +7,7 @@ use serde::{Serialize, Serializer};
 use std::fs::File;
 use std::io::Write;
 
-use crate::aco::ants_system::probe::Probe;
+use crate::aco::probe::Probe;
 use crate::aco::Solution;
 use crate::aco::{into_vec, FMatrix};
 

@@ -1,4 +1,4 @@
-use crate::aco::ants_system::probe::Probe;
+use crate::aco::probe::Probe;
 use crate::aco::FMatrix;
 use crate::aco::Solution;
 

@@ -3,11 +3,6 @@
 //! To get data fom algorithm you must pass some kind of probe to AntSystem class.
 //! you can implement your own probe using [Probe](Probe) trait or use one of provided implementations.
 
-pub use aggregated_probe::AggregatedProbe;
-pub use csv_probe::CsvProbe;
-pub use json_probe::JsonProbe;
-pub use stdout_probe::StdoutProbe;
-
 use crate::aco::FMatrix;
 use crate::aco::Solution;
 
@@ -15,6 +10,11 @@ mod aggregated_probe;
 mod csv_probe;
 mod json_probe;
 mod stdout_probe;
+
+pub use aggregated_probe::AggregatedProbe;
+pub use csv_probe::CsvProbe;
+pub use json_probe::JsonProbe;
+pub use stdout_probe::StdoutProbe;
 
 pub trait Probe {
   /// Called when algorithm finds a new best solution overall.

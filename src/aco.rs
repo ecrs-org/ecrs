@@ -33,8 +33,7 @@
 use crate::aco::ant::Ant;
 use crate::aco::pheromone::PheromoneUpdate;
 pub(self) use ant_system_cfg::AntSystemCfg;
-pub use ants_system::builder::Builder;
-pub use ants_system::probe;
+pub use builder::Builder;
 use itertools::Itertools;
 use nalgebra::{Dynamic, OMatrix};
 use rand::rngs::ThreadRng;
@@ -45,7 +44,9 @@ use std::iter::zip;
 mod ant;
 mod ant_system_cfg;
 mod ants_system;
+pub mod builder;
 pub mod pheromone;
+pub mod probe;
 mod solution;
 
 pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
