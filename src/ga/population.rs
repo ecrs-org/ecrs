@@ -40,7 +40,7 @@ impl RandomPoints<ThreadRng> {
   ///
   /// * `dim` -- Dimension of the sampling space
   pub fn new(dim: usize) -> Self {
-    Self::wih_rng(dim, thread_rng())
+    Self::with_rng(dim, thread_rng())
   }
 }
 
@@ -77,7 +77,7 @@ impl<R: Rng> RandomPoints<R> {
   ///
   /// * `dim` -- Dimension of the sampling space
   /// * `rng` -- Random numbers generator
-  pub fn wih_rng(dim: usize, rng: R) -> Self {
+  pub fn with_rng(dim: usize, rng: R) -> Self {
     assert!(dim > 0, "Space dimension must be > 0");
     RandomPoints {
       dim,
