@@ -1,12 +1,12 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use ecrs::aco;
 use ecrs::aco::pheromone::AntSystemPU;
-use ecrs::aco::{FMatrix, Solution};
+use ecrs::aco::{util, FMatrix, Solution};
 use std::time::Duration;
 
 pub fn bench_aco_small(c: &mut Criterion) {
   let dist = calc_dist(&CITIES_5);
-  let heuristic = aco::create_heuristic_from_weights(&dist);
+  let heuristic = util::create_heuristic_from_weights(&dist);
 
   c.bench_function("aco small", |b| {
     b.iter(|| {
@@ -25,7 +25,7 @@ pub fn bench_aco_small(c: &mut Criterion) {
 
 pub fn bench_aco_medium(c: &mut Criterion) {
   let dist = calc_dist(&CITIES_15);
-  let heuristic = aco::create_heuristic_from_weights(&dist);
+  let heuristic = util::create_heuristic_from_weights(&dist);
 
   c.bench_function("aco medium", |b| {
     b.iter(|| {

@@ -1,4 +1,5 @@
-use crate::aco::{into_vec, FMatrix};
+use crate::aco::util::into_vec;
+use crate::aco::FMatrix;
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 use std::cmp::Ordering;

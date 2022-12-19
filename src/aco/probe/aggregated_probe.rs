@@ -1,6 +1,6 @@
-use crate::aco::ants_system::Solution;
 use crate::aco::probe::Probe;
 use crate::aco::FMatrix;
+use crate::aco::Solution;
 
 /// Wrapper probe. It holds a list of probes and calls them sequentially.
 ///
