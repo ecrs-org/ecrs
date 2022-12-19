@@ -15,7 +15,7 @@ pub struct RealValuedBuilder {
     Interchange<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
-    RandomPoints,
+    RandomPoints<rand::rngs::ThreadRng>,
     StdoutProbe,
   >,
   dim: Option<usize>,
@@ -76,7 +76,7 @@ impl RealValuedBuilder {
     Interchange<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
-    RandomPoints,
+    RandomPoints<rand::rngs::ThreadRng>,
     StdoutProbe,
   > {
     self.config.params.fill_from(&Self::DEFAULT_PARAMS);
