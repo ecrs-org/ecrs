@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 #![allow(clippy::new_without_default)]
+#![allow(clippy::type_complexity)]
 
 extern crate core;
 
