@@ -7,9 +7,10 @@ use serde::{Serialize, Serializer};
 use std::fs::File;
 use std::io::Write;
 
-use crate::aco::ants_system::probe::Probe;
-use crate::aco::ants_system::Solution;
-use crate::aco::{into_vec, FMatrix};
+use crate::aco::probe::Probe;
+use crate::aco::util::into_vec;
+use crate::aco::FMatrix;
+use crate::aco::Solution;
 
 struct IterationData {
   pheromone: FMatrix,

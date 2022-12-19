@@ -1,6 +1,6 @@
-use crate::aco::ants_system::probe::Probe;
-use crate::aco::ants_system::Solution;
+use crate::aco::probe::Probe;
 use crate::aco::FMatrix;
+use crate::aco::Solution;
 
 /// Simple Probe implementation for writing algorithm output onto standard output.
 pub struct StdoutProbe {}

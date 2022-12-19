@@ -2,7 +2,7 @@ use crate::aco::pheromone::PheromoneUpdate;
 use crate::aco::probe::Probe;
 use crate::aco::FMatrix;
 
-/// Struct wrapping all parameters needed for Ant System Algorithm.
+/// Struct wrapping all common parameters needed for Ant Colony Optimization algorithms.
 ///
 /// # Parameters
 /// * weights -  graph matrix representation.
@@ -14,8 +14,8 @@ use crate::aco::FMatrix;
 /// * iteration - number of iteration the algorithm should make.
 /// * probe - logging probe.
 ///
-/// For more details look [here](http://www.scholarpedia.org/article/Ant_colony_optimization) at Ant system section
-pub(in crate::aco) struct AntSystemCfg<P: PheromoneUpdate> {
+/// For more details look [here](http://www.scholarpedia.org/article/Ant_colony_optimization)
+pub(in crate::aco) struct AntColonyOptimizationCfg<P: PheromoneUpdate> {
   pub weights: FMatrix,
   pub heuristic: FMatrix,
   pub alpha: f64,
@@ -27,7 +27,7 @@ pub(in crate::aco) struct AntSystemCfg<P: PheromoneUpdate> {
   pub pheromone_update: P,
 }
 
-pub(in crate::aco) struct AntSystemCfgOpt<P: PheromoneUpdate> {
+pub(in crate::aco) struct AntColonyOptimizationCfgOpt<P: PheromoneUpdate> {
   pub weights: FMatrix,
   pub heuristic: FMatrix,
   pub alpha: f64,
@@ -39,12 +39,12 @@ pub(in crate::aco) struct AntSystemCfgOpt<P: PheromoneUpdate> {
   pub pheromone_update: Option<P>,
 }
 
-impl<P: PheromoneUpdate> TryFrom<AntSystemCfgOpt<P>> for AntSystemCfg<P> {
+impl<P: PheromoneUpdate> TryFrom<AntColonyOptimizationCfgOpt<P>> for AntColonyOptimizationCfg<P> {
   type Error = &'static str;
 
-  fn try_from(value: AntSystemCfgOpt<P>) -> Result<Self, Self::Error> {
+  fn try_from(value: AntColonyOptimizationCfgOpt<P>) -> Result<Self, Self::Error> {
     if let Some(pheromone_update) = value.pheromone_update {
-      Ok(AntSystemCfg {
+      Ok(AntColonyOptimizationCfg {
         weights: value.weights,
         heuristic: value.heuristic,
         alpha: value.alpha,
