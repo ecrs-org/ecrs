@@ -1,18 +1,31 @@
+use crate::aco;
+use crate::aco::ant_system_cfg::AntSystemCfgOpt;
 use crate::aco::ants_system::Solution;
+use crate::aco::pheromone::PheromoneUpdate;
 use crate::aco::probe::Probe;
 use crate::aco::{AntSystem, AntSystemCfg, FMatrix};
+
 /// Builder for [AntSystem]
 ///
-/// For more details about parameters look [here](http://www.scholarpedia.org/article/Ant_colony_optimization) at Ant system section
-pub struct Builder {
-  conf: AntSystemCfg,
+pub struct Builder<P: PheromoneUpdate> {
+  conf: AntSystemCfgOpt<P>,
 }
 
-impl Builder {
+impl<P: PheromoneUpdate> Builder<P> {
   /// Creates a new instance of Builder.
   pub fn new() -> Self {
     Builder {
-      conf: AntSystemCfg::default(),
+      conf: AntSystemCfgOpt {
+        weights: FMatrix::zeros(0, 0),
+        heuristic: FMatrix::zeros(0, 0),
+        alpha: 1.0,
+        beta: 1.0,
+        evaporation_rate: 0.1,
+        ants_num: 10,
+        iteration: 300,
+        probe: Box::new(aco::probe::StdoutProbe::new()),
+        pheromone_update: None,
+      },
     }
   }
 
@@ -99,7 +112,20 @@ impl Builder {
     self
   }
 
+  /// Sets the the way to calculate pheromone update.
+  ///
+  /// For more info see [aco::pheromone] module.
+  ///
+  /// ## Arguments
+  /// * `pheromone_update` - Implementation of [PheromoneUpdate] trait.
+  pub fn set_pheromone_update(mut self, pheromone_update: P) -> Self {
+    self.conf.pheromone_update = Some(pheromone_update);
+    self
+  }
+
   /// Builds [AntSystem] with provided building blocks.
+  ///
+  /// * `pheromone_update` needs to be specified, if not program will panic
   ///
   /// If specific building block is not provided a default value will be used.
   /// ### Defaults
@@ -110,8 +136,8 @@ impl Builder {
   /// * `evaporation_rate` - 0.1
   /// * `ants_num` - 10
   /// * `iterations` - 300
-  /// * `probe` - [crate::aco::probe::StdoutProbe]
-  pub fn build(mut self) -> AntSystem {
+  /// * `probe` - [aco::probe::StdoutProbe]
+  pub fn build(mut self) -> AntSystem<P> {
     let (nrow, ncol) = self.conf.weights.shape();
 
     if self.conf.heuristic.shape() != (nrow, ncol) {
@@ -120,8 +146,13 @@ impl Builder {
 
     let pheromone = FMatrix::repeat(nrow, ncol, 0.5f64);
 
+    let cfg_opt = AntSystemCfg::try_from(self.conf);
+    if let Err(err) = cfg_opt {
+      panic!("{}", err);
+    }
+
     AntSystem {
-      cfg: self.conf,
+      cfg: cfg_opt.unwrap(),
       pheromone,
       best_sol: Solution::default(),
     }
