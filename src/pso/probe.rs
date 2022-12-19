@@ -1,9 +1,9 @@
-pub mod stdout_probe;
+pub mod aggregated_probe;
 pub mod csv_probe;
 pub mod json_probe;
-pub mod aggregated_probe;
 pub mod policy_driven_probe;
 pub mod probing_policy;
+pub mod stdout_probe;
 
 use crate::pso::swarm::Swarm;
 
