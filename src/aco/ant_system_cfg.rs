@@ -1,4 +1,5 @@
-use crate::aco::probe::{Probe, StdoutProbe};
+use crate::aco::pheromone::PheromoneUpdate;
+use crate::aco::probe::Probe;
 use crate::aco::FMatrix;
 
 /// Struct wrapping all parameters needed for Ant System Algorithm.
@@ -14,7 +15,7 @@ use crate::aco::FMatrix;
 /// * probe - logging probe.
 ///
 /// For more details look [here](http://www.scholarpedia.org/article/Ant_colony_optimization) at Ant system section
-pub(in crate::aco) struct AntSystemCfg {
+pub(in crate::aco) struct AntSystemCfg<P: PheromoneUpdate> {
   pub weights: FMatrix,
   pub heuristic: FMatrix,
   pub alpha: f64,
@@ -23,19 +24,39 @@ pub(in crate::aco) struct AntSystemCfg {
   pub ants_num: usize,
   pub iteration: usize,
   pub probe: Box<dyn Probe>,
+  pub pheromone_update: P,
 }
 
-impl Default for AntSystemCfg {
-  fn default() -> Self {
-    AntSystemCfg {
-      weights: FMatrix::zeros(0, 0),
-      heuristic: FMatrix::zeros(0, 0),
-      alpha: 1.0,
-      beta: 1.0,
-      evaporation_rate: 0.1,
-      ants_num: 10,
-      iteration: 300,
-      probe: Box::new(StdoutProbe::new()),
+pub(in crate::aco) struct AntSystemCfgOpt<P: PheromoneUpdate> {
+  pub weights: FMatrix,
+  pub heuristic: FMatrix,
+  pub alpha: f64,
+  pub beta: f64,
+  pub evaporation_rate: f64,
+  pub ants_num: usize,
+  pub iteration: usize,
+  pub probe: Box<dyn Probe>,
+  pub pheromone_update: Option<P>,
+}
+
+impl<P: PheromoneUpdate> TryFrom<AntSystemCfgOpt<P>> for AntSystemCfg<P> {
+  type Error = &'static str;
+
+  fn try_from(value: AntSystemCfgOpt<P>) -> Result<Self, Self::Error> {
+    if let Some(pheromone_update) = value.pheromone_update {
+      Ok(AntSystemCfg {
+        weights: value.weights,
+        heuristic: value.heuristic,
+        alpha: value.alpha,
+        beta: value.beta,
+        evaporation_rate: value.evaporation_rate,
+        ants_num: value.ants_num,
+        iteration: value.iteration,
+        probe: value.probe,
+        pheromone_update,
+      })
+    } else {
+      Err("Pheromone update is not specified")
     }
   }
 }

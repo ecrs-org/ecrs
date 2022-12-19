@@ -37,3 +37,9 @@ push-trait = "0.6.0"
 
 [dev-dependencies]
 log4rs = "1.2.0"
+criterion = "0.4"
+
+
+[[bench]]
+name = "aco_bench"
+harness = false
