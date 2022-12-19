@@ -1,5 +1,4 @@
 use std::time::Instant;
-use crate::pso::swarm::Swarm;
 use super::ProbingPolicy;
 
 pub struct GenerationInterval {

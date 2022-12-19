@@ -14,7 +14,7 @@ impl Probe for ConsoleProbe {
     println!("Swarm at the start:\n{}", swarm);
   }
 
-  fn on_end(&mut self, swarm: &Swarm, generation: usize) {
+  fn on_end(&mut self, swarm: &Swarm, _generation: usize) {
     println!("\nSwarm at the end:\n{}", swarm);
   }
 

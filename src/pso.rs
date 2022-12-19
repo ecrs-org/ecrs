@@ -1,5 +1,3 @@
-use std::borrow::Borrow;
-
 pub mod builder;
 pub mod particle;
 pub mod probe;
