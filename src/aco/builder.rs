@@ -3,7 +3,6 @@ use crate::aco::aco_cfg::AntColonyOptimizationCfgOpt;
 use crate::aco::ant::Ant;
 use crate::aco::pheromone::PheromoneUpdate;
 use crate::aco::probe::Probe;
-use crate::aco::Solution;
 use crate::aco::{AntColonyOptimization, AntColonyOptimizationCfg, FMatrix};
 use itertools::Itertools;
 
@@ -158,11 +157,6 @@ impl<P: PheromoneUpdate> Builder<P> {
       .map(|_| Ant::new(cfg.weights.ncols()))
       .collect_vec();
 
-    AntColonyOptimization {
-      cfg,
-      pheromone,
-      ants,
-      best_sol: Solution::default(),
-    }
+    AntColonyOptimization { cfg, pheromone, ants }
   }
 }
