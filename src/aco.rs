@@ -1,19 +1,17 @@
 //! Implementation of Ant based algorithms.
 //!
-//! As for now only only original Ant System algorithm is implemented.
-//!
-//! # Ant System
+//! # Ant Colony Optimization
 //! Implementation is based on those sources:
 //! * <https://ieeexplore.ieee.org/document/4129846> DOI: 10.1109/MCI.2006.329691
 //! * <http://www.scholarpedia.org/article/Ant_colony_optimization>
 //!
 //! Look at [Builder](Builder) for parameters overview and
-//! at [AntSystem](AntSystem) for interface details
+//! at [AntColonyOptimization] for interface details
 //!
 //! Logging system details can be found [here](probe)
 //!
 //! ## Example
-//! Solving TSP using AntSystem
+//! Solving TSP using Ant System algorithm variant
 //! ```rust
 //! pub fn ants_example_run() {
 //!   let (cities, cost) = ecrs::aco::util::generate_tsp_cost(10);
@@ -29,15 +27,15 @@
 //!   ant_s.run();
 //! }
 //! ```
+mod aco_cfg;
 mod ant;
-mod ant_system_cfg;
 pub mod builder;
 pub mod pheromone;
 pub mod probe;
 mod solution;
 pub mod util;
 
-pub(self) use ant_system_cfg::AntSystemCfg;
+pub(self) use aco_cfg::AntColonyOptimizationCfg;
 pub use builder::Builder;
 pub use solution::Solution;
 
@@ -50,17 +48,19 @@ use std::iter::zip;
 
 pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 
-/// Wrapper class for AntSystem algorithm.
+/// # Ant Colony Optimization
+///
+/// Encapsulates common ACO algorithm patterns.
 ///
 /// To extract data use a [probe](probe)
-pub struct AntSystem<P: PheromoneUpdate> {
-  cfg: AntSystemCfg<P>,
+pub struct AntColonyOptimization<P: PheromoneUpdate> {
+  cfg: AntColonyOptimizationCfg<P>,
   pheromone: FMatrix,
   best_sol: Solution,
   ants: Vec<Ant<ThreadRng>>,
 }
 
-impl<P: PheromoneUpdate> AntSystem<P> {
+impl<P: PheromoneUpdate> AntColonyOptimization<P> {
   /// Executes the algorithm
   pub fn run(mut self) {
     for i in 0..self.cfg.iteration {

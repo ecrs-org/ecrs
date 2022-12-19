@@ -1,23 +1,23 @@
 use crate::aco;
+use crate::aco::aco_cfg::AntColonyOptimizationCfgOpt;
 use crate::aco::ant::Ant;
-use crate::aco::ant_system_cfg::AntSystemCfgOpt;
 use crate::aco::pheromone::PheromoneUpdate;
 use crate::aco::probe::Probe;
 use crate::aco::Solution;
-use crate::aco::{AntSystem, AntSystemCfg, FMatrix};
+use crate::aco::{AntColonyOptimization, AntColonyOptimizationCfg, FMatrix};
 use itertools::Itertools;
 
-/// Builder for [AntSystem]
+/// Builder for [AntColonyOptimization]
 ///
 pub struct Builder<P: PheromoneUpdate> {
-  conf: AntSystemCfgOpt<P>,
+  conf: AntColonyOptimizationCfgOpt<P>,
 }
 
 impl<P: PheromoneUpdate> Builder<P> {
   /// Creates a new instance of Builder.
   pub fn new() -> Self {
     Builder {
-      conf: AntSystemCfgOpt {
+      conf: AntColonyOptimizationCfgOpt {
         weights: FMatrix::zeros(0, 0),
         heuristic: FMatrix::zeros(0, 0),
         alpha: 1.0,
@@ -125,7 +125,7 @@ impl<P: PheromoneUpdate> Builder<P> {
     self
   }
 
-  /// Builds [AntSystem] with provided building blocks.
+  /// Builds [AntColonyOptimization] with provided building blocks.
   ///
   /// * `pheromone_update` needs to be specified, if not program will panic
   ///
@@ -139,7 +139,7 @@ impl<P: PheromoneUpdate> Builder<P> {
   /// * `ants_num` - 10
   /// * `iterations` - 300
   /// * `probe` - [aco::probe::StdoutProbe]
-  pub fn build(mut self) -> AntSystem<P> {
+  pub fn build(mut self) -> AntColonyOptimization<P> {
     let (nrow, ncol) = self.conf.weights.shape();
 
     if self.conf.heuristic.shape() != (nrow, ncol) {
@@ -148,7 +148,7 @@ impl<P: PheromoneUpdate> Builder<P> {
 
     let pheromone = FMatrix::repeat(nrow, ncol, 0.5f64);
 
-    let cfg_opt = AntSystemCfg::try_from(self.conf);
+    let cfg_opt = AntColonyOptimizationCfg::try_from(self.conf);
     if let Err(err) = cfg_opt {
       panic!("{}", err);
     }
@@ -158,7 +158,7 @@ impl<P: PheromoneUpdate> Builder<P> {
       .map(|_| Ant::new(cfg.weights.ncols()))
       .collect_vec();
 
-    AntSystem {
+    AntColonyOptimization {
       cfg,
       pheromone,
       ants,
