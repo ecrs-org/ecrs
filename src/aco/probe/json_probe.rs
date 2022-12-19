@@ -8,8 +8,9 @@ use std::fs::File;
 use std::io::Write;
 
 use crate::aco::probe::Probe;
+use crate::aco::util::into_vec;
+use crate::aco::FMatrix;
 use crate::aco::Solution;
-use crate::aco::{into_vec, FMatrix};
 
 struct IterationData {
   pheromone: FMatrix,
