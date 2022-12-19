@@ -5,6 +5,7 @@ use std::ops::Index;
 
 use crate::ga::individual::{Chromosome, Individual};
 use push_trait::{Nothing, Push};
+use rand::prelude::SliceRandom;
 use rand::{rngs::ThreadRng, Rng};
 
 /// # Crossover Operator
@@ -820,15 +821,94 @@ where
     (child_1, child_2)
   }
 }
+
+/// # Shuffle crossover operator
+///
+/// This struct implements [CrossoverOperator] trait and can be used with GA.
+///
+/// It works by randomly shuffling both parents chromosome the same way then
+/// selecting single cutpoint splitting both parents shuffled chromosomes in two parts.
+/// First child gets `parent_1`'s first part and `parent_2`'s second part.
+/// Second child gets `parent_2`'s first part and `parent_1`'s second part.
+/// Lastly childs chromosomes are de-shuffled.
+///
+/// Degenerated case when cutpoint is selected at index 0 or last can occur.
+pub struct Shuffle<R: Rng> {
+  rng: R,
+}
+
+impl Shuffle<ThreadRng> {
+  /// Creates new [Shuffle] crossover operator with default RNG
+  pub fn new() -> Self {
+    Self::with_rng(rand::thread_rng())
+  }
+}
+
+impl<R: Rng> Shuffle<R> {
+  /// Creates new [Shuffle] crossover operator with custom RNG
+  pub fn with_rng(rng: R) -> Self {
+    Self { rng }
+  }
+}
+
+impl<GeneT, ChT, R> CrossoverOperator<ChT> for Shuffle<R>
+where
+  ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+  GeneT: Copy,
+  R: Rng,
+{
+  /// Returns a tuple of children
+  ///
+  /// It works by randomly shuffling both parents chromosome the same way then
+  /// selecting single cutpoint splitting both parents shuffled chromosomes in two parts.
+  /// First child gets `parent_1`'s first part and `parent_2`'s second part.
+  /// Second child gets `parent_2`'s first part and `parent_1`'s second part.
+  /// Lastly childs chromosomes are de-shuffled.
+  ///
+  /// Degenerated case when cutpoint is selected at index 0 or last can occur.
+  ///
+  /// ## Arguments
+  ///
+  /// * `parent_1` - First parent to take part in recombination
+  /// * `parent_2` - Second parent to take part in recombination
+  fn apply(
+    &mut self,
+    parent_1: &Individual<ChT>,
+    parent_2: &Individual<ChT>,
+  ) -> (Individual<ChT>, Individual<ChT>) {
+    let chromosome_len = parent_1.chromosome_ref().len();
+    let cut_point = self.rng.gen_range(0..chromosome_len);
+
+    let mut shuffled = (0..chromosome_len).collect_vec();
+    shuffled.shuffle(&mut self.rng);
+    let mask = shuffled.iter().map(|x| x < &cut_point).collect_vec();
+
+    let mut child_1: Individual<ChT> = Individual::new();
+    let mut child_2: Individual<ChT> = Individual::new();
+
+    for (i, fist_parent) in enumerate(mask) {
+      if fist_parent {
+        child_1.chromosome_ref_mut().push(parent_1.chromosome_ref()[i]);
+        child_2.chromosome_ref_mut().push(parent_2.chromosome_ref()[i]);
+      } else {
+        child_1.chromosome_ref_mut().push(parent_2.chromosome_ref()[i]);
+        child_2.chromosome_ref_mut().push(parent_1.chromosome_ref()[i]);
+      }
+    }
+
+    (child_1, child_2)
+  }
+}
+
 #[cfg(test)]
 mod test {
-  use crate::ga::operators::crossover::Pmx;
   use crate::ga::operators::crossover::Ppx;
+  use crate::ga::operators::crossover::{CrossoverOperator, Pmx, Shuffle};
   use crate::ga::Individual;
   use std::iter::zip;
 
   #[test]
-  fn ppx_example_1() {
+  fn check_ppx_example() {
     let op = Ppx::new();
     let p1 = Individual::from(vec![1, 2, 3, 4, 5, 6]);
     let p2 = Individual::from(vec![3, 1, 2, 6, 4, 5]);
@@ -844,7 +924,7 @@ mod test {
   }
 
   #[test]
-  fn run_example() {
+  fn check_pmx_example() {
     // https://www.rubicite.com/Tutorials/GeneticAlgorithms/CrossoverOperators/PMXCrossoverOperator.aspx/
     let op = Pmx::new();
 
@@ -854,6 +934,32 @@ mod test {
     let child = op.create_child(&p1, &p2, 3, 8);
     for (i, j) in zip(child.chromosome, vec![0, 7, 4, 3, 6, 2, 5, 1, 8, 9]) {
       assert_eq!(i, j);
+    }
+  }
+
+  #[test]
+  fn shuffle_gives_appropriate_len() {
+    let mut op = Shuffle::new();
+
+    let p1 = Individual::from(vec![8, 4, 7, 3, 6, 2, 5, 1, 9, 0]);
+    let p2 = Individual::from(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    let (child_1, child_2) = op.apply(&p1, &p2);
+    assert_eq!(child_1.chromosome.len(), 10);
+    assert_eq!(child_2.chromosome.len(), 10);
+  }
+
+  #[test]
+  fn shuffle_fulfills_conditions() {
+    let mut op = Shuffle::new();
+
+    let p1 = Individual::from(vec![1, 0, 0, 1, 0, 1, 0, 1, 0, 0]);
+    let p2 = Individual::from(vec![0, 1, 1, 0, 1, 0, 1, 0, 1, 1]);
+
+    let (c1, c2) = op.apply(&p1, &p2);
+    for (g1, g2) in c1.chromosome.iter().zip(c2.chromosome.iter()) {
+      assert_eq!(g1 * g2, 0);
+      assert_eq!(g1 + g2, 1);
     }
   }
 }
