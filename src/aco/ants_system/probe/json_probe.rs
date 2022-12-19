@@ -8,7 +8,7 @@ use std::fs::File;
 use std::io::Write;
 
 use crate::aco::ants_system::probe::Probe;
-use crate::aco::ants_system::Solution;
+use crate::aco::Solution;
 use crate::aco::{into_vec, FMatrix};
 
 struct IterationData {

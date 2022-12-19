@@ -1,9 +1,9 @@
 use crate::aco;
 use crate::aco::ant::Ant;
 use crate::aco::ant_system_cfg::AntSystemCfgOpt;
-use crate::aco::ants_system::Solution;
 use crate::aco::pheromone::PheromoneUpdate;
 use crate::aco::probe::Probe;
+use crate::aco::Solution;
 use crate::aco::{AntSystem, AntSystemCfg, FMatrix};
 use itertools::Itertools;
 

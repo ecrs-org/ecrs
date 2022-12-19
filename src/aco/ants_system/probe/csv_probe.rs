@@ -1,8 +1,8 @@
 use serde::Serialize;
 
 use crate::aco::ants_system::probe::Probe;
-use crate::aco::ants_system::Solution;
 use crate::aco::FMatrix;
+use crate::aco::Solution;
 
 #[derive(Serialize)]
 #[doc(hidden)]

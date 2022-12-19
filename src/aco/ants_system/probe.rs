@@ -8,8 +8,8 @@ pub use csv_probe::CsvProbe;
 pub use json_probe::JsonProbe;
 pub use stdout_probe::StdoutProbe;
 
-use crate::aco::ants_system::Solution;
 use crate::aco::FMatrix;
+use crate::aco::Solution;
 
 mod aggregated_probe;
 mod csv_probe;
