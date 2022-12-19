@@ -4,6 +4,11 @@ use rand::prelude::ThreadRng;
 use rand::{thread_rng, Rng};
 use std::collections::HashSet;
 
+/// # Ant
+///
+/// Represent a single ant.
+/// Used to build a solution.
+/// Related to [AntsBehavior]
 pub struct Ant<R: Rng> {
   unvisited: HashSet<usize>,
   path: Vec<usize>,
@@ -13,12 +18,21 @@ pub struct Ant<R: Rng> {
 }
 
 impl Ant<ThreadRng> {
+  /// Create a new instance of [Ant] with default RNG.
+  ///
+  /// ## Arguments
+  /// * `solution_size` - Numer of graph vertices
   pub fn new(solution_size: usize) -> Self {
     Self::with_rng(solution_size, thread_rng())
   }
 }
 
 impl<R: Rng> Ant<R> {
+  /// Create a new instance of [Ant] with user specified RNG.
+  ///
+  /// ## Arguments
+  /// * `solution_size` - Numer of graph vertices.
+  /// * `rng` - Random numbers generator.
   pub fn with_rng(solution_size: usize, rng: R) -> Self {
     Self {
       unvisited: HashSet::with_capacity(solution_size),
@@ -29,6 +43,7 @@ impl<R: Rng> Ant<R> {
     }
   }
 
+  /// Clears iteration specific data like visited vertices or path.
   pub fn clear(&mut self) {
     for i in 0..self.solution_size {
       self.unvisited.push(i);
@@ -37,21 +52,27 @@ impl<R: Rng> Ant<R> {
     self.stuck = false;
   }
 
+  /// Returns vector of vertices in order of visiting
   pub fn get_path(&self) -> &[usize] {
     &self.path
   }
 
-  pub fn chose_staring_place(&mut self) -> usize {
+  /// Selects an vertex to start from
+  pub fn chose_staring_place(&mut self) {
     let start: usize = self.rng.gen_range(0..self.solution_size);
     self.unvisited.remove(&start);
     self.path.push(start);
-    start
   }
 
+  /// Returns true when there is no valid next vertex with path not fully constructed.
   pub fn is_stuck(&self) -> bool {
     self.stuck
   }
 
+  /// Chooses and goes to the next vertex. Returns traversed edge.
+  ///
+  /// Panic when starting vertex wasn't decided ([Ant::chose_staring_place]) or when all vertices
+  /// are already visited   
   pub fn go_to_next_place(&mut self, edges_goodness: &FMatrix) -> (usize, usize) {
     let last = *self
       .path
