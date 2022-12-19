@@ -2,10 +2,11 @@ pub mod builder;
 pub mod probe;
 mod solution;
 
-use rand::Rng;
-use std::collections::HashSet;
+use itertools::Itertools;
+use rand::rngs::ThreadRng;
 use std::iter::zip;
 
+use crate::aco::ant::Ant;
 pub use solution::Solution;
 
 use crate::aco::pheromone::PheromoneUpdate;
@@ -19,6 +20,7 @@ pub struct AntSystem<P: PheromoneUpdate> {
   cfg: AntSystemCfg<P>,
   pheromone: FMatrix,
   best_sol: Solution,
+  ants: Vec<Ant<ThreadRng>>,
 }
 
 impl<P: PheromoneUpdate> AntSystem<P> {
@@ -80,16 +82,30 @@ impl<P: PheromoneUpdate> AntSystem<P> {
     s.component_mul(&self.cfg.weights).sum() / 2.0
   }
 
-  fn run_ants(&self) -> Vec<FMatrix> {
+  fn run_ants(&mut self) -> Vec<FMatrix> {
     let prob_iter = self
       .pheromone
       .iter()
       .zip(self.cfg.heuristic.iter())
       .map(|(p, h)| self.calc_prob(p, h));
 
-    let prob = FMatrix::from_iterator(self.pheromone.nrows(), self.pheromone.ncols(), prob_iter);
+    let solution_size: usize = self.pheromone.nrows();
+    let prob = FMatrix::from_iterator(solution_size, solution_size, prob_iter);
 
-    let sols: Vec<FMatrix> = Vec::from_iter((0..self.cfg.ants_num).map(|_| run_ant(&prob)));
+    let mut sols: Vec<FMatrix> = Vec::with_capacity(self.cfg.ants_num);
+    for ant in self.ants.iter_mut() {
+      ant.clear();
+      ant.chose_staring_place();
+      for _ in 1..solution_size {
+        ant.go_to_next_place(&prob);
+      }
+
+      if ant.is_stuck() {
+        break;
+      }
+      let path = ant.get_path();
+      sols.push(path_to_matrix(path));
+    }
 
     sols
   }
@@ -103,47 +119,14 @@ impl<P: PheromoneUpdate> AntSystem<P> {
   }
 }
 
-fn run_ant(prob: &FMatrix) -> FMatrix {
-  let n = prob.nrows();
-  let mut sol = FMatrix::zeros(n, n);
-  let mut random = rand::thread_rng();
-  let mut unvisited: HashSet<usize> = HashSet::from_iter(0..n);
-
-  let first: usize = random.gen_range(0..n);
-  unvisited.remove(&first);
-  let mut last: usize = first;
-
-  while !unvisited.is_empty() {
-    let mut sum = 0.0_f64;
-    let row = prob.row(last);
-    for v in unvisited.iter() {
-      sum += row[*v];
-    }
-
-    let r_range = 0.0..sum;
-    if r_range.is_empty() {
-      println!("Could not find a solution");
-      return FMatrix::zeros(n, n);
-    }
-
-    let mut r = random.gen_range(r_range);
-    let mut next = last; // maybe 0
-    for v in unvisited.iter() {
-      r -= row[*v];
-      if r <= 0.0 {
-        next = *v;
-        break;
-      }
-    }
-
-    sol[(last, next)] = 1.0;
-    sol[(next, last)] = 1.0;
-    unvisited.remove(&next);
-    last = next;
+#[inline]
+fn path_to_matrix(path: &[usize]) -> FMatrix {
+  let sol_size = path.len();
+  let mut sol = FMatrix::zeros(sol_size, sol_size);
+  for (i, j) in path.iter().tuples::<(&usize, &usize)>() {
+    sol[(*i, *j)] = 1.0;
+    sol[(*j, *i)] = 1.0;
   }
-
-  sol[(last, first)] = 1.0;
-  sol[(first, last)] = 1.0;
 
   sol
 }

@@ -40,6 +40,7 @@ use nalgebra::{Dynamic, OMatrix};
 use rand::Rng;
 use std::error::Error;
 
+mod ant;
 mod ant_system_cfg;
 mod ants_system;
 pub mod pheromone;
