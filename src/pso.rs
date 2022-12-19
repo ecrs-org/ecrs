@@ -4,7 +4,7 @@ pub mod probe;
 pub mod swarm;
 pub mod util;
 
-use crate::pso::probe::console_probe::ConsoleProbe;
+use crate::pso::probe::stdout_probe::StdoutProbe;
 use crate::pso::probe::Probe;
 use crate::pso::swarm::Swarm;
 use crate::test_functions::rosenbrock;
@@ -50,7 +50,7 @@ impl Default for PSOAlgorithmCfg {
       social_coefficient: 3.0,
       function: rosenbrock,
       iterations: 500,
-      probe: Box::new(ConsoleProbe::new()),
+      probe: Box::new(StdoutProbe::new()),
     }
   }
 }
@@ -60,13 +60,13 @@ impl Default for PSOAlgorithmCfg {
 /// ```rust
 /// # use ecrs::pso::{builder::PSOAlgorithmBuilder, self};
 /// let iterations = 50; // use more reasonable number here
-/// let console_probe = Box::new(pso::probe::console_probe::ConsoleProbe::new());
+/// let stdout_probe = Box::new(pso::probe::stdout_probe::StdoutProbe::new());
 /// let csv_probe = Box::new(pso::probe::csv_probe::CsvProbe::new("pso_example.csv"));
 /// let json_probe = Box::new(pso::probe::json_probe::JsonProbe::new("pso_example.json"));
-/// let probes: Vec<Box<dyn pso::probe::Probe>> = vec![console_probe, csv_probe, json_probe];
-/// let multi_probe = Box::new(pso::probe::multi_probe::MultiProbe::new(probes));
+/// let probes: Vec<Box<dyn pso::probe::Probe>> = vec![stdout_probe, csv_probe, json_probe];
+/// let aggregated_probe = Box::new(pso::probe::aggregated_probe::AggregatedProbe::new(probes));
 /// let probing_policy = Box::new(pso::probe::probing_policy::GenerationInterval::new(50));
-/// let policy_driven_probe = Box::new(pso::probe::policy_driven_probe::PolicyDrivenProbe::new(multi_probe, probing_policy));
+/// let policy_driven_probe = Box::new(pso::probe::policy_driven_probe::PolicyDrivenProbe::new(aggregated_probe, probing_policy));
 /// let mut algorithm = PSOAlgorithmBuilder::new()
 ///     .set_dimensions(3)
 ///     .set_iterations(iterations)

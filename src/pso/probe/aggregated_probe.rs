@@ -1,17 +1,17 @@
 use crate::pso::probe::Probe;
 use crate::pso::swarm::Swarm;
 
-pub struct MultiProbe {
+pub struct AggregatedProbe {
   probes: Vec<Box<dyn Probe>>,
 }
 
-impl MultiProbe {
-  pub fn new(probes: Vec<Box<dyn Probe>>) -> MultiProbe {
-    MultiProbe { probes }
+impl AggregatedProbe {
+  pub fn new(probes: Vec<Box<dyn Probe>>) -> AggregatedProbe {
+    AggregatedProbe { probes }
   }
 }
 
-impl Probe for MultiProbe {
+impl Probe for AggregatedProbe {
   fn on_begin(&mut self, swarm: &Swarm) {
     for probe in self.probes.iter_mut() {
       probe.on_begin(swarm);

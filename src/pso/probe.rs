@@ -1,7 +1,7 @@
-pub mod console_probe;
+pub mod stdout_probe;
 pub mod csv_probe;
 pub mod json_probe;
-pub mod multi_probe;
+pub mod aggregated_probe;
 pub mod policy_driven_probe;
 pub mod probing_policy;
 

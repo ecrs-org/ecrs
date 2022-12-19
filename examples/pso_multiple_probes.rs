@@ -3,14 +3,14 @@ use ecrs::pso::{self, builder::PSOAlgorithmBuilder};
 fn main() {
   let iterations = 2000;
 
-  let console_probe = Box::new(pso::probe::console_probe::ConsoleProbe::new());
+  let stdout_probe = Box::new(pso::probe::stdout_probe::StdoutProbe::new());
   let csv_probe = Box::new(pso::probe::csv_probe::CsvProbe::new("pso_example.csv"));
   let json_probe = Box::new(pso::probe::json_probe::JsonProbe::new("pso_example.json"));
-  let probes: Vec<Box<dyn pso::probe::Probe>> = vec![console_probe, csv_probe, json_probe];
-  let multi_probe = Box::new(pso::probe::multi_probe::MultiProbe::new(probes));
+  let probes: Vec<Box<dyn pso::probe::Probe>> = vec![stdout_probe, csv_probe, json_probe];
+  let aggregated_probe = Box::new(pso::probe::aggregated_probe::AggregatedProbe::new(probes));
   let probing_policy = Box::new(pso::probe::probing_policy::GenerationInterval::new(50));
   let policy_driven_probe = Box::new(pso::probe::policy_driven_probe::PolicyDrivenProbe::new(
-    multi_probe,
+    aggregated_probe,
     probing_policy,
   ));
 
