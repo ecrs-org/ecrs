@@ -44,9 +44,10 @@ mod ant;
 mod ant_system_cfg;
 mod ants_system;
 pub mod pheromone;
+mod solution;
 
 pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
-pub use ants_system::Solution;
+pub use solution::Solution;
 
 pub fn into_vec(m: &FMatrix) -> Vec<Vec<f64>> {
   let mut m_vec: Vec<Vec<f64>> = Vec::new();

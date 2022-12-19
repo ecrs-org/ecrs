@@ -1,17 +1,15 @@
 pub mod builder;
 pub mod probe;
-mod solution;
 
 use itertools::Itertools;
 use rand::rngs::ThreadRng;
 use std::iter::zip;
 
 use crate::aco::ant::Ant;
-pub use solution::Solution;
 
 use crate::aco::pheromone::PheromoneUpdate;
-use crate::aco::AntSystemCfg;
 use crate::aco::FMatrix;
+use crate::aco::{AntSystemCfg, Solution};
 
 /// Wrapper class for AntSystem algorithm.
 ///
