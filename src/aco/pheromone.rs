@@ -95,7 +95,7 @@ impl PheromoneUpdate for ElitistAntSystemPU {
 /// the pheromone trail strength is inversely proportional
 /// to the way cost. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and
 /// pheromone trail left by ant chosen by [BestPolicy], additionally the pheromone value is clamped.
-struct MMAntSystemPU<B: BestPolicy> {
+pub struct MMAntSystemPU<B: BestPolicy> {
   best_policy: B,
   lower_bound: f64,
   upper_bound: f64,
@@ -153,7 +153,7 @@ impl<B: BestPolicy> PheromoneUpdate for MMAntSystemPU<B> {
 /// to the way cost. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and
 /// best ant pheromone trail scaled by evaporation rate. Best ant pheromone is selected based
 /// on [BestPolicy] implementation.
-struct AntColonySystemPU<B: BestPolicy> {
+pub struct AntColonySystemPU<B: BestPolicy> {
   best_policy: B,
 }
 
