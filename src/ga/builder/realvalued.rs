@@ -17,7 +17,7 @@ pub struct RealValuedBuilder<F: Fitness<Rvc>> {
     Interchange<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
-    RandomPoints,
+    RandomPoints<rand::rngs::ThreadRng>,
     F,
     StdoutProbe,
   >,
@@ -85,7 +85,7 @@ impl<F: Fitness<Rvc>> RealValuedBuilder<F> {
     Interchange<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
-    RandomPoints,
+    RandomPoints<rand::rngs::ThreadRng>,
     F,
     StdoutProbe,
   > {

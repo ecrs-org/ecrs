@@ -17,7 +17,7 @@ pub struct BitStringBuilder<F: Fitness<Bsc>> {
     FlipBit<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
-    BitStrings,
+    BitStrings<rand::rngs::ThreadRng>,
     F,
     StdoutProbe,
   >,
@@ -85,7 +85,7 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
     FlipBit<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
-    BitStrings,
+    BitStrings<rand::rngs::ThreadRng>,
     F,
     StdoutProbe,
   > {
