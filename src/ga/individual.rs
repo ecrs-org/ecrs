@@ -1,6 +1,12 @@
+//! Tratis, structs & methods for representing individual in genetic algorithm
+
 use serde::Serialize;
 use std::{fmt::Debug, ops::Deref};
 
+/// Purpose of this trait is to aggregate minimal trait bounds that are requried
+/// for the chromosome representation to work with genetic algorithm.
+///
+/// This is not stable yet, as traits such as Clone / Debug might not be required in the future.
 pub trait Chromosome: Sized + Sync + Send + Clone + Default + Debug {}
 
 /// Blanket implementation
