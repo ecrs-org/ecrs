@@ -6,10 +6,6 @@ use crate::aco::Solution;
 pub struct StdoutProbe {}
 
 impl Probe for StdoutProbe {
-  fn on_new_best(&mut self, _best_sol: &Solution) {
-    println!("New best!!!");
-  }
-
   fn on_pheromone_update(&mut self, _old_pheromone: &FMatrix, _new_pheromone: &FMatrix) {}
 
   fn on_current_best(&mut self, best: &Solution) {

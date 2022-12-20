@@ -52,8 +52,6 @@ criterion_main!(benches);
 
 struct EmptyProbe;
 impl aco::probe::Probe for EmptyProbe {
-  fn on_new_best(&mut self, _best_sol: &Solution) {}
-
   fn on_pheromone_update(&mut self, _old_pheromone: &FMatrix, _new_pheromone: &FMatrix) {}
 
   fn on_current_best(&mut self, _best: &Solution) {}

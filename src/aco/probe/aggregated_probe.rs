@@ -25,10 +25,6 @@ impl AggregatedProbe {
 }
 
 impl Probe for AggregatedProbe {
-  fn on_new_best(&mut self, best_sol: &Solution) {
-    self.probes.iter_mut().for_each(|p| p.on_new_best(best_sol))
-  }
-
   fn on_pheromone_update(&mut self, old_pheromone: &FMatrix, new_pheromone: &FMatrix) {
     self
       .probes
