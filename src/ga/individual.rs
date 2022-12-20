@@ -9,7 +9,7 @@ use std::{fmt::Debug, ops::Deref};
 /// This is not stable yet, as traits such as Clone / Debug might not be required in the future.
 pub trait Chromosome: Sized + Sync + Send + Clone + Default + Debug {}
 
-/// Blanket implementation
+/// Blanket implementation of Chromosome trait for any type that satisfies the bounds
 impl<T: Sized + Sync + Send + Clone + Default + Debug> Chromosome for T {}
 
 #[derive(Clone, Debug, Serialize)]
