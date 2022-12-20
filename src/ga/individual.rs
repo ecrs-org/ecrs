@@ -29,7 +29,7 @@ pub struct Individual<T: Chromosome> {
 }
 
 impl<T: Chromosome> Individual<T> {
-	/// Returns new instance of individual with default values for its fields.
+  /// Returns new instance of individual with default values for its fields.
   pub fn new() -> Self {
     Individual {
       chromosome: T::default(),
@@ -37,13 +37,13 @@ impl<T: Chromosome> Individual<T> {
     }
   }
 
-	/// Returns reference to chromosome
+  /// Returns reference to chromosome
   #[inline]
   pub fn chromosome_ref(&self) -> &T {
     &self.chromosome
   }
 
-	/// Returns mutable reference to chromosome
+  /// Returns mutable reference to chromosome
   #[inline]
   pub fn chromosome_ref_mut(&mut self) -> &mut T {
     &mut self.chromosome
