@@ -16,7 +16,7 @@ fn main() {
 
   let mut algorithm = PSOAlgorithmBuilder::new()
     .set_dimensions(3)
-    .set_iterations(iterations)
+    .set_generation_limit(iterations)
     .set_probe(policy_driven_probe)
     .build();
 
