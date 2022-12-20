@@ -1,20 +1,20 @@
 use crate::pso::probe::Probe;
 use crate::pso::swarm::Swarm;
 
-pub struct ConsoleProbe {}
+pub struct StdoutProbe {}
 
-impl ConsoleProbe {
-  pub fn new() -> ConsoleProbe {
-    ConsoleProbe {}
+impl StdoutProbe {
+  pub fn new() -> StdoutProbe {
+    StdoutProbe {}
   }
 }
 
-impl Probe for ConsoleProbe {
+impl Probe for StdoutProbe {
   fn on_begin(&mut self, swarm: &Swarm) {
     println!("Swarm at the start:\n{}", swarm);
   }
 
-  fn on_end(&mut self, swarm: &Swarm) {
+  fn on_end(&mut self, swarm: &Swarm, _generation: usize) {
     println!("\nSwarm at the end:\n{}", swarm);
   }
 

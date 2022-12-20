@@ -16,7 +16,7 @@ impl Swarm {
     dimensions: usize,
     lower_bound: f64,
     upper_bound: f64,
-    function: &dyn Fn(&Vec<f64>) -> f64,
+    function: fn(&Vec<f64>) -> f64,
   ) -> Swarm {
     let mut particles: Vec<Particle> = Vec::new();
     for _i in 0..particle_count {

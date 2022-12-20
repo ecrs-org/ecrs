@@ -18,7 +18,7 @@ impl Particle {
     dimensions: usize,
     lower_bound: f64,
     upper_bound: f64,
-    function: &dyn Fn(&Vec<f64>) -> f64,
+    function: fn(&Vec<f64>) -> f64,
   ) -> Particle {
     let mut rng = rand::thread_rng();
     let position_distribution = Uniform::from(lower_bound..=upper_bound);
