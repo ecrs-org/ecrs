@@ -3,7 +3,7 @@
 //! Contains strategies on how should an ant behave, and when to update edge [crate::aco::goodness].
 use crate::aco::ant::Ant;
 use crate::aco::goodness::Goodness;
-use crate::aco::{path_to_matrix, FMatrix};
+use crate::aco::FMatrix;
 use itertools::Itertools;
 use rand::rngs::ThreadRng;
 use rand::Rng;
@@ -23,7 +23,7 @@ pub trait AntsBehaviour {
   ///
   /// ## Arguments
   /// * `pheromone` - Pheromone after global pheromone update rule was applied.
-  fn simulate_ants(&mut self, pheromone: &mut FMatrix) -> Vec<FMatrix>;
+  fn simulate_ants(&mut self, pheromone: &mut FMatrix) -> Vec<Vec<usize>>;
 }
 /// # Ant System ants behaviour
 ///
@@ -64,11 +64,11 @@ impl<R: Rng, G: Goodness> AntsBehaviour for AntSystemAB<R, G> {
     self.goodness.apply(pheromone)
   }
 
-  fn simulate_ants(&mut self, pheromone: &mut FMatrix) -> Vec<FMatrix> {
+  fn simulate_ants(&mut self, pheromone: &mut FMatrix) -> Vec<Vec<usize>> {
     let goodness = self.calc_goodness(pheromone);
     let solution_size = pheromone.nrows();
 
-    let mut sols: Vec<FMatrix> = Vec::with_capacity(self.ants.len());
+    let mut paths: Vec<Vec<usize>> = Vec::with_capacity(self.ants.len());
     for ant in self.ants.iter_mut() {
       ant.clear();
       ant.chose_staring_place();
@@ -80,9 +80,9 @@ impl<R: Rng, G: Goodness> AntsBehaviour for AntSystemAB<R, G> {
         break;
       }
       let path = ant.get_path();
-      sols.push(path_to_matrix(path));
+      paths.push(path.to_vec())
     }
 
-    sols
+    paths
   }
 }

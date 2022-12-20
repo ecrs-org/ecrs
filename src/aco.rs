@@ -31,6 +31,7 @@ mod aco_cfg;
 mod ant;
 mod ants_behaviour;
 pub mod builder;
+pub mod fitness;
 pub mod goodness;
 pub mod pheromone;
 pub mod probe;
@@ -42,10 +43,9 @@ pub use builder::Builder;
 pub use solution::Solution;
 
 use crate::aco::ants_behaviour::AntsBehaviour;
+use crate::aco::fitness::Fitness;
 use crate::aco::pheromone::PheromoneUpdate;
-use itertools::Itertools;
 use nalgebra::{Dynamic, OMatrix};
-use std::iter::zip;
 
 pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 
@@ -54,13 +54,19 @@ pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 /// Encapsulates common ACO algorithm patterns.
 ///
 /// To extract data use a [probe](probe)
-pub struct AntColonyOptimization<P: PheromoneUpdate, AB: AntsBehaviour> {
+pub struct AntColonyOptimization<P: PheromoneUpdate, AB: AntsBehaviour, F: Fitness> {
   cfg: AntColonyOptimizationCfg<P>,
   ants_behaviour: AB,
   pheromone: FMatrix,
+  fitness: F,
 }
 
-impl<P: PheromoneUpdate, AB: AntsBehaviour> AntColonyOptimization<P, AB> {
+impl<P, AB, F> AntColonyOptimization<P, AB, F>
+where
+  P: PheromoneUpdate,
+  AB: AntsBehaviour,
+  F: Fitness,
+{
   /// Executes the algorithm
   pub fn run(mut self) {
     for i in 0..self.cfg.iteration {
@@ -73,8 +79,8 @@ impl<P: PheromoneUpdate, AB: AntsBehaviour> AntColonyOptimization<P, AB> {
   }
 
   fn iterate(&mut self) {
-    let sols_m = self.ants_behaviour.simulate_ants(&mut self.pheromone);
-    let sols = self.grade(sols_m);
+    let paths = self.ants_behaviour.simulate_ants(&mut self.pheromone);
+    let sols = self.grade(paths);
 
     let best = self.find_best(&sols);
     self.cfg.probe.on_current_best(best);
@@ -97,33 +103,23 @@ impl<P: PheromoneUpdate, AB: AntsBehaviour> AntColonyOptimization<P, AB> {
     best.unwrap()
   }
 
-  fn grade(&self, sols_m: Vec<FMatrix>) -> Vec<Solution> {
-    let costs: Vec<f64> = Vec::from_iter(sols_m.iter().map(|s| self.grade_one(s)));
-    let mut sols: Vec<Solution> = Vec::new();
-    for (m, c) in zip(sols_m, costs) {
-      sols.push(Solution { matrix: m, cost: c })
+  fn grade(&mut self, paths: Vec<Vec<usize>>) -> Vec<Solution> {
+    let mut sols: Vec<Solution> = Vec::with_capacity(paths.len());
+
+    for path in paths {
+      let fitness = self.fitness.apply(&path);
+      let cost = 1.0 / fitness;
+
+      let mut solution = Solution::from_path(path);
+      solution.fitness = fitness;
+      solution.cost = cost;
+      sols.push(solution);
     }
 
     sols
   }
 
-  fn grade_one(&self, s: &FMatrix) -> f64 {
-    s.component_mul(&self.cfg.weights).sum() / 2.0
-  }
-
   fn end(mut self) {
     self.cfg.probe.on_end();
   }
-}
-
-#[inline]
-fn path_to_matrix(path: &[usize]) -> FMatrix {
-  let sol_size = path.len();
-  let mut sol = FMatrix::zeros(sol_size, sol_size);
-  for (i, j) in path.iter().tuples::<(&usize, &usize)>() {
-    sol[(*i, *j)] = 1.0;
-    sol[(*j, *i)] = 1.0;
-  }
-
-  sol
 }
