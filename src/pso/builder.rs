@@ -1,4 +1,5 @@
 use crate::pso::probe::Probe;
+use crate::pso::termination_condition::{GenerationLimit, TerminationCondition, TimeLimit};
 use crate::pso::{PSOAlgorithm, PSOAlgorithmCfg};
 
 pub struct PSOAlgorithmBuilder {
@@ -52,8 +53,18 @@ impl PSOAlgorithmBuilder {
     self
   }
 
-  pub fn set_iterations(mut self, iterations: usize) -> Self {
-    self.config.iterations = iterations;
+  pub fn set_termination_condition(mut self, termination_condtition: Box<dyn TerminationCondition>) -> Self {
+    self.config.termination_condition = termination_condtition;
+    self
+  }
+
+  pub fn set_generation_limit(mut self, generation_limit: usize) -> Self {
+    self.config.termination_condition = Box::new(GenerationLimit::new(generation_limit));
+    self
+  }
+
+  pub fn set_time_limit(mut self, time_limit: usize) -> Self {
+    self.config.termination_condition = Box::new(TimeLimit::new(time_limit));
     self
   }
 
