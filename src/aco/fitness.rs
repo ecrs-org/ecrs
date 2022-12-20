@@ -41,3 +41,19 @@ impl Fitness for CanonicalFitness {
     1.0 / cost
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use crate::aco::fitness::{CanonicalFitness, Fitness};
+  use crate::aco::FMatrix;
+
+  #[test]
+  fn canonical_fitness_returns_correct_fitness() {
+    let weights = FMatrix::from_vec(2, 2, vec![0.0, 2.0, 4.0, 0.0]);
+    let mut fittness = CanonicalFitness::new(weights);
+    let path = [0usize, 1];
+    assert_eq!(fittness.apply(&path), 1.0 / 6.0);
+    let path = [1usize, 0];
+    assert_eq!(fittness.apply(&path), 1.0 / 6.0);
+  }
+}
