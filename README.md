@@ -1,6 +1,6 @@
 # ECRS - Evolutionary Computation for Rust
 
-**Disclaimer** Please note that this library is in early development phase (latest version is `0.1.0-beta.1`) and breaking changes may occur without any notice.
+**Disclaimer** Please note that this library is in early development phase and breaking changes may occur without any notice.
 
 Evolutionary computation tools & algorithms.
 
