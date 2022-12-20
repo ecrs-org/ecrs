@@ -17,9 +17,7 @@ impl GenerationLimit {
 }
 
 impl TerminationCondition for GenerationLimit {
-  fn initialize(&mut self, _swarm: &Swarm) {
-    return;
-  }
+  fn initialize(&mut self, _swarm: &Swarm) {}
 
   fn is_met(&self, generation: usize, _swarm: &Swarm) -> bool {
     generation >= self.generation_limit
