@@ -60,10 +60,6 @@ impl CsvProbe {
 }
 
 impl Probe for CsvProbe {
-  fn on_new_best(&mut self, best_sol: &Solution) {
-    self.best_sol = best_sol.clone();
-  }
-
   fn on_pheromone_update(&mut self, _old_pheromone: &FMatrix, new_pheromone: &FMatrix) {
     for (i, row) in new_pheromone.row_iter().enumerate() {
       for (j, val) in row.iter().enumerate() {
@@ -77,7 +73,9 @@ impl Probe for CsvProbe {
     }
   }
 
-  fn on_current_best(&mut self, _best: &Solution) {}
+  fn on_current_best(&mut self, best: &Solution) {
+    self.best_sol = best.clone();
+  }
 
   fn on_iteration_start(&mut self, iteration: usize) {
     self.iteration = iteration;

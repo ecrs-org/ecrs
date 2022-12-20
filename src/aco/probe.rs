@@ -9,16 +9,18 @@ use crate::aco::Solution;
 mod aggregated_probe;
 mod csv_probe;
 mod json_probe;
+mod policy_driven_probe;
+mod probing_policy;
 mod stdout_probe;
 
 pub use aggregated_probe::AggregatedProbe;
 pub use csv_probe::CsvProbe;
 pub use json_probe::JsonProbe;
+pub use policy_driven_probe::PolicyDrivenProbe;
+pub use probing_policy::{ElapsedTime, GenerationInterval};
 pub use stdout_probe::StdoutProbe;
 
 pub trait Probe {
-  /// Called when algorithm finds a new best solution overall. TODO: Deprecated, remove
-  fn on_new_best(&mut self, best_sol: &Solution);
   /// Called when new pheromone has been calculated.
   fn on_pheromone_update(&mut self, old_pheromone: &FMatrix, new_pheromone: &FMatrix);
   /// Called every iteration with best solution in current iteration.
@@ -29,4 +31,12 @@ pub trait Probe {
   fn on_iteration_end(&mut self, iteration: usize);
   /// Called when algorithm has ended
   fn on_end(&mut self);
+}
+
+pub trait ProbingPolicy {
+  fn on_pheromone_update(&mut self) -> bool;
+  fn on_current_best(&mut self) -> bool;
+  fn on_iteration_start(&mut self, iteration: usize) -> bool;
+  fn on_iteration_end(&mut self, iteration: usize) -> bool;
+  fn on_end(&mut self) -> bool;
 }
