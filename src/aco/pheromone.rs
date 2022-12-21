@@ -212,11 +212,15 @@ mod tests {
     let sols = [
       Solution {
         matrix: s1,
+        path: vec![0, 1, 2],
         cost: 8.0,
+        fitness: 0.125,
       },
       Solution {
         matrix: s2,
+        path: vec![0, 1, 2],
         cost: 4.0,
+        fitness: 0.125,
       },
     ];
 
@@ -238,11 +242,15 @@ mod tests {
     let sols = [
       Solution {
         matrix: s1,
+        path: vec![0, 1, 2],
         cost: 8.0,
+        fitness: 0.125,
       },
       Solution {
         matrix: s2,
+        path: vec![0, 1, 2],
         cost: 4.0,
+        fitness: 0.125,
       },
     ];
 
@@ -264,11 +272,15 @@ mod tests {
     let sols = [
       Solution {
         matrix: s1,
+        path: vec![0, 1, 2],
         cost: 8.0,
+        fitness: 0.125,
       },
       Solution {
         matrix: s2,
+        path: vec![0, 1, 2],
         cost: 4.0,
+        fitness: 0.125,
       },
     ];
 
@@ -290,11 +302,15 @@ mod tests {
     let sols = [
       Solution {
         matrix: s1,
+        path: vec![0, 1, 2],
         cost: 8.0,
+        fitness: 0.125,
       },
       Solution {
         matrix: s2,
+        path: vec![0, 1, 2],
         cost: 4.0,
+        fitness: 0.125,
       },
     ];
 

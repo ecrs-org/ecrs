@@ -2,6 +2,7 @@ use crate::aco;
 use crate::aco::aco_cfg::AntColonyOptimizationCfgOpt;
 use crate::aco::ant::Ant;
 use crate::aco::ants_behaviour::AntSystemAB;
+use crate::aco::fitness::CanonicalFitness;
 use crate::aco::goodness::CanonicalGoodness;
 use crate::aco::pheromone::PheromoneUpdate;
 use crate::aco::probe::Probe;
@@ -141,7 +142,9 @@ impl<P: PheromoneUpdate> Builder<P> {
   /// * `ants_num` - 10
   /// * `iterations` - 300
   /// * `probe` - [aco::probe::StdoutProbe]
-  pub fn build(mut self) -> AntColonyOptimization<P, AntSystemAB<ThreadRng, CanonicalGoodness>> {
+  pub fn build(
+    mut self,
+  ) -> AntColonyOptimization<P, AntSystemAB<ThreadRng, CanonicalGoodness>, CanonicalFitness> {
     let (nrow, ncol) = self.conf.weights.shape();
 
     if self.conf.heuristic.shape() != (nrow, ncol) {
@@ -162,11 +165,13 @@ impl<P: PheromoneUpdate> Builder<P> {
 
     let goodness = CanonicalGoodness::new(cfg.alpha, cfg.beta, cfg.heuristic.clone());
     let ants_behaviour = AntSystemAB { ants, goodness };
+    let weights = cfg.weights.clone();
 
     AntColonyOptimization {
       cfg,
       pheromone,
       ants_behaviour,
+      fitness: CanonicalFitness::new(weights),
     }
   }
 }

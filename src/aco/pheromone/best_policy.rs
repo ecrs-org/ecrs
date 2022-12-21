@@ -100,22 +100,30 @@ mod tests {
     let gen1 = [
       Solution {
         matrix: FMatrix::repeat(1, 1, 1.0),
+        path: vec![1],
         cost: 2.0,
+        fitness: 0.5,
       },
       Solution {
         matrix: FMatrix::repeat(1, 1, 1.0),
+        path: vec![1],
         cost: 4.0,
+        fitness: 0.25,
       },
     ];
 
     let gen2 = [
       Solution {
         matrix: FMatrix::repeat(1, 1, 1.0),
+        path: vec![1],
         cost: 8.0,
+        fitness: 0.125,
       },
       Solution {
         matrix: FMatrix::repeat(1, 1, 1.0),
+        path: vec![1],
         cost: 16.0,
+        fitness: 0.625,
       },
     ];
 
@@ -136,22 +144,30 @@ mod tests {
     let gen1 = [
       Solution {
         matrix: FMatrix::repeat(1, 1, 1.0),
+        path: vec![1],
         cost: 2.0,
+        fitness: 0.5,
       },
       Solution {
         matrix: FMatrix::repeat(1, 1, 1.0),
+        path: vec![1],
         cost: 4.0,
+        fitness: 0.25,
       },
     ];
 
     let gen2 = [
       Solution {
         matrix: FMatrix::repeat(1, 1, 1.0),
+        path: vec![1],
         cost: 8.0,
+        fitness: 0.125,
       },
       Solution {
         matrix: FMatrix::repeat(1, 1, 1.0),
+        path: vec![1],
         cost: 16.0,
+        fitness: 0.625,
       },
     ];
 

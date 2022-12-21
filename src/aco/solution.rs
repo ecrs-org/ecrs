@@ -1,5 +1,6 @@
 use crate::aco::util::into_vec;
 use crate::aco::FMatrix;
+use itertools::Itertools;
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 use std::cmp::Ordering;
@@ -8,14 +9,34 @@ use std::cmp::Ordering;
 #[derive(Clone)]
 pub struct Solution {
   pub matrix: FMatrix,
+  pub path: Vec<usize>,
   pub cost: f64,
+  pub fitness: f64,
 }
 
 impl Default for Solution {
   fn default() -> Self {
     Self {
       matrix: FMatrix::zeros(0, 0),
+      path: vec![],
       cost: f64::MAX,
+      fitness: 0.0,
+    }
+  }
+}
+
+impl Solution {
+  pub fn from_path(path: Vec<usize>) -> Self {
+    let mut matrix = FMatrix::zeros(path.len(), path.len());
+    for (i, j) in path.iter().circular_tuple_windows::<(&usize, &usize)>() {
+      matrix[(*i, *j)] = 1.0;
+      matrix[(*j, *i)] = 1.0;
+    }
+
+    Self {
+      matrix,
+      path,
+      ..Self::default()
     }
   }
 }
