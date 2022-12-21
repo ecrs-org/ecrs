@@ -30,7 +30,7 @@ impl Probe for PolicyDrivenProbe {
     }
   }
 
-  fn on_current_best(&mut self, solution: f64, position: &Vec<f64>) {
+  fn on_current_best(&mut self, solution: f64, position: &[f64]) {
     if self.policy.on_current_best() {
       self.probe.on_current_best(solution, position);
     }

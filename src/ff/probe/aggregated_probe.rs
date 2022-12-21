@@ -29,7 +29,7 @@ impl Probe for AggregatedProbe {
     }
   }
 
-  fn on_current_best(&mut self, solution: f64, position: &Vec<f64>) {
+  fn on_current_best(&mut self, solution: f64, position: &[f64]) {
     for probe in self.probes.iter_mut() {
       probe.on_current_best(solution, position);
     }

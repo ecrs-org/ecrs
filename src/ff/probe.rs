@@ -9,7 +9,7 @@ pub trait Probe {
   fn on_start(&mut self);
   fn on_iteration_start(&mut self, iteration: u32);
   fn on_iteration_end(&mut self, iteration: u32);
-  fn on_current_best(&mut self, solution: f64, position: &Vec<f64>);
+  fn on_current_best(&mut self, solution: f64, position: &[f64]);
   fn on_end(&mut self);
 }
 

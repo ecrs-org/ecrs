@@ -18,7 +18,7 @@ impl Probe for StdoutProbe {
   fn on_iteration_end(&mut self, _iteration: u32) {
     println!("################################");
   }
-  fn on_current_best(&mut self, solution: f64, _position: &Vec<f64>) {
+  fn on_current_best(&mut self, solution: f64, _position: &[f64]) {
     println!("Iteration best: {}", solution);
   }
   fn on_end(&mut self) {

@@ -48,9 +48,9 @@ impl Probe for JsonProbe {
     });
   }
 
-  fn on_current_best(&mut self, solution: f64, position: &Vec<f64>) {
+  fn on_current_best(&mut self, solution: f64, position: &[f64]) {
     self.best_solution = solution;
-    self.best_solution_position = position.clone();
+    self.best_solution_position = position.to_vec();
   }
 
   fn on_end(&mut self) {

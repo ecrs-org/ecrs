@@ -41,7 +41,7 @@ impl Probe for CsvProbe {
     });
   }
 
-  fn on_current_best(&mut self, solution: f64, _position: &Vec<f64>) {
+  fn on_current_best(&mut self, solution: f64, _position: &[f64]) {
     self.best_solution = solution;
   }
 
