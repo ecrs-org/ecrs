@@ -109,7 +109,7 @@ impl<B: BestPolicy> MMAntSystemPU<B> {
   /// * `upper_bound` - Maximal possible pheromone value.
   /// * `best_policy` - Implementation of [BestPolicy]
   pub fn with_best_policy(lower_bound: f64, upper_bound: f64, best_policy: B) -> Self {
-    assert!(lower_bound > 0.0, "Lower bound must be grater than 0");
+    assert!(lower_bound >= 0.0, "Lower bound must be grater or equal 0");
     assert!(
       upper_bound > lower_bound,
       "Lower bound must be smaller than upper bound"

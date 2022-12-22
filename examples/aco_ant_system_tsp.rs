@@ -8,7 +8,6 @@ fn main() {
     .set_weights(cost)
     .with_standard_ants(10)
     .set_heuristic(heuristic)
-    .set_pheromone_update(ecrs::aco::pheromone::AntSystemPU)
     .build();
 
   ant_s.run();
