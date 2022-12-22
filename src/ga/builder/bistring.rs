@@ -107,7 +107,10 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
       .config
       .selection_operator
       .get_or_insert_with(|| Tournament::new(0.2));
-    self.config.replacement_operator.get_or_insert_with(BothParents::new);
+    self
+      .config
+      .replacement_operator
+      .get_or_insert_with(BothParents::new);
     self
       .config
       .population_factory
