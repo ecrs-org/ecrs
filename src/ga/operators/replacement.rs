@@ -96,4 +96,9 @@ impl<T: Chromosome> ReplacementOperator<T> for Noop {
   fn apply(&self, population: Vec<Individual<T>>, _children: Vec<Individual<T>>) -> Vec<Individual<T>> {
     population
   }
+
+	#[inline(always)]
+	fn requires_children_fitness(&self) -> bool {
+		false
+	}
 }
