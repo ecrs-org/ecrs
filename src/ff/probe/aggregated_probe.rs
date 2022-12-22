@@ -5,8 +5,17 @@ pub struct AggregatedProbe {
 }
 
 impl AggregatedProbe {
-  pub fn new(probes: Vec<Box<dyn Probe>>) -> AggregatedProbe {
+  pub fn new() -> AggregatedProbe {
+    AggregatedProbe { probes: vec![] }
+  }
+
+  pub fn from_probes(probes: Vec<Box<dyn Probe>>) -> AggregatedProbe {
     AggregatedProbe { probes }
+  }
+
+  pub fn add_probe<Pr: Probe + 'static>(mut self, probe: Pr) -> AggregatedProbe {
+    self.probes.push(Box::new(probe));
+    self
   }
 }
 
