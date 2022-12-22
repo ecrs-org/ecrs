@@ -49,7 +49,7 @@ impl CanonicalGoodness {
   /// * `solution_size` - number of vertices
   pub fn default(solution_size: usize) -> Self {
     let h = FMatrix::repeat(solution_size, solution_size, 1.0);
-    Self::new(1.0,1.0,h)
+    Self::new(1.0, 1.0, h)
   }
 }
 
