@@ -4,7 +4,8 @@ use crate::aco::ant::{Ant, StandardAnt};
 use crate::aco::ants_behaviour::{AntSystemAB, AntsBehaviour};
 use crate::aco::fitness::{CanonicalFitness, Fitness};
 use crate::aco::goodness::{CanonicalGoodness, Goodness};
-use crate::aco::pheromone::{AntSystemPU, PheromoneUpdate};
+use crate::aco::pheromone::best_policy::{BestPolicy, OverallBest};
+use crate::aco::pheromone::{AntSystemPU, MMAntSystemPU, PheromoneUpdate};
 use crate::aco::probe::Probe;
 use crate::aco::{AntColonyOptimization, AntColonyOptimizationCfg, CanonicalAnt, FMatrix};
 use itertools::Itertools;
@@ -304,11 +305,47 @@ where
   AB: AntsBehaviour<StandardAnt, G>,
   F: Fitness,
 {
+  /// Creates the given number of [CanonicalAnt] with thread RNG
   pub fn with_standard_ants(mut self, ants_number: usize) -> Self {
     let ants = (0..ants_number)
       .map(|_| StandardAnt::new(self.solution_size))
       .collect_vec();
     self.ants = Some(ants);
+    self
+  }
+}
+
+impl<B, G, A, AB, F> Builder<MMAntSystemPU<B>, A, G, AB, F>
+where
+  B: BestPolicy,
+  G: Goodness,
+  A: Ant,
+  AB: AntsBehaviour<A, G>,
+  F: Fitness,
+{
+  /// Sets the lower bound of pheromone value
+  ///
+  /// Panics if:
+  /// * pheromone update wasn't set.
+  /// * lower bound >= upper_bound
+  /// * lower_bound < 0
+  ///
+  /// ## Arguments
+  /// * `lower_bound` - Minimal possible pheromone value.
+  /// * `upper_bound` - Maximal possible pheromone value.
+  pub fn set_pheromone_bound(mut self, lower_bound: f64, upper_bound: f64) -> Self {
+    assert!(
+      lower_bound < upper_bound,
+      "lower bound needs to be smaller than upper bound"
+    );
+    assert!(0.0 <= lower_bound, "lower bound must be greater or equal 0");
+
+    let mut pu = self
+      .pheromone_update
+      .expect("Set pheromone update before setting its bounds");
+    pu.upper_bound = upper_bound;
+    pu.lower_bound = lower_bound;
+    self.pheromone_update = Some(pu);
     self
   }
 }
@@ -330,6 +367,47 @@ impl<R: Rng> AntSystemBuilder<R> {
   /// * `heuristic` - matrix of 1.0
   pub fn new_as(solution_size: usize) -> Self {
     let pheromone_update = AntSystemPU::new();
+    let goodness = CanonicalGoodness::new(1.0, 1.0, FMatrix::repeat(solution_size, solution_size, 1.0));
+    let ants_behaviour = AntSystemAB;
+    let fitness = CanonicalFitness::new(FMatrix::repeat(solution_size, solution_size, 1.0));
+
+    Self {
+      conf: AntColonyOptimizationCfgOpt {
+        iteration: 300,
+        probe: Box::new(aco::probe::StdoutProbe::new()),
+      },
+      evaporation_rate: 0.1,
+      solution_size,
+      pheromone_update: Some(pheromone_update),
+      ants_behaviour: Some(ants_behaviour),
+      fitness: Some(fitness),
+      ants: None,
+      goodness: Some(goodness),
+      start_pheromone: FMatrix::repeat(solution_size, solution_size, 1.0),
+    }
+  }
+}
+
+type MaxMinAntSystemBuilder<R> =
+  Builder<MMAntSystemPU<OverallBest>, CanonicalAnt<R>, CanonicalGoodness, AntSystemAB, CanonicalFitness>;
+
+impl<R: Rng> MaxMinAntSystemBuilder<R> {
+  /// Creates a new instance of [Builder] with operators used for MAX-MIN Ant System version of the algorithm.
+  /// Best solution is chosen using [OverallBest].
+  ///
+  ///
+  /// ### Defaults
+  /// * `evaporation_rate` - 0.1
+  /// * `start_pheromone` - matrix of 1.0
+  /// * `iterations` - 300
+  /// * `probe` - [aco::probe::StdoutProbe]
+  /// * `alpha` - 1.0
+  /// * `beta` - 1.0
+  /// * `heuristic` - matrix of 1.0
+  /// * `lower_bound` - 0.0
+  /// * `upper_bound` - 1.0
+  pub fn new_mmas(solution_size: usize) -> Self {
+    let pheromone_update = MMAntSystemPU::new(0.0, 1.0);
     let goodness = CanonicalGoodness::new(1.0, 1.0, FMatrix::repeat(solution_size, solution_size, 1.0));
     let ants_behaviour = AntSystemAB;
     let fitness = CanonicalFitness::new(FMatrix::repeat(solution_size, solution_size, 1.0));
