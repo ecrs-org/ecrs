@@ -67,6 +67,7 @@ where
 {
   cfg: AntColonyOptimizationCfg,
   pheromone_update: P,
+  evaporation_rate: f64,
   ants_behaviour: AB,
   pheromone: FMatrix,
   ants: Vec<A>,
@@ -104,7 +105,7 @@ where
 
     let new_pheromone = self
       .pheromone_update
-      .apply(&self.pheromone, &sols, self.cfg.evaporation_rate);
+      .apply(&self.pheromone, &sols, self.evaporation_rate);
 
     self
       .cfg

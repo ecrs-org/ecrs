@@ -21,6 +21,7 @@ where
   F: Fitness,
 {
   conf: AntColonyOptimizationCfgOpt,
+  evaporation_rate: f64,
   solution_size: usize,
   pheromone_update: Option<P>,
   ants_behaviour: Option<AB>,
@@ -48,10 +49,10 @@ where
   pub fn new(solution_size: usize) -> Self {
     Builder {
       conf: AntColonyOptimizationCfgOpt {
-        evaporation_rate: 0.1,
         iteration: 300,
         probe: Box::new(aco::probe::StdoutProbe::new()),
       },
+      evaporation_rate: 0.1,
       solution_size,
       pheromone_update: None,
       ants_behaviour: None,
@@ -74,7 +75,7 @@ where
       (0.0..=1.0).contains(&evaporation_rate),
       "Evaporation rate must be between 0 and 1"
     );
-    self.conf.evaporation_rate = evaporation_rate;
+    self.evaporation_rate = evaporation_rate;
     self
   }
 
@@ -176,6 +177,7 @@ where
 
     AntColonyOptimization {
       cfg,
+      evaporation_rate: self.evaporation_rate,
       pheromone: self.start_pheromone,
       pheromone_update: self.pheromone_update.expect("Pheromone update rule wasn't set"),
       ants_behaviour: self.ants_behaviour.expect("Ants behaviour wasn't set"),
@@ -334,10 +336,10 @@ impl<R: Rng> AntSystemBuilder<R> {
 
     Self {
       conf: AntColonyOptimizationCfgOpt {
-        evaporation_rate: 0.1,
         iteration: 300,
         probe: Box::new(aco::probe::StdoutProbe::new()),
       },
+      evaporation_rate: 0.1,
       solution_size,
       pheromone_update: Some(pheromone_update),
       ants_behaviour: Some(ants_behaviour),
