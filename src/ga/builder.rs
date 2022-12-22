@@ -6,6 +6,7 @@ use std::fmt::Display;
 use std::marker::PhantomData;
 
 use super::individual::Chromosome;
+use super::operators::replacement::ReplacementOperator;
 use super::operators::selection::SelectionOperator;
 use super::population::PopulationGenerator;
 use super::{CrossoverOperator, GAConfig, GAParams, MutationOperator, Probe};
@@ -114,12 +115,13 @@ impl TryFrom<GAParamsOpt> for GAParams {
 /// inside `Option` type, so that builders can incrementally fill it up.
 // TODO: We should really consider creating a macro here, so that we
 // don't have to write it by hand...
-pub(self) struct GAConfigOpt<T, M, C, S, P, F, Pr>
+pub(self) struct GAConfigOpt<T, M, C, S, R, P, F, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
+  R: ReplacementOperator<T>,
   P: PopulationGenerator<T>,
   F: Fitness<T>,
   Pr: Probe<T>,
@@ -129,17 +131,19 @@ where
   pub mutation_operator: Option<M>,
   pub crossover_operator: Option<C>,
   pub selection_operator: Option<S>,
+  pub replacement_operator: Option<R>,
   pub population_factory: Option<P>,
   pub probe: Option<Pr>,
   phantom: PhantomData<T>,
 }
 
-impl<T, M, C, S, P, F, Pr> GAConfigOpt<T, M, C, S, P, F, Pr>
+impl<T, M, C, S, R, P, F, Pr> GAConfigOpt<T, M, C, S, R, P, F, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
+  R: ReplacementOperator<T>,
   P: PopulationGenerator<T>,
   F: Fitness<T>,
   Pr: Probe<T>,
@@ -152,6 +156,7 @@ where
       mutation_operator: None,
       crossover_operator: None,
       selection_operator: None,
+      replacement_operator: None,
       population_factory: None,
       probe: None,
       phantom: Default::default(),
@@ -159,19 +164,21 @@ where
   }
 }
 
-impl<T, M, C, S, P, F, Pr> TryFrom<GAConfigOpt<T, M, C, S, P, F, Pr>> for GAConfig<T, M, C, S, P, F, Pr>
+impl<T, M, C, S, R, P, F, Pr> TryFrom<GAConfigOpt<T, M, C, S, R, P, F, Pr>>
+  for GAConfig<T, M, C, S, R, P, F, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
+  R: ReplacementOperator<T>,
   P: PopulationGenerator<T>,
   F: Fitness<T>,
   Pr: Probe<T>,
 {
   type Error = ConfigError;
 
-  fn try_from(config_opt: GAConfigOpt<T, M, C, S, P, F, Pr>) -> Result<Self, Self::Error> {
+  fn try_from(config_opt: GAConfigOpt<T, M, C, S, R, P, F, Pr>) -> Result<Self, Self::Error> {
     let params = GAParams::try_from(config_opt.params)?;
 
     let Some(fitness_fn) = config_opt.fitness_fn else {
@@ -190,6 +197,10 @@ where
 			return Err(ConfigError::MissingOperator("No selection operator specified".to_owned()));
 		};
 
+    let Some(replacement_operator) = config_opt.replacement_operator else {
+			return Err(ConfigError::MissingOperator("No replacement operator specified".to_owned()));
+		};
+
     let Some(population_factory) = config_opt.population_factory else {
 			return Err(ConfigError::MissingPopulationFactory);
 		};
@@ -204,6 +215,7 @@ where
       mutation_operator,
       crossover_operator,
       selection_operator,
+      replacement_operator,
       population_factory,
       probe,
       phantom: PhantomData::default(),
@@ -215,17 +227,18 @@ pub struct Builder;
 
 impl Builder {
   #[allow(clippy::new_ret_no_self)]
-  pub fn new<T, M, C, S, P, F, Pr>() -> GenericBuilder<T, M, C, S, P, F, Pr>
+  pub fn new<T, M, C, S, R, P, F, Pr>() -> GenericBuilder<T, M, C, S, R, P, F, Pr>
   where
     T: Chromosome,
     M: MutationOperator<T>,
     C: CrossoverOperator<T>,
     S: SelectionOperator<T>,
+    R: ReplacementOperator<T>,
     P: PopulationGenerator<T>,
     F: Fitness<T>,
     Pr: Probe<T>,
   {
-    GenericBuilder::<T, M, C, S, P, F, Pr>::new()
+    GenericBuilder::<T, M, C, S, R, P, F, Pr>::new()
   }
 
   pub fn with_rvc<F: Fitness<realvalued::Rvc>>() -> RealValuedBuilder<F> {

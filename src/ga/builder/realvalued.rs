@@ -1,5 +1,6 @@
 use crate::ga::builder::FitnessFn;
 use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
+use crate::ga::operators::replacement::BothParents;
 use crate::ga::{
   operators::{crossover::SinglePoint, mutation::Interchange, selection::Tournament},
   population::RandomPoints,
@@ -17,6 +18,7 @@ pub struct RealValuedBuilder<F: Fitness<Rvc>> {
     Interchange<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
+    BothParents,
     RandomPoints<rand::rngs::ThreadRng>,
     F,
     StdoutProbe,
@@ -85,6 +87,7 @@ impl<F: Fitness<Rvc>> RealValuedBuilder<F> {
     Interchange<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
+    BothParents,
     RandomPoints<rand::rngs::ThreadRng>,
     F,
     StdoutProbe,
@@ -108,6 +111,10 @@ impl<F: Fitness<Rvc>> RealValuedBuilder<F> {
       .config
       .selection_operator
       .get_or_insert_with(|| Tournament::new(0.2));
+    self
+      .config
+      .replacement_operator
+      .get_or_insert_with(BothParents::new);
     self
       .config
       .population_factory

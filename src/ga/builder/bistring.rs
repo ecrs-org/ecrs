@@ -1,5 +1,6 @@
 use crate::ga::builder::FitnessFn;
 use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
+use crate::ga::operators::replacement::BothParents;
 use crate::ga::{
   operators::{crossover::SinglePoint, mutation::FlipBit, selection::Tournament},
   population::BitStrings,
@@ -17,6 +18,7 @@ pub struct BitStringBuilder<F: Fitness<Bsc>> {
     FlipBit<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
+    BothParents,
     BitStrings<rand::rngs::ThreadRng>,
     F,
     StdoutProbe,
@@ -85,6 +87,7 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
     FlipBit<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
+    BothParents,
     BitStrings<rand::rngs::ThreadRng>,
     F,
     StdoutProbe,
@@ -104,6 +107,10 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
       .config
       .selection_operator
       .get_or_insert_with(|| Tournament::new(0.2));
+    self
+      .config
+      .replacement_operator
+      .get_or_insert_with(BothParents::new);
     self
       .config
       .population_factory

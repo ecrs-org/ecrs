@@ -15,7 +15,10 @@ use std::marker::PhantomData;
 
 use self::{
   individual::Chromosome,
-  operators::{crossover::CrossoverOperator, mutation::MutationOperator, selection::SelectionOperator},
+  operators::{
+    crossover::CrossoverOperator, mutation::MutationOperator, replacement::ReplacementOperator,
+    selection::SelectionOperator,
+  },
   population::PopulationGenerator,
 };
 
@@ -39,12 +42,13 @@ pub struct GAParams {
 //   }
 // }
 
-pub struct GAConfig<T, M, C, S, P, F, Pr>
+pub struct GAConfig<T, M, C, S, R, P, F, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
+  R: ReplacementOperator<T>,
   P: PopulationGenerator<T>,
   F: Fitness<T>,
   Pr: Probe<T>,
@@ -55,6 +59,7 @@ where
   pub mutation_operator: M,
   pub crossover_operator: C,
   pub selection_operator: S,
+  pub replacement_operator: R,
   pub population_factory: P,
   pub probe: Pr,
   phantom: PhantomData<T>,
@@ -81,31 +86,33 @@ impl GAMetadata {
   }
 }
 
-pub struct GeneticAlgorithm<T, M, C, S, P, F, Pr>
+pub struct GeneticAlgorithm<T, M, C, S, R, P, F, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
+  R: ReplacementOperator<T>,
   P: PopulationGenerator<T>,
   F: Fitness<T>,
   Pr: Probe<T>,
 {
-  config: GAConfig<T, M, C, S, P, F, Pr>,
+  config: GAConfig<T, M, C, S, R, P, F, Pr>,
   metadata: GAMetadata,
 }
 
-impl<T, M, C, S, P, F, Pr> GeneticAlgorithm<T, M, C, S, P, F, Pr>
+impl<T, M, C, S, R, P, F, Pr> GeneticAlgorithm<T, M, C, S, R, P, F, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
+  R: ReplacementOperator<T>,
   P: PopulationGenerator<T>,
   F: Fitness<T>,
   Pr: Probe<T>,
 {
-  pub fn new(config: GAConfig<T, M, C, S, P, F, Pr>) -> Self {
+  pub fn new(config: GAConfig<T, M, C, S, R, P, F, Pr>) -> Self {
     GeneticAlgorithm {
       config,
       metadata: GAMetadata::new(None, None, 0),
@@ -123,7 +130,7 @@ where
     best_individual
   }
 
-  fn evaluate_fitness_in_population(&self, population: &mut Vec<Individual<T>>) {
+  fn evaluate_population(&self, population: &mut Vec<Individual<T>>) {
     for idv in population {
       let fitness = (self.config.fitness_fn).apply(idv);
       idv.fitness = fitness;
@@ -141,7 +148,7 @@ where
       .generate(self.config.params.population_size);
 
     // 2. Evaluate fitness for each individual.
-    self.evaluate_fitness_in_population(&mut population);
+    self.evaluate_population(&mut population);
 
     self.config.probe.on_initial_population_created(&population);
 
@@ -156,7 +163,7 @@ where
       self.config.probe.on_iteration_start(&self.metadata);
 
       // 2. Evaluate fitness for each individual.
-      self.evaluate_fitness_in_population(&mut population);
+      self.evaluate_population(&mut population);
 
       // 4. Create mating pool by applying selection operator.
       let mating_pool: Vec<&Individual<T>> =
@@ -187,18 +194,19 @@ where
           .apply(&mut children[i], self.config.params.mutation_rate)
       });
 
-      // TODO
-      // 6. Replacement - merge new generation with old one
-      // As for now I'm replacing old population with the new one, but this must be
-      // reimplemented. See p. 58 Introduction to Genetic Algorithms.
-      population = children;
+      if self.config.replacement_operator.requires_children_fitness() {
+        self.evaluate_population(&mut children);
+      }
 
-      // 6. Check for stop condition (Is good enough individual found)? If not goto 2.
-      self.evaluate_fitness_in_population(&mut population);
+      // 6. Replacement - merge new generation with old one
+      population = self.config.replacement_operator.apply(population, children);
+
+      // 7. Check for stop condition (Is good enough individual found)? If not goto 2.
+      self.evaluate_population(&mut population);
 
       self.config.probe.on_new_generation(&self.metadata, &population);
 
-      let best_individual = GeneticAlgorithm::<T, M, C, S, P, F, Pr>::find_best_individual(&population);
+      let best_individual = Self::find_best_individual(&population);
       self
         .config
         .probe
