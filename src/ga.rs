@@ -130,7 +130,7 @@ where
     best_individual
   }
 
-  fn evaluate_fitness_in_population(&self, population: &mut Vec<Individual<T>>) {
+  fn evaluate_population(&self, population: &mut Vec<Individual<T>>) {
     for idv in population {
       let fitness = (self.config.fitness_fn).apply(idv);
       idv.fitness = fitness;
@@ -148,7 +148,7 @@ where
       .generate(self.config.params.population_size);
 
     // 2. Evaluate fitness for each individual.
-    self.evaluate_fitness_in_population(&mut population);
+    self.evaluate_population(&mut population);
 
     self.config.probe.on_initial_population_created(&population);
 
@@ -163,7 +163,7 @@ where
       self.config.probe.on_iteration_start(&self.metadata);
 
       // 2. Evaluate fitness for each individual.
-      self.evaluate_fitness_in_population(&mut population);
+      self.evaluate_population(&mut population);
 
       // 4. Create mating pool by applying selection operator.
       let mating_pool: Vec<&Individual<T>> =
@@ -194,11 +194,15 @@ where
           .apply(&mut children[i], self.config.params.mutation_rate)
       });
 
+			if self.config.replacement_operator.requires_children_fitness() {
+				self.evaluate_population(&mut children);
+			}
+
       // 6. Replacement - merge new generation with old one
-      self.config.replacement_operator.apply(&mut population, &children);
+      population = self.config.replacement_operator.apply(population, children);
 
       // 7. Check for stop condition (Is good enough individual found)? If not goto 2.
-      self.evaluate_fitness_in_population(&mut population);
+      self.evaluate_population(&mut population);
 
       self.config.probe.on_new_generation(&self.metadata, &population);
 
