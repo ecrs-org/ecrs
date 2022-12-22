@@ -4,72 +4,43 @@
 use crate::aco::ant::Ant;
 use crate::aco::goodness::Goodness;
 use crate::aco::FMatrix;
-use itertools::Itertools;
-use rand::rngs::ThreadRng;
-use rand::Rng;
 
 /// # Ants Behaviour
 ///
 /// Trait contains common actions of ants simulation.
-pub trait AntsBehaviour {
-  /// Calculates goodness based on provided pheromone. Calculations are often delegated to an object
-  /// implementing [Goodness] trait.
-  ///
-  /// ## Arguments
-  /// * `pheromone` - Pheromone to base goodness of.
-  fn calc_goodness(&mut self, pheromone: &FMatrix) -> FMatrix;
-
+pub trait AntsBehaviour<A: Ant, G: Goodness> {
   /// Simulates ant by deciding on order of operations.
   ///
   /// ## Arguments
   /// * `pheromone` - Pheromone after global pheromone update rule was applied.
-  fn simulate_ants(&mut self, pheromone: &mut FMatrix) -> Vec<Vec<usize>>;
+  /// * `ants` - ants to be simulated
+  /// * `goodness_op` - Implementation of [Goodness].
+  fn simulate_ants(
+    &mut self,
+    ants: &mut [A],
+    pheromone: &mut FMatrix,
+    goodness_op: &mut G,
+  ) -> Vec<Vec<usize>>;
 }
 /// # Ant System ants behaviour
 ///
 /// Implements [AntsBehaviour]. Ants are simulated as described in Ant System algorithm with the
 /// exception of goodness calculation. By providing [crate::aco::goodness::CanonicalGoodness] simulations
 /// will be fully equivalent to Ant System.
-pub struct AntSystemAB<R: Rng, G: Goodness> {
-  pub(crate) ants: Vec<Ant<R>>,
-  pub(crate) goodness: G,
-}
+pub struct AntSystemAB;
 
-impl<G: Goodness> AntSystemAB<ThreadRng, G> {
-  /// Creates a new instance of [AntSystemAB]. With default RNG
-  ///
-  /// ## Arguments
-  /// * `ants_number` - number of ants to simulate.
-  /// * `solution_size` - number of graph vertices
-  /// * `goodness` - goodness calculation struct.
-  pub fn new(ants_number: usize, solution_size: usize, goodness: G) -> Self {
-    let ants = (0..ants_number).map(|_| Ant::new(solution_size)).collect_vec();
-    Self::with_ants(ants, goodness)
-  }
-}
-
-impl<R: Rng, G: Goodness> AntSystemAB<R, G> {
-  /// Creates a new instance of [AntSystemAB] with user initialized ants.
-  ///
-  /// ## Arguments
-  /// * `ants` - vector of ants.
-  /// * `goodness` - goodness calculation struct.
-  pub fn with_ants(ants: Vec<Ant<R>>, goodness: G) -> Self {
-    Self { ants, goodness }
-  }
-}
-
-impl<R: Rng, G: Goodness> AntsBehaviour for AntSystemAB<R, G> {
-  fn calc_goodness(&mut self, pheromone: &FMatrix) -> FMatrix {
-    self.goodness.apply(pheromone)
-  }
-
-  fn simulate_ants(&mut self, pheromone: &mut FMatrix) -> Vec<Vec<usize>> {
-    let goodness = self.calc_goodness(pheromone);
+impl<A: Ant, G: Goodness> AntsBehaviour<A, G> for AntSystemAB {
+  fn simulate_ants(
+    &mut self,
+    ants: &mut [A],
+    pheromone: &mut FMatrix,
+    goodness_op: &mut G,
+  ) -> Vec<Vec<usize>> {
+    let goodness = goodness_op.apply(pheromone);
     let solution_size = pheromone.nrows();
 
-    let mut paths: Vec<Vec<usize>> = Vec::with_capacity(self.ants.len());
-    for ant in self.ants.iter_mut() {
+    let mut paths: Vec<Vec<usize>> = Vec::with_capacity(ants.len());
+    for ant in ants.iter_mut() {
       ant.clear();
       ant.chose_staring_place();
       for _ in 1..solution_size {

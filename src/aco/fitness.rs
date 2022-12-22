@@ -21,7 +21,7 @@ pub trait Fitness {
 ///
 /// Calculates fitness as 1.0 / path_cost
 pub struct CanonicalFitness {
-  weights: FMatrix,
+  pub(in crate::aco) weights: FMatrix,
 }
 
 impl CanonicalFitness {

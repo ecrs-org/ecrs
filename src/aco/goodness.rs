@@ -23,9 +23,9 @@ pub trait Goodness {
 ///
 /// Implements [Goodness]. Provides goodness calculation based on Ant System equations
 pub struct CanonicalGoodness {
-  alpha: f64,
-  beta: f64,
-  heuristic: FMatrix,
+  pub(in crate::aco) alpha: f64,
+  pub(in crate::aco) beta: f64,
+  pub(in crate::aco) heuristic: FMatrix,
 }
 
 impl CanonicalGoodness {
@@ -41,6 +41,15 @@ impl CanonicalGoodness {
       beta,
       heuristic,
     }
+  }
+
+  /// Creates a new instance of [CanonicalGoodness] with default values.
+  ///
+  /// ## Arguments
+  /// * `solution_size` - number of vertices
+  pub fn default(solution_size: usize) -> Self {
+    let h = FMatrix::repeat(solution_size, solution_size, 1.0);
+    Self::new(1.0,1.0,h)
   }
 }
 

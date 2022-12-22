@@ -18,10 +18,10 @@
 //!
 //!   let heuristic = ecrs::aco::util::create_heuristic_from_weights(&cost);
 //!
-//!   let ant_s = ecrs::aco::Builder::new()
+//!   let ant_s = ecrs::aco::Builder::new_as(10)
 //!       .set_weights(cost)
 //!       .set_heuristic(heuristic)
-//!       .set_pheromone_update(ecrs::aco::pheromone::AntSystemPU)
+//!       .with_standard_ants(10)
 //!       .build();
 //!
 //!   ant_s.run();
@@ -29,7 +29,7 @@
 //! ```
 mod aco_cfg;
 mod ant;
-mod ants_behaviour;
+pub mod ants_behaviour;
 pub mod builder;
 pub mod fitness;
 pub mod goodness;
@@ -39,11 +39,14 @@ mod solution;
 pub mod util;
 
 pub(self) use aco_cfg::AntColonyOptimizationCfg;
+pub use ant::CanonicalAnt;
 pub use builder::Builder;
 pub use solution::Solution;
 
+use crate::aco::ant::Ant;
 use crate::aco::ants_behaviour::AntsBehaviour;
 use crate::aco::fitness::Fitness;
+use crate::aco::goodness::Goodness;
 use crate::aco::pheromone::PheromoneUpdate;
 use nalgebra::{Dynamic, OMatrix};
 
@@ -54,17 +57,29 @@ pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 /// Encapsulates common ACO algorithm patterns.
 ///
 /// To extract data use a [probe](probe)
-pub struct AntColonyOptimization<P: PheromoneUpdate, AB: AntsBehaviour, F: Fitness> {
-  cfg: AntColonyOptimizationCfg<P>,
-  ants_behaviour: AB,
-  pheromone: FMatrix,
-  fitness: F,
-}
-
-impl<P, AB, F> AntColonyOptimization<P, AB, F>
+pub struct AntColonyOptimization<P, A, G, AB, F>
 where
   P: PheromoneUpdate,
-  AB: AntsBehaviour,
+  A: Ant,
+  G: Goodness,
+  AB: AntsBehaviour<A, G>,
+  F: Fitness,
+{
+  cfg: AntColonyOptimizationCfg,
+  pheromone_update: P,
+  ants_behaviour: AB,
+  pheromone: FMatrix,
+  ants: Vec<A>,
+  fitness: F,
+  goodness: G,
+}
+
+impl<P, A, G, AB, F> AntColonyOptimization<P, A, G, AB, F>
+where
+  P: PheromoneUpdate,
+  A: Ant,
+  G: Goodness,
+  AB: AntsBehaviour<A, G>,
   F: Fitness,
 {
   /// Executes the algorithm
@@ -79,14 +94,15 @@ where
   }
 
   fn iterate(&mut self) {
-    let paths = self.ants_behaviour.simulate_ants(&mut self.pheromone);
+    let paths = self
+      .ants_behaviour
+      .simulate_ants(&mut self.ants, &mut self.pheromone, &mut self.goodness);
     let sols = self.grade(paths);
 
     let best = self.find_best(&sols);
     self.cfg.probe.on_current_best(best);
 
     let new_pheromone = self
-      .cfg
       .pheromone_update
       .apply(&self.pheromone, &sols, self.cfg.evaporation_rate);
 
