@@ -194,9 +194,9 @@ where
           .apply(&mut children[i], self.config.params.mutation_rate)
       });
 
-			if self.config.replacement_operator.requires_children_fitness() {
-				self.evaluate_population(&mut children);
-			}
+      if self.config.replacement_operator.requires_children_fitness() {
+        self.evaluate_population(&mut children);
+      }
 
       // 6. Replacement - merge new generation with old one
       population = self.config.replacement_operator.apply(population, children);

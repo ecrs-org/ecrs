@@ -31,12 +31,12 @@ pub trait ReplacementOperator<T: Chromosome> {
   /// * `children` - Result of the crossover phase.
   fn apply(&self, population: Vec<Individual<T>>, children: Vec<Individual<T>>) -> Vec<Individual<T>>;
 
-	/// Returns `true` when the operator requries children to possess valid fitness values.
-	///
-	/// Default implementation returns `false`
-	fn requires_children_fitness(&self) -> bool {
-		true
-	}
+  /// Returns `true` when the operator requries children to possess valid fitness values.
+  ///
+  /// Default implementation returns `false`
+  fn requires_children_fitness(&self) -> bool {
+    true
+  }
 }
 
 /// # BothParents replacement operator
@@ -55,7 +55,7 @@ impl BothParents {
 
 impl<T: Chromosome> ReplacementOperator<T> for BothParents {
   /// Works simply by replacing parents with their children
-	///
+  ///
   /// **NOTE**: In current implementation, all library-implemented operators assume that
   /// at indices i, i+1 in `population` collection there are parents of children i, i+1
   /// from `children` collection. Any violation of this invariant may lead to bugs - it can
@@ -68,14 +68,14 @@ impl<T: Chromosome> ReplacementOperator<T> for BothParents {
   /// * `children` - Result of the crossover phase
   #[inline(always)]
   fn apply(&self, _population: Vec<Individual<T>>, children: Vec<Individual<T>>) -> Vec<Individual<T>> {
-		children
-	}
+    children
+  }
 
-	/// Returns `false`.
-	#[inline(always)]
-	fn requires_children_fitness(&self) -> bool {
-		false
-	}
+  /// Returns `false`.
+  #[inline(always)]
+  fn requires_children_fitness(&self) -> bool {
+    false
+  }
 }
 
 /// # Noop replacement operator
@@ -94,6 +94,6 @@ impl Noop {
 impl<T: Chromosome> ReplacementOperator<T> for Noop {
   #[inline(always)]
   fn apply(&self, population: Vec<Individual<T>>, _children: Vec<Individual<T>>) -> Vec<Individual<T>> {
-		population
-	}
+    population
+  }
 }
