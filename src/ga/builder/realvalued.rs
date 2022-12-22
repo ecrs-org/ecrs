@@ -18,7 +18,7 @@ pub struct RealValuedBuilder<F: Fitness<Rvc>> {
     Interchange<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
-		Noop,
+    Noop,
     RandomPoints<rand::rngs::ThreadRng>,
     F,
     StdoutProbe,
@@ -87,7 +87,7 @@ impl<F: Fitness<Rvc>> RealValuedBuilder<F> {
     Interchange<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
-		Noop,
+    Noop,
     RandomPoints<rand::rngs::ThreadRng>,
     F,
     StdoutProbe,
@@ -111,7 +111,7 @@ impl<F: Fitness<Rvc>> RealValuedBuilder<F> {
       .config
       .selection_operator
       .get_or_insert_with(|| Tournament::new(0.2));
-		self.config.replacement_operator.get_or_insert_with(Noop::new);
+    self.config.replacement_operator.get_or_insert_with(Noop::new);
     self
       .config
       .population_factory

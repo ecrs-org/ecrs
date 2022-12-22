@@ -6,7 +6,7 @@ fn generic_does_not_panic_with_some_params_unspecified() {
     .set_population_size(100)
     .set_fitness_fn(ecrs::test_functions::rastrigin)
     .set_crossover_operator(ecrs::ga::operators::crossover::SinglePoint::new())
-		.set_replacement_operator(ecrs::ga::operators::replacement::BothParents)
+    .set_replacement_operator(ecrs::ga::operators::replacement::BothParents)
     .set_mutation_operator(ecrs::ga::operators::mutation::Identity::new())
     .set_population_generator(ecrs::ga::population::RandomPoints::with_constraints(
       3,
@@ -23,7 +23,7 @@ fn generic_does_not_panic_with_some_params_unspecified() {
     .set_fitness_fn(ecrs::test_functions::rastrigin)
     .set_crossover_operator(ecrs::ga::operators::crossover::SinglePoint::new())
     .set_mutation_operator(ecrs::ga::operators::mutation::Identity::new())
-		.set_replacement_operator(ecrs::ga::operators::replacement::BothParents)
+    .set_replacement_operator(ecrs::ga::operators::replacement::BothParents)
     .set_population_generator(ecrs::ga::population::RandomPoints::with_constraints(
       3,
       vec![-5.12..5.12, -5.12..5.12, -5.12..5.12],

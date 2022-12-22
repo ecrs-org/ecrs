@@ -15,7 +15,10 @@ use std::marker::PhantomData;
 
 use self::{
   individual::Chromosome,
-  operators::{crossover::CrossoverOperator, mutation::MutationOperator, selection::SelectionOperator, replacement::ReplacementOperator},
+  operators::{
+    crossover::CrossoverOperator, mutation::MutationOperator, replacement::ReplacementOperator,
+    selection::SelectionOperator,
+  },
   population::PopulationGenerator,
 };
 
@@ -45,7 +48,7 @@ where
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
-	R: ReplacementOperator<T>,
+  R: ReplacementOperator<T>,
   P: PopulationGenerator<T>,
   F: Fitness<T>,
   Pr: Probe<T>,
@@ -56,7 +59,7 @@ where
   pub mutation_operator: M,
   pub crossover_operator: C,
   pub selection_operator: S,
-	pub replacement_operator: R,
+  pub replacement_operator: R,
   pub population_factory: P,
   pub probe: Pr,
   phantom: PhantomData<T>,
@@ -89,7 +92,7 @@ where
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
-	R: ReplacementOperator<T>,
+  R: ReplacementOperator<T>,
   P: PopulationGenerator<T>,
   F: Fitness<T>,
   Pr: Probe<T>,
@@ -104,7 +107,7 @@ where
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
-	R: ReplacementOperator<T>,
+  R: ReplacementOperator<T>,
   P: PopulationGenerator<T>,
   F: Fitness<T>,
   Pr: Probe<T>,
@@ -192,7 +195,7 @@ where
       });
 
       // 6. Replacement - merge new generation with old one
-			self.config.replacement_operator.apply(&mut population, &children);
+      self.config.replacement_operator.apply(&mut population, &children);
 
       // 7. Check for stop condition (Is good enough individual found)? If not goto 2.
       self.evaluate_fitness_in_population(&mut population);

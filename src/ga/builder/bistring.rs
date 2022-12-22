@@ -18,7 +18,7 @@ pub struct BitStringBuilder<F: Fitness<Bsc>> {
     FlipBit<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
-		Noop,
+    Noop,
     BitStrings<rand::rngs::ThreadRng>,
     F,
     StdoutProbe,
@@ -87,7 +87,7 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
     FlipBit<rand::rngs::ThreadRng>,
     SinglePoint<rand::rngs::ThreadRng>,
     Tournament<rand::rngs::ThreadRng>,
-		Noop,
+    Noop,
     BitStrings<rand::rngs::ThreadRng>,
     F,
     StdoutProbe,
@@ -107,7 +107,7 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
       .config
       .selection_operator
       .get_or_insert_with(|| Tournament::new(0.2));
-		self.config.replacement_operator.get_or_insert_with(Noop::new);
+    self.config.replacement_operator.get_or_insert_with(Noop::new);
     self
       .config
       .population_factory

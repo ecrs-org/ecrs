@@ -16,7 +16,7 @@ where
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
-	R: ReplacementOperator<T>,
+  R: ReplacementOperator<T>,
   P: PopulationGenerator<T>,
   F: Fitness<T>,
   Pr: Probe<T>,
@@ -30,7 +30,7 @@ where
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
-	R: ReplacementOperator<T>,
+  R: ReplacementOperator<T>,
   P: PopulationGenerator<T>,
   Pr: Probe<T>,
 {
@@ -46,7 +46,7 @@ where
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
   P: PopulationGenerator<T>,
-	R: ReplacementOperator<T>,
+  R: ReplacementOperator<T>,
   F: Fitness<T>,
   Pr: Probe<T>,
 {
@@ -105,10 +105,10 @@ where
     self
   }
 
-	pub fn set_replacement_operator(mut self, replacement_op: R) -> Self {
-		self.config.replacement_operator = Some(replacement_op);
-		self
-	}
+  pub fn set_replacement_operator(mut self, replacement_op: R) -> Self {
+    self.config.replacement_operator = Some(replacement_op);
+    self
+  }
 
   pub fn set_population_generator(mut self, generator: P) -> Self {
     self.config.population_factory = Some(generator);
@@ -139,7 +139,7 @@ where
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
   P: PopulationGenerator<T>,
-	R: ReplacementOperator<T>,
+  R: ReplacementOperator<T>,
   F: Fitness<T>,
   Pr: Probe<T>,
 {

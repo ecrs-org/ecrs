@@ -121,7 +121,7 @@ where
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
-	R: ReplacementOperator<T>,
+  R: ReplacementOperator<T>,
   P: PopulationGenerator<T>,
   F: Fitness<T>,
   Pr: Probe<T>,
@@ -131,7 +131,7 @@ where
   pub mutation_operator: Option<M>,
   pub crossover_operator: Option<C>,
   pub selection_operator: Option<S>,
-	pub replacement_operator: Option<R>,
+  pub replacement_operator: Option<R>,
   pub population_factory: Option<P>,
   pub probe: Option<Pr>,
   phantom: PhantomData<T>,
@@ -143,7 +143,7 @@ where
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
-	R: ReplacementOperator<T>,
+  R: ReplacementOperator<T>,
   P: PopulationGenerator<T>,
   F: Fitness<T>,
   Pr: Probe<T>,
@@ -156,7 +156,7 @@ where
       mutation_operator: None,
       crossover_operator: None,
       selection_operator: None,
-			replacement_operator: None,
+      replacement_operator: None,
       population_factory: None,
       probe: None,
       phantom: Default::default(),
@@ -164,13 +164,14 @@ where
   }
 }
 
-impl<T, M, C, S, R, P, F, Pr> TryFrom<GAConfigOpt<T, M, C, S, R, P, F, Pr>> for GAConfig<T, M, C, S, R, P, F, Pr>
+impl<T, M, C, S, R, P, F, Pr> TryFrom<GAConfigOpt<T, M, C, S, R, P, F, Pr>>
+  for GAConfig<T, M, C, S, R, P, F, Pr>
 where
   T: Chromosome,
   M: MutationOperator<T>,
   C: CrossoverOperator<T>,
   S: SelectionOperator<T>,
-	R: ReplacementOperator<T>,
+  R: ReplacementOperator<T>,
   P: PopulationGenerator<T>,
   F: Fitness<T>,
   Pr: Probe<T>,
@@ -196,7 +197,7 @@ where
 			return Err(ConfigError::MissingOperator("No selection operator specified".to_owned()));
 		};
 
-		let Some(replacement_operator) = config_opt.replacement_operator else {
+    let Some(replacement_operator) = config_opt.replacement_operator else {
 			return Err(ConfigError::MissingOperator("No replacement operator specified".to_owned()));
 		};
 
@@ -214,7 +215,7 @@ where
       mutation_operator,
       crossover_operator,
       selection_operator,
-			replacement_operator,
+      replacement_operator,
       population_factory,
       probe,
       phantom: PhantomData::default(),
@@ -226,13 +227,13 @@ pub struct Builder;
 
 impl Builder {
   #[allow(clippy::new_ret_no_self)]
-	pub fn new<T, M, C, S, R, P, F, Pr>() -> GenericBuilder<T, M, C, S, R, P, F, Pr>
+  pub fn new<T, M, C, S, R, P, F, Pr>() -> GenericBuilder<T, M, C, S, R, P, F, Pr>
   where
     T: Chromosome,
     M: MutationOperator<T>,
     C: CrossoverOperator<T>,
     S: SelectionOperator<T>,
-		R: ReplacementOperator<T>,
+    R: ReplacementOperator<T>,
     P: PopulationGenerator<T>,
     F: Fitness<T>,
     Pr: Probe<T>,
