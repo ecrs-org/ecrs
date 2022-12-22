@@ -34,7 +34,7 @@ pub trait ReplacementOperator<T: Chromosome> {
   /// * `population` - Original population, input to the crossover phase.
   /// This collection should be modified in place by the operator.
   /// * `children` - Result of the crossover phase
-  fn apply(population: &mut [Individual<T>], children: &[Individual<T>]);
+  fn apply(&self, population: &mut [Individual<T>], children: &[Individual<T>]);
 }
 
 /// # BothParents replacement operator
@@ -55,7 +55,7 @@ impl BothParents {
 
 impl<T: Chromosome> ReplacementOperator<T> for BothParents {
   #[inline(always)]
-  fn apply(_population: &mut [Individual<T>], _children: &[Individual<T>]) {}
+  fn apply(&self, _population: &mut [Individual<T>], _children: &[Individual<T>]) {}
 }
 
 /// # Noop replacement operator
@@ -75,5 +75,5 @@ impl Noop {
 
 impl<T: Chromosome> ReplacementOperator<T> for Noop {
   #[inline(always)]
-  fn apply(_population: &mut [Individual<T>], _children: &[Individual<T>]) {}
+  fn apply(&self, _population: &mut [Individual<T>], _children: &[Individual<T>]) {}
 }
