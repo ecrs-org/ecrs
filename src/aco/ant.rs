@@ -4,12 +4,25 @@ use rand::prelude::ThreadRng;
 use rand::{thread_rng, Rng};
 use std::collections::HashSet;
 
-/// # Ant
+pub trait Ant {
+  /// Clears iteration specific data like visited vertices or path.
+  fn clear(&mut self);
+  /// Returns vector of vertices in order of visiting
+  fn get_path(&self) -> &[usize];
+  /// Selects an vertex to start from
+  fn chose_staring_place(&mut self);
+  /// Returns true when there is no valid next vertex with path not fully constructed.
+  fn is_stuck(&self) -> bool;
+  /// Chooses and goes to the next vertex. Returns traversed edge.
+  fn go_to_next_place(&mut self, edges_goodness: &FMatrix) -> (usize, usize);
+}
+
+/// # Canonical Ant
 ///
 /// Represent a single ant.
 /// Used to build a solution.
 /// Related to [AntsBehavior]
-pub struct Ant<R: Rng> {
+pub struct CanonicalAnt<R: Rng> {
   unvisited: HashSet<usize>,
   path: Vec<usize>,
   solution_size: usize,
@@ -17,18 +30,8 @@ pub struct Ant<R: Rng> {
   rng: R,
 }
 
-impl Ant<ThreadRng> {
-  /// Create a new instance of [Ant] with default RNG.
-  ///
-  /// ## Arguments
-  /// * `solution_size` - Numer of graph vertices
-  pub fn new(solution_size: usize) -> Self {
-    Self::with_rng(solution_size, thread_rng())
-  }
-}
-
-impl<R: Rng> Ant<R> {
-  /// Create a new instance of [Ant] with user specified RNG.
+impl<R: Rng> CanonicalAnt<R> {
+  /// Create a new instance of [CanonicalAnt] with user specified RNG.
   ///
   /// ## Arguments
   /// * `solution_size` - Numer of graph vertices.
@@ -42,38 +45,36 @@ impl<R: Rng> Ant<R> {
       rng,
     }
   }
+}
 
+impl<R: Rng> Ant for CanonicalAnt<R> {
   /// Clears iteration specific data like visited vertices or path.
-  pub fn clear(&mut self) {
+  fn clear(&mut self) {
     for i in 0..self.solution_size {
       self.unvisited.push(i);
     }
     self.path.clear();
     self.stuck = false;
   }
-
   /// Returns vector of vertices in order of visiting
-  pub fn get_path(&self) -> &[usize] {
+  fn get_path(&self) -> &[usize] {
     &self.path
   }
-
   /// Selects an vertex to start from
-  pub fn chose_staring_place(&mut self) {
+  fn chose_staring_place(&mut self) {
     let start: usize = self.rng.gen_range(0..self.solution_size);
     self.unvisited.remove(&start);
     self.path.push(start);
   }
-
   /// Returns true when there is no valid next vertex with path not fully constructed.
-  pub fn is_stuck(&self) -> bool {
+  fn is_stuck(&self) -> bool {
     self.stuck
   }
-
   /// Chooses and goes to the next vertex. Returns traversed edge.
   ///
-  /// Panic when starting vertex wasn't decided ([Ant::chose_staring_place]) or when all vertices
+  /// Panic when starting vertex wasn't decided ([CanonicalAnt::chose_staring_place]) or when all vertices
   /// are already visited   
-  pub fn go_to_next_place(&mut self, edges_goodness: &FMatrix) -> (usize, usize) {
+  fn go_to_next_place(&mut self, edges_goodness: &FMatrix) -> (usize, usize) {
     let last = *self
       .path
       .last()
@@ -110,5 +111,17 @@ impl<R: Rng> Ant<R> {
     self.path.push(next);
 
     (last, next)
+  }
+}
+
+pub type StandardAnt = CanonicalAnt<ThreadRng>;
+
+impl StandardAnt {
+  /// Create a new instance of [CanonicalAnt] with default RNG.
+  ///
+  /// ## Arguments
+  /// * `solution_size` - Numer of graph vertices
+  pub fn new(solution_size: usize) -> Self {
+    Self::with_rng(solution_size, thread_rng())
   }
 }

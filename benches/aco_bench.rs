@@ -1,5 +1,6 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use ecrs::aco;
+use ecrs::aco::ants_behaviour::AntSystemAB;
 use ecrs::aco::pheromone::AntSystemPU;
 use ecrs::aco::{util, FMatrix, Solution};
 use std::time::Duration;
@@ -10,10 +11,11 @@ pub fn bench_aco_small(c: &mut Criterion) {
 
   c.bench_function("aco small", |b| {
     b.iter(|| {
-      aco::Builder::new()
+      aco::Builder::new(5)
         .set_weights(black_box(dist.clone()))
         .set_heuristic(black_box(heuristic.clone()))
-        .set_ants_num(black_box(5))
+        .with_standard_ants(black_box(5))
+        .set_ants_behaviour(AntSystemAB)
         .set_pheromone_update(AntSystemPU)
         .set_probe(Box::new(EmptyProbe))
         .set_iterations(black_box(20))
@@ -29,11 +31,12 @@ pub fn bench_aco_medium(c: &mut Criterion) {
 
   c.bench_function("aco medium", |b| {
     b.iter(|| {
-      aco::Builder::new()
+      aco::Builder::new(15)
         .set_weights(black_box(dist.clone()))
         .set_heuristic(black_box(heuristic.clone()))
         .set_pheromone_update(AntSystemPU)
-        .set_ants_num(black_box(5))
+        .with_standard_ants(black_box(5))
+        .set_ants_behaviour(AntSystemAB)
         .set_probe(Box::new(EmptyProbe))
         .set_iterations(black_box(20))
         .build()

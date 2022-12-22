@@ -13,10 +13,10 @@ fn main() {
   let policy_driven_probe =
     ecrs::aco::probe::PolicyDrivenProbe::new(Box::new(aggregated_probe), Box::new(probing_policy));
 
-  let ant_s = ecrs::aco::Builder::new()
+  let ant_s = ecrs::aco::Builder::new_as(30)
     .set_weights(cost)
     .set_heuristic(heuristic)
-    .set_pheromone_update(ecrs::aco::pheromone::AntSystemPU)
+    .with_standard_ants(10)
     .set_probe(Box::new(policy_driven_probe))
     .build();
 

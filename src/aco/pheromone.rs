@@ -4,7 +4,7 @@ use crate::aco::pheromone::best_policy::BestPolicy;
 use crate::aco::{FMatrix, Solution};
 use std::ops::Add;
 
-mod best_policy;
+pub mod best_policy;
 
 /// # Pheromone Update
 ///
@@ -96,9 +96,9 @@ impl PheromoneUpdate for ElitistAntSystemPU {
 /// to the way cost. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and
 /// pheromone trail left by ant chosen by [BestPolicy], additionally the pheromone value is clamped.
 pub struct MMAntSystemPU<B: BestPolicy> {
-  best_policy: B,
-  lower_bound: f64,
-  upper_bound: f64,
+  pub(in crate::aco) best_policy: B,
+  pub(in crate::aco) lower_bound: f64,
+  pub(in crate::aco) upper_bound: f64,
 }
 
 impl<B: BestPolicy> MMAntSystemPU<B> {
@@ -109,7 +109,7 @@ impl<B: BestPolicy> MMAntSystemPU<B> {
   /// * `upper_bound` - Maximal possible pheromone value.
   /// * `best_policy` - Implementation of [BestPolicy]
   pub fn with_best_policy(lower_bound: f64, upper_bound: f64, best_policy: B) -> Self {
-    assert!(lower_bound > 0.0, "Lower bound must be grater than 0");
+    assert!(lower_bound >= 0.0, "Lower bound must be grater or equal 0");
     assert!(
       upper_bound > lower_bound,
       "Lower bound must be smaller than upper bound"
@@ -154,7 +154,7 @@ impl<B: BestPolicy> PheromoneUpdate for MMAntSystemPU<B> {
 /// best ant pheromone trail scaled by evaporation rate. Best ant pheromone is selected based
 /// on [BestPolicy] implementation.
 pub struct AntColonySystemPU<B: BestPolicy> {
-  best_policy: B,
+  pub(in crate::aco) best_policy: B,
 }
 
 impl AntColonySystemPU<best_policy::OverallBest> {

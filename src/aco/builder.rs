@@ -1,75 +1,67 @@
 use crate::aco;
 use crate::aco::aco_cfg::AntColonyOptimizationCfgOpt;
-use crate::aco::ant::Ant;
-use crate::aco::ants_behaviour::AntSystemAB;
-use crate::aco::fitness::CanonicalFitness;
-use crate::aco::goodness::CanonicalGoodness;
-use crate::aco::pheromone::PheromoneUpdate;
+use crate::aco::ant::{Ant, StandardAnt};
+use crate::aco::ants_behaviour::{AntSystemAB, AntsBehaviour};
+use crate::aco::fitness::{CanonicalFitness, Fitness};
+use crate::aco::goodness::{CanonicalGoodness, Goodness};
+use crate::aco::pheromone::best_policy::{BestPolicy, OverallBest};
+use crate::aco::pheromone::{AntSystemPU, MMAntSystemPU, PheromoneUpdate};
 use crate::aco::probe::Probe;
-use crate::aco::{AntColonyOptimization, AntColonyOptimizationCfg, FMatrix};
+use crate::aco::{AntColonyOptimization, AntColonyOptimizationCfg, CanonicalAnt, FMatrix};
 use itertools::Itertools;
-use rand::rngs::ThreadRng;
+use rand::Rng;
 
 /// Builder for [AntColonyOptimization]
 ///
-pub struct Builder<P: PheromoneUpdate> {
-  conf: AntColonyOptimizationCfgOpt<P>,
+pub struct Builder<P, A, G, AB, F>
+where
+  P: PheromoneUpdate,
+  A: Ant,
+  G: Goodness,
+  AB: AntsBehaviour<A, G>,
+  F: Fitness,
+{
+  conf: AntColonyOptimizationCfgOpt,
+  evaporation_rate: f64,
+  solution_size: usize,
+  pheromone_update: Option<P>,
+  ants_behaviour: Option<AB>,
+  fitness: Option<F>,
+  ants: Option<Vec<A>>,
+  goodness: Option<G>,
+  start_pheromone: FMatrix,
 }
 
-impl<P: PheromoneUpdate> Builder<P> {
+impl<P, A, G, AB, F> Builder<P, A, G, AB, F>
+where
+  P: PheromoneUpdate,
+  A: Ant,
+  G: Goodness,
+  AB: AntsBehaviour<A, G>,
+  F: Fitness,
+{
   /// Creates a new instance of Builder.
-  pub fn new() -> Self {
+  ///
+  /// ### Defaults
+  /// * `evaporation_rate` - 0.1
+  /// * `start_pheromone` - matrix of 1.0
+  /// * `iterations` - 300
+  /// * `probe` - [aco::probe::StdoutProbe]
+  pub fn new(solution_size: usize) -> Self {
     Builder {
       conf: AntColonyOptimizationCfgOpt {
-        weights: FMatrix::zeros(0, 0),
-        heuristic: FMatrix::zeros(0, 0),
-        alpha: 1.0,
-        beta: 1.0,
-        evaporation_rate: 0.1,
-        ants_num: 10,
         iteration: 300,
         probe: Box::new(aco::probe::StdoutProbe::new()),
-        pheromone_update: None,
       },
+      evaporation_rate: 0.1,
+      solution_size,
+      pheromone_update: None,
+      ants_behaviour: None,
+      fitness: None,
+      ants: None,
+      goodness: None,
+      start_pheromone: FMatrix::repeat(solution_size, solution_size, 1.0),
     }
-  }
-
-  /// Sets the weighted graph to be searched.
-  ///
-  /// ## Arguments
-  /// * `weights` - Weighted graph in matrix representation.
-  pub fn set_weights(mut self, weights: FMatrix) -> Self {
-    self.conf.weights = weights;
-    self
-  }
-
-  /// Sets the heuristic to aide path finding.
-  ///
-  /// Setting a heuristic is optional.
-  ///
-  /// ## Arguments
-  /// * `heuristic` - Weighted graph in matrix representation.
-  pub fn set_heuristic(mut self, heuristic: FMatrix) -> Self {
-    self.conf.heuristic = heuristic;
-    self
-  }
-
-  /// Sets the importance of weights in edge choosing
-  ///
-  /// ## Arguments
-  /// * `alpha` - importance of weights in edge choosing.
-  pub fn set_alpha(mut self, alpha: f64) -> Self {
-    self.conf.alpha = alpha;
-    self
-  }
-
-  /// Sets the importance of heuristic in edge choosing, pass 0 to ignore.
-  ///
-  /// ## Arguments
-  /// * `beta` - importance of heuristic in edge choosing.
-  pub fn set_beta(mut self, beta: f64) -> Self {
-    self.conf.beta = beta;
-    self
   }
 
   /// Sets the evaporation rate.
@@ -84,17 +76,7 @@ impl<P: PheromoneUpdate> Builder<P> {
       (0.0..=1.0).contains(&evaporation_rate),
       "Evaporation rate must be between 0 and 1"
     );
-    self.conf.evaporation_rate = evaporation_rate;
-    self
-  }
-
-  /// Sets the number of ants (number of solution per iteration).
-  ///
-  /// ## Arguments
-  /// * `ants_num` - number of ants.
-  pub fn set_ants_num(mut self, ants_num: usize) -> Self {
-    assert!(ants_num > 0, "Number of ants must be greater than 0");
-    self.conf.ants_num = ants_num;
+    self.evaporation_rate = evaporation_rate;
     self
   }
 
@@ -124,54 +106,325 @@ impl<P: PheromoneUpdate> Builder<P> {
   /// ## Arguments
   /// * `pheromone_update` - Implementation of [PheromoneUpdate] trait.
   pub fn set_pheromone_update(mut self, pheromone_update: P) -> Self {
-    self.conf.pheromone_update = Some(pheromone_update);
+    self.pheromone_update = Some(pheromone_update);
+    self
+  }
+
+  /// Sets the the way to calculate fitness.
+  ///
+  /// For more info see [aco::fitness] module.
+  ///
+  /// ## Arguments
+  /// * `fitness` - Implementation of [Fitness] trait.
+  pub fn set_fitness(mut self, fitness: F) -> Self {
+    self.fitness = Some(fitness);
+    self
+  }
+
+  /// Sets the the way to simulate ants behaviour.
+  ///
+  /// For more info see [aco::ants_behaviour] module.
+  ///
+  /// ## Arguments
+  /// * `ants_behaviour` - Implementation of [AntsBehaviour] trait.
+  pub fn set_ants_behaviour(mut self, ants_behaviour: AB) -> Self {
+    self.ants_behaviour = Some(ants_behaviour);
+    self
+  }
+
+  /// Sets the goodness operator.
+  ///
+  /// For more info see [aco::goodness] module.
+  ///
+  /// ## Arguments
+  /// * `goodness` - Implementation of [Goodness] trait.
+  pub fn set_goodness(mut self, goodness: G) -> Self {
+    self.goodness = Some(goodness);
+    self
+  }
+
+  /// Sets ants.
+  ///
+  /// ## Arguments
+  /// * `ant` - vector of implementation of [Ant] trait.
+  pub fn set_ants(mut self, ants: Vec<A>) -> Self {
+    self.ants = Some(ants);
+    self
+  }
+
+  /// Sets the initial pheromone.
+  /// ## Arguments
+  /// * `start_pheromone` - Initial pheromone.
+  pub fn set_start_pheromone(mut self, start_pheromone: FMatrix) -> Self {
+    self.start_pheromone = start_pheromone;
     self
   }
 
   /// Builds [AntColonyOptimization] with provided building blocks.
   ///
   /// * `pheromone_update` needs to be specified, if not program will panic
-  ///
-  /// If specific building block is not provided a default value will be used.
-  /// ### Defaults
-  /// * `weights` - 0 x 0 matrix
-  /// * `heuristic` - matrix of ones with `weights` shape
-  /// * `alpha` - 1.0
-  /// * `beta` - 1.0
-  /// * `evaporation_rate` - 0.1
-  /// * `ants_num` - 10
-  /// * `iterations` - 300
-  /// * `probe` - [aco::probe::StdoutProbe]
-  pub fn build(
-    mut self,
-  ) -> AntColonyOptimization<P, AntSystemAB<ThreadRng, CanonicalGoodness>, CanonicalFitness> {
-    let (nrow, ncol) = self.conf.weights.shape();
-
-    if self.conf.heuristic.shape() != (nrow, ncol) {
-      self.conf.heuristic = FMatrix::repeat(nrow, ncol, 1.0);
-    }
-
-    let pheromone = FMatrix::repeat(nrow, ncol, 0.5f64);
-
+  /// * `start_pheromone` needs to be specified, if not program will panic
+  /// * `ants_behaviour` needs to be specified, if not program will panic
+  /// * `fitness` needs to be specified, if not program will panic
+  /// * `goodness` needs to be specified, if not program will panic
+  /// * `ants` need to be specified, if not program will panic
+  pub fn build(self) -> AntColonyOptimization<P, A, G, AB, F> {
     let cfg_opt = AntColonyOptimizationCfg::try_from(self.conf);
     if let Err(err) = cfg_opt {
       panic!("{}", err);
     }
 
     let cfg = cfg_opt.unwrap();
-    let ants = (0..cfg.ants_num)
-      .map(|_| Ant::new(cfg.weights.ncols()))
-      .collect_vec();
-
-    let goodness = CanonicalGoodness::new(cfg.alpha, cfg.beta, cfg.heuristic.clone());
-    let ants_behaviour = AntSystemAB { ants, goodness };
-    let weights = cfg.weights.clone();
 
     AntColonyOptimization {
       cfg,
-      pheromone,
-      ants_behaviour,
-      fitness: CanonicalFitness::new(weights),
+      evaporation_rate: self.evaporation_rate,
+      pheromone: self.start_pheromone,
+      pheromone_update: self.pheromone_update.expect("Pheromone update rule wasn't set"),
+      ants_behaviour: self.ants_behaviour.expect("Ants behaviour wasn't set"),
+      fitness: self.fitness.expect("Fitness operator wasn't set"),
+      goodness: self.goodness.expect("Goodness operator wasn't set"),
+      ants: self.ants.expect("Ants weren't set"),
+    }
+  }
+}
+
+impl<P, F, A, AB> Builder<P, A, CanonicalGoodness, AB, F>
+where
+  P: PheromoneUpdate,
+  A: Ant,
+  AB: AntsBehaviour<A, CanonicalGoodness>,
+  F: Fitness,
+{
+  /// Sets the importance of weights in edge choosing
+  ///
+  /// If goodness wasn't set then before setting the parameter, a new instance of CanonicalGoodness
+  /// will be created with defaults:
+  /// * `alpha` - 1.0
+  /// * `beta` - 1.0
+  /// * `heuristic` - matrix of 1.0
+  ///
+  /// ## Arguments
+  /// * `alpha` - importance of weights in edge choosing.
+  pub fn set_alpha(mut self, alpha: f64) -> Self {
+    let mut g = self
+      .goodness
+      .unwrap_or_else(|| CanonicalGoodness::default(self.solution_size));
+    g.alpha = alpha;
+    self.goodness = Some(g);
+    self
+  }
+
+  /// Sets the importance of heuristic in edge choosing, pass 0 to ignore.
+  ///
+  /// If goodness wasn't set then before setting the parameter, a new instance of CanonicalGoodness
+  /// will be created with defaults:
+  /// * `alpha` - 1.0
+  /// * `beta` - 1.0
+  /// * `heuristic` - matrix of 1.0
+  ///
+  /// ## Arguments
+  /// * `beta` - importance of heuristic in edge choosing.
+  pub fn set_beta(mut self, beta: f64) -> Self {
+    let mut g = self
+      .goodness
+      .unwrap_or_else(|| CanonicalGoodness::default(self.solution_size));
+    g.beta = beta;
+    self.goodness = Some(g);
+    self
+  }
+
+  /// Sets the heuristic to aide path finding.
+  ///
+  /// If goodness wasn't set then before setting the parameter, a new instance of CanonicalGoodness
+  /// will be created with defaults:
+  /// * `alpha` - 1.0
+  /// * `beta` - 1.0
+  /// * `heuristic` - matrix of 1.0
+  ///
+  /// Setting a heuristic is optional.
+  ///
+  /// ## Arguments
+  /// * `heuristic` - Weighted graph in matrix representation.
+  pub fn set_heuristic(mut self, heuristic: FMatrix) -> Self {
+    assert_eq!(
+      heuristic.nrows(),
+      heuristic.ncols(),
+      "Heuristic needs to be a square matrix"
+    );
+    assert_eq!(
+      heuristic.nrows(),
+      self.solution_size,
+      "Heuristic needs to have length equal to solution_size"
+    );
+    let mut g = self
+      .goodness
+      .unwrap_or_else(|| CanonicalGoodness::default(self.solution_size));
+    g.heuristic = heuristic;
+    self.goodness = Some(g);
+    self
+  }
+}
+
+impl<P, A, G, AB> Builder<P, A, G, AB, CanonicalFitness>
+where
+  P: PheromoneUpdate,
+  A: Ant,
+  G: Goodness,
+  AB: AntsBehaviour<A, G>,
+{
+  /// Sets the weighted graph to be searched.
+  ///
+  /// ## Arguments
+  /// * `weights` - Weighted graph in matrix representation.
+  pub fn set_weights(mut self, weights: FMatrix) -> Self {
+    assert_eq!(
+      weights.nrows(),
+      weights.nrows(),
+      "Weights should be a square matrix"
+    );
+    assert_eq!(
+      weights.nrows(),
+      self.solution_size,
+      "Weights should be of length equal to solution size"
+    );
+    if let Some(mut f) = self.fitness {
+      f.weights = weights;
+      self.fitness = Some(f)
+    } else {
+      self.fitness = Some(CanonicalFitness::new(weights))
+    }
+    self
+  }
+}
+
+impl<P, G, AB, F> Builder<P, StandardAnt, G, AB, F>
+where
+  P: PheromoneUpdate,
+  G: Goodness,
+  AB: AntsBehaviour<StandardAnt, G>,
+  F: Fitness,
+{
+  /// Creates the given number of [CanonicalAnt] with thread RNG
+  pub fn with_standard_ants(mut self, ants_number: usize) -> Self {
+    let ants = (0..ants_number)
+      .map(|_| StandardAnt::new(self.solution_size))
+      .collect_vec();
+    self.ants = Some(ants);
+    self
+  }
+}
+
+impl<B, G, A, AB, F> Builder<MMAntSystemPU<B>, A, G, AB, F>
+where
+  B: BestPolicy,
+  G: Goodness,
+  A: Ant,
+  AB: AntsBehaviour<A, G>,
+  F: Fitness,
+{
+  /// Sets the lower bound of pheromone value
+  ///
+  /// Panics if:
+  /// * pheromone update wasn't set.
+  /// * lower bound >= upper_bound
+  /// * lower_bound < 0
+  ///
+  /// ## Arguments
+  /// * `lower_bound` - Minimal possible pheromone value.
+  /// * `upper_bound` - Maximal possible pheromone value.
+  pub fn set_pheromone_bound(mut self, lower_bound: f64, upper_bound: f64) -> Self {
+    assert!(
+      lower_bound < upper_bound,
+      "lower bound needs to be smaller than upper bound"
+    );
+    assert!(0.0 <= lower_bound, "lower bound must be greater or equal 0");
+
+    let mut pu = self
+      .pheromone_update
+      .expect("Set pheromone update before setting its bounds");
+    pu.upper_bound = upper_bound;
+    pu.lower_bound = lower_bound;
+    self.pheromone_update = Some(pu);
+    self
+  }
+}
+
+type AntSystemBuilder<R> =
+  Builder<AntSystemPU, CanonicalAnt<R>, CanonicalGoodness, AntSystemAB, CanonicalFitness>;
+
+impl<R: Rng> AntSystemBuilder<R> {
+  /// Creates a new instance of [Builder] with operators used for Ant System version of the algorithm.
+  ///
+  ///
+  /// ### Defaults
+  /// * `evaporation_rate` - 0.1
+  /// * `start_pheromone` - matrix of 1.0
+  /// * `iterations` - 300
+  /// * `probe` - [aco::probe::StdoutProbe]
+  /// * `alpha` - 1.0
+  /// * `beta` - 1.0
+  /// * `heuristic` - matrix of 1.0
+  pub fn new_as(solution_size: usize) -> Self {
+    let pheromone_update = AntSystemPU::new();
+    let goodness = CanonicalGoodness::new(1.0, 1.0, FMatrix::repeat(solution_size, solution_size, 1.0));
+    let ants_behaviour = AntSystemAB;
+    let fitness = CanonicalFitness::new(FMatrix::repeat(solution_size, solution_size, 1.0));
+
+    Self {
+      conf: AntColonyOptimizationCfgOpt {
+        iteration: 300,
+        probe: Box::new(aco::probe::StdoutProbe::new()),
+      },
+      evaporation_rate: 0.1,
+      solution_size,
+      pheromone_update: Some(pheromone_update),
+      ants_behaviour: Some(ants_behaviour),
+      fitness: Some(fitness),
+      ants: None,
+      goodness: Some(goodness),
+      start_pheromone: FMatrix::repeat(solution_size, solution_size, 1.0),
+    }
+  }
+}
+
+type MaxMinAntSystemBuilder<R> =
+  Builder<MMAntSystemPU<OverallBest>, CanonicalAnt<R>, CanonicalGoodness, AntSystemAB, CanonicalFitness>;
+
+impl<R: Rng> MaxMinAntSystemBuilder<R> {
+  /// Creates a new instance of [Builder] with operators used for MAX-MIN Ant System version of the algorithm.
+  /// Best solution is chosen using [OverallBest].
+  ///
+  ///
+  /// ### Defaults
+  /// * `evaporation_rate` - 0.1
+  /// * `start_pheromone` - matrix of 1.0
+  /// * `iterations` - 300
+  /// * `probe` - [aco::probe::StdoutProbe]
+  /// * `alpha` - 1.0
+  /// * `beta` - 1.0
+  /// * `heuristic` - matrix of 1.0
+  /// * `lower_bound` - 0.0
+  /// * `upper_bound` - 1.0
+  pub fn new_mmas(solution_size: usize) -> Self {
+    let pheromone_update = MMAntSystemPU::new(0.0, 1.0);
+    let goodness = CanonicalGoodness::new(1.0, 1.0, FMatrix::repeat(solution_size, solution_size, 1.0));
+    let ants_behaviour = AntSystemAB;
+    let fitness = CanonicalFitness::new(FMatrix::repeat(solution_size, solution_size, 1.0));
+
+    Self {
+      conf: AntColonyOptimizationCfgOpt {
+        iteration: 300,
+        probe: Box::new(aco::probe::StdoutProbe::new()),
+      },
+      evaporation_rate: 0.1,
+      solution_size,
+      pheromone_update: Some(pheromone_update),
+      ants_behaviour: Some(ants_behaviour),
+      fitness: Some(fitness),
+      ants: None,
+      goodness: Some(goodness),
+      start_pheromone: FMatrix::repeat(solution_size, solution_size, 1.0),
     }
   }
 }
