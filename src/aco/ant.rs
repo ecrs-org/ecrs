@@ -120,9 +120,7 @@ impl<R: Rng> Ant for CanonicalAnt<R> {
   }
 }
 
-pub type StandardAnt = CanonicalAnt<ThreadRng>;
-
-impl StandardAnt {
+impl CanonicalAnt<ThreadRng> {
   /// Create a new instance of [CanonicalAnt] with default RNG.
   ///
   /// ## Arguments
