@@ -228,3 +228,14 @@ impl<R: Rng> Ant for ExploitingAnt<R> {
     (last, next)
   }
 }
+
+impl ExploitingAnt<ThreadRng> {
+  /// Create a new instance of [CanonicalAnt] with default RNG.
+  ///
+  /// ## Arguments
+  /// * `solution_size` - Numer of graph vertices.
+  /// * `exploitation_rate` - Number between 0.0 and 1.0. Probability of exploiting pheromone information.
+  pub fn new(solution_size: usize, exploitation_rate: f64) -> Self {
+    Self::with_rng(solution_size, exploitation_rate, thread_rng())
+  }
+}

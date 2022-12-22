@@ -1,6 +1,6 @@
 use crate::aco;
 use crate::aco::aco_cfg::AntColonyOptimizationCfgOpt;
-use crate::aco::ant::{Ant, CanonicalAnt};
+use crate::aco::ant::{Ant, CanonicalAnt, ExploitingAnt};
 use crate::aco::ants_behaviour::{AntSystemAB, AntsBehaviour};
 use crate::aco::fitness::{CanonicalFitness, Fitness};
 use crate::aco::goodness::{CanonicalGoodness, Goodness};
@@ -310,6 +310,23 @@ where
   pub fn with_standard_ants(mut self, ants_number: usize) -> Self {
     let ants = (0..ants_number)
       .map(|_| CanonicalAnt::<ThreadRng>::new(self.solution_size))
+      .collect_vec();
+    self.ants = Some(ants);
+    self
+  }
+}
+
+impl<P, G, AB, F> Builder<P, ExploitingAnt<ThreadRng>, G, AB, F>
+where
+  P: PheromoneUpdate,
+  G: Goodness,
+  AB: AntsBehaviour<ExploitingAnt<ThreadRng>, G>,
+  F: Fitness,
+{
+  /// Creates the given number of [ExploitingAnt] with thread RNG
+  pub fn with_standard_exploiting_ants(mut self, ants_number: usize, exploiting_rate: f64) -> Self {
+    let ants = (0..ants_number)
+      .map(|_| ExploitingAnt::<ThreadRng>::new(self.solution_size, exploiting_rate))
       .collect_vec();
     self.ants = Some(ants);
     self
