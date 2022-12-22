@@ -97,8 +97,8 @@ impl<T: Chromosome> ReplacementOperator<T> for Noop {
     population
   }
 
-	#[inline(always)]
-	fn requires_children_fitness(&self) -> bool {
-		false
-	}
+  #[inline(always)]
+  fn requires_children_fitness(&self) -> bool {
+    false
+  }
 }
