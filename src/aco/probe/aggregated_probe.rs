@@ -36,15 +36,15 @@ impl Probe for AggregatedProbe {
     self.probes.iter_mut().for_each(|p| p.on_current_best(best))
   }
 
-  fn on_iteration_start(&mut self, iteration: usize) {
+  fn on_iteration_start(&mut self) {
     self
       .probes
       .iter_mut()
-      .for_each(|p| p.on_iteration_start(iteration))
+      .for_each(|p| p.on_iteration_start())
   }
 
-  fn on_iteration_end(&mut self, iteration: usize) {
-    self.probes.iter_mut().for_each(|p| p.on_iteration_end(iteration))
+  fn on_iteration_end(&mut self) {
+    self.probes.iter_mut().for_each(|p| p.on_iteration_end())
   }
 
   fn on_end(&mut self) {

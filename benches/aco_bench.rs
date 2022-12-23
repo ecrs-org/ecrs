@@ -59,9 +59,9 @@ impl aco::probe::Probe for EmptyProbe {
 
   fn on_current_best(&mut self, _best: &Solution) {}
 
-  fn on_iteration_start(&mut self, _iteration: usize) {}
+  fn on_iteration_start(&mut self) {}
 
-  fn on_iteration_end(&mut self, _iteration: usize) {}
+  fn on_iteration_end(&mut self) {}
 
   fn on_end(&mut self) {}
 }
