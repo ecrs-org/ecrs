@@ -28,7 +28,7 @@
 //! }
 //! ```
 mod aco_cfg;
-mod ant;
+pub mod ant;
 pub mod ants_behaviour;
 pub mod builder;
 pub mod fitness;
@@ -39,7 +39,6 @@ mod solution;
 pub mod util;
 
 pub(self) use aco_cfg::AntColonyOptimizationCfg;
-pub use ant::CanonicalAnt;
 pub use builder::Builder;
 pub use solution::Solution;
 

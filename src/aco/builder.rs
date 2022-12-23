@@ -1,14 +1,15 @@
 use crate::aco;
 use crate::aco::aco_cfg::AntColonyOptimizationCfgOpt;
-use crate::aco::ant::{Ant, StandardAnt};
+use crate::aco::ant::{Ant, CanonicalAnt, ExploitingAnt};
 use crate::aco::ants_behaviour::{AntSystemAB, AntsBehaviour};
 use crate::aco::fitness::{CanonicalFitness, Fitness};
 use crate::aco::goodness::{CanonicalGoodness, Goodness};
 use crate::aco::pheromone::best_policy::{BestPolicy, OverallBest};
 use crate::aco::pheromone::{AntSystemPU, MMAntSystemPU, PheromoneUpdate};
 use crate::aco::probe::Probe;
-use crate::aco::{AntColonyOptimization, AntColonyOptimizationCfg, CanonicalAnt, FMatrix};
+use crate::aco::{AntColonyOptimization, AntColonyOptimizationCfg, FMatrix};
 use itertools::Itertools;
+use rand::prelude::ThreadRng;
 use rand::Rng;
 
 /// Builder for [AntColonyOptimization]
@@ -298,17 +299,34 @@ where
   }
 }
 
-impl<P, G, AB, F> Builder<P, StandardAnt, G, AB, F>
+impl<P, G, AB, F> Builder<P, CanonicalAnt<ThreadRng>, G, AB, F>
 where
   P: PheromoneUpdate,
   G: Goodness,
-  AB: AntsBehaviour<StandardAnt, G>,
+  AB: AntsBehaviour<CanonicalAnt<ThreadRng>, G>,
   F: Fitness,
 {
   /// Creates the given number of [CanonicalAnt] with thread RNG
   pub fn with_standard_ants(mut self, ants_number: usize) -> Self {
     let ants = (0..ants_number)
-      .map(|_| StandardAnt::new(self.solution_size))
+      .map(|_| CanonicalAnt::<ThreadRng>::new(self.solution_size))
+      .collect_vec();
+    self.ants = Some(ants);
+    self
+  }
+}
+
+impl<P, G, AB, F> Builder<P, ExploitingAnt<ThreadRng>, G, AB, F>
+where
+  P: PheromoneUpdate,
+  G: Goodness,
+  AB: AntsBehaviour<ExploitingAnt<ThreadRng>, G>,
+  F: Fitness,
+{
+  /// Creates the given number of [ExploitingAnt] with thread RNG
+  pub fn with_standard_exploiting_ants(mut self, ants_number: usize, exploiting_rate: f64) -> Self {
+    let ants = (0..ants_number)
+      .map(|_| ExploitingAnt::<ThreadRng>::new(self.solution_size, exploiting_rate))
       .collect_vec();
     self.ants = Some(ants);
     self

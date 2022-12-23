@@ -50,7 +50,7 @@ impl<A: Ant, G: Goodness> AntsBehaviour<A, G> for AntSystemAB {
       if ant.is_stuck() {
         break;
       }
-      let path = ant.get_path();
+      let path = ant.path();
       paths.push(path.to_vec())
     }
 
