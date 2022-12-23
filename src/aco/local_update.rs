@@ -13,7 +13,7 @@ pub trait LocalUpdate {
 /// Implements [LocalUpdate].
 ///
 /// Multiplies pheromone on last traveled edges by provided constant.
-struct Decay {
+pub struct Decay {
   decay_rate: f64,
 }
 
@@ -48,7 +48,7 @@ impl LocalUpdate for Decay {
 /// Implements [LocalUpdate].
 ///
 /// Multiplies pheromone on last traveled edges by provided constant (decay_rate) and adds another constant ((1-decay_rate) * stable_constant).
-struct DecayTo {
+pub struct DecayTo {
   decay_rate: f64,
   stable_constant: f64,
 }

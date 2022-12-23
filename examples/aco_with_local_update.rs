@@ -6,7 +6,7 @@ fn main() {
 
   let heuristic = ecrs::aco::util::create_heuristic_from_weights(&cost);
 
-  let ab = ecrs::aco::ants_behaviour::AntColonySystemAB;
+  let ab = ecrs::aco::ants_behaviour::AntColonySystemAB::with_rule(ecrs::aco::local_update::Decay::new(0.95));
 
   let ant_s = ecrs::aco::Builder::new(30)
     .set_ants_behaviour(ab)
