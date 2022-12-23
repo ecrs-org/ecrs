@@ -1,5 +1,3 @@
-use crate::aco;
-use crate::aco::aco_cfg::AntColonyOptimizationCfgOpt;
 use crate::aco::ant::{Ant, CanonicalAnt, ExploitingAnt};
 use crate::aco::ants_behaviour::{AntColonySystemAB, AntSystemAB, AntsBehaviour};
 use crate::aco::fitness::{CanonicalFitness, Fitness};
@@ -9,7 +7,7 @@ use crate::aco::pheromone::best_policy::{BestPolicy, OverallBest};
 use crate::aco::pheromone::{AntColonySystemPU, AntSystemPU, MMAntSystemPU, PheromoneUpdate};
 use crate::aco::probe::{Probe, StdoutProbe};
 use crate::aco::termination_condition::{IterationCond, TerminationCondition};
-use crate::aco::{AntColonyOptimization, AntColonyOptimizationCfg, FMatrix};
+use crate::aco::{AntColonyOptimization, FMatrix};
 use itertools::Itertools;
 use rand::prelude::ThreadRng;
 use rand::Rng;
@@ -26,7 +24,6 @@ where
   T: TerminationCondition<A>,
   Pr: Probe,
 {
-  conf: AntColonyOptimizationCfgOpt,
   evaporation_rate: f64,
   solution_size: usize,
   pheromone_update: Option<P>,
@@ -56,10 +53,6 @@ where
   /// * `start_pheromone` - matrix of 1.0
   pub fn new(solution_size: usize) -> Self {
     Builder {
-      conf: AntColonyOptimizationCfgOpt {
-        iteration: 300,
-        probe: Box::new(aco::probe::StdoutProbe::new()),
-      },
       evaporation_rate: 0.1,
       solution_size,
       pheromone_update: None,
@@ -86,15 +79,6 @@ where
       "Evaporation rate must be between 0 and 1"
     );
     self.evaporation_rate = evaporation_rate;
-    self
-  }
-
-  /// Sets the number of algorithm iterations.
-  ///
-  /// ## Arguments
-  /// * `iterations` - number of iteration the algorithm should make.
-  pub fn set_iterations(mut self, iterations: usize) -> Self {
-    self.conf.iteration = iterations;
     self
   }
 
@@ -189,15 +173,7 @@ where
   /// * `goodness` needs to be specified, if not program will panic
   /// * `ants` need to be specified, if not program will panic
   pub fn build(self) -> AntColonyOptimization<P, A, G, AB, F, T, Pr> {
-    let cfg_opt = AntColonyOptimizationCfg::try_from(self.conf);
-    if let Err(err) = cfg_opt {
-      panic!("{}", err);
-    }
-
-    let cfg = cfg_opt.unwrap();
-
     AntColonyOptimization {
-      cfg,
       evaporation_rate: self.evaporation_rate,
       pheromone: self.start_pheromone,
       pheromone_update: self.pheromone_update.expect("Pheromone update rule wasn't set"),
@@ -449,8 +425,6 @@ where
   /// ### Defaults
   /// * `evaporation_rate` - 0.1
   /// * `start_pheromone` - matrix of 1.0
-  /// * `iterations` - 300
-  /// * `probe` - [aco::probe::StdoutProbe]
   /// * `alpha` - 1.0
   /// * `beta` - 1.0
   /// * `heuristic` - matrix of 1.0
@@ -461,10 +435,6 @@ where
     let fitness = CanonicalFitness::new(FMatrix::repeat(solution_size, solution_size, 1.0));
 
     Self {
-      conf: AntColonyOptimizationCfgOpt {
-        iteration: 300,
-        probe: Box::new(aco::probe::StdoutProbe::new()),
-      },
       evaporation_rate: 0.1,
       solution_size,
       pheromone_update: Some(pheromone_update),
@@ -502,7 +472,6 @@ where
   /// ### Defaults
   /// * `evaporation_rate` - 0.1
   /// * `start_pheromone` - matrix of 1.0
-  /// * `probe` - [aco::probe::StdoutProbe]
   /// * `alpha` - 1.0
   /// * `beta` - 1.0
   /// * `heuristic` - matrix of 1.0
@@ -515,10 +484,6 @@ where
     let fitness = CanonicalFitness::new(FMatrix::repeat(solution_size, solution_size, 1.0));
 
     Self {
-      conf: AntColonyOptimizationCfgOpt {
-        iteration: 300,
-        probe: Box::new(aco::probe::StdoutProbe::new()),
-      },
       evaporation_rate: 0.1,
       solution_size,
       pheromone_update: Some(pheromone_update),
@@ -557,8 +522,6 @@ where
   /// ### Defaults
   /// * `evaporation_rate` - 0.1
   /// * `start_pheromone` - matrix of 1.0
-  /// * `iterations` - 300
-  /// * `probe` - [aco::probe::StdoutProbe]
   /// * `alpha` - 1.0
   /// * `beta` - 1.0
   /// * `heuristic` - matrix of 1.0
@@ -569,10 +532,6 @@ where
     let fitness = CanonicalFitness::new(FMatrix::repeat(solution_size, solution_size, 1.0));
 
     Self {
-      conf: AntColonyOptimizationCfgOpt {
-        iteration: 300,
-        probe: Box::new(aco::probe::StdoutProbe::new()),
-      },
       evaporation_rate: 0.1,
       solution_size,
       pheromone_update: Some(pheromone_update),
