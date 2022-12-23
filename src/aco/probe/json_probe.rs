@@ -77,11 +77,11 @@ impl Probe for JsonProbe {
     self.iterations.last_mut().unwrap().best_solution = best.clone()
   }
 
-  fn on_iteration_start(&mut self, _iteration: usize) {
+  fn on_iteration_start(&mut self) {
     self.iterations.push(IterationData::default())
   }
 
-  fn on_iteration_end(&mut self, _iteration: usize) {}
+  fn on_iteration_end(&mut self) {}
 
   fn on_end(&mut self) {
     self.flush();

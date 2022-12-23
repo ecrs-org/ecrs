@@ -77,11 +77,11 @@ impl Probe for CsvProbe {
     self.best_sol = best.clone();
   }
 
-  fn on_iteration_start(&mut self, iteration: usize) {
-    self.iteration = iteration;
+  fn on_iteration_start(&mut self) {
+    self.iteration += 1;
   }
 
-  fn on_iteration_end(&mut self, iteration: usize) {
+  fn on_iteration_end(&mut self) {
     for (i, row) in self.best_sol.matrix.row_iter().enumerate() {
       for (j, val) in row.iter().enumerate() {
         if *val < 0.5 {
@@ -91,7 +91,7 @@ impl Probe for CsvProbe {
         self.best_sols.push(BestSolutionRecord {
           from: i,
           to: j,
-          iter: iteration,
+          iter: self.iteration,
         })
       }
     }

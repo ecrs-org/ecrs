@@ -11,7 +11,7 @@ fn main() {
   let ant_s = ecrs::aco::Builder::new(30)
     .set_ants_behaviour(ab)
     .set_pheromone_update(AntSystemPU)
-    .set_iterations(100)
+    .with_iteration_termination(100)
     .set_weights(cost)
     .with_standard_ants(10)
     .set_heuristic(heuristic)

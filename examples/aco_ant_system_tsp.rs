@@ -6,6 +6,7 @@ fn main() {
 
   let ant_s = ecrs::aco::Builder::new_as(30)
     .set_weights(cost)
+    .with_iteration_termination(300)
     .with_standard_ants(10)
     .set_heuristic(heuristic)
     .build();

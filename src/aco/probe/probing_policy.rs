@@ -7,6 +7,7 @@ pub struct GenerationInterval {
   interval: usize,
   threshold: usize,
   should_log: bool,
+  curr_iter: usize,
 }
 
 impl GenerationInterval {
@@ -21,6 +22,7 @@ impl GenerationInterval {
       interval,
       threshold: first_threshold,
       should_log: false,
+      curr_iter: 0,
     }
   }
 }
@@ -34,15 +36,16 @@ impl ProbingPolicy for GenerationInterval {
     self.should_log
   }
 
-  fn on_iteration_start(&mut self, iteration: usize) -> bool {
-    if iteration >= self.threshold {
+  fn on_iteration_start(&mut self) -> bool {
+    self.curr_iter += 1;
+    if self.curr_iter >= self.threshold {
       self.threshold += self.interval;
       self.should_log = true;
     }
     self.should_log
   }
 
-  fn on_iteration_end(&mut self, _iteration: usize) -> bool {
+  fn on_iteration_end(&mut self) -> bool {
     let should_log_current = self.should_log;
     self.should_log = false;
     should_log_current
@@ -84,7 +87,7 @@ impl ProbingPolicy for ElapsedTime {
     self.should_log
   }
 
-  fn on_iteration_start(&mut self, _iteration: usize) -> bool {
+  fn on_iteration_start(&mut self) -> bool {
     if self.threshold.elapsed().as_secs() >= self.interval as u64 {
       self.threshold = Instant::now();
       self.should_log = true;
@@ -92,7 +95,7 @@ impl ProbingPolicy for ElapsedTime {
     self.should_log
   }
 
-  fn on_iteration_end(&mut self, _iteration: usize) -> bool {
+  fn on_iteration_end(&mut self) -> bool {
     let should_log_current = self.should_log;
     self.should_log = false;
     should_log_current

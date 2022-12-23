@@ -56,9 +56,9 @@ impl Probe for PolicyDrivenProbe {
   /// ### Arguments
   ///
   /// * `iteration` - current iteration number
-  fn on_iteration_start(&mut self, iteration: usize) {
-    if self.policy.on_iteration_start(iteration) {
-      self.probe.on_iteration_start(iteration);
+  fn on_iteration_start(&mut self) {
+    if self.policy.on_iteration_start() {
+      self.probe.on_iteration_start();
     }
   }
 
@@ -70,9 +70,9 @@ impl Probe for PolicyDrivenProbe {
   /// ### Arguments
   ///
   /// * `iteration` - current iteration number
-  fn on_iteration_end(&mut self, iteration: usize) {
-    if self.policy.on_iteration_end(iteration) {
-      self.probe.on_iteration_end(iteration);
+  fn on_iteration_end(&mut self) {
+    if self.policy.on_iteration_end() {
+      self.probe.on_iteration_end();
     }
   }
 

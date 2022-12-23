@@ -2,7 +2,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use ecrs::aco;
 use ecrs::aco::ants_behaviour::AntSystemAB;
 use ecrs::aco::pheromone::AntSystemPU;
-use ecrs::aco::{util, FMatrix, Solution};
+use ecrs::aco::{util, FMatrix};
 use std::time::Duration;
 
 pub fn bench_aco_small(c: &mut Criterion) {
@@ -18,7 +18,7 @@ pub fn bench_aco_small(c: &mut Criterion) {
         .set_ants_behaviour(AntSystemAB)
         .set_pheromone_update(AntSystemPU)
         .set_probe(Box::new(EmptyProbe))
-        .set_iterations(black_box(20))
+        .with_iteration_termination(black_box(20))
         .build()
         .run()
     })
@@ -38,7 +38,7 @@ pub fn bench_aco_medium(c: &mut Criterion) {
         .with_standard_ants(black_box(5))
         .set_ants_behaviour(AntSystemAB)
         .set_probe(Box::new(EmptyProbe))
-        .set_iterations(black_box(20))
+        .with_iteration_termination(black_box(20))
         .build()
         .run()
     })
@@ -54,17 +54,7 @@ criterion_group! {
 criterion_main!(benches);
 
 struct EmptyProbe;
-impl aco::probe::Probe for EmptyProbe {
-  fn on_pheromone_update(&mut self, _old_pheromone: &FMatrix, _new_pheromone: &FMatrix) {}
-
-  fn on_current_best(&mut self, _best: &Solution) {}
-
-  fn on_iteration_start(&mut self, _iteration: usize) {}
-
-  fn on_iteration_end(&mut self, _iteration: usize) {}
-
-  fn on_end(&mut self) {}
-}
+impl aco::probe::Probe for EmptyProbe {}
 
 fn calc_dist(cities: &[(f64, f64)]) -> FMatrix {
   let sol_size = cities.len();

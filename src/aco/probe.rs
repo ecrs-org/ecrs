@@ -19,24 +19,24 @@ pub use json_probe::JsonProbe;
 pub use policy_driven_probe::PolicyDrivenProbe;
 pub use probing_policy::{ElapsedTime, GenerationInterval};
 pub use stdout_probe::StdoutProbe;
-
+#[allow(unused_variables)]
 pub trait Probe {
   /// Called when new pheromone has been calculated.
-  fn on_pheromone_update(&mut self, old_pheromone: &FMatrix, new_pheromone: &FMatrix);
+  fn on_pheromone_update(&mut self, old_pheromone: &FMatrix, new_pheromone: &FMatrix) {}
   /// Called every iteration with best solution in current iteration.
-  fn on_current_best(&mut self, best: &Solution);
+  fn on_current_best(&mut self, best: &Solution) {}
   /// Called on iteration begin when no process has started yet.
-  fn on_iteration_start(&mut self, iteration: usize);
+  fn on_iteration_start(&mut self) {}
   /// Called on iteration end when all tasks of this iteration are completed.
-  fn on_iteration_end(&mut self, iteration: usize);
+  fn on_iteration_end(&mut self) {}
   /// Called when algorithm has ended
-  fn on_end(&mut self);
+  fn on_end(&mut self) {}
 }
 
 pub trait ProbingPolicy {
   fn on_pheromone_update(&mut self) -> bool;
   fn on_current_best(&mut self) -> bool;
-  fn on_iteration_start(&mut self, iteration: usize) -> bool;
-  fn on_iteration_end(&mut self, iteration: usize) -> bool;
+  fn on_iteration_start(&mut self) -> bool;
+  fn on_iteration_end(&mut self) -> bool;
   fn on_end(&mut self) -> bool;
 }
