@@ -1,4 +1,7 @@
-use ecrs::ga::{population::{RandomPoints, PopulationGenerator}, operators::replacement::{Noop, ReplacementOperator, BothParents}};
+use ecrs::ga::{
+  operators::replacement::{BothParents, Noop, ReplacementOperator},
+  population::{PopulationGenerator, RandomPoints},
+};
 
 #[test]
 fn noop_does_nothing() {
@@ -29,7 +32,7 @@ fn both_parents_returns_children() {
   let children_clone = children.clone();
 
   let both_parents = BothParents::new();
- 
+
   let result = both_parents.apply(population, children);
 
   assert_eq!(result, children_clone);
