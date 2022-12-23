@@ -92,7 +92,7 @@ where
   /// Executes the algorithm
   pub fn run(mut self) {
     self.termination_cond.init(&self.pheromone);
-    while self
+    while !self
       .termination_cond
       .update_and_check(&self.pheromone, &self.ants)
     {
