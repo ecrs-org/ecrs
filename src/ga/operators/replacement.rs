@@ -4,8 +4,6 @@
 //! original one and the result of crossover phase to a single one,
 //! which will be the next generation
 
-use itertools::Itertools;
-
 use crate::ga::{individual::Chromosome, Individual};
 
 /// # Replacement Operator
