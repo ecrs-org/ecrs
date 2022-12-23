@@ -2,7 +2,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use ecrs::aco;
 use ecrs::aco::ants_behaviour::AntSystemAB;
 use ecrs::aco::pheromone::AntSystemPU;
-use ecrs::aco::{util, FMatrix, Solution};
+use ecrs::aco::{util, FMatrix};
 use std::time::Duration;
 
 pub fn bench_aco_small(c: &mut Criterion) {
