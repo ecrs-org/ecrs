@@ -33,6 +33,7 @@ pub mod ants_behaviour;
 pub mod builder;
 pub mod fitness;
 pub mod goodness;
+pub mod local_update;
 pub mod pheromone;
 pub mod probe;
 mod solution;
