@@ -38,6 +38,7 @@ pub mod pheromone;
 pub mod probe;
 mod solution;
 pub mod util;
+pub mod termination_condition;
 
 pub(self) use aco_cfg::AntColonyOptimizationCfg;
 pub use builder::Builder;
