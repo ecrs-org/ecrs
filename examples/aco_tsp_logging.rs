@@ -18,7 +18,7 @@ fn main() {
     .set_heuristic(heuristic)
     .with_standard_ants(10)
     .with_iteration_termination(300)
-    .set_probe(Box::new(policy_driven_probe))
+    .set_probe(policy_driven_probe)
     .build();
 
   ant_s.run();

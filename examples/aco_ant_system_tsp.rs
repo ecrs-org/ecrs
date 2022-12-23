@@ -9,6 +9,7 @@ fn main() {
     .with_iteration_termination(300)
     .with_standard_ants(10)
     .set_heuristic(heuristic)
+    .with_stdout_probe()
     .build();
 
   ant_s.run();

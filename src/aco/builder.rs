@@ -7,7 +7,7 @@ use crate::aco::goodness::{CanonicalGoodness, Goodness};
 use crate::aco::local_update::LocalUpdate;
 use crate::aco::pheromone::best_policy::{BestPolicy, OverallBest};
 use crate::aco::pheromone::{AntColonySystemPU, AntSystemPU, MMAntSystemPU, PheromoneUpdate};
-use crate::aco::probe::Probe;
+use crate::aco::probe::{Probe, StdoutProbe};
 use crate::aco::termination_condition::{IterationCond, TerminationCondition};
 use crate::aco::{AntColonyOptimization, AntColonyOptimizationCfg, FMatrix};
 use itertools::Itertools;
@@ -377,6 +377,22 @@ where
   /// * `iterations_limit` - maximal number of iterations.
   pub fn with_iteration_termination(mut self, iterations_limit: usize) -> Self {
     self.termination_cond = Some(IterationCond::new(iterations_limit));
+    self
+  }
+}
+
+impl<P, A, G, AB, F, T> Builder<P, A, G, AB, F, T, StdoutProbe>
+where
+  P: PheromoneUpdate,
+  A: Ant,
+  G: Goodness,
+  AB: AntsBehaviour<A, G>,
+  F: Fitness,
+  T: TerminationCondition<A>,
+{
+  /// Sets probe to [StdoutProbe].
+  pub fn with_stdout_probe(mut self) -> Self {
+    self.probe = Some(StdoutProbe::new());
     self
   }
 }

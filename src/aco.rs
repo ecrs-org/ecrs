@@ -23,6 +23,7 @@
 //!       .set_heuristic(heuristic)
 //!       .with_standard_ants(10)
 //!       .with_iteration_termination(100)
+//!       .with_stdout_probe()
 //!       .build();
 //!
 //!   ant_s.run();
