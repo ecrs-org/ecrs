@@ -50,6 +50,7 @@ use crate::aco::ants_behaviour::AntsBehaviour;
 use crate::aco::fitness::Fitness;
 use crate::aco::goodness::Goodness;
 use crate::aco::pheromone::PheromoneUpdate;
+use crate::aco::probe::Probe;
 use crate::aco::termination_condition::TerminationCondition;
 use nalgebra::{Dynamic, OMatrix};
 
@@ -60,7 +61,7 @@ pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 /// Encapsulates common ACO algorithm patterns.
 ///
 /// To extract data use a [probe](probe)
-pub struct AntColonyOptimization<P, A, G, AB, F, T>
+pub struct AntColonyOptimization<P, A, G, AB, F, T, Pr>
 where
   P: PheromoneUpdate,
   A: Ant,
@@ -68,6 +69,7 @@ where
   AB: AntsBehaviour<A, G>,
   F: Fitness,
   T: TerminationCondition<A>,
+  Pr: Probe,
 {
   cfg: AntColonyOptimizationCfg,
   pheromone_update: P,
@@ -78,9 +80,10 @@ where
   fitness: F,
   goodness: G,
   termination_cond: T,
+  probe: Pr,
 }
 
-impl<P, A, G, AB, F, T> AntColonyOptimization<P, A, G, AB, F, T>
+impl<P, A, G, AB, F, T, Pr> AntColonyOptimization<P, A, G, AB, F, T, Pr>
 where
   P: PheromoneUpdate,
   A: Ant,
@@ -88,6 +91,7 @@ where
   AB: AntsBehaviour<A, G>,
   F: Fitness,
   T: TerminationCondition<A>,
+  Pr: Probe,
 {
   /// Executes the algorithm
   pub fn run(mut self) {
@@ -96,9 +100,9 @@ where
       .termination_cond
       .update_and_check(&self.pheromone, &self.ants)
     {
-      self.cfg.probe.on_iteration_start();
+      self.probe.on_iteration_start();
       self.iterate();
-      self.cfg.probe.on_iteration_end();
+      self.probe.on_iteration_end();
     }
 
     self.end()
@@ -111,16 +115,13 @@ where
     let sols = self.grade(paths);
 
     let best = self.find_best(&sols);
-    self.cfg.probe.on_current_best(best);
+    self.probe.on_current_best(best);
 
     let new_pheromone = self
       .pheromone_update
       .apply(&self.pheromone, &sols, self.evaporation_rate);
 
-    self
-      .cfg
-      .probe
-      .on_pheromone_update(&self.pheromone, &new_pheromone);
+    self.probe.on_pheromone_update(&self.pheromone, &new_pheromone);
     self.pheromone = new_pheromone;
   }
 
@@ -147,6 +148,6 @@ where
   }
 
   fn end(mut self) {
-    self.cfg.probe.on_end();
+    self.probe.on_end();
   }
 }
