@@ -62,7 +62,7 @@ impl<A: Ant> TerminationCondition<A> for IterationCond {
 ///
 /// If by the end of iteration the algorithm is running longer than specified duration,
 /// this condition will be met.
-struct TimeCond {
+pub struct TimeCond {
   start_time: Instant,
   duration: Duration,
 }
