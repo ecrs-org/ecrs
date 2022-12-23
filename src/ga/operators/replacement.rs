@@ -205,7 +205,9 @@ impl<T: Chromosome> ReplacementOperator<T> for WeakParent {
 
 #[cfg(test)]
 mod tests {
-  use super::{BothParents, Noop};
+  use crate::ga::Individual;
+
+  use super::{BothParents, Noop, ReplacementOperator, WeakParent};
 
   #[test]
   fn noop_has_new_method() {
@@ -215,5 +217,187 @@ mod tests {
   #[test]
   fn both_parents_has_new_method() {
     let _ = BothParents::new();
+  }
+
+  #[test]
+  fn weak_parent_swaps_when_children_are_stronger() {
+    let parents = vec![
+      Individual {
+        chromosome: 0.0,
+        fitness: 60.0,
+      },
+      Individual {
+        chromosome: 0.0,
+        fitness: 40.0,
+      },
+    ];
+
+    let children = vec![
+      Individual {
+        chromosome: 0.0,
+        fitness: 100.0,
+      },
+      Individual {
+        chromosome: 0.0,
+        fitness: 120.0,
+      },
+    ];
+
+    let children_clone = children.clone();
+
+    let result = WeakParent::new().apply(parents, children);
+
+    assert_eq!(result, children_clone);
+  }
+
+  #[test]
+  fn weak_parent_does_not_swap_when_parents_are_stronger() {
+    let parents = vec![
+      Individual {
+        chromosome: 0.0,
+        fitness: 60.0,
+      },
+      Individual {
+        chromosome: 0.0,
+        fitness: 40.0,
+      },
+    ];
+
+    let children = vec![
+      Individual {
+        chromosome: 0.0,
+        fitness: 10.0,
+      },
+      Individual {
+        chromosome: 0.0,
+        fitness: 12.0,
+      },
+    ];
+
+    let parents_clone = parents.clone();
+
+    let result = WeakParent::new().apply(parents, children);
+
+    assert_eq!(result, parents_clone);
+  }
+
+  #[test]
+  fn weak_parent_cross_swaps_child_1() {
+    let parents = vec![
+      Individual {
+        chromosome: 0.0,
+        fitness: 60.0,
+      },
+      Individual {
+        chromosome: 0.0,
+        fitness: 40.0,
+      },
+    ];
+
+    let children = vec![
+      Individual {
+        chromosome: 0.0,
+        fitness: 50.0,
+      },
+      Individual {
+        chromosome: 0.0,
+        fitness: 30.0,
+      },
+    ];
+
+    let expected_result = vec![
+      Individual {
+        chromosome: 0.0,
+        fitness: 60.0,
+      },
+      Individual {
+        chromosome: 0.0,
+        fitness: 50.0,
+      },
+    ];
+
+    let result = WeakParent::new().apply(parents, children);
+
+    assert_eq!(result, expected_result);
+  }
+
+  #[test]
+  fn weak_parent_cross_swaps_child_2() {
+    let parents = vec![
+      Individual {
+        chromosome: 0.0,
+        fitness: 60.0,
+      },
+      Individual {
+        chromosome: 0.0,
+        fitness: 40.0,
+      },
+    ];
+
+    let children = vec![
+      Individual {
+        chromosome: 0.0,
+        fitness: 30.0,
+      },
+      Individual {
+        chromosome: 0.0,
+        fitness: 50.0,
+      },
+    ];
+
+    let expected_result = vec![
+      Individual {
+        chromosome: 0.0,
+        fitness: 60.0,
+      },
+      Individual {
+        chromosome: 0.0,
+        fitness: 50.0,
+      },
+    ];
+
+    let result = WeakParent::new().apply(parents, children);
+
+    assert_eq!(result, expected_result);
+  }
+
+  #[test]
+  fn weak_parent_takes_two_best() {
+    let parents = vec![
+      Individual {
+        chromosome: 0.0,
+        fitness: 60.0,
+      },
+      Individual {
+        chromosome: 0.0,
+        fitness: 40.0,
+      },
+    ];
+
+    let children = vec![
+      Individual {
+        chromosome: 0.0,
+        fitness: 70.0,
+      },
+      Individual {
+        chromosome: 0.0,
+        fitness: 50.0,
+      },
+    ];
+
+    let expected_result = vec![
+      Individual {
+        chromosome: 0.0,
+        fitness: 70.0,
+      },
+      Individual {
+        chromosome: 0.0,
+        fitness: 60.0,
+      },
+    ];
+
+    let result = WeakParent::new().apply(parents, children);
+
+    assert_eq!(result, expected_result);
   }
 }
