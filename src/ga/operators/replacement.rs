@@ -202,3 +202,18 @@ impl<T: Chromosome> ReplacementOperator<T> for WeakParent {
     population
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::{Noop, BothParents};
+
+  #[test]
+  fn noop_has_new_method() {
+    let _ = Noop::new();
+  }
+
+  #[test]
+  fn both_parents_has_new_method() {
+    let _ = BothParents::new();
+  }
+}
