@@ -29,7 +29,6 @@
 //!   ant_s.run();
 //! }
 //! ```
-mod aco_cfg;
 pub mod ant;
 pub mod ants_behaviour;
 pub mod builder;
@@ -42,7 +41,6 @@ mod solution;
 pub mod termination_condition;
 pub mod util;
 
-pub(self) use aco_cfg::AntColonyOptimizationCfg;
 pub use builder::Builder;
 pub use solution::Solution;
 
@@ -72,7 +70,6 @@ where
   T: TerminationCondition<A>,
   Pr: Probe,
 {
-  cfg: AntColonyOptimizationCfg,
   pheromone_update: P,
   evaporation_rate: f64,
   ants_behaviour: AB,
