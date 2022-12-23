@@ -8,7 +8,7 @@ pub trait Ant {
   /// Clears iteration specific data like visited vertices or path.
   fn clear(&mut self);
   /// Returns vector of vertices in order of visiting
-  fn get_path(&self) -> &[usize];
+  fn path(&self) -> &[usize];
   /// Selects an vertex to start from
   fn chose_staring_place(&mut self);
   /// Returns true when there is no valid next vertex with path not fully constructed.
@@ -28,7 +28,7 @@ macro_rules! standard_ant_impl {
       self.stuck = false;
     }
     /// Returns vector of vertices in order of visiting
-    fn get_path(&self) -> &[usize] {
+    fn path(&self) -> &[usize] {
       &self.path
     }
     /// Selects an vertex to start from
