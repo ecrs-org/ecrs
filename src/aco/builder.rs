@@ -149,6 +149,17 @@ where
     self
   }
 
+  /// Sets the termination condition.
+  ///
+  /// For more info see [aco::termination_condition] module.
+  ///
+  /// ## Arguments
+  /// * `goodness` - Implementation of [TerminationCondition] trait.
+  pub fn set_termination_condition(mut self, termination_condition: T) -> Self {
+    self.termination_cond = Some(termination_condition);
+    self
+  }
+
   /// Sets ants.
   ///
   /// ## Arguments
