@@ -37,10 +37,7 @@ impl Probe for AggregatedProbe {
   }
 
   fn on_iteration_start(&mut self) {
-    self
-      .probes
-      .iter_mut()
-      .for_each(|p| p.on_iteration_start())
+    self.probes.iter_mut().for_each(|p| p.on_iteration_start())
   }
 
   fn on_iteration_end(&mut self) {
