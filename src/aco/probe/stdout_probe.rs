@@ -1,5 +1,4 @@
 use crate::aco::probe::Probe;
-use crate::aco::FMatrix;
 use crate::aco::Solution;
 
 /// Simple Probe implementation for writing algorithm output onto standard output.

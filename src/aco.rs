@@ -22,6 +22,7 @@
 //!       .set_weights(cost)
 //!       .set_heuristic(heuristic)
 //!       .with_standard_ants(10)
+//!       .with_iteration_termination(100)
 //!       .build();
 //!
 //!   ant_s.run();
@@ -37,8 +38,8 @@ pub mod local_update;
 pub mod pheromone;
 pub mod probe;
 mod solution;
-pub mod util;
 pub mod termination_condition;
+pub mod util;
 
 pub(self) use aco_cfg::AntColonyOptimizationCfg;
 pub use builder::Builder;
@@ -49,8 +50,8 @@ use crate::aco::ants_behaviour::AntsBehaviour;
 use crate::aco::fitness::Fitness;
 use crate::aco::goodness::Goodness;
 use crate::aco::pheromone::PheromoneUpdate;
-use nalgebra::{Dynamic, OMatrix};
 use crate::aco::termination_condition::TerminationCondition;
+use nalgebra::{Dynamic, OMatrix};
 
 pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 
@@ -66,7 +67,7 @@ where
   G: Goodness,
   AB: AntsBehaviour<A, G>,
   F: Fitness,
-  T: TerminationCondition<A>
+  T: TerminationCondition<A>,
 {
   cfg: AntColonyOptimizationCfg,
   pheromone_update: P,
@@ -76,7 +77,7 @@ where
   ants: Vec<A>,
   fitness: F,
   goodness: G,
-  termination_cond: T
+  termination_cond: T,
 }
 
 impl<P, A, G, AB, F, T> AntColonyOptimization<P, A, G, AB, F, T>
@@ -86,12 +87,15 @@ where
   G: Goodness,
   AB: AntsBehaviour<A, G>,
   F: Fitness,
-  T: TerminationCondition<A>
+  T: TerminationCondition<A>,
 {
   /// Executes the algorithm
   pub fn run(mut self) {
     self.termination_cond.init(&self.pheromone);
-    while self.termination_cond.update_and_check(&self.pheromone, &self.ants) {
+    while self
+      .termination_cond
+      .update_and_check(&self.pheromone, &self.ants)
+    {
       self.cfg.probe.on_iteration_start();
       self.iterate();
       self.cfg.probe.on_iteration_end();

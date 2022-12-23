@@ -19,7 +19,7 @@ pub use json_probe::JsonProbe;
 pub use policy_driven_probe::PolicyDrivenProbe;
 pub use probing_policy::{ElapsedTime, GenerationInterval};
 pub use stdout_probe::StdoutProbe;
-
+#[allow(unused_variables)]
 pub trait Probe {
   /// Called when new pheromone has been calculated.
   fn on_pheromone_update(&mut self, old_pheromone: &FMatrix, new_pheromone: &FMatrix) {}

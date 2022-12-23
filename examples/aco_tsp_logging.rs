@@ -17,6 +17,7 @@ fn main() {
     .set_weights(cost)
     .set_heuristic(heuristic)
     .with_standard_ants(10)
+    .with_iteration_termination(300)
     .set_probe(Box::new(policy_driven_probe))
     .build();
 
