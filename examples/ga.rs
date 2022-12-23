@@ -13,7 +13,7 @@ fn main() {
     .set_population_size(100)
     .set_fitness_fn(rastrigin_fitness)
     .set_crossover_operator(ga::operators::crossover::SinglePoint::new())
-    .set_replacement_operator(ga::operators::replacement::BothParents)
+    .set_replacement_operator(ga::operators::replacement::WeakParent::new())
     .set_mutation_operator(ga::operators::mutation::Identity::new())
     .set_population_generator(ga::population::RandomPoints::with_constraints(
       3,
