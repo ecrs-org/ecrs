@@ -183,20 +183,23 @@ impl<T: Chromosome> ReplacementOperator<T> for WeakParent {
 
     // There is for sure a nicer way to implement this ;D
     for i in (0..(population.len() - 1)).step_by(2) {
+      if population[i] < population[i + 1] {
+        population.swap(i, i + 1);
+      }
+
+      if children[i] < children[i + 1] {
+        children.swap(i, i + 1);
+      }
+
       if children[i] > population[i] {
-        std::mem::swap(&mut population[i], &mut children[i]);
+        population.swap(i, i + 1);
+        std::mem::swap(&mut children[i], &mut population[i]);
+
         if children[i + 1] > population[i + 1] {
-          std::mem::swap(&mut population[i + 1], &mut children[i + 1]);
+          std::mem::swap(&mut children[i + 1], &mut population[i + 1]);
         }
       } else if children[i] > population[i + 1] {
-        std::mem::swap(&mut population[i + 1], &mut children[i]);
-        if children[i + 1] > population[i] {
-          std::mem::swap(&mut population[i], &mut children[i + 1]);
-        }
-      } else if children[i + 1] > population[i] {
-        std::mem::swap(&mut population[i], &mut children[i + 1]);
-      } else if children[i + 1] > population[i + 1] {
-        std::mem::swap(&mut population[i + 1], &mut children[i + 1]);
+        std::mem::swap(&mut children[i], &mut population[i + 1]);
       }
     }
     population
@@ -235,11 +238,11 @@ mod tests {
     let children = vec![
       Individual {
         chromosome: 0.0,
-        fitness: 100.0,
+        fitness: 120.0,
       },
       Individual {
         chromosome: 0.0,
-        fitness: 120.0,
+        fitness: 100.0,
       },
     ];
 
