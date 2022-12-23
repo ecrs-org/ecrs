@@ -12,6 +12,7 @@ fn main() {
     .set_ants_behaviour(ab)
     .set_pheromone_update(AntSystemPU)
     .with_iteration_termination(100)
+    .with_stdout_probe()
     .set_weights(cost)
     .with_standard_ants(10)
     .set_heuristic(heuristic)

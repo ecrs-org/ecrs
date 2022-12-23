@@ -8,6 +8,7 @@ fn main() {
     .set_weights(cost)
     .with_iteration_termination(300)
     .with_standard_ants(10)
+    .with_stdout_probe()
     .set_heuristic(heuristic)
     .set_pheromone_bound(0.0, 10.0)
     .build();

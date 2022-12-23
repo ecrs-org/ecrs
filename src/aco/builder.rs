@@ -7,7 +7,7 @@ use crate::aco::goodness::{CanonicalGoodness, Goodness};
 use crate::aco::local_update::LocalUpdate;
 use crate::aco::pheromone::best_policy::{BestPolicy, OverallBest};
 use crate::aco::pheromone::{AntColonySystemPU, AntSystemPU, MMAntSystemPU, PheromoneUpdate};
-use crate::aco::probe::Probe;
+use crate::aco::probe::{Probe, StdoutProbe};
 use crate::aco::termination_condition::{IterationCond, TerminationCondition};
 use crate::aco::{AntColonyOptimization, AntColonyOptimizationCfg, FMatrix};
 use itertools::Itertools;
@@ -16,7 +16,7 @@ use rand::Rng;
 
 /// Builder for [AntColonyOptimization]
 ///
-pub struct Builder<P, A, G, AB, F, T>
+pub struct Builder<P, A, G, AB, F, T, Pr>
 where
   P: PheromoneUpdate,
   A: Ant,
@@ -24,6 +24,7 @@ where
   AB: AntsBehaviour<A, G>,
   F: Fitness,
   T: TerminationCondition<A>,
+  Pr: Probe,
 {
   conf: AntColonyOptimizationCfgOpt,
   evaporation_rate: f64,
@@ -35,9 +36,10 @@ where
   goodness: Option<G>,
   termination_cond: Option<T>,
   start_pheromone: FMatrix,
+  probe: Option<Pr>,
 }
 
-impl<P, A, G, AB, F, T> Builder<P, A, G, AB, F, T>
+impl<P, A, G, AB, F, T, Pr> Builder<P, A, G, AB, F, T, Pr>
 where
   P: PheromoneUpdate,
   A: Ant,
@@ -45,13 +47,13 @@ where
   AB: AntsBehaviour<A, G>,
   F: Fitness,
   T: TerminationCondition<A>,
+  Pr: Probe,
 {
   /// Creates a new instance of Builder.
   ///
   /// ### Defaults
   /// * `evaporation_rate` - 0.1
   /// * `start_pheromone` - matrix of 1.0
-  /// * `probe` - [aco::probe::StdoutProbe]
   pub fn new(solution_size: usize) -> Self {
     Builder {
       conf: AntColonyOptimizationCfgOpt {
@@ -67,6 +69,7 @@ where
       goodness: None,
       termination_cond: None,
       start_pheromone: FMatrix::repeat(solution_size, solution_size, 1.0),
+      probe: None,
     }
   }
 
@@ -99,9 +102,9 @@ where
   ///
   ///
   /// ## Arguments
-  /// * `probe` - Box of [Probe] trait implementation.
-  pub fn set_probe(mut self, probe: Box<dyn Probe>) -> Self {
-    self.conf.probe = probe;
+  /// * `probe` - [Probe] trait implementation.
+  pub fn set_probe(mut self, probe: Pr) -> Self {
+    self.probe = Some(probe);
     self
   }
 
@@ -185,7 +188,7 @@ where
   /// * `fitness` needs to be specified, if not program will panic
   /// * `goodness` needs to be specified, if not program will panic
   /// * `ants` need to be specified, if not program will panic
-  pub fn build(self) -> AntColonyOptimization<P, A, G, AB, F, T> {
+  pub fn build(self) -> AntColonyOptimization<P, A, G, AB, F, T, Pr> {
     let cfg_opt = AntColonyOptimizationCfg::try_from(self.conf);
     if let Err(err) = cfg_opt {
       panic!("{}", err);
@@ -203,17 +206,19 @@ where
       goodness: self.goodness.expect("Goodness operator wasn't set"),
       termination_cond: self.termination_cond.expect("Termination condition wasn't set"),
       ants: self.ants.expect("Ants weren't set"),
+      probe: self.probe.expect("Probe wasn't set"),
     }
   }
 }
 
-impl<P, F, A, AB, T> Builder<P, A, CanonicalGoodness, AB, F, T>
+impl<P, F, A, AB, T, Pr> Builder<P, A, CanonicalGoodness, AB, F, T, Pr>
 where
   P: PheromoneUpdate,
   A: Ant,
   AB: AntsBehaviour<A, CanonicalGoodness>,
   F: Fitness,
   T: TerminationCondition<A>,
+  Pr: Probe,
 {
   /// Sets the importance of weights in edge choosing
   ///
@@ -285,13 +290,14 @@ where
   }
 }
 
-impl<P, A, G, AB, T> Builder<P, A, G, AB, CanonicalFitness, T>
+impl<P, A, G, AB, T, Pr> Builder<P, A, G, AB, CanonicalFitness, T, Pr>
 where
   P: PheromoneUpdate,
   A: Ant,
   G: Goodness,
   AB: AntsBehaviour<A, G>,
   T: TerminationCondition<A>,
+  Pr: Probe,
 {
   /// Sets the weighted graph to be searched.
   ///
@@ -318,13 +324,14 @@ where
   }
 }
 
-impl<P, G, AB, F, T> Builder<P, CanonicalAnt<ThreadRng>, G, AB, F, T>
+impl<P, G, AB, F, T, Pr> Builder<P, CanonicalAnt<ThreadRng>, G, AB, F, T, Pr>
 where
   P: PheromoneUpdate,
   G: Goodness,
   AB: AntsBehaviour<CanonicalAnt<ThreadRng>, G>,
   F: Fitness,
   T: TerminationCondition<CanonicalAnt<ThreadRng>>,
+  Pr: Probe,
 {
   /// Creates the given number of [CanonicalAnt] with thread RNG
   pub fn with_standard_ants(mut self, ants_number: usize) -> Self {
@@ -336,13 +343,14 @@ where
   }
 }
 
-impl<P, G, AB, F, T> Builder<P, ExploitingAnt<ThreadRng>, G, AB, F, T>
+impl<P, G, AB, F, T, Pr> Builder<P, ExploitingAnt<ThreadRng>, G, AB, F, T, Pr>
 where
   P: PheromoneUpdate,
   G: Goodness,
   AB: AntsBehaviour<ExploitingAnt<ThreadRng>, G>,
   F: Fitness,
   T: TerminationCondition<ExploitingAnt<ThreadRng>>,
+  Pr: Probe,
 {
   /// Creates the given number of [ExploitingAnt] with thread RNG
   pub fn with_standard_exploiting_ants(mut self, ants_number: usize, exploiting_rate: f64) -> Self {
@@ -354,13 +362,14 @@ where
   }
 }
 
-impl<P, A, G, AB, F> Builder<P, A, G, AB, F, IterationCond>
+impl<P, A, G, AB, F, Pr> Builder<P, A, G, AB, F, IterationCond, Pr>
 where
   P: PheromoneUpdate,
   A: Ant,
   G: Goodness,
   AB: AntsBehaviour<A, G>,
   F: Fitness,
+  Pr: Probe,
 {
   /// Sets iteration termination condition.
   ///
@@ -372,7 +381,23 @@ where
   }
 }
 
-impl<B, G, A, AB, F, T> Builder<MMAntSystemPU<B>, A, G, AB, F, T>
+impl<P, A, G, AB, F, T> Builder<P, A, G, AB, F, T, StdoutProbe>
+where
+  P: PheromoneUpdate,
+  A: Ant,
+  G: Goodness,
+  AB: AntsBehaviour<A, G>,
+  F: Fitness,
+  T: TerminationCondition<A>,
+{
+  /// Sets probe to [StdoutProbe].
+  pub fn with_stdout_probe(mut self) -> Self {
+    self.probe = Some(StdoutProbe::new());
+    self
+  }
+}
+
+impl<B, G, A, AB, F, T, Pr> Builder<MMAntSystemPU<B>, A, G, AB, F, T, Pr>
 where
   B: BestPolicy,
   G: Goodness,
@@ -380,6 +405,7 @@ where
   AB: AntsBehaviour<A, G>,
   F: Fitness,
   T: TerminationCondition<A>,
+  Pr: Probe,
 {
   /// Sets the lower bound of pheromone value
   ///
@@ -408,13 +434,14 @@ where
   }
 }
 
-type AntSystemBuilder<R, T> =
-  Builder<AntSystemPU, CanonicalAnt<R>, CanonicalGoodness, AntSystemAB, CanonicalFitness, T>;
+type AntSystemBuilder<R, T, Pr> =
+  Builder<AntSystemPU, CanonicalAnt<R>, CanonicalGoodness, AntSystemAB, CanonicalFitness, T, Pr>;
 
-impl<R, T> AntSystemBuilder<R, T>
+impl<R, T, Pr> AntSystemBuilder<R, T, Pr>
 where
   R: Rng,
   T: TerminationCondition<CanonicalAnt<R>>,
+  Pr: Probe,
 {
   /// Creates a new instance of [Builder] with operators used for Ant System version of the algorithm.
   ///
@@ -447,14 +474,27 @@ where
       goodness: Some(goodness),
       termination_cond: None,
       start_pheromone: FMatrix::repeat(solution_size, solution_size, 1.0),
+      probe: None,
     }
   }
 }
 
-type MaxMinAntSystemBuilder<R, T> =
-  Builder<MMAntSystemPU<OverallBest>, CanonicalAnt<R>, CanonicalGoodness, AntSystemAB, CanonicalFitness, T>;
+type MaxMinAntSystemBuilder<R, T, Pr> = Builder<
+  MMAntSystemPU<OverallBest>,
+  CanonicalAnt<R>,
+  CanonicalGoodness,
+  AntSystemAB,
+  CanonicalFitness,
+  T,
+  Pr,
+>;
 
-impl<R: Rng, T: TerminationCondition<CanonicalAnt<R>>> MaxMinAntSystemBuilder<R, T> {
+impl<R, T, Pr> MaxMinAntSystemBuilder<R, T, Pr>
+where
+  R: Rng,
+  T: TerminationCondition<CanonicalAnt<R>>,
+  Pr: Probe,
+{
   /// Creates a new instance of [Builder] with operators used for MAX-MIN Ant System version of the algorithm.
   /// Best solution is chosen using [OverallBest].
   ///
@@ -488,20 +528,28 @@ impl<R: Rng, T: TerminationCondition<CanonicalAnt<R>>> MaxMinAntSystemBuilder<R,
       goodness: Some(goodness),
       termination_cond: None,
       start_pheromone: FMatrix::repeat(solution_size, solution_size, 1.0),
+      probe: None,
     }
   }
 }
 
-type AntColonySystemBuilder<L, R, T> = Builder<
+type AntColonySystemBuilder<L, R, T, Pr> = Builder<
   AntColonySystemPU<OverallBest>,
   ExploitingAnt<R>,
   CanonicalGoodness,
   AntColonySystemAB<L>,
   CanonicalFitness,
   T,
+  Pr,
 >;
 
-impl<L: LocalUpdate, R: Rng, T: TerminationCondition<ExploitingAnt<R>>> AntColonySystemBuilder<L, R, T> {
+impl<L, R, T, Pr> AntColonySystemBuilder<L, R, T, Pr>
+where
+  L: LocalUpdate,
+  R: Rng,
+  T: TerminationCondition<ExploitingAnt<R>>,
+  Pr: Probe,
+{
   /// Creates a new instance of [Builder] with operators used for Ant Colony System version of the algorithm with provided local update rule.
   /// Best solution is chosen using [OverallBest].
   ///
@@ -534,6 +582,7 @@ impl<L: LocalUpdate, R: Rng, T: TerminationCondition<ExploitingAnt<R>>> AntColon
       goodness: Some(goodness),
       termination_cond: None,
       start_pheromone: FMatrix::repeat(solution_size, solution_size, 1.0),
+      probe: None,
     }
   }
 }
