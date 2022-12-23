@@ -189,8 +189,8 @@ impl<R: Rng> Ant for ExploitingAnt<R> {
 
     let should_exploit = self.rng.gen::<f64>() < self.exploitation_rate;
 
+    let mut next = last;
     if should_exploit {
-      let mut next = last;
       let mut value = f64::MIN;
 
       for v in self.unvisited.iter() {
@@ -199,22 +199,19 @@ impl<R: Rng> Ant for ExploitingAnt<R> {
           value = row[*v];
         }
       }
+    } else {
+      let mut goodness_sum = 0.0f64;
+      for v in self.unvisited.iter() {
+        goodness_sum += row[*v];
+      }
 
-      return (last, next);
-    }
-
-    let mut goodness_sum = 0.0f64;
-    for v in self.unvisited.iter() {
-      goodness_sum += row[*v];
-    }
-
-    let mut random: f64 = self.rng.gen_range(0.0..=goodness_sum);
-    let mut next: usize = last;
-    for v in self.unvisited.iter() {
-      random -= row[*v];
-      if random <= 0.0 {
-        next = *v;
-        break;
+      let mut random: f64 = self.rng.gen_range(0.0..=goodness_sum);
+      for v in self.unvisited.iter() {
+        random -= row[*v];
+        if random <= 0.0 {
+          next = *v;
+          break;
+        }
       }
     }
 

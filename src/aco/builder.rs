@@ -1,11 +1,12 @@
 use crate::aco;
 use crate::aco::aco_cfg::AntColonyOptimizationCfgOpt;
 use crate::aco::ant::{Ant, CanonicalAnt, ExploitingAnt};
-use crate::aco::ants_behaviour::{AntSystemAB, AntsBehaviour};
+use crate::aco::ants_behaviour::{AntColonySystemAB, AntSystemAB, AntsBehaviour};
 use crate::aco::fitness::{CanonicalFitness, Fitness};
 use crate::aco::goodness::{CanonicalGoodness, Goodness};
+use crate::aco::local_update::LocalUpdate;
 use crate::aco::pheromone::best_policy::{BestPolicy, OverallBest};
-use crate::aco::pheromone::{AntSystemPU, MMAntSystemPU, PheromoneUpdate};
+use crate::aco::pheromone::{AntColonySystemPU, AntSystemPU, MMAntSystemPU, PheromoneUpdate};
 use crate::aco::probe::Probe;
 use crate::aco::{AntColonyOptimization, AntColonyOptimizationCfg, FMatrix};
 use itertools::Itertools;
@@ -428,6 +429,50 @@ impl<R: Rng> MaxMinAntSystemBuilder<R> {
     let pheromone_update = MMAntSystemPU::new(0.0, 1.0);
     let goodness = CanonicalGoodness::new(1.0, 1.0, FMatrix::repeat(solution_size, solution_size, 1.0));
     let ants_behaviour = AntSystemAB;
+    let fitness = CanonicalFitness::new(FMatrix::repeat(solution_size, solution_size, 1.0));
+
+    Self {
+      conf: AntColonyOptimizationCfgOpt {
+        iteration: 300,
+        probe: Box::new(aco::probe::StdoutProbe::new()),
+      },
+      evaporation_rate: 0.1,
+      solution_size,
+      pheromone_update: Some(pheromone_update),
+      ants_behaviour: Some(ants_behaviour),
+      fitness: Some(fitness),
+      ants: None,
+      goodness: Some(goodness),
+      start_pheromone: FMatrix::repeat(solution_size, solution_size, 1.0),
+    }
+  }
+}
+
+type AntColonySystemBuilder<L, R> = Builder<
+  AntColonySystemPU<OverallBest>,
+  ExploitingAnt<R>,
+  CanonicalGoodness,
+  AntColonySystemAB<L>,
+  CanonicalFitness,
+>;
+
+impl<L: LocalUpdate, R: Rng> AntColonySystemBuilder<L, R> {
+  /// Creates a new instance of [Builder] with operators used for Ant Colony System version of the algorithm with provided local update rule.
+  /// Best solution is chosen using [OverallBest].
+  ///
+  ///
+  /// ### Defaults
+  /// * `evaporation_rate` - 0.1
+  /// * `start_pheromone` - matrix of 1.0
+  /// * `iterations` - 300
+  /// * `probe` - [aco::probe::StdoutProbe]
+  /// * `alpha` - 1.0
+  /// * `beta` - 1.0
+  /// * `heuristic` - matrix of 1.0
+  pub fn new_acs(solution_size: usize, local_update: L) -> Self {
+    let pheromone_update = AntColonySystemPU::new();
+    let goodness = CanonicalGoodness::new(1.0, 1.0, FMatrix::repeat(solution_size, solution_size, 1.0));
+    let ants_behaviour = AntColonySystemAB::with_rule(local_update);
     let fitness = CanonicalFitness::new(FMatrix::repeat(solution_size, solution_size, 1.0));
 
     Self {

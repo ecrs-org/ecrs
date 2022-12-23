@@ -3,6 +3,7 @@
 //! Contains strategies on how should an ant behave, and when to update edge [crate::aco::goodness].
 use crate::aco::ant::Ant;
 use crate::aco::goodness::Goodness;
+use crate::aco::local_update::LocalUpdate;
 use crate::aco::FMatrix;
 
 /// # Ants Behaviour
@@ -55,5 +56,54 @@ impl<A: Ant, G: Goodness> AntsBehaviour<A, G> for AntSystemAB {
     }
 
     paths
+  }
+}
+
+/// # Ant Colony System ants behaviour
+///
+/// Implements [AntsBehaviour]. Ants are simulated as described in Ant Colony System algorithm with the
+/// exception of goodness calculation.
+pub struct AntColonySystemAB<L: LocalUpdate> {
+  local_update: L,
+}
+
+impl<A: Ant, G: Goodness, L: LocalUpdate> AntsBehaviour<A, G> for AntColonySystemAB<L> {
+  fn simulate_ants(
+    &mut self,
+    ants: &mut [A],
+    pheromone: &mut FMatrix,
+    goodness_op: &mut G,
+  ) -> Vec<Vec<usize>> {
+    let solution_size = pheromone.nrows();
+
+    ants.iter_mut().for_each(|a| {
+      a.clear();
+      a.chose_staring_place()
+    });
+
+    let mut paths: Vec<Vec<usize>> = Vec::with_capacity(ants.len());
+
+    for _ in 1..solution_size {
+      let goodness = goodness_op.apply(pheromone);
+      paths.clear();
+      for ant in ants.iter_mut() {
+        if ant.is_stuck() {
+          continue;
+        }
+        ant.go_to_next_place(&goodness);
+
+        let path = ant.path();
+        paths.push(path.to_vec())
+      }
+      self.local_update.apply(pheromone, &paths)
+    }
+    paths
+  }
+}
+
+impl<L: LocalUpdate> AntColonySystemAB<L> {
+  /// Creates a new [AntColonySystemAB] instance with specified update rule
+  pub fn with_rule(rule: L) -> Self {
+    Self { local_update: rule }
   }
 }
