@@ -35,6 +35,7 @@ impl LocalUpdate for Decay {
   fn apply(&mut self, pheromone: &mut FMatrix, partial_paths: &[Vec<usize>]) {
     for p_path in partial_paths {
       let l = p_path.len();
+      assert!(l > 1);
       let s = p_path[l - 2];
       let r = p_path[l - 1];
 
