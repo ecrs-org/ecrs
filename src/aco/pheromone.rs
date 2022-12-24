@@ -1,8 +1,8 @@
 //! Implementation of pheromone calculations strategies.
 //!
-use crate::aco::pheromone::best_policy::BestPolicy;
+use crate::aco::pheromone::best_policy::{BestPolicy, IterationBest, OverallBest};
 use crate::aco::{FMatrix, Solution};
-use std::ops::Add;
+use std::ops::{Add, AddAssign};
 
 pub mod best_policy;
 
@@ -24,8 +24,8 @@ pub trait PheromoneUpdate {
 /// # Ant System Pheromone Update
 ///
 /// Implements [PheromoneUpdate]. The pheromone is updated as first proposed by Marco Dorigo,
-/// every ant leaves pheromone trail on its way, the pheromone trail strength is inversely proportional
-/// to the way cost. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and sum
+/// every ant leaves pheromone trail on its way, the pheromone trail strength is proportional
+/// to the way fitness. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and sum
 /// of pheromone trails left by ants.
 pub struct AntSystemPU;
 
@@ -47,53 +47,39 @@ impl PheromoneUpdate for AntSystemPU {
 /// # Elitist Ant System Pheromone Update
 ///
 /// Implements [PheromoneUpdate]. Similarity to [AntSystemPU], every ant leaves pheromone trail on its way,
-/// the pheromone trail strength is inversely proportional
-/// to the way cost. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and sum
+/// the pheromone trail strength is proportional
+/// to the way fitness. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and sum
 /// of pheromone trails left by ants, additionally we are adding pheromone left by the best ant overall.
 pub struct ElitistAntSystemPU {
-  best_solution_pheromone: FMatrix,
-  best_solution_cost: f64,
+  iter_best: IterationBest,
 }
 
 impl ElitistAntSystemPU {
   /// Creates a new instance of [ElitistAntSystemPU]
   pub fn new() -> Self {
     ElitistAntSystemPU {
-      best_solution_pheromone: FMatrix::zeros(0, 0),
-      best_solution_cost: f64::MAX,
-    }
-  }
-
-  fn update_best(&mut self, solutions: &[Solution]) {
-    let iter_best = solutions
-      .iter()
-      .reduce(|a, b| if a.cost > b.cost { b } else { a })
-      .unwrap();
-
-    if self.best_solution_cost > iter_best.cost {
-      self.best_solution_cost = iter_best.cost;
-      self.best_solution_pheromone = iter_best.matrix.scale(1.0 / iter_best.cost);
+      iter_best: IterationBest::new(),
     }
   }
 }
 
 impl PheromoneUpdate for ElitistAntSystemPU {
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
-    self.update_best(solutions);
+    self.iter_best.update_best(solutions);
     let delta_pheromone = scale_and_sum(solutions);
 
     old_pheromone
       .scale(1.0 - evaporation_rate)
       .add(delta_pheromone)
-      .add(&self.best_solution_pheromone)
+      .add(self.iter_best.get_best_pheromone())
   }
 }
 
 /// # MAX-MIN Ant System Pheromone Update
 ///
 /// Implements [PheromoneUpdate].
-/// the pheromone trail strength is inversely proportional
-/// to the way cost. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and
+/// the pheromone trail strength is proportional
+/// to the way fitness. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and
 /// pheromone trail left by ant chosen by [BestPolicy], additionally the pheromone value is clamped.
 pub struct MMAntSystemPU<B: BestPolicy> {
   pub(in crate::aco) best_policy: B,
@@ -123,14 +109,14 @@ impl<B: BestPolicy> MMAntSystemPU<B> {
   }
 }
 
-impl MMAntSystemPU<best_policy::OverallBest> {
-  /// Creates an [MMAntSystemPU] with [best_policy::OverallBest] best ant choosing policy
+impl MMAntSystemPU<OverallBest> {
+  /// Creates an [MMAntSystemPU] with [OverallBest] best ant choosing policy
   ///
   /// ## Arguments
   /// * `lower_bound` - Minimal possible pheromone value.
   /// * `upper_bound` - Maximal possible pheromone value.
   pub fn new(lower_bound: f64, upper_bound: f64) -> Self {
-    Self::with_best_policy(lower_bound, upper_bound, best_policy::OverallBest::new())
+    Self::with_best_policy(lower_bound, upper_bound, OverallBest::new())
   }
 }
 
@@ -149,19 +135,19 @@ impl<B: BestPolicy> PheromoneUpdate for MMAntSystemPU<B> {
 /// # Ant Colony System Pheromone Update
 ///
 /// Implements [PheromoneUpdate].
-/// the pheromone trail strength is inversely proportional
-/// to the way cost. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and
+/// the pheromone trail strength is  proportional
+/// to the way fitness. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and
 /// best ant pheromone trail scaled by evaporation rate. Best ant pheromone is selected based
 /// on [BestPolicy] implementation.
 pub struct AntColonySystemPU<B: BestPolicy> {
   pub(in crate::aco) best_policy: B,
 }
 
-impl AntColonySystemPU<best_policy::OverallBest> {
-  /// Creates an [AntColonySystemPU] with [best_policy::OverallBest] best ant choosing policy
+impl AntColonySystemPU<OverallBest> {
+  /// Creates an [AntColonySystemPU] with [OverallBest] best ant choosing policy
   pub fn new() -> Self {
     Self {
-      best_policy: best_policy::OverallBest::new(),
+      best_policy: OverallBest::new(),
     }
   }
 }
@@ -191,8 +177,11 @@ impl<B: BestPolicy> PheromoneUpdate for AntColonySystemPU<B> {
 fn scale_and_sum(solutions: &[Solution]) -> FMatrix {
   solutions
     .iter()
-    .map(|sol| sol.matrix.scale(1.0 / sol.cost))
-    .reduce(|s1, s2| s1.add(s2))
+    .map(|sol| sol.matrix.scale(sol.fitness))
+    .reduce(|mut s1, s2| {
+      s1.add_assign(s2);
+      s1
+    })
     .expect("pheromone update creation error")
 }
 
@@ -220,7 +209,7 @@ mod tests {
         matrix: s2,
         path: vec![0, 1, 2],
         cost: 4.0,
-        fitness: 0.125,
+        fitness: 0.25,
       },
     ];
 
@@ -250,7 +239,7 @@ mod tests {
         matrix: s2,
         path: vec![0, 1, 2],
         cost: 4.0,
-        fitness: 0.125,
+        fitness: 0.25,
       },
     ];
 
@@ -280,7 +269,7 @@ mod tests {
         matrix: s2,
         path: vec![0, 1, 2],
         cost: 4.0,
-        fitness: 0.125,
+        fitness: 0.25,
       },
     ];
 
@@ -310,7 +299,7 @@ mod tests {
         matrix: s2,
         path: vec![0, 1, 2],
         cost: 4.0,
-        fitness: 0.125,
+        fitness: 0.25,
       },
     ];
 

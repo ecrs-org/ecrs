@@ -41,7 +41,7 @@ impl IterationBest {
 impl BestPolicy for IterationBest {
   fn update_best(&mut self, solutions: &[Solution]) {
     let iter_best = find_best(solutions);
-    self.best_pheromone = iter_best.matrix.scale(1.0 / iter_best.cost);
+    self.best_pheromone = iter_best.matrix.scale(iter_best.fitness);
   }
 
   fn get_best_pheromone(&self) -> &FMatrix {
@@ -54,7 +54,7 @@ impl BestPolicy for IterationBest {
 /// Chooses pheromone from all past iteration best ant.
 pub struct OverallBest {
   best_pheromone: FMatrix,
-  cost: f64,
+  fitness: f64,
 }
 
 impl OverallBest {
@@ -62,7 +62,7 @@ impl OverallBest {
   pub fn new() -> Self {
     Self {
       best_pheromone: FMatrix::zeros(0, 0),
-      cost: f64::MAX,
+      fitness: f64::MIN,
     }
   }
 }
@@ -71,9 +71,9 @@ impl BestPolicy for OverallBest {
   fn update_best(&mut self, solutions: &[Solution]) {
     let iter_best = find_best(solutions);
 
-    if iter_best.cost < self.cost {
-      self.best_pheromone = iter_best.matrix.scale(1.0 / iter_best.cost);
-      self.cost = iter_best.cost;
+    if iter_best.fitness > self.fitness {
+      self.best_pheromone = iter_best.matrix.scale(iter_best.fitness);
+      self.fitness = iter_best.fitness;
     }
   }
 
@@ -86,7 +86,7 @@ impl BestPolicy for OverallBest {
 fn find_best(solutions: &[Solution]) -> &Solution {
   solutions
     .iter()
-    .reduce(|a, b| if a.cost > b.cost { b } else { a })
+    .reduce(|a, b| if a.fitness > b.fitness { a } else { b })
     .unwrap()
 }
 
@@ -123,7 +123,7 @@ mod tests {
         matrix: FMatrix::repeat(1, 1, 1.0),
         path: vec![1],
         cost: 16.0,
-        fitness: 0.625,
+        fitness: 0.0625,
       },
     ];
 
@@ -167,7 +167,7 @@ mod tests {
         matrix: FMatrix::repeat(1, 1, 1.0),
         path: vec![1],
         cost: 16.0,
-        fitness: 0.625,
+        fitness: 0.0625,
       },
     ];
 
