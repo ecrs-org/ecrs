@@ -41,7 +41,7 @@ impl IterationBest {
 impl BestPolicy for IterationBest {
   fn update_best(&mut self, solutions: &[Solution]) {
     let iter_best = find_best(solutions);
-    self.best_pheromone = iter_best.matrix.scale(iter_best.fitness);
+    self.best_pheromone = iter_best.matrix().scale(iter_best.fitness);
   }
 
   fn get_best_pheromone(&self) -> &FMatrix {
@@ -72,7 +72,7 @@ impl BestPolicy for OverallBest {
     let iter_best = find_best(solutions);
 
     if iter_best.fitness > self.fitness {
-      self.best_pheromone = iter_best.matrix.scale(iter_best.fitness);
+      self.best_pheromone = iter_best.matrix().scale(iter_best.fitness);
       self.fitness = iter_best.fitness;
     }
   }
@@ -99,14 +99,12 @@ mod tests {
   fn iteration_best_returns_correct_pheromones() {
     let gen1 = [
       Solution {
-        matrix: FMatrix::repeat(1, 1, 1.0),
-        path: vec![1],
+        path: vec![0],
         cost: 2.0,
         fitness: 0.5,
       },
       Solution {
-        matrix: FMatrix::repeat(1, 1, 1.0),
-        path: vec![1],
+        path: vec![0],
         cost: 4.0,
         fitness: 0.25,
       },
@@ -114,14 +112,12 @@ mod tests {
 
     let gen2 = [
       Solution {
-        matrix: FMatrix::repeat(1, 1, 1.0),
-        path: vec![1],
+        path: vec![0],
         cost: 8.0,
         fitness: 0.125,
       },
       Solution {
-        matrix: FMatrix::repeat(1, 1, 1.0),
-        path: vec![1],
+        path: vec![0],
         cost: 16.0,
         fitness: 0.0625,
       },
@@ -143,14 +139,12 @@ mod tests {
   fn overall_best_returns_correct_pheromones() {
     let gen1 = [
       Solution {
-        matrix: FMatrix::repeat(1, 1, 1.0),
-        path: vec![1],
+        path: vec![0],
         cost: 2.0,
         fitness: 0.5,
       },
       Solution {
-        matrix: FMatrix::repeat(1, 1, 1.0),
-        path: vec![1],
+        path: vec![0],
         cost: 4.0,
         fitness: 0.25,
       },
@@ -158,14 +152,12 @@ mod tests {
 
     let gen2 = [
       Solution {
-        matrix: FMatrix::repeat(1, 1, 1.0),
-        path: vec![1],
+        path: vec![0],
         cost: 8.0,
         fitness: 0.125,
       },
       Solution {
-        matrix: FMatrix::repeat(1, 1, 1.0),
-        path: vec![1],
+        path: vec![0],
         cost: 16.0,
         fitness: 0.0625,
       },

@@ -2,7 +2,8 @@
 //!
 use crate::aco::pheromone::best_policy::{BestPolicy, IterationBest, OverallBest};
 use crate::aco::{FMatrix, Solution};
-use std::ops::{Add, AddAssign};
+use itertools::Itertools;
+use std::ops::Add;
 
 pub mod best_policy;
 
@@ -38,7 +39,7 @@ impl AntSystemPU {
 
 impl PheromoneUpdate for AntSystemPU {
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
-    let delta_pheromone = scale_and_sum(solutions);
+    let delta_pheromone = sum_iter_pheromone(solutions, old_pheromone.nrows());
 
     old_pheromone.scale(1.0 - evaporation_rate).add(delta_pheromone)
   }
@@ -66,7 +67,7 @@ impl ElitistAntSystemPU {
 impl PheromoneUpdate for ElitistAntSystemPU {
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
     self.iter_best.update_best(solutions);
-    let delta_pheromone = scale_and_sum(solutions);
+    let delta_pheromone = sum_iter_pheromone(solutions, old_pheromone.nrows());
 
     old_pheromone
       .scale(1.0 - evaporation_rate)
@@ -174,15 +175,15 @@ impl<B: BestPolicy> PheromoneUpdate for AntColonySystemPU<B> {
 }
 
 #[inline]
-fn scale_and_sum(solutions: &[Solution]) -> FMatrix {
-  solutions
-    .iter()
-    .map(|sol| sol.matrix.scale(sol.fitness))
-    .reduce(|mut s1, s2| {
-      s1.add_assign(s2);
-      s1
-    })
-    .expect("pheromone update creation error")
+fn sum_iter_pheromone(solutions: &[Solution], solution_size: usize) -> FMatrix {
+  let mut sum = FMatrix::zeros(solution_size, solution_size);
+  for s in solutions.iter() {
+    for (i, j) in s.path.iter().circular_tuple_windows::<(&usize, &usize)>() {
+      sum[(*i, *j)] += s.fitness;
+      sum[(*j, *i)] += s.fitness;
+    }
+  }
+  sum
 }
 
 #[cfg(test)]
@@ -196,17 +197,13 @@ mod tests {
   fn check_ant_system_pu_with_example() {
     let pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
 
-    let s1 = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0]);
-    let s2 = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0]);
     let sols = [
       Solution {
-        matrix: s1,
         path: vec![0, 1, 2],
         cost: 8.0,
         fitness: 0.125,
       },
       Solution {
-        matrix: s2,
         path: vec![0, 1, 2],
         cost: 4.0,
         fitness: 0.25,
@@ -226,17 +223,13 @@ mod tests {
   fn check_elitist_ant_system_pu_with_example() {
     let pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
 
-    let s1 = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0]);
-    let s2 = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0]);
     let sols = [
       Solution {
-        matrix: s1,
         path: vec![0, 1, 2],
         cost: 8.0,
         fitness: 0.125,
       },
       Solution {
-        matrix: s2,
         path: vec![0, 1, 2],
         cost: 4.0,
         fitness: 0.25,
@@ -256,17 +249,13 @@ mod tests {
   fn check_max_min_ant_system_pu_with_example() {
     let pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
 
-    let s1 = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0]);
-    let s2 = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0]);
     let sols = [
       Solution {
-        matrix: s1,
         path: vec![0, 1, 2],
         cost: 8.0,
         fitness: 0.125,
       },
       Solution {
-        matrix: s2,
         path: vec![0, 1, 2],
         cost: 4.0,
         fitness: 0.25,
@@ -286,17 +275,13 @@ mod tests {
   fn check_ant_colony_system_pu_with_example() {
     let pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
 
-    let s1 = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0]);
-    let s2 = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 0.0]);
     let sols = [
       Solution {
-        matrix: s1,
         path: vec![0, 1, 2],
         cost: 8.0,
         fitness: 0.125,
       },
       Solution {
-        matrix: s2,
         path: vec![0, 1, 2],
         cost: 4.0,
         fitness: 0.25,

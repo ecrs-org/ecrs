@@ -7,7 +7,6 @@ use std::cmp::Ordering;
 /// Struct with matrix representing path and its cost
 #[derive(Clone)]
 pub struct Solution {
-  pub matrix: FMatrix,
   pub path: Vec<usize>,
   pub cost: f64,
   pub fitness: f64,
@@ -16,7 +15,6 @@ pub struct Solution {
 impl Default for Solution {
   fn default() -> Self {
     Self {
-      matrix: FMatrix::zeros(0, 0),
       path: vec![],
       cost: f64::MAX,
       fitness: 0.0,
@@ -33,10 +31,18 @@ impl Solution {
     }
 
     Self {
-      matrix,
       path,
       ..Self::default()
     }
+  }
+
+  pub fn matrix(&self) -> FMatrix {
+    let mut m = FMatrix::zeros(self.path.len(), self.path.len());
+    for (i, j) in self.path.iter().circular_tuple_windows::<(&usize, &usize)>() {
+      m[(*i, *j)] = 1.0;
+      m[(*j, *i)] = 1.0;
+    }
+    m
   }
 }
 
@@ -55,7 +61,7 @@ impl Serialize for Solution {
 
 impl PartialEq<Self> for Solution {
   fn eq(&self, other: &Self) -> bool {
-    self.cost == other.cost && self.matrix == other.matrix
+    self.cost == other.cost && self.matrix() == other.matrix()
   }
 }
 
