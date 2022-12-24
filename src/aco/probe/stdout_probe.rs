@@ -15,7 +15,7 @@ impl StdoutProbe {
 
 impl Probe for StdoutProbe {
   fn on_current_best(&mut self, best: &Solution) {
-    println!("Iteration best: {}", best.cost);
+    println!("Iteration best fitness: {}", best.fitness);
   }
 
   fn on_iteration_start(&mut self) {
