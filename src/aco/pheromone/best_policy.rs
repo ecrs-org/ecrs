@@ -93,19 +93,17 @@ fn find_best(solutions: &[Solution]) -> &Solution {
 #[cfg(test)]
 mod tests {
   use crate::aco::pheromone::best_policy::{BestPolicy, IterationBest, OverallBest};
-  use crate::aco::{FMatrix, Solution};
+  use crate::aco::Solution;
 
   #[test]
   fn iteration_best_returns_correct_pheromones() {
     let gen1 = [
       Solution {
         path: vec![0],
-        cost: 2.0,
         fitness: 0.5,
       },
       Solution {
         path: vec![0],
-        cost: 4.0,
         fitness: 0.25,
       },
     ];
@@ -113,12 +111,10 @@ mod tests {
     let gen2 = [
       Solution {
         path: vec![0],
-        cost: 8.0,
         fitness: 0.125,
       },
       Solution {
         path: vec![0],
-        cost: 16.0,
         fitness: 0.0625,
       },
     ];
@@ -140,12 +136,10 @@ mod tests {
     let gen1 = [
       Solution {
         path: vec![0],
-        cost: 2.0,
         fitness: 0.5,
       },
       Solution {
         path: vec![0],
-        cost: 4.0,
         fitness: 0.25,
       },
     ];
@@ -153,12 +147,10 @@ mod tests {
     let gen2 = [
       Solution {
         path: vec![0],
-        cost: 8.0,
         fitness: 0.125,
       },
       Solution {
         path: vec![0],
-        cost: 16.0,
         fitness: 0.0625,
       },
     ];

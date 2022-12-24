@@ -124,7 +124,9 @@ where
   }
 
   fn find_best<'a>(&mut self, sols: &'a [Solution]) -> &'a Solution {
-    let best = sols.iter().min_by(|a, b| (*a).partial_cmp(*b).unwrap());
+    let best = sols
+      .iter()
+      .reduce(|a, b| if a.fitness > b.fitness { a } else { b });
 
     best.unwrap()
   }
@@ -134,11 +136,9 @@ where
 
     for path in paths {
       let fitness = self.fitness.apply(&path);
-      let cost = 1.0 / fitness;
 
       let mut solution = Solution::from_path(path);
       solution.fitness = fitness;
-      solution.cost = cost;
       sols.push(solution);
     }
 

@@ -200,12 +200,10 @@ mod tests {
     let sols = [
       Solution {
         path: vec![0, 1, 2],
-        cost: 8.0,
         fitness: 0.125,
       },
       Solution {
         path: vec![0, 1, 2],
-        cost: 4.0,
         fitness: 0.25,
       },
     ];
@@ -226,12 +224,10 @@ mod tests {
     let sols = [
       Solution {
         path: vec![0, 1, 2],
-        cost: 8.0,
         fitness: 0.125,
       },
       Solution {
         path: vec![0, 1, 2],
-        cost: 4.0,
         fitness: 0.25,
       },
     ];
@@ -252,12 +248,10 @@ mod tests {
     let sols = [
       Solution {
         path: vec![0, 1, 2],
-        cost: 8.0,
         fitness: 0.125,
       },
       Solution {
         path: vec![0, 1, 2],
-        cost: 4.0,
         fitness: 0.25,
       },
     ];
@@ -278,12 +272,10 @@ mod tests {
     let sols = [
       Solution {
         path: vec![0, 1, 2],
-        cost: 8.0,
         fitness: 0.125,
       },
       Solution {
         path: vec![0, 1, 2],
-        cost: 4.0,
         fitness: 0.25,
       },
     ];

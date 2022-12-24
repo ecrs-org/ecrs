@@ -2,13 +2,11 @@ use crate::aco::FMatrix;
 use itertools::Itertools;
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
-use std::cmp::Ordering;
 
-/// Struct with matrix representing path and its cost
+/// Struct with path vector and its fitness
 #[derive(Clone)]
 pub struct Solution {
   pub path: Vec<usize>,
-  pub cost: f64,
   pub fitness: f64,
 }
 
@@ -16,7 +14,6 @@ impl Default for Solution {
   fn default() -> Self {
     Self {
       path: vec![],
-      cost: f64::MAX,
       fitness: 0.0,
     }
   }
@@ -53,7 +50,7 @@ impl Serialize for Solution {
   {
     let mut s_struct = serializer.serialize_struct("solution", 2)?;
     s_struct.serialize_field("path", &self.path)?;
-    s_struct.serialize_field("cost", &self.cost)?;
+    s_struct.serialize_field("fitness", &self.fitness)?;
 
     s_struct.end()
   }
@@ -61,28 +58,6 @@ impl Serialize for Solution {
 
 impl PartialEq<Self> for Solution {
   fn eq(&self, other: &Self) -> bool {
-    self.cost == other.cost && self.matrix() == other.matrix()
-  }
-}
-
-impl PartialOrd for Solution {
-  fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-    self.cost.partial_cmp(&other.cost)
-  }
-
-  fn lt(&self, other: &Self) -> bool {
-    self.cost.lt(&other.cost)
-  }
-
-  fn le(&self, other: &Self) -> bool {
-    self.cost.le(&other.cost)
-  }
-
-  fn gt(&self, other: &Self) -> bool {
-    self.cost.gt(&other.cost)
-  }
-
-  fn ge(&self, other: &Self) -> bool {
-    self.cost.ge(&other.cost)
+    self.fitness == other.fitness && self.matrix() == other.matrix()
   }
 }
