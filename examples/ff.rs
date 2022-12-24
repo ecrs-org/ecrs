@@ -3,11 +3,7 @@ use ecrs::ff::probe::stdout_probe::StdoutProbe;
 use ecrs::ff::{FireflyAlgorithm, FireflyAlgorithmCfg};
 
 fn main() {
-  let mut alg = FireflyAlgorithm {
-    config: FireflyAlgorithmCfg::default(),
-    brightness_function: rastrigin,
-    probe: Box::new(StdoutProbe {}),
-  };
+  let mut alg = FireflyAlgorithm::default();
 
   alg.execute();
 }

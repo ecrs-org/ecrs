@@ -19,6 +19,7 @@ fn main() {
     config: FireflyAlgorithmCfg::default(),
     brightness_function: rastrigin,
     probe: Box::new(policy_driven_probe),
+    distance_function: cartesian_distance,
   };
 
   alg.execute();
