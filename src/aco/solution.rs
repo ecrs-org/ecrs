@@ -1,4 +1,3 @@
-use crate::aco::util::into_vec;
 use crate::aco::FMatrix;
 use itertools::Itertools;
 use serde::ser::SerializeStruct;
@@ -47,8 +46,7 @@ impl Serialize for Solution {
     S: Serializer,
   {
     let mut s_struct = serializer.serialize_struct("solution", 2)?;
-    let solution = into_vec(&self.matrix);
-    s_struct.serialize_field("matrix", &solution)?;
+    s_struct.serialize_field("path", &self.path)?;
     s_struct.serialize_field("cost", &self.cost)?;
 
     s_struct.end()
