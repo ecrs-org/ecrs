@@ -1,6 +1,6 @@
 use crate::pso::util::print_generic_vector;
 use itertools::izip;
-use num::{abs, One, Zero};
+use num::abs;
 use rand::distributions::{Distribution, Uniform};
 use std::fmt;
 
@@ -19,7 +19,7 @@ impl Particle {
     lower_bound: f64,
     upper_bound: f64,
     function: fn(&Vec<f64>) -> f64,
-    distribution: &Box<Uniform<f64>>,
+    distribution: &Uniform<f64>,
   ) -> Particle {
     let position_lower_bound = lower_bound;
     let position_upper_bound = upper_bound;
@@ -56,7 +56,7 @@ impl Particle {
     inertia_weight: &f64,
     cognitive_coefficient: &f64,
     social_coefficient: &f64,
-    distribution: &Box<Uniform<f64>>,
+    distribution: &Uniform<f64>,
   ) {
     let mut rng = rand::thread_rng();
 

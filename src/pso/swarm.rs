@@ -9,7 +9,7 @@ pub struct Swarm {
   pub particles: Vec<Particle>,
   pub best_position: Vec<f64>,
   pub best_position_value: f64,
-  distribution: Box<Uniform<f64>>,
+  distribution: Uniform<f64>,
 }
 
 impl Swarm {
@@ -20,7 +20,7 @@ impl Swarm {
     upper_bound: f64,
     function: fn(&Vec<f64>) -> f64,
   ) -> Swarm {
-    let distribution = Box::new(Uniform::new_inclusive(0.0, 1.0));
+    let distribution = Uniform::new_inclusive(0.0, 1.0);
 
     let mut particles: Vec<Particle> = Vec::new();
     for _i in 0..particle_count {
