@@ -103,10 +103,11 @@ impl FireflyAlgorithm {
               );
 
             for dimension in 0_usize..self.config.dimensions as usize {
-              let step = const1
-                  * (population[innerindex][dimension] - population[index][dimension])
-                  + self.config.alfa0 * alfa * (rng.gen_range(0.01..0.99) - 0.5) * scale;
-              if !(population[index][dimension] +step > self.config.upper_bound) && !(population[index][dimension] < self.config.lower_bound){
+              let step = const1 * (population[innerindex][dimension] - population[index][dimension])
+                + self.config.alfa0 * alfa * (rng.gen_range(0.01..0.99) - 0.5) * scale;
+              if !(population[index][dimension] + step > self.config.upper_bound)
+                && !(population[index][dimension] < self.config.lower_bound)
+              {
                 population[index][dimension] += step;
               } else if population[index][dimension] + step > self.config.upper_bound {
                 population[index][dimension] = self.config.upper_bound;
