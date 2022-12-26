@@ -19,17 +19,25 @@ impl Particle {
     lower_bound: f64,
     upper_bound: f64,
     function: fn(&Vec<f64>) -> f64,
+    distribution: &Box<Uniform<f64>>,
   ) -> Particle {
+    let position_lower_bound = lower_bound;
+    let position_upper_bound = upper_bound;
+    let velocity_lower_bound = -abs(upper_bound - lower_bound);
+    let velocity_upper_bound = abs(upper_bound - lower_bound);
+
     let mut rng = rand::thread_rng();
-    let position_distribution = Uniform::from(lower_bound..=upper_bound);
-    let velocity_distribution =
-      Uniform::from(-abs(upper_bound - lower_bound)..=(abs(upper_bound - lower_bound)));
+
     let mut position: Vec<f64> = Vec::new();
     let mut velocity: Vec<f64> = Vec::new();
 
     for _i in 0..dimensions {
-      position.push(position_distribution.sample(&mut rng));
-      velocity.push(velocity_distribution.sample(&mut rng));
+      position.push(
+        distribution.sample(&mut rng) * (position_upper_bound - position_lower_bound) + position_lower_bound,
+      );
+      velocity.push(
+        distribution.sample(&mut rng) * (velocity_upper_bound - velocity_lower_bound) + velocity_lower_bound,
+      );
     }
     let best_position: Vec<f64> = position.to_vec();
 
@@ -48,9 +56,10 @@ impl Particle {
     inertia_weight: &f64,
     cognitive_coefficient: &f64,
     social_coefficient: &f64,
+    distribution: &Box<Uniform<f64>>,
   ) {
     let mut rng = rand::thread_rng();
-    let uniform_distribution = Uniform::from((f64::zero())..=(f64::one()));
+
     let mut updated_velocity: Vec<f64> = Vec::new();
 
     for (v_i, x_i, p_i, p_d) in izip!(
@@ -59,8 +68,8 @@ impl Particle {
       &self.best_position,
       swarm_best_position
     ) {
-      let r_1 = uniform_distribution.sample(&mut rng);
-      let r_2 = uniform_distribution.sample(&mut rng);
+      let r_1 = distribution.sample(&mut rng);
+      let r_2 = distribution.sample(&mut rng);
       let updated_v_i = (*inertia_weight * *v_i)
         + (*cognitive_coefficient * r_1 * (*p_i - *x_i))
         + (*social_coefficient * r_2 * (*p_d - *x_i));
