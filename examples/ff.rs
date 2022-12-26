@@ -1,6 +1,4 @@
-use ecrs::ff::auxiliary::*;
-use ecrs::ff::probe::stdout_probe::StdoutProbe;
-use ecrs::ff::{FireflyAlgorithm, FireflyAlgorithmCfg};
+use ecrs::ff::FireflyAlgorithm;
 
 fn main() {
   let mut alg = FireflyAlgorithm::default();
