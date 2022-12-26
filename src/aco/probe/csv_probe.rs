@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use serde::Serialize;
 
 use crate::aco::probe::Probe;
@@ -82,18 +83,17 @@ impl Probe for CsvProbe {
   }
 
   fn on_iteration_end(&mut self) {
-    for (i, row) in self.best_sol.matrix.row_iter().enumerate() {
-      for (j, val) in row.iter().enumerate() {
-        if *val < 0.5 {
-          continue;
-        }
-
-        self.best_sols.push(BestSolutionRecord {
-          from: i,
-          to: j,
-          iter: self.iteration,
-        })
-      }
+    for (i, j) in self
+      .best_sol
+      .path
+      .iter()
+      .circular_tuple_windows::<(&usize, &usize)>()
+    {
+      self.best_sols.push(BestSolutionRecord {
+        from: *i,
+        to: *j,
+        iter: self.iteration,
+      })
     }
   }
 
