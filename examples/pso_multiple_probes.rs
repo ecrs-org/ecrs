@@ -1,8 +1,6 @@
 use ecrs::pso::{self, builder::PSOAlgorithmBuilder};
 
 fn main() {
-  let iterations = 2000;
-
   let stdout_probe = Box::new(pso::probe::stdout_probe::StdoutProbe::new());
   let csv_probe = Box::new(pso::probe::csv_probe::CsvProbe::new("pso_example.csv"));
   let json_probe = Box::new(pso::probe::json_probe::JsonProbe::new("pso_example.json"));
@@ -16,7 +14,7 @@ fn main() {
 
   let mut algorithm = PSOAlgorithmBuilder::new()
     .set_dimensions(3)
-    .set_generation_limit(iterations)
+    .set_generation_limit(2000)
     .set_probe(policy_driven_probe)
     .build();
 
