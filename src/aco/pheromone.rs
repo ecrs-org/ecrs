@@ -1,6 +1,6 @@
 //! Implementation of pheromone calculations strategies.
 //!
-use crate::aco::pheromone::best_policy::{BestPolicy, IterationBest, OverallBest};
+use crate::aco::pheromone::best_policy::{BestPolicy, OverallBest};
 use crate::aco::{FMatrix, Solution};
 use itertools::Itertools;
 use std::ops::Add;
@@ -52,27 +52,27 @@ impl PheromoneUpdate for AntSystemPU {
 /// to the way fitness. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and sum
 /// of pheromone trails left by ants, additionally we are adding pheromone left by the best ant overall.
 pub struct ElitistAntSystemPU {
-  iter_best: IterationBest,
+  overall_best: OverallBest,
 }
 
 impl ElitistAntSystemPU {
   /// Creates a new instance of [ElitistAntSystemPU]
   pub fn new() -> Self {
     ElitistAntSystemPU {
-      iter_best: IterationBest::new(),
+      overall_best: OverallBest::new(),
     }
   }
 }
 
 impl PheromoneUpdate for ElitistAntSystemPU {
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
-    self.iter_best.update_best(solutions);
+    self.overall_best.update_best(solutions);
     let delta_pheromone = sum_iter_pheromone(solutions, old_pheromone.nrows());
 
     old_pheromone
       .scale(1.0 - evaporation_rate)
       .add(delta_pheromone)
-      .add(self.iter_best.get_best_pheromone())
+      .add(self.overall_best.get_best_pheromone())
   }
 }
 
