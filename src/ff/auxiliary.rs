@@ -7,3 +7,4 @@ pub fn rastrigin(params: &Vec<f64>) -> f64 {
   }
   res + 10_f64 * params.len() as f64
 }
+
