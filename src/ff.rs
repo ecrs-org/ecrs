@@ -7,6 +7,9 @@ pub mod probe;
 
 use probe::Probe;
 
+use crate::ff::auxiliary::*;
+use crate::ff::probe::stdout_probe::StdoutProbe;
+
 pub struct FireflyAlgorithmCfg {
   // Nr of dimensions
   dimensions: u8,
@@ -48,6 +51,18 @@ pub struct FireflyAlgorithm {
   pub config: FireflyAlgorithmCfg,
   pub brightness_function: fn(&Vec<f64>) -> f64,
   pub probe: Box<dyn Probe>,
+  pub distance_function: fn(&Vec<f64>, &[f64]) -> f64,
+}
+
+impl Default for FireflyAlgorithm {
+  fn default() -> Self {
+    FireflyAlgorithm {
+      config: Default::default(),
+      brightness_function: rastrigin,
+      probe: Box::new(StdoutProbe {}),
+      distance_function: cartesian_distance,
+    }
+  }
 }
 
 impl FireflyAlgorithm {
@@ -55,11 +70,13 @@ impl FireflyAlgorithm {
     config: FireflyAlgorithmCfg,
     brightness_function: fn(&Vec<f64>) -> f64,
     probe: Box<dyn Probe>,
+    distance_function: fn(&Vec<f64>, &[f64]) -> f64,
   ) -> Self {
     FireflyAlgorithm {
       config,
       brightness_function,
       probe,
+      distance_function,
     }
   }
 
@@ -100,7 +117,10 @@ impl FireflyAlgorithm {
                 f64::consts::E,
                 -1_f64
                   * self.config.gamma
-                  * f64::powi(distance(&population[index], &population[innerindex]), 2),
+                  * f64::powi(
+                    (self.distance_function)(&population[index], &population[innerindex]),
+                    2,
+                  ),
               );
 
             for dimension in 0_usize..self.config.dimensions as usize {
@@ -160,13 +180,4 @@ impl FireflyAlgorithm {
 
     self.probe.on_end();
   }
-}
-
-pub fn distance(a: &Vec<f64>, b: &[f64]) -> f64 {
-  //Distance between two points
-  let mut res: f64 = 0 as f64;
-  for dimension in 0..a.len() {
-    res += f64::powi(a[dimension] - b[dimension], 2)
-  }
-  f64::sqrt(res)
 }
