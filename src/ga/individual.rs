@@ -48,6 +48,14 @@ impl<T: Chromosome> Individual<T> {
   pub fn chromosome_ref_mut(&mut self) -> &mut T {
     &mut self.chromosome
   }
+
+  pub fn to_json(&self) -> String {
+    format!(
+      "{{ \"chromosome\": {:?}, fitness: {} }}",
+      self.chromosome_ref(),
+      self.fitness
+    )
+  }
 }
 
 /// This trait is implemented so some usecases are simpler & we
