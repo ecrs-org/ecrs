@@ -1,4 +1,5 @@
 use rand::{thread_rng, Rng};
+use std::cmp::Ordering;
 use std::f64;
 
 pub mod auxiliary;
@@ -103,9 +104,23 @@ impl FireflyAlgorithm {
               );
 
             for dimension in 0_usize..self.config.dimensions as usize {
-              population[index][dimension] += const1
-                * (population[innerindex][dimension] - population[index][dimension])
-                + self.config.alfa0 * alfa * (rng.gen_range(0.01..0.99)/*TODO ADD SETTING*/ - 0.5) * scale;
+              let step = const1 * (population[innerindex][dimension] - population[index][dimension])
+                + self.config.alfa0 * alfa * (rng.gen_range(0.01..0.99) - 0.5) * scale;
+              let _not_less_or_equal = matches!(
+                (population[index][dimension] + step).partial_cmp(&self.config.lower_bound),
+                None | Some(Ordering::Greater)
+              );
+              let _not_more_or_equal = matches!(
+                (population[index][dimension] + step).partial_cmp(&self.config.upper_bound),
+                None | Some(Ordering::Less)
+              );
+              if _not_more_or_equal && _not_less_or_equal {
+                population[index][dimension] += step;
+              } else if population[index][dimension] + step > self.config.upper_bound {
+                population[index][dimension] = self.config.upper_bound;
+              } else {
+                population[index][dimension] = self.config.lower_bound;
+              }
             }
 
             brightness[index] = 1_f64 / (self.brightness_function)(&population[index]);
