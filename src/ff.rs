@@ -108,7 +108,10 @@ impl FireflyAlgorithm {
     let mut alfa = self.config.alfa0;
     let mut currentbest: f64 = f64::MAX;
 
-    let pool = rayon::ThreadPoolBuilder::new().num_threads(self.config.threads as usize).build().unwrap();
+    let pool = rayon::ThreadPoolBuilder::new()
+      .num_threads(self.config.threads as usize)
+      .build()
+      .unwrap();
 
     let move_firefly = |index: usize,
                         local_brightness: Vec<f64>,
