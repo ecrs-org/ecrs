@@ -8,4 +8,6 @@ pub mod aco;
 pub mod ff;
 pub mod ga;
 pub mod pso;
+
+#[cfg(feature = "test_functions")]
 pub mod test_functions;

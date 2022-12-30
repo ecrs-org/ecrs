@@ -23,6 +23,15 @@ name = "ecrs"
 path = "src/lib.rs"
 
 
+[features]
+default = ["test_functions", "ops"]
+test_functions = []
+ops = ["ops_crossover", "ops_mutation", "ops_replacement", "ops_selection"]
+ops_crossover = []
+ops_mutation = []
+ops_replacement = []
+ops_selection = []
+
 [dependencies]
 rand = "0.8.5"
 nalgebra = "0.30.1"

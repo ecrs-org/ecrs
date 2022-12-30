@@ -31,10 +31,12 @@ pub trait CrossoverOperator<T: Chromosome> {
 /// Second child gets `parent_2`'s first part and `parent_1`'s second part.
 ///
 /// Degenerated case when cutpoint is selected at index 0 or last can occur.
+#[cfg(feature = "ops_crossover")]
 pub struct SinglePoint<R: Rng> {
   rng: R,
 }
 
+#[cfg(feature = "ops_crossover")]
 impl SinglePoint<ThreadRng> {
   /// Creates new [SinglePoint] crossover operator with default RNG
   pub fn new() -> Self {
