@@ -12,25 +12,25 @@ use crate::ff::probe::stdout_probe::StdoutProbe;
 
 pub struct FireflyAlgorithmCfg {
   // Nr of dimensions
-  dimensions: u8,
+  pub dimensions: u8,
   // Lower search bound
-  lower_bound: f64,
+  pub lower_bound: f64,
   // Upper search bound
-  upper_bound: f64,
+  pub upper_bound: f64,
   // Maximum amount of generations
-  max_generations: u32,
+  pub max_generations: u32,
   // Population size
-  population_size: u32,
+  pub population_size: u32,
   // Initial randomness coefficient
-  alfa0: f64,
+  pub alfa0: f64,
   // Attractiveness coefficient, in most cases leave as 1
-  beta0: f64,
+  pub beta0: f64,
   // Light absorption coefficient
-  gamma: f64,
+  pub gamma: f64,
   // Randomness decrease modifier, 0 < delta < 1
-  delta: f64,
+  pub delta: f64,
   //Number of threads in rayon worker pool, utilized to iterate the population
-  threads: u8,
+  pub threads: u8,
 }
 
 impl Default for FireflyAlgorithmCfg {
