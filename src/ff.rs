@@ -35,7 +35,7 @@ where
   pub delta: f64,
   //Number of threads in rayon worker pool, utilized to iterate the population
   pub threads: u8,
-  //Probability distribution describing flight length
+//Probability distribution describing flight length
   distribution: T,
 }
 
