@@ -29,6 +29,8 @@ pub struct FireflyAlgorithmCfg {
   gamma: f64,
   // Randomness decrease modifier, 0 < delta < 1
   delta: f64,
+  //Number of threads in rayon worker pool, utilized to iterate the population
+  threads: u8,
 }
 
 impl Default for FireflyAlgorithmCfg {
@@ -43,6 +45,7 @@ impl Default for FireflyAlgorithmCfg {
       beta0: 1.0,
       gamma: 0.01,
       delta: 0.97,
+      threads: 2,
     }
   }
 }
@@ -103,49 +106,69 @@ impl FireflyAlgorithm {
 
     let scale = self.config.upper_bound - self.config.lower_bound;
     let mut alfa = self.config.alfa0;
-    let mut rng = thread_rng();
     let mut currentbest: f64 = f64::MAX;
+
+    let pool = rayon::ThreadPoolBuilder::new()
+      .num_threads(self.config.threads as usize)
+      .build()
+      .unwrap();
+
+    let move_firefly = |index: usize,
+                        local_brightness: Vec<f64>,
+                        local_population: Vec<Vec<f64>>,
+                        local_alfa: f64|
+     -> Vec<f64> {
+      let mut res = local_population[index].clone();
+      for innerindex in 0_usize..self.config.population_size as usize {
+        if local_brightness[index] < local_brightness[innerindex] {
+          let const1 = self.config.beta0
+            * f64::powf(
+              f64::consts::E,
+              -1_f64
+                * self.config.gamma
+                * f64::powi(
+                  (self.distance_function)(&local_population[index], &local_population[innerindex]),
+                  2,
+                ),
+            );
+          let firefly = local_population[index].clone();
+          for (dimension, _item) in firefly.iter().enumerate() {
+            let step = const1
+              * (local_population[innerindex][dimension] - local_population[index][dimension])
+              + self.config.alfa0 * local_alfa * (thread_rng().gen_range(0.01..0.99) - 0.5) * scale;
+            let _not_less_or_equal = matches!(
+              (local_population[index][dimension] + step).partial_cmp(&self.config.lower_bound),
+              None | Some(Ordering::Greater)
+            );
+            let _not_more_or_equal = matches!(
+              (local_population[index][dimension] + step).partial_cmp(&self.config.upper_bound),
+              None | Some(Ordering::Less)
+            );
+            if _not_more_or_equal && _not_less_or_equal {
+              res[dimension] = local_population[index][dimension] + step;
+            } else if local_population[index][dimension] + step > self.config.upper_bound {
+              res[dimension] = self.config.upper_bound;
+            } else {
+              res[dimension] = self.config.lower_bound;
+            }
+          }
+        }
+      }
+      res
+    };
 
     for generation in 0..self.config.max_generations {
       self.probe.on_iteration_start(generation);
 
+      let mut temp = population.clone();
+
+      for (index, _item) in population.clone().iter_mut().enumerate() {
+        temp[index] = pool.install(|| move_firefly(index, brightness.clone(), population.clone(), alfa));
+      }
+      population = temp;
+
       for index in 0_usize..self.config.population_size as usize {
-        for innerindex in 0_usize..self.config.population_size as usize {
-          if brightness[index] < brightness[innerindex] {
-            let const1 = self.config.beta0
-              * f64::powf(
-                f64::consts::E,
-                -1_f64
-                  * self.config.gamma
-                  * f64::powi(
-                    (self.distance_function)(&population[index], &population[innerindex]),
-                    2,
-                  ),
-              );
-
-            for dimension in 0_usize..self.config.dimensions as usize {
-              let step = const1 * (population[innerindex][dimension] - population[index][dimension])
-                + self.config.alfa0 * alfa * (rng.gen_range(0.01..0.99) - 0.5) * scale;
-              let _not_less_or_equal = matches!(
-                (population[index][dimension] + step).partial_cmp(&self.config.lower_bound),
-                None | Some(Ordering::Greater)
-              );
-              let _not_more_or_equal = matches!(
-                (population[index][dimension] + step).partial_cmp(&self.config.upper_bound),
-                None | Some(Ordering::Less)
-              );
-              if _not_more_or_equal && _not_less_or_equal {
-                population[index][dimension] += step;
-              } else if population[index][dimension] + step > self.config.upper_bound {
-                population[index][dimension] = self.config.upper_bound;
-              } else {
-                population[index][dimension] = self.config.lower_bound;
-              }
-            }
-
-            brightness[index] = 1_f64 / (self.brightness_function)(&population[index]);
-          }
-        }
+        brightness[index] = 1_f64 / (self.brightness_function)(&population[index]);
       }
 
       alfa *= self.config.delta;
