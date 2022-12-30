@@ -1,6 +1,7 @@
+use rand::distributions::Standard;
+use rand::prelude::Distribution;
 use rand::{thread_rng, Rng};
 use std::cmp::Ordering;
-use std::f64;
 
 pub mod auxiliary;
 pub mod probe;
@@ -10,7 +11,10 @@ use probe::Probe;
 use crate::ff::auxiliary::*;
 use crate::ff::probe::stdout_probe::StdoutProbe;
 
-pub struct FireflyAlgorithmCfg {
+pub struct FireflyAlgorithmCfg<T>
+where
+  T: Distribution<f64>,
+{
   // Nr of dimensions
   pub dimensions: u8,
   // Lower search bound
@@ -31,9 +35,11 @@ pub struct FireflyAlgorithmCfg {
   pub delta: f64,
   //Number of threads in rayon worker pool, utilized to iterate the population
   pub threads: u8,
+  //Probability distribution describing flight length
+  distribution: T,
 }
 
-impl Default for FireflyAlgorithmCfg {
+impl Default for FireflyAlgorithmCfg<Standard> {
   fn default() -> Self {
     FireflyAlgorithmCfg {
       dimensions: 2,
@@ -46,18 +52,26 @@ impl Default for FireflyAlgorithmCfg {
       gamma: 0.01,
       delta: 0.97,
       threads: 2,
+      distribution: Standard,
     }
   }
 }
 
-pub struct FireflyAlgorithm {
-  pub config: FireflyAlgorithmCfg,
+pub struct FireflyAlgorithm<T>
+where
+  T: Distribution<f64>,
+{
+  pub config: FireflyAlgorithmCfg<T>,
   pub brightness_function: fn(&Vec<f64>) -> f64,
   pub probe: Box<dyn Probe>,
   pub distance_function: fn(&Vec<f64>, &[f64]) -> f64,
 }
 
-impl Default for FireflyAlgorithm {
+impl<T> Default for FireflyAlgorithm<T>
+where
+  T: Distribution<f64>,
+  FireflyAlgorithmCfg<T>: Default,
+{
   fn default() -> Self {
     FireflyAlgorithm {
       config: Default::default(),
@@ -68,9 +82,12 @@ impl Default for FireflyAlgorithm {
   }
 }
 
-impl FireflyAlgorithm {
+impl<T> FireflyAlgorithm<T>
+where
+  T: Distribution<f64> + Sync,
+{
   fn new(
-    config: FireflyAlgorithmCfg,
+    config: FireflyAlgorithmCfg<T>,
     brightness_function: fn(&Vec<f64>) -> f64,
     probe: Box<dyn Probe>,
     distance_function: fn(&Vec<f64>, &[f64]) -> f64,
@@ -85,7 +102,6 @@ impl FireflyAlgorithm {
 
   pub fn execute(&mut self) {
     self.probe.on_start();
-
     let mut population: Vec<Vec<f64>> = Vec::new();
 
     for _index in 0..self.config.population_size as usize {
@@ -98,11 +114,18 @@ impl FireflyAlgorithm {
     }
 
     let mut brightness: Vec<f64> = Vec::new();
-    let temp = population.clone();
 
-    for point in temp {
-      brightness.push(1_f64 / (self.brightness_function)(&point)); //TODO DELETE TEMP CLONEA
+    for point in population.clone() {
+      brightness.push(1_f64 / (self.brightness_function)(&point));
     }
+
+    let update_brightness = |population: &Vec<Vec<f64>>| -> Vec<f64> {
+      let mut res = vec![0 as f64; population.len()];
+      for (dim, _ini) in population.iter().enumerate() {
+        res[dim] = 1_f64 / (self.brightness_function)(&population[dim]);
+      }
+      res
+    };
 
     let scale = self.config.upper_bound - self.config.lower_bound;
     let mut alfa = self.config.alfa0;
@@ -116,14 +139,15 @@ impl FireflyAlgorithm {
     let move_firefly = |index: usize,
                         local_brightness: Vec<f64>,
                         local_population: Vec<Vec<f64>>,
-                        local_alfa: f64|
+                        local_alfa: f64,
+                        generation: f64|
      -> Vec<f64> {
       let mut res = local_population[index].clone();
       for innerindex in 0_usize..self.config.population_size as usize {
         if local_brightness[index] < local_brightness[innerindex] {
           let const1 = self.config.beta0
             * f64::powf(
-              f64::consts::E,
+              std::f64::consts::E,
               -1_f64
                 * self.config.gamma
                 * f64::powi(
@@ -135,7 +159,12 @@ impl FireflyAlgorithm {
           for (dimension, _item) in firefly.iter().enumerate() {
             let step = const1
               * (local_population[innerindex][dimension] - local_population[index][dimension])
-              + self.config.alfa0 * local_alfa * (thread_rng().gen_range(0.01..0.99) - 0.5) * scale;
+              + self.config.alfa0
+                * local_alfa
+                * (thread_rng().gen_range(0.01..0.99)
+                  + self.config.distribution.sample(&mut thread_rng()) / generation
+                  - 0.5)
+                * scale;
             let _not_less_or_equal = matches!(
               (local_population[index][dimension] + step).partial_cmp(&self.config.lower_bound),
               None | Some(Ordering::Greater)
@@ -159,17 +188,23 @@ impl FireflyAlgorithm {
 
     for generation in 0..self.config.max_generations {
       self.probe.on_iteration_start(generation);
-
       let mut temp = population.clone();
 
       for (index, _item) in population.clone().iter_mut().enumerate() {
-        temp[index] = pool.install(|| move_firefly(index, brightness.clone(), population.clone(), alfa));
+        temp[index] = pool.install(|| {
+          move_firefly(
+            index,
+            brightness.clone(),
+            population.clone(),
+            alfa,
+            generation as f64,
+          )
+        });
       }
+
       population = temp;
 
-      for index in 0_usize..self.config.population_size as usize {
-        brightness[index] = 1_f64 / (self.brightness_function)(&population[index]);
-      }
+      brightness = update_brightness(&population);
 
       alfa *= self.config.delta;
 
