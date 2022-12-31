@@ -20,6 +20,9 @@ impl Probe for StdoutProbe {
   }
   fn on_current_best(&mut self, solution: f64, _position: &[f64]) {
     println!("Iteration best: {}", solution);
+    for (dim, pos) in _position.iter().enumerate() {
+      println!("X{}: {}", dim, pos)
+    }
   }
   fn on_end(&mut self) {
     println!("END");

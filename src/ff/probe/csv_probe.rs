@@ -12,6 +12,7 @@ pub struct CsvProbe {
   records: Vec<Record>,
   iteration: u32,
   best_solution: f64,
+  solution_position: Vec<f64>,
 }
 
 impl CsvProbe {
@@ -21,6 +22,7 @@ impl CsvProbe {
       records: vec![],
       iteration: 0,
       best_solution: 0.0,
+      solution_position: vec![],
     }
   }
 }
@@ -41,8 +43,9 @@ impl Probe for CsvProbe {
     });
   }
 
-  fn on_current_best(&mut self, solution: f64, _position: &[f64]) {
+  fn on_current_best(&mut self, solution: f64, position: &[f64]) {
     self.best_solution = solution;
+    self.solution_position = Vec::from(position);
   }
 
   fn on_end(&mut self) {
