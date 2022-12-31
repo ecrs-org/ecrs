@@ -143,8 +143,10 @@ where
                         generation: f64|
      -> Vec<f64> {
       let mut res = local_population[index].clone();
+      let mut did_i_move = false;
       for innerindex in 0_usize..self.config.population_size as usize {
         if local_brightness[index] < local_brightness[innerindex] {
+          did_i_move = true;
           let const1 = self.config.beta0
             * f64::powf(
               std::f64::consts::E,
@@ -182,6 +184,33 @@ where
             }
           }
         }
+      }
+      if !did_i_move {
+        let mut brownian = res.clone();
+        for (dim, val) in res.clone().iter_mut().enumerate() {
+          let step = thread_rng().gen_range(-1.0..1.0)
+            * f64::powf(local_alfa, 2_f64)
+            * f64::powf(
+              std::f64::consts::E,
+              -1_f64 * self.config.beta0 * self.config.gamma,
+            );
+          let _not_less_or_equal = matches!(
+            (*val + step).partial_cmp(&self.config.lower_bound),
+            None | Some(Ordering::Greater)
+          );
+          let _not_more_or_equal = matches!(
+            (*val + step).partial_cmp(&self.config.upper_bound),
+            None | Some(Ordering::Less)
+          );
+          if _not_more_or_equal && _not_less_or_equal {
+            brownian[dim] = *val + step;
+          } else if *val + step > self.config.upper_bound {
+            brownian[dim] = self.config.upper_bound;
+          } else {
+            brownian[dim] = self.config.lower_bound;
+          }
+        }
+        res = brownian;
       }
       res
     };
