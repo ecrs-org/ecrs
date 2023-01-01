@@ -1,7 +1,8 @@
 use ecrs::ga::{
   operators::selection::{
-    Boltzmann, Random, Rank, RankR, RouletteWheel, SelectionOperator, StochasticUniversalSampling, Tournament,
+    Boltzmann, Random, Rank, RankR, RouletteWheel, StochasticUniversalSampling, Tournament,
   },
+  operators::SelectionOperator,
   population::{BitStrings, PopulationGenerator, RandomPoints},
   GAMetadata,
 };

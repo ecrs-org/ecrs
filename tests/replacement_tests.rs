@@ -1,5 +1,6 @@
 use ecrs::ga::{
-  operators::replacement::{BothParents, Noop, ReplacementOperator},
+  operators::replacement::{BothParents, Noop},
+  operators::ReplacementOperator,
   population::{PopulationGenerator, RandomPoints},
 };
 

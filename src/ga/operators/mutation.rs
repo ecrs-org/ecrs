@@ -5,19 +5,7 @@ use rand::{rngs::ThreadRng, Rng};
 
 use crate::ga::{individual::Chromosome, Individual};
 
-/// # Mutation Operator
-///
-/// This trait defines common behaviour for mutation operators.
-/// You can implement this trait to provide your custom crossover operator to the GA.
-pub trait MutationOperator<T: Chromosome> {
-  /// Mutates provided solution in place
-  ///
-  /// ## Arguments
-  ///
-  /// * `individual` - mutable reference to to-be-mutated individual
-  /// * `mutation_rate` - probability of gene mutation
-  fn apply(&mut self, individual: &mut Individual<T>, mutation_rate: f64);
-}
+use super::MutationOperator;
 
 /// # Identity Mutation Operator
 ///

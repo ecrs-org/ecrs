@@ -15,10 +15,7 @@ use std::marker::PhantomData;
 
 use self::{
   individual::Chromosome,
-  operators::{
-    crossover::CrossoverOperator, mutation::MutationOperator, replacement::ReplacementOperator,
-    selection::SelectionOperator,
-  },
+  operators::{CrossoverOperator, MutationOperator, ReplacementOperator, SelectionOperator},
   population::PopulationGenerator,
 };
 

@@ -1,9 +1,9 @@
 use crate::ga::builder::FitnessFn;
 use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
-use crate::ga::operators::replacement::ReplacementOperator;
+use crate::ga::operators::ReplacementOperator;
 use crate::ga::{
   individual::Chromosome,
-  operators::{crossover::CrossoverOperator, mutation::MutationOperator, selection::SelectionOperator},
+  operators::{CrossoverOperator, MutationOperator, SelectionOperator},
   population::PopulationGenerator,
   GeneticAlgorithm, Probe,
 };

@@ -7,37 +7,7 @@ use crate::ga::{
   GAMetadata,
 };
 
-/// ### Selection operator
-///
-/// This trait defines common behaviour for selection operators.
-/// You can implement this trait to provide your custom crossover opertator to the GA.
-///
-/// Following operators are implemented in the library:
-///
-/// * [RouletteWheel]
-/// * [Random]
-/// * [Rank]
-/// * [RankR]
-/// * [Tournament]
-/// * [StochasticUniversalSampling]
-/// * [Boltzmann]
-///
-/// See their respecitve docs for details.
-pub trait SelectionOperator<T: Chromosome> {
-  /// Returns a vector of references to individuals selected to mating pool
-  ///
-  /// ### Arguments
-  ///
-  /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
-  /// * `population` - individuals to choose mating pool from
-  /// * `count` - target number of individuals in mating pool
-  fn apply<'a>(
-    &mut self,
-    metadata: &GAMetadata,
-    population: &'a [Individual<T>],
-    count: usize,
-  ) -> Vec<&'a Individual<T>>;
-}
+use super::SelectionOperator;
 
 /// ### Routelle wheel selection operator
 ///

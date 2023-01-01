@@ -6,8 +6,8 @@ use std::fmt::Display;
 use std::marker::PhantomData;
 
 use super::individual::Chromosome;
-use super::operators::replacement::ReplacementOperator;
-use super::operators::selection::SelectionOperator;
+use super::operators::ReplacementOperator;
+use super::operators::SelectionOperator;
 use super::population::PopulationGenerator;
 use super::{CrossoverOperator, GAConfig, GAParams, MutationOperator, Probe};
 

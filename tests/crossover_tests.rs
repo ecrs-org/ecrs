@@ -1,6 +1,7 @@
 use ecrs::ga::operators::crossover::Ppx;
 use ecrs::ga::{
-  operators::crossover::{CrossoverOperator, MultiPoint, SinglePoint, TwoPoint, Uniform},
+  operators::crossover::{MultiPoint, SinglePoint, TwoPoint, Uniform},
+  operators::CrossoverOperator,
   population::{PopulationGenerator, RandomPoints},
   Individual,
 };

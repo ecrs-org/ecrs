@@ -3,24 +3,11 @@ use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::ops::Index;
 
+use super::CrossoverOperator;
 use crate::ga::individual::{Chromosome, Individual};
 use push_trait::{Nothing, Push};
 use rand::prelude::SliceRandom;
 use rand::{rngs::ThreadRng, Rng};
-
-/// # Crossover Operator
-///
-/// This trait defines common behaviour for crossover operators.
-/// You can implement this trait to provide your custom crossover operator to the GA.
-pub trait CrossoverOperator<T: Chromosome> {
-  /// Returns a tuple of children
-  ///
-  /// ## Arguments
-  ///
-  /// * `parent_1` - First parent to take part in recombination
-  /// * `parent_2` - Second parent to take part in recombination
-  fn apply(&mut self, parent_1: &Individual<T>, parent_2: &Individual<T>) -> (Individual<T>, Individual<T>);
-}
 
 /// # Single point crossover operator
 ///
@@ -31,12 +18,10 @@ pub trait CrossoverOperator<T: Chromosome> {
 /// Second child gets `parent_2`'s first part and `parent_1`'s second part.
 ///
 /// Degenerated case when cutpoint is selected at index 0 or last can occur.
-#[cfg(feature = "ops_crossover")]
 pub struct SinglePoint<R: Rng> {
   rng: R,
 }
 
-#[cfg(feature = "ops_crossover")]
 impl SinglePoint<ThreadRng> {
   /// Creates new [SinglePoint] crossover operator with default RNG
   pub fn new() -> Self {
@@ -905,7 +890,8 @@ where
 #[cfg(test)]
 mod test {
   use crate::ga::operators::crossover::Ppx;
-  use crate::ga::operators::crossover::{CrossoverOperator, Pmx, Shuffle};
+  use crate::ga::operators::crossover::{Pmx, Shuffle};
+  use crate::ga::operators::CrossoverOperator;
   use crate::ga::Individual;
   use std::iter::zip;
 
