@@ -36,7 +36,7 @@ where
   //Number of threads in rayon worker pool, utilized to iterate the population
   pub threads: u8,
   //Probability distribution describing flight length
-  distribution: T,
+  pub distribution: T,
 }
 
 impl Default for FireflyAlgorithmCfg<Standard> {
