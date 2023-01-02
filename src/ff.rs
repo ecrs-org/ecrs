@@ -100,7 +100,7 @@ where
     }
   }
 
-  pub fn execute(&mut self) {
+  pub fn run(&mut self) {
     self.probe.on_start();
     let mut population: Vec<Vec<f64>> = Vec::new();
 
