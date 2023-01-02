@@ -36,7 +36,7 @@ pub fn ff_bench_half(c: &mut Criterion) {
         },
         ..Default::default()
       }
-          .execute()
+      .execute()
     })
   });
 }
@@ -52,7 +52,7 @@ pub fn ff_bench_full(c: &mut Criterion) {
         },
         ..Default::default()
       }
-          .execute()
+      .execute()
     })
   });
 }

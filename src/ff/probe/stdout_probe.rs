@@ -13,15 +13,15 @@ impl Probe for StdoutProbe {
     println!("START");
   }
   fn on_iteration_start(&mut self, iteration: u32) {
-    println!("--- ITERATION {} ---", iteration);
+    println!("--- ITERATION {iteration} ---");
   }
   fn on_iteration_end(&mut self, _iteration: u32) {
     println!("################################");
   }
   fn on_current_best(&mut self, solution: f64, _position: &[f64]) {
-    println!("Iteration best: {}", solution);
+    println!("Iteration best: {solution}");
     for (dim, pos) in _position.iter().enumerate() {
-      println!("X{}: {}", dim, pos)
+      println!("X{dim}: {pos}",)
     }
   }
   fn on_end(&mut self) {
