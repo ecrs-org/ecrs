@@ -2,7 +2,7 @@ use ecrs::ga;
 mod util;
 
 fn rastrigin_fitness(chromosome: &Vec<f64>) -> f64 {
-  1000.0 * f64::exp(-ecrs::test_functions::rastrigin(chromosome))
+  1000.0 * f64::exp(-ecrs::test_functions::multi_minima::rastrigin(chromosome))
 }
 
 fn main() {

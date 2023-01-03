@@ -4,7 +4,7 @@ fn generic_does_not_panic_with_some_params_unspecified() {
   let _ = ecrs::ga::Builder::new()
     .set_max_generation_count(500)
     .set_population_size(100)
-    .set_fitness_fn(ecrs::test_functions::rastrigin)
+    .set_fitness_fn(ecrs::test_functions::multi_minima::rastrigin)
     .set_crossover_operator(ecrs::ga::operators::crossover::SinglePoint::new())
     .set_replacement_operator(ecrs::ga::operators::replacement::BothParents)
     .set_mutation_operator(ecrs::ga::operators::mutation::Identity::new())
@@ -20,7 +20,7 @@ fn generic_does_not_panic_with_some_params_unspecified() {
 
   // all params omitted
   let _ = ecrs::ga::Builder::new()
-    .set_fitness_fn(ecrs::test_functions::rastrigin)
+    .set_fitness_fn(ecrs::test_functions::multi_minima::rastrigin)
     .set_crossover_operator(ecrs::ga::operators::crossover::SinglePoint::new())
     .set_mutation_operator(ecrs::ga::operators::mutation::Identity::new())
     .set_replacement_operator(ecrs::ga::operators::replacement::BothParents)
@@ -39,7 +39,7 @@ fn generic_does_not_panic_with_some_params_unspecified() {
 fn rvc_does_not_panic_with_some_operators_unspecified() {
   let _ = ecrs::ga::Builder::with_rvc()
     .dim(10)
-    .fitness_fn(ecrs::test_functions::ackley)
+    .fitness_fn(ecrs::test_functions::multi_minima::ackley)
     .build();
 }
 
@@ -47,6 +47,6 @@ fn rvc_does_not_panic_with_some_operators_unspecified() {
 fn bsc_does_not_panic_with_some_operators_unsepcified() {
   let _ = ecrs::ga::Builder::with_bsc()
     .dim(10)
-    .fitness_fn(ecrs::test_functions::wordmax)
+    .fitness_fn(ecrs::test_functions::other::wordmax)
     .build();
 }
