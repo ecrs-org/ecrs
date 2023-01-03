@@ -137,12 +137,15 @@ where
     }
   }
 
-	#[inline(always)]
-	fn generate_population(&mut self) -> Vec<Individual<T>> {
-		self.config.population_factory.generate(self.config.params.population_size)
-	}
+  #[inline(always)]
+  fn generate_population(&mut self) -> Vec<Individual<T>> {
+    self
+      .config
+      .population_factory
+      .generate(self.config.params.population_size)
+  }
 
-	// fn evolve(population: Vec<Individual<T>>)
+  // fn evolve(population: Vec<Individual<T>>)
 
   pub fn run(&mut self) -> Option<Individual<T>> {
     self.metadata.start_time = Some(std::time::Instant::now());
@@ -156,7 +159,10 @@ where
 
     let mut best_individual_all_time = Self::find_best_individual(&population).clone();
 
-    self.config.probe.on_new_best(&self.metadata, &best_individual_all_time);
+    self
+      .config
+      .probe
+      .on_new_best(&self.metadata, &best_individual_all_time);
 
     for generation_no in 1..=self.config.params.generation_limit {
       self.metadata.generation = generation_no;
