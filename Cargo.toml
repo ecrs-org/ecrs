@@ -43,3 +43,7 @@ criterion = "0.4"
 [[bench]]
 name = "aco_bench"
 harness = false
+
+[[bench]]
+name = "ff_bench"
+harness = false
