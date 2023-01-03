@@ -22,5 +22,5 @@ fn main() {
     distance_function: cartesian_distance,
   };
 
-  alg.execute();
+  alg.run();
 }
