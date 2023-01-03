@@ -130,31 +130,33 @@ where
     best_individual
   }
 
-  fn evaluate_population(&self, population: &mut Vec<Individual<T>>) {
+  fn evaluate_population(&mut self, population: &mut Vec<Individual<T>>) {
     for idv in population {
       let fitness = (self.config.fitness_fn).apply(idv);
       idv.fitness = fitness;
     }
   }
 
+	#[inline(always)]
+	fn generate_population(&mut self) -> Vec<Individual<T>> {
+		self.config.population_factory.generate(self.config.params.population_size)
+	}
+
+	// fn evolve(population: Vec<Individual<T>>)
+
   pub fn run(&mut self) -> Option<Individual<T>> {
     self.metadata.start_time = Some(std::time::Instant::now());
     self.config.probe.on_start(&self.metadata);
 
-    // 1. Create initial random population.
-    let mut population = self
-      .config
-      .population_factory
-      .generate(self.config.params.population_size);
+    let mut population = self.generate_population();
 
-    // 2. Evaluate fitness for each individual.
     self.evaluate_population(&mut population);
 
     self.config.probe.on_initial_population_created(&population);
 
-    // 3. Store best individual.
     let mut best_individual_all_time = Self::find_best_individual(&population).clone();
-    // self.config.probe.on_new_best(&self.metadata, best_individual);
+
+    self.config.probe.on_new_best(&self.metadata, &best_individual_all_time);
 
     for generation_no in 1..=self.config.params.generation_limit {
       self.metadata.generation = generation_no;
@@ -186,7 +188,6 @@ where
         children.push(crt_children.1);
       }
 
-      // 5.1 Here we should apply the mutations on children?
       (0..children.len()).for_each(|i| {
         self
           .config

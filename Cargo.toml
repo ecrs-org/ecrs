@@ -15,6 +15,12 @@ license = "MIT"
 exclude = [
 	".github/*",
 	"Cargo.lock",
+	"coco/"
+]
+
+[workspace]
+members = [
+	"coco",
 ]
 
 
