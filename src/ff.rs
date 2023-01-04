@@ -4,6 +4,7 @@ use rand::{thread_rng, Rng};
 use std::cmp::Ordering;
 
 pub mod auxiliary;
+pub mod builder;
 pub mod probe;
 
 use probe::Probe;
