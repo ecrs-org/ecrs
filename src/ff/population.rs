@@ -15,9 +15,9 @@ impl Index<usize> for Population {
   }
 }
 
-impl IndexMut<usize> for Population{
+impl IndexMut<usize> for Population {
   fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-    & mut self.fireflies[index]
+    &mut self.fireflies[index]
   }
 }
 
@@ -43,9 +43,9 @@ impl Population {
     Population { fireflies: res }
   }
 
-  pub fn from_vector(vector: &Vec<Vec<f64>>) -> Self {
+  pub fn from_vector(vector: &[Vec<f64>]) -> Self {
     Population {
-      fireflies: vector.clone(),
+      fireflies: vector.to_owned(),
     }
   }
 }
