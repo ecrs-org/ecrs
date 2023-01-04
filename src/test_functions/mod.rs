@@ -901,6 +901,8 @@ pub fn de_jong_n5(x: &Vec<f64>) -> f64 {
     x.len(),
     "De Jong n.5 function takes only a two dimensional vector as a parameter."
   );
+  let x1 = x[0];
+  let x2 = x[1];
   let mut sum = 0_f64;
   let mut a1 = vec![];
   for _i in 1..6 {
@@ -912,7 +914,7 @@ pub fn de_jong_n5(x: &Vec<f64>) -> f64 {
   }
   let a = vec![a1, b];
   for i in 1..26 {
-    sum += 1_f64 / i as f64 + f64::powi(x[1] - a[1][i], 6) + f64::powi(x[2] - a[2][i], 6);
+    sum += 1_f64 / i as f64 + f64::powi(x1 - a[1][i], 6) + f64::powi(x2 - a[2][i], 6);
   }
   f64::powf(0.002 + sum, -1_f64)
 }
@@ -1018,4 +1020,471 @@ pub fn hartmann_6d(x: &Vec<f64>) -> f64 {
     sum += alfa[i] * f64::exp(-1_f64 * inner_sum);
   }
   -1_f64 * sum
+}
+
+///# Freudenstein and Roth function
+/// 2-dimensional only\
+/// Global minimum:\
+/// f(5,4) = 0
+
+pub fn freudenstein_and_roth(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    2,
+    x.len(),
+    "Freudenstein and Roth function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::powi(-13_f64 + x1 + ((5_f64 - x2) * x2 - 2_f64) * x2, 2)
+    + f64::powi(-29_f64 + x1 + ((1_f64 + x2) * x2 + 14_f64) * x2, 2)
+}
+
+///# Ackley, 2nd function
+/// 2-dimensional only\
+/// Global minimum:\
+/// f(0,0) = -200
+
+pub fn ackley2(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    2,
+    x.len(),
+    "Ackley 2nd function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::powf(-200_f64 * f64::consts::E, -0.02) * f64::sqrt(f64::powi(x1, 2) + f64::powi(x2, 2))
+}
+
+///# Ackley, 3rd function
+/// 2-dimensional only\
+/// Global minimum:\
+/// f(0, ~ -0.4) = ~ -219.1418
+
+pub fn ackley3(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    2,
+    x.len(),
+    "Ackley 3rd function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  200_f64
+    * f64::powf(
+      f64::consts::E,
+      -0.02 * f64::sqrt(f64::powi(x1, 2) + f64::powi(x2, 2)),
+    )
+    + 5_f64 * f64::powf(f64::consts::E, f64::cos(3_f64 * x1) + f64::sin(3_f64 * x2))
+}
+
+///# Adjiman function
+/// 2-dimensional only\
+/// Global minimum:\
+/// f(2, 0.10578) = ~ −2.02181
+
+pub fn adijman(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    2,
+    x.len(),
+    "Adjiman function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::cos(x1) * f64::sin(x2) - (x1 / (f64::powi(x2, 2) + 1_f64))
+}
+
+///# Alpine function
+/// Multidimensional
+/// Global minimum:\
+/// f(0, 0, ..., 0) = 0
+
+pub fn alpine(x: &Vec<f64>) -> f64 {
+  let mut res = 0_f64;
+  for arg in x {
+    res += f64::abs(arg * f64::sin(*arg) + arg / 10_f64)
+  }
+  res
+}
+
+///# Alpine function no 2
+/// Multidimensional
+/// Global minimum:\
+/// f(7.917, ..., 7.917) = 2.808 ^ D(imensions)
+
+pub fn alpine2(x: &Vec<f64>) -> f64 {
+  let mut res = 0_f64;
+  for arg in x {
+    res *= f64::sqrt(*arg) * f64::sin(*arg)
+  }
+  res
+}
+
+///# Brad function
+/// 3-dimensional only\
+/// Global minimum:\
+/// f(0.0824, 1.133, 2.3437) = 0.00821487
+
+pub fn brad(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    3,
+    x.len(),
+    "Brad function takes only a three dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  let x3 = x[2];
+  let y = vec![
+    0.14, 0.18, 0.22, 0.25, 0.29, 0.32, 0.35, 0.39, 0.37, 0.58, 0.73, 0.96, 1.34, 2.10, 4.39,
+  ];
+  let mut res = 0_f64;
+  for i in 0..15 {
+    res += f64::powi(
+      (y[0] - x1 - i as f64) / ((16 - i) as f64 * x2 + f64::min(i as f64, (16 - i) as f64) * x3),
+      2,
+    )
+  }
+  res
+}
+
+///# Bartels Conn function
+/// 2-dimensional only\
+/// Global minimum:\
+/// f(0, 0) = 1
+
+pub fn bartels_conn(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    3,
+    x.len(),
+    "Brad function takes only a three dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::abs(f64::powi(x1, 2) + f64::powi(x2, 2) + x1 * x2) + f64::abs(f64::sin(x1)) + f64::abs(f64::cos(x2))
+}
+
+///# Biggs EXP2 function
+/// 2-dimensional only\
+/// Global minimum:\
+/// f(1, 10) = 0
+
+pub fn biggs_exp2(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    2,
+    x.len(),
+    "Biggs EXP2 function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  let mut res = 0_f64;
+  for i in 1..11 {
+    res += f64::powi(
+      f64::powf(f64::consts::E, -0.1 * i as f64 * x1)
+        - 5_f64 * f64::powf(f64::consts::E, -0.1 * i as f64 * x2)
+        - f64::powf(f64::consts::E, -0.1 * i as f64)
+        - 5_f64 * f64::powf(f64::consts::E, i as f64),
+      2,
+    )
+  }
+  res
+}
+
+///# Biggs EXP3 function
+/// 3-dimensional only\
+/// Global minimum:\
+/// f(1, 10, 5) = 0
+
+pub fn biggs_exp3(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    3,
+    x.len(),
+    "Biggs EXP3 function takes only a three dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  let x3 = x[2];
+
+  let mut res = 0_f64;
+  for i in 1..11 {
+    res += f64::powi(
+      f64::powf(f64::consts::E, -0.1 * i as f64 * x1)
+        - x3 * f64::powf(f64::consts::E, -0.1 * i as f64 * x2)
+        - f64::powf(f64::consts::E, -0.1 * i as f64)
+        - 5_f64 * f64::powf(f64::consts::E, i as f64),
+      2,
+    )
+  }
+  res
+}
+
+///# Biggs EXP4 function
+/// 4-dimensional only\
+/// Global minimum:\
+/// f(1, 10, 1, 5) = 0
+
+pub fn biggs_exp4(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    4,
+    x.len(),
+    "Biggs EXP3 function takes only a four dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  let x3 = x[2];
+  let x4 = x[3];
+
+  let mut res = 0_f64;
+  for i in 1..11 {
+    res += f64::powi(
+      x3 * f64::powf(f64::consts::E, -0.1 * i as f64 * x1)
+        - x4 * f64::powf(f64::consts::E, -0.1 * i as f64 * x2)
+        - f64::powf(f64::consts::E, -0.1 * i as f64)
+        - 5_f64 * f64::powf(f64::consts::E, i as f64),
+      2,
+    )
+  }
+  res
+}
+
+///# Biggs EXP5 function
+/// 4-dimensional only\
+/// Global minimum:\
+/// f(1, 10, 1, 5, 4) = 0
+
+pub fn biggs_exp5(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    5,
+    x.len(),
+    "Biggs EXP3 function takes only a five dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  let x3 = x[2];
+  let x4 = x[3];
+  let x5 = x[4];
+
+  let mut res = 0_f64;
+  for i in 1..11 {
+    res += f64::powi(
+      x3 * f64::powf(f64::consts::E, -0.1 * i as f64 * x1)
+        - x4 * f64::powf(f64::consts::E, -0.1 * i as f64 * x2)
+        - f64::powf(f64::consts::E, -0.1 * i as f64)
+        - 5_f64
+          * f64::powf(
+            f64::consts::E,
+            i as f64 + 3_f64 * f64::powf(f64::consts::E, -0.1 * x5),
+          )
+        + 3_f64 * f64::powf(f64::consts::E, -0.4 * i as f64),
+      2,
+    )
+  }
+  res
+}
+
+///# Biggs EXP5 function
+/// 4-dimensional only\
+/// Global minimum:\
+/// f(1, 10, 1, 5, 4, 3) = 0
+
+pub fn biggs_exp6(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    6,
+    x.len(),
+    "Biggs EXP3 function takes only a six dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  let x3 = x[2];
+  let x4 = x[3];
+  let x5 = x[4];
+  let x6 = x[5];
+
+  let mut res = 0_f64;
+  for i in 1..12 {
+    res += f64::powi(
+      x3 * f64::powf(f64::consts::E, -0.1 * i as f64 * x1)
+        - x4 * f64::powf(f64::consts::E, -0.1 * i as f64 * x2)
+        - f64::powf(f64::consts::E, -0.1 * i as f64)
+        - 5_f64
+          * f64::powf(
+            f64::consts::E,
+            i as f64 + x6 * f64::powf(f64::consts::E, -0.1 * x5),
+          )
+        + 3_f64 * f64::powf(f64::consts::E, -0.4 * i as f64),
+      2,
+    )
+  }
+  res
+}
+
+///# Bird function
+/// Two-dimensional
+/// Global minimum:\
+/// f(4.70104, 3.15294) = f(-1.58214, −3.13024) = −106.764537
+
+pub fn bird(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    2,
+    x.len(),
+    "Bird function takes only a two-dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::sin(x1) * f64::powf(f64::consts::E, f64::powi(1_f64 - f64::cos(x2), 2))
+    + f64::cos(x2) * f64::powf(f64::consts::E, f64::powi(1_f64 - f64::sin(x1), 2))
+    + f64::powi(x1 - x2, 2)
+}
+
+///# Box-Betts Quadratic Sum function
+/// Three-dimensional
+/// Global minimum:\
+/// f(1, 10, 1) = 0
+
+pub fn box_betts(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    3,
+    x.len(),
+    "Box-Betts function takes only a three-dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  let x3 = x[2];
+  let mut res = 0_f64;
+  for i in 0..3 {
+    res += f64::powi(
+      f64::powf(f64::consts::E, -0.1 * (i + 1) as f64 * x1)
+        + f64::powf(f64::consts::E, -0.1 * (i + 1) as f64 * x2)
+        + f64::powf(
+          f64::consts::E,
+          x3 * (-0.1 * i as f64) - f64::powf(f64::consts::E, -1_f64 * (i + 1) as f64),
+        ),
+      2,
+    )
+  }
+  res
+}
+
+///# Branin RCOS function
+/// Two-dimensional
+/// Global minimum:\
+/// f(−3.2, 12.53) = 5.559037
+
+pub fn branin_rcos(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    2,
+    x.len(),
+    "Branin RCOS function takes only a two-dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::powi(
+    x2 - 5.1 * f64::powi(x1, 2) / 4_f64 * f64::powi(f64::consts::PI, 2) + 5_f64 * x1 / f64::consts::PI
+      - 6_f64,
+    2,
+  ) + 10_f64 * (1_f64 - 1_f64 / 8_f64 * f64::consts::PI) * f64::cos(x1)
+    + 10_f64
+}
+
+///# Branin RCOS function no2
+/// Two-dimensional
+/// Global minimum:\
+/// f(−pi, 12.275) = f(pi, 2.275) = f(3 pi, 2.425) = 0.3978873
+
+pub fn branin_rcos2(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    2,
+    x.len(),
+    "Branin RCOS function no2 takes only a two-dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::powi(
+    x2 - 5.1 * f64::powi(x1, 2) / 4_f64 * f64::powi(f64::consts::PI, 2) + 5_f64 * x1 / f64::consts::PI
+      - 6_f64,
+    2,
+  ) + 10_f64
+    * (1_f64 - 1_f64 / 8_f64 * f64::consts::PI)
+    * f64::cos(x1)
+    * f64::cos(x2)
+    * f64::ln(f64::powi(x1, 2) + f64::powi(x2, 2) + 1_f64)
+    + 10_f64
+}
+
+///# Brent function
+/// Two-dimensional
+/// Global minimum:\
+/// f(0, 0) = 0
+
+pub fn brent(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    2,
+    x.len(),
+    "Brent function takes only a two-dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::powi(x1 + 10_f64, 2)
+    + f64::powi(x2 + 10_f64, 2)
+    + f64::powf(f64::consts::E, -1_f64 * f64::powi(x1, 2) - f64::powi(x2, 2))
+}
+
+///# Brown function
+/// Multidimensional
+/// Global minimum:\
+/// f(0,..., 0) = 0
+
+pub fn brown(x: &Vec<f64>) -> f64 {
+  let mut res = 0_f64;
+  for i in 0..x.len() - 1 {
+    res += f64::powf(f64::powi(x[i], 2), f64::powi(x[i + 1], 2) + 1_f64)
+      + f64::powf(f64::powi(x[i + 1], 2), f64::powi(x[i], 2) + 1_f64)
+  }
+  res
+}
+
+/// # Bukin function N.2
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(-10, 0) = 0
+///
+pub fn bukin_2(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Bukin function N.2 takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  100_f64 * (x2 - 0.01 * f64::powi(x1, 2) + 1_f64) + 0.01 * f64::powi(x1 + 10_f64, 2)
+}
+
+/// # Bukin function N.4
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(-10, 0) = 0
+///
+pub fn bukin_4(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Bukin function N.4 takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  100_f64 * f64::powi(x2, 2) + 0.01 * f64::abs(x1 + 10_f64)
+}
+
+/// # Chen Bird function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(-7/18, -13/18) = -2000
+///
+pub fn chen_bird(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Chen Bird function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  -0.001 / (0.001 * 0.001 + f64::powi(x1 - 0.4 * x2 + 0.1, 2))
+    - 0.001 / (0.001 * 0.001 + f64::powi(2_f64 * x1 + x2 - 1.5, 2))
 }
