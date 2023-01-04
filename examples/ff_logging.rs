@@ -1,11 +1,11 @@
 use ecrs::ff::auxiliary::*;
+use ecrs::ff::population::Population;
 use ecrs::ff::probe::aggregated_probe::AggregatedProbe;
 use ecrs::ff::probe::csv_probe::CsvProbe;
 use ecrs::ff::probe::policy_driven_probe::PolicyDrivenProbe;
 use ecrs::ff::probe::probing_policy::GenerationInterval;
 use ecrs::ff::probe::stdout_probe::StdoutProbe;
 use ecrs::ff::{FireflyAlgorithm, FireflyAlgorithmCfg};
-use ecrs::ff::population::Population;
 
 fn main() {
   let stdout_probe = StdoutProbe::new();
