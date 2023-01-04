@@ -5,6 +5,7 @@ use ecrs::ff::probe::policy_driven_probe::PolicyDrivenProbe;
 use ecrs::ff::probe::probing_policy::GenerationInterval;
 use ecrs::ff::probe::stdout_probe::StdoutProbe;
 use ecrs::ff::{FireflyAlgorithm, FireflyAlgorithmCfg};
+use ecrs::ff::population::Population;
 
 fn main() {
   let stdout_probe = StdoutProbe::new();
@@ -20,6 +21,7 @@ fn main() {
     brightness_function: rastrigin,
     probe: Box::new(policy_driven_probe),
     distance_function: cartesian_distance,
+    population: Population::from_config(FireflyAlgorithmCfg::default()),
   };
 
   alg.run();
