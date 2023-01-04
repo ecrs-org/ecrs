@@ -5,6 +5,7 @@ use std::cmp::Ordering;
 
 pub mod auxiliary;
 pub mod builder;
+pub mod population;
 pub mod probe;
 
 use probe::Probe;
