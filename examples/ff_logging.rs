@@ -1,4 +1,5 @@
 use ecrs::ff::auxiliary::*;
+use ecrs::ff::population::Population;
 use ecrs::ff::probe::aggregated_probe::AggregatedProbe;
 use ecrs::ff::probe::csv_probe::CsvProbe;
 use ecrs::ff::probe::policy_driven_probe::PolicyDrivenProbe;
@@ -20,6 +21,7 @@ fn main() {
     brightness_function: rastrigin,
     probe: Box::new(policy_driven_probe),
     distance_function: cartesian_distance,
+    population: Population::from_config(FireflyAlgorithmCfg::default()),
   };
 
   alg.run();
