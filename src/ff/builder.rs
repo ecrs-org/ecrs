@@ -9,6 +9,7 @@ pub struct FireflyAlgorithmBuilder<T: Distribution<f64>> {
   brightness_function: fn(&Vec<f64>) -> f64,
   probe: Box<dyn Probe>,
   distance_function: fn(&Vec<f64>, &[f64]) -> f64,
+  population: Population,
 }
 
 impl<T: Distribution<f64>> FireflyAlgorithmBuilder<T> {
@@ -18,6 +19,7 @@ impl<T: Distribution<f64>> FireflyAlgorithmBuilder<T> {
       brightness_function: rastrigin,
       probe: Box::new(StdoutProbe {}),
       distance_function: cartesian_distance,
+      population: Population::from_config(FireflyAlgorithmCfg::default()),
     }
   }
 
@@ -88,12 +90,18 @@ impl<T: Distribution<f64>> FireflyAlgorithmBuilder<T> {
     self
   }
 
+  pub fn set_population(mut self, population: Population) -> Self {
+    self.population = population;
+    self
+  }
+
   pub fn build(self) -> FireflyAlgorithm<T> {
     FireflyAlgorithm {
       config: self.config,
       brightness_function: self.brightness_function,
       probe: self.probe,
       distance_function: self.distance_function,
+      population: self.population,
     }
   }
 }
