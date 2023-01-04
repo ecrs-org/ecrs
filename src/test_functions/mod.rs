@@ -987,7 +987,7 @@ pub fn hartmann_4d(x: &Vec<f64>) -> f64 {
   (1_f64 / 0.839) * (1.1 - sum)
 }
 
-///# Hartmann 4-dimensional function
+///# Hartmann 6-dimensional function
 /// 6-dimensional only\
 /// Global minimum:\
 /// f(0.20169, 0.150011, 0.476874, 0.275332, 0.311652, 0.6573) = -3.32237
@@ -1487,4 +1487,545 @@ pub fn chen_bird(x: &Vec<f64>) -> f64 {
   let x2 = x[1];
   -0.001 / (0.001 * 0.001 + f64::powi(x1 - 0.4 * x2 + 0.1, 2))
     - 0.001 / (0.001 * 0.001 + f64::powi(2_f64 * x1 + x2 - 1.5, 2))
+}
+
+/// # Chen V function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(−0.3888889, 0.7222222) = -2000
+///
+pub fn chen_v(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Chen V function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  -0.001 / (0.001 * 0.001 + f64::powi(f64::powi(x1, 2) + f64::powi(x2, 2) - 1_f64, 2))
+    - 0.001 / (0.001 * 0.001 + f64::powi(f64::powi(x1, 2) + f64::powi(x2, 2) - 0.5, 2))
+    - 0.001 / (0.001 * 0.001 + f64::powi(f64::powi(x1, 2) - f64::powi(x2, 2), 2))
+}
+
+/// # Chichinadze function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(5.90133, 0.5) = −43.3159
+///
+pub fn chichinadze(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Chichinadze function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::powi(x1, 2) - 12_f64 * x1
+    + 11_f64
+    + 10_f64 * f64::cos(f64::consts::PI * x1 / 2_f64)
+    + 8_f64 * f64::sin(5_f64 * f64::consts::PI * x1 / 2_f64)
+    - f64::powf(0.2, 0.5) * f64::exp(-0.5 * f64::powi(x2 - 0.5, 2))
+}
+
+/// # Chung Reynolds function
+/// Global minimum: \
+/// f(0, 0) = 0
+///
+pub fn chung_reynolds(x: &Vec<f64>) -> f64 {
+  let mut res = 0_f64;
+  for arg in x {
+    res += f64::powi(*arg, 2);
+  }
+  f64::powi(res, 2)
+}
+
+/// # Csendes function
+/// Global minimum: \
+/// f(0,..., 0) = 0
+///
+pub fn csendes(x: &Vec<f64>) -> f64 {
+  let mut res = 0_f64;
+  for arg in x {
+    res += f64::powi(*arg, 6) * (2_f64 + f64::sin(1_f64 / arg))
+  }
+  res
+}
+
+/// # Cosine Mixture function
+/// Global minimum: \
+/// f(0,..., 0) = 0
+///
+pub fn cosine_mixture(x: &Vec<f64>) -> f64 {
+  let mut sum1 = 0_f64;
+  let mut sum2 = 0_f64;
+  for arg in x {
+    sum1 += f64::cos(5_f64 * f64::consts::PI * arg);
+    sum2 += f64::powi(*arg, 2)
+  }
+  -0.1 * sum1 - sum2
+}
+
+/// # Cube function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(-1, 1) = 0
+///
+pub fn cube(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Cube function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  100_f64 * f64::powi(x2 - f64::powi(x1, 3), 2) + f64::powi(1_f64 - x1, 2)
+}
+
+/// # Damavandi function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(-1, 1) = 0
+///
+pub fn damavandi(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Damavandi function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  (1_f64
+    - f64::powi(
+      f64::sin(f64::consts::PI * (x1 - 2_f64)) * f64::sin(f64::consts::PI * (x2 - 2_f64))
+        / f64::powi(f64::consts::PI, 2)
+        * (x1 - 2_f64)
+        * (x2 - 2_f64),
+      5,
+    ))
+    * (2_f64 + f64::powi(x1 - 7_f64, 2) + 2_f64 * f64::powi(x2 - 7_f64, 2))
+}
+
+/// # Deb 1 Mixture function
+/// Global minimum: \
+/// f(0,..., 0) = 0
+///
+pub fn deb1(x: &Vec<f64>) -> f64 {
+  let mut res = 0_f64;
+  for arg in x {
+    res += f64::powi(f64::sin(5_f64 * f64::consts::PI * arg), 6)
+  }
+  -1_f64 / (x.len() - 1) as f64 * res
+}
+
+/// # Deb 3 Mixture function
+/// Global minimum: \
+/// f(0,..., 0) = 0
+///
+pub fn deb3(x: &Vec<f64>) -> f64 {
+  let mut res = 0_f64;
+  for arg in x {
+    res += f64::powi(
+      f64::sin(5_f64 * f64::consts::PI * (f64::powf(*arg, 0.75) - 0.05)),
+      6,
+    )
+  }
+  -1_f64 / (x.len() - 1) as f64 * res
+}
+
+/// # Deckkers-Aarts function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(0, +-15) = −24777
+///
+pub fn deckkers_aarts(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Deckkers-Aarts function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  100000_f64 * f64::powi(x1, 2) + f64::powi(x2, 2) - f64::powi(f64::powi(x1, 2) + f64::powi(x2, 2), 2)
+    + (1 / 100000) as f64 * f64::powi(f64::powi(x1, 2) + f64::powi(x2, 2), 4)
+}
+
+/// # deVilliers Glasser 1 function
+/// 4-dimensional only \
+/// Global minimum: \
+/// f(0, 0, 0, 0) = 0
+///
+pub fn devilliers_glasser1(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "deVilliers Glasser 1 function takes only a four dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  let x3 = x[2];
+  let x4 = x[3];
+  let mut res = 0_f64;
+  for i in 1..25 {
+    res += f64::powi(
+      x1 * f64::powf(x2, 0.1 * (i - 1) as f64) * f64::sin(x3 * 0.1 * (i - 1) as f64 + x4)
+        - 60.137
+          * f64::powf(
+            1.371,
+            0.1 * (i - 1) as f64 * f64::sin(3.112 * 0.1 * (i - 1) as f64 + 1.761),
+          ),
+      2,
+    )
+  }
+  res
+}
+
+/// # deVilliers Glasser 2 function
+/// 5-dimensional only \
+/// Global minimum: \
+/// f(0, 0, 0, 0, 0) = 0
+///
+pub fn devilliers_glasser2(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    5,
+    "deVilliers Glasser 2 function takes only a five dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  let x3 = x[2];
+  let x4 = x[3];
+  let x5 = x[4];
+  let mut res = 0_f64;
+  for i in 1..25 {
+    res += f64::powi(
+      x1 * f64::powf(x2, 0.1 * (i - 1) as f64)
+        * f64::tanh(x3 * 0.1 * (i - 1) as f64 + f64::sin(x4 * 0.1 * (i - 1) as f64))
+        * f64::cos(0.1 * (i - 1) as f64 * f64::powf(f64::consts::E, x5))
+        - 53.81
+          * f64::powf(1.27, 0.1 * (i - 1) as f64)
+          * f64::tanh(3.012 * 0.1 * (i - 1) as f64 + f64::sin(2.13 * 0.1 * (i - 1) as f64))
+          * f64::cos(f64::powf(f64::consts::E, 0.507) * 0.1 * (i - 1) as f64),
+      2,
+    )
+  }
+  res
+}
+
+/// # Dolan function
+/// 5-dimensional only \
+/// Global minimum: \
+/// f(0, 0, 0, 0, 0) = 0
+///
+pub fn dolan(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    5,
+    "Dolan function takes only a five dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  let x3 = x[2];
+  let x4 = x[3];
+  let x5 = x[4];
+  (x1 + 1.7 * x2) * f64::sin(x1) - 1.5 * x3 - 0.1 * x4 * f64::cos(x4 + x5 - x1) + 0.2 * f64::powi(x5, 2)
+    - x2
+    - 1_f64
+}
+
+/// # El-Attar-Vidyasagar-Dutta function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(2.842503, 1.920175) = 0.470427
+///
+pub fn eavd(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "El-Attar-Vidyasagar-Dutta function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::powi(f64::powi(x1, 2) + x2 - 10_f64, 2)
+    + f64::powi(x1 + f64::powi(x2, 2) - 7_f64, 2)
+    + f64::powi(f64::powi(x1, 2) + f64::powi(x2, 3) - 1_f64, 2)
+}
+
+/// # Egg crate function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(2.842503, 1.920175) = 0.470427
+///
+pub fn egg_crate(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Egg crate function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::powi(x1, 2) + f64::powi(x2, 2) + 25_f64 * (f64::powi(f64::sin(x1), 2) + f64::powi(f64::sin(x2), 2))
+}
+
+/// # Exponential function
+/// Global minimum: \
+/// f(0, ..., 0) = 1
+///
+pub fn exponential(x: &Vec<f64>) -> f64 {
+  let mut res = 0_f64;
+  for arg in x {
+    res += f64::powi(*arg, 2)
+  }
+  -1_f64 * f64::exp(-0.5 * res)
+}
+
+/// # Exp 2 function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(1, 10) = 0
+///
+pub fn exp2(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Exp 2 function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  let mut res = 0_f64;
+  for i in 1..10 {
+    res += f64::powi(
+      f64::powf(f64::consts::E, -1_f64 * i as f64 * x1 / 10_f64)
+        - 5_f64 * f64::powf(f64::consts::E, -1_f64 * i as f64 * x2 / 10_f64)
+        - f64::powi(f64::consts::E, -i / 10)
+        + 5_f64 * f64::powi(f64::consts::E, -i),
+      2,
+    )
+  }
+  res
+}
+
+/// # Freudenstein Roth function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(5,4) = 0
+///
+pub fn freudenstein_roth(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Freudenstein Roth function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::powi(x1 - 13_f64 + ((5_f64 - x2) * x2 - 2_f64) * x2, 2)
+    + f64::powi(x1 - 29_f64 + ((x2 + 1_f64) * x2 - 14_f64) * x2, 2)
+}
+
+/// # Giunta Roth function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(0.45834282, 0.45834282) = 0.060447
+///
+pub fn giunta(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Giunta function takes only a two dimensional vector as a parameter."
+  );
+  let mut res = 0_f64;
+  for arg in x {
+    res += f64::sin((16 / 15) as f64 * arg - 1_f64)
+      + f64::powi((16 / 15) as f64 * arg - 1_f64, 2)
+      + 0.02 * f64::sin(4_f64 * ((16 / 15) as f64 * arg - 1_f64))
+  }
+  res
+}
+
+/// # Gulf Research function
+/// 99-dimensional only \
+/// Global minimum: \
+/// f(50, 25, 1.5, .....) = 0///
+pub fn gulf_research(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    99,
+    "Gulf Research function takes only a 99-dimensional vector as a parameter."
+  );
+  let x3 = x[2];
+  let mut res = 0_f64;
+  for (i, _) in x.iter().enumerate() {
+    res += f64::powi(
+      f64::exp(
+        -1_f64
+          * f64::powf(
+            25_f64 + f64::powf(-50_f64 * f64::ln(0.01 * i as f64), 1_f64 / 1.5),
+            x3,
+          )
+          / x[i],
+      ),
+      2,
+    )
+  }
+  res
+}
+
+/// # Hosaki Roth function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(4,2) = ~ −2.3458
+///
+pub fn hosaki(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Hosaki function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  (1_f64 - 8_f64 * x1 + 7_f64 * f64::powi(x1, 2) - 7_f64 / 3_f64 * f64::powi(x1, 3) + 0.25 * f64::powi(x1, 4))
+    * f64::powi(x2, 2)
+    * f64::powf(f64::consts::E, -1_f64 * x2)
+}
+
+/// # Jennrich-Sampson function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(0.257825, 0.257825) = 124.3612
+///
+pub fn jennrich_sampson(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Jennrich-Sampson function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  let mut res = 0_f64;
+  for i in 1..11 {
+    res += f64::powi(
+      2_f64 + 2_f64 * i as f64
+        - (f64::powf(f64::consts::E, i as f64 * x1) + f64::powf(f64::consts::E, i as f64 * x2)),
+      2,
+    )
+  }
+  res
+}
+
+/// # Keane function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(0, 1.39325) = f(1.39325, 0) = −0.673668
+///
+pub fn keane(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Keane function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::powi(f64::sin(x1 - x2), 2) * f64::powi(f64::sin(x1 + x2), 2)
+    / f64::sqrt(f64::powi(x1, 2) + f64::powi(x2, 2))
+}
+
+/// # Leon function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(1, 1) = 0
+///
+pub fn leon(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Leon function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  100_f64 * f64::powi(x2 - f64::powi(x1, 2), 2) + f64::powi(1_f64 - x1, 2)
+}
+
+/// # Miele Cantrell function
+/// 4-dimensional only \
+/// Global minimum: \
+/// f(0, 1, 1, 1) = 0
+///
+pub fn miele_cantrell(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    4,
+    "Miele Cantrell function takes only a four dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  let x3 = x[2];
+  let x4 = x[3];
+  f64::powi(f64::powf(f64::consts::E, -1_f64 * x1) - x2, 4)
+    + 100_f64 * f64::powi(x2 - x3, 6)
+    + f64::powi(f64::tan(x3 - x4), 4)
+    + f64::powi(x1, 8)
+}
+
+//TODO IMPLEMENT MISHRA FUNCTIONS
+
+/// # Parsopoulos function
+/// 2-dimensional only \
+
+///
+pub fn parsopoulos(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Parsopoulos function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::powi(f64::cos(x1), 2) + f64::powi(f64::sin(x2), 2)
+}
+
+/// # Pen Holder function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(+-9.646168, -+9.646168) = −0.96354
+///
+pub fn pen_holder(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Pen Holder function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  -1_f64
+    * f64::exp(f64::powi(
+      f64::abs(
+        f64::cos(x1)
+          * f64::cos(x2)
+          * f64::powf(
+            f64::consts::E,
+            f64::abs(1_f64 - f64::powf(f64::powi(x1, 2) + f64::powi(x2, 2), 0.5 / f64::consts::PI)),
+          ),
+      ),
+      -1,
+    ))
+}
+
+/// # Pathological function
+/// Global minimum: \
+/// f(0, ..., 0) = 0
+pub fn pathological(x: &Vec<f64>) -> f64 {
+  let mut res = 0_f64;
+  for i in 1..x.len() - 2 {
+    res += 0.5
+      + (f64::powi(
+        f64::sin(f64::sqrt(100_f64 * f64::powi(x[i], 2) + f64::powi(x[i + 1], 2))),
+        2,
+      ) - 0.5)
+        / (1_f64
+          + 0.001
+            * f64::powi(
+              f64::powi(x[i], 2) - 2_f64 * x[i] * x[i + 1] + f64::powi(x[i + 1], 2),
+              2,
+            ));
+  }
+  res
 }
