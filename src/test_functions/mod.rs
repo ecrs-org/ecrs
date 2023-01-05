@@ -2153,7 +2153,7 @@ pub fn sargan(x: &Vec<f64>) -> f64 {
       if dim != j {
         innersum += val * x[j]
       }
-      res += x.len() as f64* (f64::powi(*val, 2) + 0.4 * innersum)
+      res += x.len() as f64 * (f64::powi(*val, 2) + 0.4 * innersum)
     }
   }
   res
