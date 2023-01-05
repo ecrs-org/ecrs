@@ -99,6 +99,7 @@ fn ecrs_ga_search(problem: &mut Problem, _max_budget: usize, _random_generator: 
 
   let fitness = adapter::CocoFitness::new(problem);
 
+  // TODO: Find a way to take advantage of feasible solution
   // let mut init_solution_box = [0.0];
 
   let mut solver = ecrs::ga::Builder::new()
