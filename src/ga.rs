@@ -130,6 +130,7 @@ where
     best_individual
   }
 
+  #[inline(always)]
   fn evaluate_population(&mut self, population: &mut [Individual<T>]) {
     population
       .iter_mut()
