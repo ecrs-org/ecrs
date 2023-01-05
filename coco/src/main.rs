@@ -1,10 +1,12 @@
 mod adapter;
 
 use coco_rs::{LogLevel, Observer, ObserverName, Problem, RandomState, Suite, SuiteName};
+use ecrs::ga::operators;
+use ecrs::ga::population;
 
 const BUDGET_MULTIPLIER: usize = 10;
 // const INDEPENDENT_RESTARTS: u64 = 1e5 as u64;
-const INDEPENDENT_RESTARTS: u64 = 1e2 as u64;
+const INDEPENDENT_RESTARTS: u64 = 5;
 const RANDOM_SEED: u32 = 0xdeadbeef;
 
 fn main() {
@@ -13,18 +15,18 @@ fn main() {
 
   coco_rs::set_log_level(LogLevel::Info);
 
-  ecrs_experiment(
+  experiment(
     SuiteName::Bbob,
     "",
     ObserverName::Bbob,
-    "result_folder: ecrs_on_bbob",
+    "result_folder: ecrs_on_bbob-2",
     random_generator,
   );
 
   println!("Done!");
 }
 
-fn ecrs_experiment(
+fn experiment(
   suite_name: SuiteName,
   suite_options: &str,
   observer_name: ObserverName,
@@ -77,20 +79,28 @@ fn ecrs_experiment(
 
 fn ecrs_search(problem: &mut Problem, _max_budget: usize, _random_generator: &mut RandomState) {
   let dimension = problem.dimension();
+  let population_size = 100;
+
+  let constraints = problem.get_ranges_of_interest();
+
   let fitness = adapter::CocoFitness::new(problem);
 
   // let mut init_solution_box = [0.0];
 
   let mut solver = ecrs::ga::Builder::new()
+    .set_population_size(population_size)
     .set_max_generation_count(10_000)
     .set_max_duration(std::time::Duration::from_millis(200))
     .set_fitness(fitness)
     .set_probe(ecrs::ga::probe::EmptyProbe)
-    .set_population_generator(ecrs::ga::population::RandomPoints::new(dimension))
-    .set_selection_operator(ecrs::ga::operators::selection::Tournament::new(0.2))
-    .set_crossover_operator(ecrs::ga::operators::crossover::Uniform::new())
-    .set_mutation_operator(ecrs::ga::operators::mutation::Reversing::new())
-    .set_replacement_operator(ecrs::ga::operators::replacement::WeakParent::new())
+    .set_population_generator(population::RandomPoints::with_constraints_inclusive(
+      dimension,
+      constraints,
+    ))
+    .set_selection_operator(operators::selection::Tournament::new(0.2))
+    .set_crossover_operator(operators::crossover::Uniform::new())
+    .set_mutation_operator(operators::mutation::Reversing::new())
+    .set_replacement_operator(operators::replacement::WeakParent::new())
     .build();
 
   solver.run();
