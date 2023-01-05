@@ -10,6 +10,7 @@ pub struct FireflyAlgorithmBuilder<T: Distribution<f64>> {
   probe: Box<dyn Probe>,
   distance_function: fn(&Vec<f64>, &[f64]) -> f64,
   population: Population,
+  termination: Box<dyn TerminationCondition>
 }
 
 impl<T: Distribution<f64>> FireflyAlgorithmBuilder<T> {
@@ -20,6 +21,7 @@ impl<T: Distribution<f64>> FireflyAlgorithmBuilder<T> {
       probe: Box::new(StdoutProbe {}),
       distance_function: cartesian_distance,
       population: Population::from_config(FireflyAlgorithmCfg::default()),
+      termination: Box::new(GenerationsElapsed{ generation_limit: 1000 }),
     }
   }
 
@@ -102,6 +104,7 @@ impl<T: Distribution<f64>> FireflyAlgorithmBuilder<T> {
       probe: self.probe,
       distance_function: self.distance_function,
       population: self.population,
+      termination: self.termination,
     }
   }
 }

@@ -14,6 +14,7 @@ use probe::Probe;
 use crate::ff::auxiliary::*;
 use crate::ff::population::Population;
 use crate::ff::probe::stdout_probe::StdoutProbe;
+use crate::ff::termination_condition::{GenerationsElapsed, TerminationCondition};
 use crate::test_functions::sphere;
 
 pub struct FireflyAlgorithmCfg<T>
@@ -71,6 +72,7 @@ where
   pub probe: Box<dyn Probe>,
   pub distance_function: fn(&Vec<f64>, &[f64]) -> f64,
   pub population: Population,
+  pub termination: Box<dyn TerminationCondition>,
 }
 
 impl<T> Default for FireflyAlgorithm<T>
@@ -85,6 +87,7 @@ where
       probe: Box::new(StdoutProbe {}),
       distance_function: cartesian_distance,
       population: Population::from_config(FireflyAlgorithmCfg::default()),
+      termination: Box::new(GenerationsElapsed{ generation_limit: 1000 }),
     }
   }
 }
@@ -99,6 +102,7 @@ where
     probe: Box<dyn Probe>,
     distance_function: fn(&Vec<f64>, &[f64]) -> f64,
     population: Population,
+    termination: Box<dyn TerminationCondition>
   ) -> Self {
     FireflyAlgorithm {
       config,
@@ -106,6 +110,7 @@ where
       probe,
       distance_function,
       population,
+      termination,
     }
   }
 

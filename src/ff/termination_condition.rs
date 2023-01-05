@@ -1,7 +1,7 @@
 use std::time::Instant;
 
 pub trait TerminationCondition{
-  fn is_met(&self)->bool;
+  fn is_met(&self, gen:Option<i32>)->bool;
 }
 
 pub struct TimeElapsed{
@@ -10,17 +10,17 @@ pub struct TimeElapsed{
 }
 
 impl TerminationCondition for TimeElapsed{
-  fn is_met(&self) -> bool {
+  fn is_met(&self, _gen:Option<i32>) -> bool {
     (self.time_limit as u64) < self.start_time.elapsed().as_secs()
   }
 }
 
-struct GenerationsElapsed{
-  generation_limit: i32,
+pub struct GenerationsElapsed{
+  pub(crate) generation_limit: i32,
 }
 
 impl TerminationCondition for GenerationsElapsed{
-  fn is_met(&self) -> bool {
-    todo!()
+  fn is_met(&self, gen: Option<i32>) -> bool {
+    self.generation_limit>gen.unwrap()
   }
 }
