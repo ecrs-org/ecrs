@@ -4,12 +4,16 @@ use rand::{thread_rng, Rng};
 use std::cmp::Ordering;
 
 pub mod auxiliary;
+pub mod builder;
+pub mod population;
 pub mod probe;
 
 use probe::Probe;
 
 use crate::ff::auxiliary::*;
+use crate::ff::population::Population;
 use crate::ff::probe::stdout_probe::StdoutProbe;
+use crate::test_functions::sphere;
 
 pub struct FireflyAlgorithmCfg<T>
 where
@@ -65,6 +69,7 @@ where
   pub brightness_function: fn(&Vec<f64>) -> f64,
   pub probe: Box<dyn Probe>,
   pub distance_function: fn(&Vec<f64>, &[f64]) -> f64,
+  pub population: Population,
 }
 
 impl<T> Default for FireflyAlgorithm<T>
@@ -75,9 +80,10 @@ where
   fn default() -> Self {
     FireflyAlgorithm {
       config: Default::default(),
-      brightness_function: rastrigin,
+      brightness_function: sphere,
       probe: Box::new(StdoutProbe {}),
       distance_function: cartesian_distance,
+      population: Population::from_config(FireflyAlgorithmCfg::default()),
     }
   }
 }
@@ -91,35 +97,27 @@ where
     brightness_function: fn(&Vec<f64>) -> f64,
     probe: Box<dyn Probe>,
     distance_function: fn(&Vec<f64>, &[f64]) -> f64,
+    population: Population,
   ) -> Self {
     FireflyAlgorithm {
       config,
       brightness_function,
       probe,
       distance_function,
+      population,
     }
   }
 
   pub fn run(&mut self) {
     self.probe.on_start();
-    let mut population: Vec<Vec<f64>> = Vec::new();
-
-    for _index in 0..self.config.population_size as usize {
-      //Generate initial population
-      let mut temp: Vec<f64> = Vec::new();
-      for _dim in 0..self.config.dimensions {
-        temp.push(thread_rng().gen_range(self.config.lower_bound..self.config.upper_bound));
-      }
-      population.push(temp);
-    }
 
     let mut brightness: Vec<f64> = Vec::new();
 
-    for point in population.clone() {
-      brightness.push(1_f64 / (self.brightness_function)(&point));
+    for point in self.population.iter() {
+      brightness.push(1_f64 / (self.brightness_function)(point));
     }
 
-    let update_brightness = |population: &Vec<Vec<f64>>| -> Vec<f64> {
+    let update_brightness = |population: &Population| -> Vec<f64> {
       let mut res = vec![0 as f64; population.len()];
       for (dim, _ini) in population.iter().enumerate() {
         res[dim] = 1_f64 / (self.brightness_function)(&population[dim]);
@@ -138,14 +136,14 @@ where
 
     let move_firefly = |index: usize,
                         local_brightness: Vec<f64>,
-                        local_population: Vec<Vec<f64>>,
+                        local_population: Population,
                         local_alfa: f64,
                         generation: f64|
      -> Vec<f64> {
       let mut res = local_population[index].clone();
       let mut did_i_move = false;
-      for innerindex in 0_usize..self.config.population_size as usize {
-        if local_brightness[index] < local_brightness[innerindex] {
+      for inner_index in 0_usize..self.config.population_size as usize {
+        if local_brightness[index] < local_brightness[inner_index] {
           did_i_move = true;
           let const1 = self.config.beta0
             * f64::powf(
@@ -153,14 +151,14 @@ where
               -1_f64
                 * self.config.gamma
                 * f64::powi(
-                  (self.distance_function)(&local_population[index], &local_population[innerindex]),
+                  (self.distance_function)(&local_population[index], &local_population[inner_index]),
                   2,
                 ),
             );
           let firefly = local_population[index].clone();
           for (dimension, _item) in firefly.iter().enumerate() {
             let step = const1
-              * (local_population[innerindex][dimension] - local_population[index][dimension])
+              * (local_population[inner_index][dimension] - local_population[index][dimension])
               + self.config.alfa0
                 * local_alfa
                 * (thread_rng().gen_range(0.01..0.99)
@@ -217,23 +215,23 @@ where
 
     for generation in 0..self.config.max_generations {
       self.probe.on_iteration_start(generation);
-      let mut temp = population.clone();
+      let mut temp = self.population.clone();
 
-      for (index, _item) in population.clone().iter_mut().enumerate() {
+      for (index, _item) in self.population.clone().iter_mut().enumerate() {
         temp[index] = pool.install(|| {
           move_firefly(
             index,
             brightness.clone(),
-            population.clone(),
+            self.population.clone(),
             alfa,
             generation as f64,
           )
         });
       }
 
-      population = temp;
+      self.population = temp;
 
-      brightness = update_brightness(&population);
+      brightness = update_brightness(&self.population);
 
       alfa *= self.config.delta;
 
@@ -256,11 +254,11 @@ where
         }
       }
 
-      if (self.brightness_function)(&population[maxpos]) < currentbest {
-        currentbest = (self.brightness_function)(&population[maxpos]);
+      if (self.brightness_function)(&self.population[maxpos]) < currentbest {
+        currentbest = (self.brightness_function)(&self.population[maxpos]);
       }
 
-      self.probe.on_current_best(currentbest, &population[maxpos]);
+      self.probe.on_current_best(currentbest, &self.population[maxpos]);
 
       self.probe.on_iteration_end(generation);
     }
