@@ -130,11 +130,10 @@ where
     best_individual
   }
 
-  fn evaluate_population(&mut self, population: &mut Vec<Individual<T>>) {
-    for idv in population {
-      let fitness = (self.config.fitness_fn).apply(idv);
-      idv.fitness = fitness;
-    }
+  fn evaluate_population(&mut self, population: &mut [Individual<T>]) {
+    population
+      .iter_mut()
+      .for_each(|idv| idv.fitness = (self.config.fitness_fn).apply(idv));
   }
 
   #[inline(always)]
