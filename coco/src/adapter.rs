@@ -1,5 +1,5 @@
 use coco_rs::Problem;
-use ecrs::ga::{operators::fitness::Fitness, population::PopulationGenerator};
+use ecrs::ga::operators::fitness::Fitness;
 
 type RealVector = Vec<f64>;
 

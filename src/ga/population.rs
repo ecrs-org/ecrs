@@ -3,7 +3,7 @@ use rand::prelude::ThreadRng;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 use std::fmt::Debug;
-use std::ops::Range;
+use std::ops::{Range, RangeInclusive};
 
 use super::{individual::Chromosome, Individual};
 
@@ -31,6 +31,14 @@ impl RandomPoints<ThreadRng> {
   /// * `constraints` -- Ranges for coordinates
   pub fn with_constraints(dim: usize, constraints: Vec<Range<f64>>) -> Self {
     Self::with_constraints_and_rng(dim, constraints, thread_rng())
+  }
+
+  pub fn with_constraints_inclusive(dim: usize, constraints: Vec<RangeInclusive<f64>>) -> Self {
+    let noninclusive = constraints
+      .into_iter()
+      .map(|r| (*r.start()..*r.end()))
+      .collect_vec();
+    Self::with_constraints_and_rng(dim, noninclusive, thread_rng())
   }
 
   /// Returns [RandomPoints] population generator with no explicit constraints and default RNG.
