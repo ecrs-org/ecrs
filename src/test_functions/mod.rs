@@ -1387,6 +1387,54 @@ pub fn holder_table(x: &Vec<f64>) -> f64 {
     )
 }
 
+/// # Holder Table 2 function
+/// 2-dimensional only \
+/// Global minima: \
+/// f(+-9.646168, -+9.646168) = −26.920336
+///
+pub fn holder_table2(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Holder Table function 2 takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  -1.0
+    * f64::abs(
+      f64::cos(x1)
+        * f64::cos(x2)
+        * f64::exp(f64::abs(
+          1.0 - f64::sqrt(f64::powi(x1, 2) + f64::powi(x2, 2)) / f64::consts::PI,
+        )),
+    )
+}
+
+/// # Holder Table 3 function
+/// 2-dimensional only \
+/// Global minima: \
+/// f(f(+-8.055023472141116, +-9.664590028909654) = −19.20850
+///
+pub fn holder_table3(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Holder Table function 3 takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  -1.0
+    * f64::abs(
+      f64::cos(x1)
+        * f64::cos(x2)
+        * f64::exp(f64::abs(f64::powi(
+          1.0 - f64::sqrt(f64::powi(x1, 2) + f64::powi(x2, 2)) / f64::consts::PI,
+          2,
+        )))
+        / 30_f64,
+    )
+}
+
 /// # Hosaki Roth function
 /// 2-dimensional only \
 /// Global minimum: \
@@ -2402,6 +2450,26 @@ pub fn styblinski_tang(x: &Vec<f64>) -> f64 {
   result
 }
 
+/// # Streched V Sine Wave function
+/// n-dimensional \
+/// Global minimum: \
+/// f(0, ..., 0) = 0
+pub fn stretched_v_sine_wave(x: &Vec<f64>) -> f64 {
+  assert!(
+    !x.is_empty(),
+    "Streched V Sine Wave function takes an at least one dimensional vector as a parameter."
+  );
+  let mut result: f64 = 0.0;
+  for (index, x_curr) in x.iter().enumerate() {
+    result += f64::powf(f64::powi(x[index + 1], 2) + f64::powi(*x_curr, 2), 0.25)
+      * (f64::powi(
+        f64::sin(50_f64 * f64::powf(f64::powi(x[index + 1], 2) + f64::powi(*x_curr, 2), 0.1)),
+        2,
+      ) + 0.1)
+  }
+  result
+}
+
 /// # Sum of Different Powers function
 /// n-dimensional \
 /// Global minimum: \
@@ -2434,7 +2502,46 @@ pub fn sum_squares(x: &Vec<f64>) -> f64 {
   result
 }
 
+/// # Testtube Holder function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(+-pi/2, 0) = −10.872300
+///
+pub fn testtube_holder(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Testtube Holder function  takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  -4_f64
+    * f64::sin(x1)
+    * f64::cos(x2)
+    * f64::powf(
+      f64::consts::E,
+      f64::abs(f64::cos(f64::powi(x1, 2) + f64::powi(x2, 2)) / 200_f64),
+    )
+}
+
+/// # Trecanni function
+/// 2-dimensional only \
+/// Global minimum: \
+/// f(0, 0) = f(-2, 0) = 0
+///
+pub fn trecanni(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Trecanni function  takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::powi(x1, 4) - 4_f64 * f64::powi(x1, 3) + 4_f64 * x1 + f64::powi(x2, 2)
+}
+
 /// # Trid function
+/// Alternatively: Trid 6
 /// n-dimensional \
 /// Global minimum: \
 /// f((x_1, ..., x_n)) = -n * ( n + 4 ) * ( n - 1 ) / 6, where x_i = i * (n + 1 - i)
@@ -2448,6 +2555,138 @@ pub fn trid(x: &Vec<f64>) -> f64 {
     result += f64::powi(x[i] - 1.0, 2) - x[i] * x[i - 1];
   }
   result
+}
+
+/// # Trid 10 function
+/// n-dimensional \
+/// Global minimum: \
+/// f((x_1, ..., x_n)) = -n * ( n + 4 ) * ( n - 1 ) / 6, where x_i = i * (n + 1 - i)
+pub fn trid10(x: &Vec<f64>) -> f64 {
+  assert!(
+    x.len() >= 2,
+    "Trid 10 function takes an at least two dimensional vector as a parameter."
+  );
+  let mut temp1 = 0_f64;
+  let mut temp2 = 0_f64;
+  for (dim, val) in x.iter().enumerate() {
+    temp1 += f64::powi(val - 1_f64, 2);
+    temp2 += val * x[dim - 1]
+  }
+  temp1 - temp2
+}
+
+/// # Trigonometric 1 function
+/// n-dimensional \
+/// Global minimum: \
+/// f(0, ..., 0) = 0
+pub fn trigonometric1(x: &Vec<f64>) -> f64 {
+  assert!(
+    x.len() >= 2,
+    "Trigonometric 1 function takes an at least two dimensional vector as a parameter."
+  );
+  let mut res = 0_f64;
+  let mut sum = 0_f64;
+  for arg in x {
+    sum += f64::cos(*arg);
+  }
+  for (dim, arg) in x.iter().enumerate() {
+    res += f64::powi(
+      x.len() as f64 - sum + dim as f64 * (1_f64 - f64::cos(*arg) - f64::sin(*arg)),
+      2,
+    )
+  }
+  res
+}
+
+/// # Trigonometric 2 function
+/// n-dimensional \
+/// Global minimum: \
+/// f(0.9, ..., 0.9) = 0
+pub fn trigonometric2(x: &Vec<f64>) -> f64 {
+  assert!(
+    x.len() >= 2,
+    "Trigonometric 2 function takes an at least two dimensional vector as a parameter."
+  );
+  let mut sum = 0_f64;
+  for arg in x {
+    sum += f64::cos(*arg);
+  }
+  for (_dim, arg) in x.iter().enumerate() {
+    sum += 8_f64 * f64::powi(f64::sin(7_f64 * f64::powi(arg - 0.9, 2)), 2)
+      + 6_f64 * f64::powi(f64::sin(14_f64 * f64::powi(x[0] - 0.9, 2)), 2)
+      + f64::powi(arg - 0.9, 2)
+  }
+  1_f64 + sum
+}
+
+//TODO: Implement tripod function
+
+/// # Ursem 1 function
+/// 2-dimensional only \
+
+pub fn ursem1(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Ursem function N.1 takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  -1_f64 * f64::sin(2_f64 * x1 - 0.5 * f64::consts::PI) - 3_f64 * f64::cos(x2) - 0.5 * x1
+}
+
+/// # Ursem 3 function
+/// 2-dimensional only \
+
+pub fn ursem3(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Ursem function N.3 takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  -1_f64
+    * f64::sin(2.2 * f64::consts::PI * x1 + 0.5 * f64::consts::PI)
+    * (2_f64 - f64::abs(x1) / 2_f64)
+    * (3_f64 - f64::abs(x1) / 2_f64)
+    - 1_f64
+      * f64::sin(2.2 * f64::consts::PI * x2 + 0.5 * f64::consts::PI)
+      * (2_f64 - f64::abs(x2) / 2_f64)
+      * (3_f64 - f64::abs(x2) / 2_f64)
+}
+
+/// # Ursem 4 function
+/// 2-dimensional only \
+
+pub fn ursem4(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Ursem function N.4 takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  -3_f64
+    * f64::sin(0.5 * f64::consts::PI * x1 + f64::consts::PI * 0.5)
+    * (2_f64 - f64::sqrt(f64::powi(x1, 2) + f64::powi(x2, 2)))
+    / 4_f64
+}
+
+/// # Ursem Waves function
+/// 2-dimensional only \
+
+pub fn ursem_waves(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Ursem Waves function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  -0.9 * f64::powi(x1, 2)
+    + x1 * x2 * (f64::powi(x2, 2) - 4.5 * f64::powi(x2, 2))
+    + 4.7 * f64::cos(3_f64 * x1 - f64::powi(x2, 2) * (2_f64 + x1)) * f64::sin(2.5 * f64::consts::PI)
 }
 
 /// # Trefethen function
@@ -2468,6 +2707,27 @@ pub fn trefethen(x: &Vec<f64>) -> f64 {
     + f64::sin(f64::sin(80_f64 * x2))
     - f64::sin(10_f64 * (x1 + x2))
     + 0.25 * (f64::powi(x1, 2) + f64::powi(x2, 2))
+}
+
+/// # Venter Sobiesczanski-Sobieski function
+/// Two-dimensional \
+/// Global minimum: \
+/// f(−0.024403, 0.210612) = −3.30686865.
+pub fn vss(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    2,
+    "Venter Sobiesczanski-Sobieski function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  f64::powi(x1, 2) - 100_f64 * f64::powi(f64::cos(x1), 2) - 100_f64 * f64::cos(f64::powi(x1, 2) / 30_f64)
+    + f64::powi(x2, 2)
+    - 100_f64
+      * f64::powf(
+        f64::cos(x2),
+        2_f64 - 100_f64 * f64::cos(f64::powi(x2, 2) / 30_f64),
+      )
 }
 
 /// # Wayburn Seader 1 function
@@ -2510,7 +2770,7 @@ pub fn wayburn_seader2(x: &Vec<f64>) -> f64 {
 /// # Wayburn Seader 3 function
 /// Alt.: Aluffi-Pentini’s function
 /// 2-dimensional only \
-/// Global minima: 18\
+/// Global minimum:\
 /// f(5.611, 6.187) = 21.35
 
 pub fn wayburn_seader3(x: &Vec<f64>) -> f64 {
@@ -2531,6 +2791,57 @@ pub fn wayburn_seader3(x: &Vec<f64>) -> f64 {
 #[allow(clippy::ptr_arg)]
 pub fn wordmax(chromosome: &Vec<bool>) -> f64 {
   chromosome.iter().filter(|gene| **gene).count() as f64
+}
+
+/// # Wolfe function
+/// 3-dimensional only \
+/// Global minimum:\
+/// f() = (0, 0, 0) = 0
+
+pub fn wolfe(x: &Vec<f64>) -> f64 {
+  assert_eq!(
+    x.len(),
+    3,
+    "Wolfe function takes only a two dimensional vector as a parameter."
+  );
+  let x1 = x[0];
+  let x2 = x[1];
+  let x3 = x[2];
+  (4 / 3) as f64 * f64::powf(f64::powi(x1, 2) + f64::powi(x2, 2) - x1 * x2, 0.75) + x3
+}
+
+// /// # Xin-She Yang 1
+// /// n-dimensional \
+// /// Global minimum: \
+// /// f(0, ..., 0) = 0
+// pub fn xin_she_yang_1(x: &Vec<f64>) -> f64 {
+//   assert!(
+//     !x.is_empty(),
+//     "Xin-She Yang (Function 1) takes an at least one dimensional vector as a parameter."
+//   );
+//   let mut temp1 = 0.0;
+//   for (index, x_curr) in x.iter().enumerate() {
+//     temp1 += thread_rng().gen_range(0.0..1.0) * f64::powi(f64::abs(*x_curr), index as i32)
+//   }
+//   temp1 + f64::powi(temp2, 2) + f64::powi(temp2, 4)
+// }
+
+/// # Xin-She Yang 2
+/// n-dimensional \
+/// Global minimum: \
+/// f(0, ..., 0) = 0
+pub fn xin_she_yang_2(x: &Vec<f64>) -> f64 {
+  assert!(
+    !x.is_empty(),
+    "Xin-She Yang function 2 takes an at least one dimensional vector as a parameter."
+  );
+  let mut temp1 = 0.0;
+  let mut temp2 = 0.0;
+  for (_index, x_curr) in x.iter().enumerate() {
+    temp1 += f64::abs(*x_curr);
+    temp2 += f64::sin(f64::powi(*x_curr, 2))
+  }
+  temp1 * f64::exp(-temp2)
 }
 
 /// # Zakharov function
