@@ -30,18 +30,6 @@ pub struct GAParams {
   pub max_duration: std::time::Duration,
 }
 
-// impl Default for GAParams {
-//   fn default() -> Self {
-//     Self {
-//       selection_rate: 0.5f64,
-//       mutation_rate: 0.05,
-//       population_size: 100,
-//       generation_limit: 200,
-//       max_duration: None,
-//     }
-//   }
-// }
-
 pub struct GAConfig<T, M, C, S, R, P, F, Pr>
 where
   T: Chromosome,
@@ -144,8 +132,6 @@ where
       .population_factory
       .generate(self.config.params.population_size)
   }
-
-  // fn evolve(population: Vec<Individual<T>>)
 
   pub fn run(&mut self) -> Option<Individual<T>> {
     self.metadata.start_time = Some(std::time::Instant::now());
