@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 mod adapter;
 
 use coco_rs::{LogLevel, Observer, ObserverName, Problem, RandomState, Suite, SuiteName};
@@ -5,9 +7,11 @@ use ecrs::ga::operators;
 use ecrs::ga::population;
 
 const BUDGET_MULTIPLIER: usize = 10;
-// const INDEPENDENT_RESTARTS: u64 = 1e5 as u64;
-const INDEPENDENT_RESTARTS: u64 = 5;
+const INDEPENDENT_RESTARTS_100K: u64 = 1e5 as u64;
+const INDEPENDENT_RESTARTS_100: u64 = 1e2 as u64;
 const RANDOM_SEED: u32 = 0xdeadbeef;
+
+type SearchFn = fn(&mut Problem, usize, &mut RandomState) -> ();
 
 fn main() {
   let random_generator = &mut RandomState::new(RANDOM_SEED);
@@ -15,7 +19,8 @@ fn main() {
 
   coco_rs::set_log_level(LogLevel::Info);
 
-  experiment(
+  run_experiment(
+    ecrs_ga_search,
     SuiteName::Bbob,
     "",
     ObserverName::Bbob,
@@ -23,10 +28,20 @@ fn main() {
     random_generator,
   );
 
+  run_experiment(
+    random_search,
+    SuiteName::Bbob,
+    "",
+    ObserverName::Bbob,
+    "result_folder: random_on_bbob",
+    random_generator,
+  );
+
   println!("Done!");
 }
 
-fn experiment(
+fn run_experiment(
+  search_fn: SearchFn,
   suite_name: SuiteName,
   suite_options: &str,
   observer_name: ObserverName,
@@ -63,7 +78,7 @@ fn experiment(
       );
     }
 
-    for _ in 1..=INDEPENDENT_RESTARTS {
+    for _ in 1..=INDEPENDENT_RESTARTS_100K {
       let evaluations_done = problem.evaluations() + problem.evaluations_constraints();
       let evaluations_remaining = (dimension * BUDGET_MULTIPLIER).saturating_sub(evaluations_done as usize);
 
@@ -71,13 +86,12 @@ fn experiment(
         break;
       }
 
-      // my_random_search(problem, evaluations_remaining, random_generator);
-      ecrs_search(problem, evaluations_remaining, random_generator);
+      search_fn(problem, evaluations_remaining, random_generator);
     }
   }
 }
 
-fn ecrs_search(problem: &mut Problem, _max_budget: usize, _random_generator: &mut RandomState) {
+fn ecrs_ga_search(problem: &mut Problem, _max_budget: usize, _random_generator: &mut RandomState) {
   let dimension = problem.dimension();
   let population_size = 100;
 
@@ -85,6 +99,7 @@ fn ecrs_search(problem: &mut Problem, _max_budget: usize, _random_generator: &mu
 
   let fitness = adapter::CocoFitness::new(problem);
 
+  // TODO: Find a way to take advantage of feasible solution
   // let mut init_solution_box = [0.0];
 
   let mut solver = ecrs::ga::Builder::new()
@@ -106,7 +121,10 @@ fn ecrs_search(problem: &mut Problem, _max_budget: usize, _random_generator: &mu
   solver.run();
 }
 
-fn my_random_search(problem: &mut Problem, max_budget: usize, random_generator: &mut RandomState) {
+/// Code taken from docs of COCO platform
+/// See their GitHub for more information and links
+/// https://github.com/numbbo/coco
+fn random_search(problem: &mut Problem, max_budget: usize, random_generator: &mut RandomState) {
   let dimension = problem.dimension();
   let number_of_objectives = problem.number_of_objectives();
   let numver_of_constraints = problem.number_of_constraints();
