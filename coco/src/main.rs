@@ -20,7 +20,7 @@ fn main() {
   coco_rs::set_log_level(LogLevel::Info);
 
   run_experiment(
-    ecrs_search,
+    ecrs_ga_search,
     SuiteName::Bbob,
     "",
     ObserverName::Bbob,
@@ -91,7 +91,7 @@ fn run_experiment(
   }
 }
 
-fn ecrs_search(problem: &mut Problem, _max_budget: usize, _random_generator: &mut RandomState) {
+fn ecrs_ga_search(problem: &mut Problem, _max_budget: usize, _random_generator: &mut RandomState) {
   let dimension = problem.dimension();
   let population_size = 100;
 
