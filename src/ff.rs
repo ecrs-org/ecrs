@@ -13,6 +13,7 @@ use probe::Probe;
 use crate::ff::auxiliary::*;
 use crate::ff::population::Population;
 use crate::ff::probe::stdout_probe::StdoutProbe;
+use crate::test_functions::sphere;
 
 pub struct FireflyAlgorithmCfg<T>
 where
@@ -79,7 +80,7 @@ where
   fn default() -> Self {
     FireflyAlgorithm {
       config: Default::default(),
-      brightness_function: rastrigin,
+      brightness_function: sphere,
       probe: Box::new(StdoutProbe {}),
       distance_function: cartesian_distance,
       population: Population::from_config(FireflyAlgorithmCfg::default()),
