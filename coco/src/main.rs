@@ -3,8 +3,7 @@
 mod adapter;
 
 use coco_rs::{LogLevel, Observer, ObserverName, Problem, RandomState, Suite, SuiteName};
-use ecrs::ga::operators;
-use ecrs::ga::population;
+use ecrs::prelude::*;
 
 const BUDGET_MULTIPLIER: usize = 10;
 const INDEPENDENT_RESTARTS_100K: u64 = 1e5 as u64;
@@ -112,10 +111,10 @@ fn ecrs_ga_search(problem: &mut Problem, _max_budget: usize, _random_generator: 
       dimension,
       constraints,
     ))
-    .set_selection_operator(operators::selection::Tournament::new(0.2))
-    .set_crossover_operator(operators::crossover::Uniform::new())
-    .set_mutation_operator(operators::mutation::Reversing::new())
-    .set_replacement_operator(operators::replacement::WeakParent::new())
+    .set_selection_operator(selection::Tournament::new(0.2))
+    .set_crossover_operator(crossover::Uniform::new())
+    .set_mutation_operator(mutation::Reversing::new())
+    .set_replacement_operator(replacement::WeakParent::new())
     .build();
 
   solver.run();
