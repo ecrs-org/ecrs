@@ -18,7 +18,7 @@ fn main() {
   coco_rs::set_log_level(LogLevel::Info);
 
   run_experiment(
-		ecrs_search,
+    ecrs_search,
     SuiteName::Bbob,
     "",
     ObserverName::Bbob,
@@ -26,20 +26,20 @@ fn main() {
     random_generator,
   );
 
-	run_experiment(
-		random_search,
-		SuiteName::Bbob,
-		"",
-		ObserverName::Bbob,
-		"result_folder: random_on_bbob",
-		random_generator,
-	);
+  run_experiment(
+    random_search,
+    SuiteName::Bbob,
+    "",
+    ObserverName::Bbob,
+    "result_folder: random_on_bbob",
+    random_generator,
+  );
 
   println!("Done!");
 }
 
 fn run_experiment(
-	search_fn: SearchFn,
+  search_fn: SearchFn,
   suite_name: SuiteName,
   suite_options: &str,
   observer_name: ObserverName,
