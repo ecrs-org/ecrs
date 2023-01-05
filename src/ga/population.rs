@@ -33,6 +33,17 @@ impl RandomPoints<ThreadRng> {
     Self::with_constraints_and_rng(dim, constraints, thread_rng())
   }
 
+  /// Returns [RandomPoints] population generator with given constraints and default RNG
+  ///
+  /// ### Arguments
+  ///
+  /// * `dim` -- Dimension of the sampling space
+  /// * `constraints` -- Ranges for coordinates
+	///
+	/// **NOTE**: However type of `constraints` is `Vec<RangeInclusive<f64>>` this factory method
+	/// is *IDENTICAL* to `with_constraints`. It is here just to enable inclusive range usage.
+	/// Maybe better solution would be to extract this method to separate trait and create some
+	/// kind of function overloading.
   pub fn with_constraints_inclusive(dim: usize, constraints: Vec<RangeInclusive<f64>>) -> Self {
     let noninclusive = constraints
       .into_iter()
