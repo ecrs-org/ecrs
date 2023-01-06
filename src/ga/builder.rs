@@ -237,9 +237,9 @@ where
 pub struct Builder;
 
 impl Builder {
-	/// Returns new instance of [GenericBuilder](self::generic::GenericBuilder)
-	///
-	/// Use this function if you want to configure operators && parameters for your optimizer
+  /// Returns new instance of [GenericBuilder](self::generic::GenericBuilder)
+  ///
+  /// Use this function if you want to configure operators && parameters for your optimizer
   #[allow(clippy::new_ret_no_self)]
   pub fn new<T, M, C, S, R, P, F, Pr>() -> GenericBuilder<T, M, C, S, R, P, F, Pr>
   where
@@ -255,24 +255,24 @@ impl Builder {
     GenericBuilder::<T, M, C, S, R, P, F, Pr>::new()
   }
 
-	/// Returns new instance of [RealValuedBuilder](self::realvalued::RealValuedBuilder)
-	///
-	/// Use this function if your problem uses real valued chromosome and you don't want
-	/// to specify all the operators manually but rely on provided defaults.
-	///
-	/// Please note that sticking to defaults rarely results in great performance.
-	///
+  /// Returns new instance of [RealValuedBuilder](self::realvalued::RealValuedBuilder)
+  ///
+  /// Use this function if your problem uses real valued chromosome and you don't want
+  /// to specify all the operators manually but rely on provided defaults.
+  ///
+  /// Please note that sticking to defaults rarely results in great performance.
+  ///
   pub fn with_rvc<F: Fitness<realvalued::Rvc>>() -> RealValuedBuilder<F> {
     RealValuedBuilder::new()
   }
 
-	/// Returns new instance of [BitStringBuilder](self::bitstring::BitStringBuilder)
-	///
-	/// Use this function if your problem uses bit string chromosome and you don't want
-	/// to specify all the operators manually but rely on provided defaults.
-	///
-	/// Please note that sticking to defaults rarely results in great performance.
-	///
+  /// Returns new instance of [BitStringBuilder](self::bitstring::BitStringBuilder)
+  ///
+  /// Use this function if your problem uses bit string chromosome and you don't want
+  /// to specify all the operators manually but rely on provided defaults.
+  ///
+  /// Please note that sticking to defaults rarely results in great performance.
+  ///
   pub fn with_bsc<F: Fitness<bitstring::Bsc>>() -> BitStringBuilder<F> {
     BitStringBuilder::new()
   }
