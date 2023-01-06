@@ -1,4 +1,4 @@
-//! Builder implementation with defailt values for problems with bit string chromosome
+//! Builder implementation with defualt values for problems with bit string chromosome
 
 use crate::ga::builder::FitnessFn;
 use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
@@ -14,7 +14,7 @@ use super::{DefaultParams, GAConfigOpt};
 
 pub(super) type Bsc = Vec<bool>;
 
-/// BitStringBuilder provides all the operators by default. These can not be modified,
+/// [BitStringBuilder] provides all the operators by default. These can not be modified,
 /// altough all the parameters can.
 ///
 /// If more configuration options are desired please see [GenericBuilder](super::generic::GenericBuilder).
