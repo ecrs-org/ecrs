@@ -8,7 +8,7 @@
 //! "the strongest is the most likely to survive" (apologies to all biologists)
 //! rule. This is the basis behind evolutionary (in particular - genetic) algorithms.
 //!
-//!	For better grasp of theory we recommend taking a look into literature such as
+//! For better grasp of theory we recommend taking a look into literature such as
 //! "Introduction to Genetic Algorithms" by S. N. Sivanandam & S. N. Deepa
 //! (there are plenty more papers & books on this topic though). Here, below
 //! we explain shortly only the most important terminology.
@@ -85,7 +85,7 @@
 //!   .build();
 //!
 //! // Run the algorithm
-//!	let result = res.run();
+//! let result = res.run();
 //! ```
 //!
 //! Hella, so many configuration steps?! Let me be clear: there are evem more configuration possibilites. But they are **possibilities**!
