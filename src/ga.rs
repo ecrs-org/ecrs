@@ -336,8 +336,10 @@ where
 
 #[cfg(test)]
 mod tests {
-  use crate::prelude::*;
+    use super::GAMetadata;
 
-  #[test]
-  fn test_test() {}
+	#[test]
+	fn gametadata_can_be_constructed_with_new_fn() {
+		GAMetadata::new(None, None, 0);
+	}
 }
