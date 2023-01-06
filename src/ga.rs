@@ -336,10 +336,8 @@ where
 
 #[cfg(test)]
 mod tests {
-	use crate::prelude::*;
+  use crate::prelude::*;
 
-	#[test]
-	fn test_test() {
-	}
-
+  #[test]
+  fn test_test() {}
 }
