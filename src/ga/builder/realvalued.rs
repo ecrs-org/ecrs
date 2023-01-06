@@ -117,7 +117,7 @@ impl<F: Fitness<Rvc>> RealValuedBuilder<F> {
     self
   }
 
-  /// Sets fitness.
+  /// Sets fitness
   ///
   /// ## Arguments
   ///
