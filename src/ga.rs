@@ -156,7 +156,7 @@ where
   pub replacement_operator: R,
   pub population_factory: P,
   pub probe: Pr,
-  phantom: PhantomData<T>,
+  _phantom: PhantomData<T>,
 }
 
 #[derive(Default)]
