@@ -250,7 +250,7 @@ impl Builder {
   }
 }
 
-pub trait DefaultParams {
+pub(crate) trait DefaultParams {
   const DEFAULT_PARAMS: GAParams = GAParams {
     selection_rate: 1.0,
     mutation_rate: 0.05,
