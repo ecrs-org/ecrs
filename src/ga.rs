@@ -1,3 +1,9 @@
+//! Implementation of genetic algorithm and genetic operators
+//!
+//!
+//!
+//!
+
 pub mod builder;
 pub mod individual;
 pub mod operators;

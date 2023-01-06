@@ -1,3 +1,5 @@
+//! Implementation of firefly algorithm
+
 use rand::distributions::Standard;
 use rand::prelude::Distribution;
 use rand::{thread_rng, Rng};

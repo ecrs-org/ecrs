@@ -1,3 +1,5 @@
+//! Implementation of PSO algorithm
+
 pub mod builder;
 pub mod particle;
 pub mod probe;
