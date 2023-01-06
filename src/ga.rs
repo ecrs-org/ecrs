@@ -1,7 +1,8 @@
 //! Implementation of genetic algorithm and genetic operators
 //!
-//!
-//!
+//! Evolutionary computation can be perceived as group of optimization
+//! algorithms behaviour of which is mainly based on naturally occuring
+//! processes. In this case, the process is Darwin's evolution.
 //!
 
 pub mod builder;
@@ -48,7 +49,6 @@ where
   Pr: Probe<T>,
 {
   pub params: GAParams,
-  // pub ops: GAOps<S>,
   pub fitness_fn: F,
   pub mutation_operator: M,
   pub crossover_operator: C,
