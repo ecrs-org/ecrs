@@ -336,10 +336,10 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::GAMetadata;
+  use super::GAMetadata;
 
-	#[test]
-	fn gametadata_can_be_constructed_with_new_fn() {
-		GAMetadata::new(None, None, 0);
-	}
+  #[test]
+  fn gametadata_can_be_constructed_with_new_fn() {
+    GAMetadata::new(None, None, 0);
+  }
 }
