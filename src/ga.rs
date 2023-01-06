@@ -1,9 +1,109 @@
 //! Implementation of genetic algorithm and genetic operators
 //!
+//! #### Description
+//!
 //! Evolutionary computation can be perceived as group of optimization
 //! algorithms behaviour of which is mainly based on naturally occuring
-//! processes. In this case, the process is Darwin's evolution.
+//! processes. In this case, the process is Darwin's evolution and it's
+//! "the strongest is the most likely to survive" (apologies to all biologists)
+//! rule. This is the basis behind evolutionary (in particular - genetic) algorithms.
 //!
+//!	For better grasp of theory we recommend taking a look into literature such as
+//! "Introduction to Genetic Algorithms" by S. N. Sivanandam & S. N. Deepa
+//! (there are plenty more papers & books on this topic though). Here, below
+//! we explain shortly only the most important terminology.
+//!
+//! The basic term used by genetic algorithm is `individual` (see our [`Individual`](crate::ga::individual::Individual) type).
+//! It describes any point (usually called `solution`) from problem domain. Its encoded version
+//! e.g. to bitstring is called `chromosome` (see [`Chromosome`](crate::ga::individual::Chromosome) type).
+//! The `chromosome` is comprised of `genes`. The possible set of values that gene can take is called `allele`.
+//!
+//! Let's look at example.
+//!
+//! Let's say that we want to optimize $f(x) = x^2$ where
+//! $x \in {0, 1, 2, \ldots, 7}$. The possible solutions (individuals) would be any of the values
+//! from domain - 0, 1, 2, 3. Let 1 be an individual then, and `001` be its `chromosome` (enconding).
+//! Then the `allele` would be ${0, 1}$ for each genee (set of possible gene values).
+//!
+//! The overall structure of genetic algorithm:
+//!
+//! 1. Generate initial population
+//! 2. Evalute population (what is the value of fitness function for each individual?)
+//! 3. Apply selection operator
+//! 4. Apply crossover operator
+//! 5. Apply mutation operator
+//! 6. Apply replacement operator
+//! 7. Termination condition satisfied? Yes -> END, no -> go to 2
+//!
+//! The `population` is a set of feasible solutions to the problem (individuals). Usually initial
+//! `population` is created by random generation (see our [population generators](crate::ga::population)).
+//!
+//! Such `population` is later transformed (evolves) by applying series of transformers (operators).
+//!
+//! For description of each operator we recommend reading their docs.
+//!
+//!
+//! * See [selection operators](crate::ga::operators::selection)
+//! * See [crossover operators](crate::ga::operators::crossover)
+//! * See [mutation operators](crate::ga::operators::mutation)
+//! * See [replacement operators](crate::ga::operators::replacement)
+//!
+//! #### Basic usage
+//!
+//! The instance of genetic algorithm is created with usage of its builder (see [Builder](crate::ga::builder::Builder)).
+//!
+//! ```no_run
+//! use ecrs::prelude::*;
+//!
+//! # fn rastrigin_fitness(chromosome: &Vec<f64>) -> f64 {
+//! #   1000.0 * f64::exp(-ecrs::test_functions::rastrigin(chromosome))
+//! # }
+//!
+//! let mut res = ga::Builder::new()
+//!   .set_max_generation_count(50_000)
+//!   .set_population_size(100)
+//!   .set_fitness_fn(rastrigin_fitness)
+//!   .set_crossover_operator(ops::crossover::SinglePoint::new())
+//!   .set_replacement_operator(ops::replacement::WeakParent::new())
+//!   .set_mutation_operator(ops::mutation::Identity::new())
+//!   .set_population_generator(population::RandomPoints::with_constraints(
+//!     3,
+//!     vec![-5.12..5.12, -5.12..5.12, -5.12..5.12],
+//!   ))
+//!   .set_selection_operator(ga::operators::selection::Boltzmann::new(0.05, 80.0, 500, false))
+//!   .set_probe(
+//!     ga::probe::AggregatedProbe::new()
+//!       .add_probe(ga::probe::PolicyDrivenProbe::new(
+//!         ga::probe::ElapsedTime::new(std::time::Duration::from_millis(200), std::time::Duration::ZERO),
+//!         ga::probe::StdoutProbe,
+//!       ))
+//!       .add_probe(ga::probe::PolicyDrivenProbe::new(
+//!         ga::probe::GenerationInterval::new(500, 100),
+//!         ga::probe::StdoutProbe,
+//!       )),
+//!   )
+//!   .build();
+//!
+//! // Run the algorithm
+//!	let result = res.run();
+//! ```
+//!
+//! Hella, so many configuration steps?! Let me be clear: there are evem more configuration possibilites. But they are **possibilities**!
+//! The minimum you must specify:
+//!
+//! 1. Fitness function (the algorithm must know what it is optimizing)
+//! 2. Problem dimension
+//! 3. Population generator (the algorithm must be able to create initial population)
+//! 4. Probe (the logging object -- if you don't want to see any logs other than final result just pass [Empty probe](crate::ga::probes::Empty))
+//!
+//! The defaults for operators and parameters are provided for two types of chromosomes: bit string and real valued vector (see docs of [Builder](crage::ga::builder::Builder)),
+//! but keep in mind that these default options might not be even good for your particular problem as the operators & parameters should be
+//! tailored individually for each problem.
+//!
+//! * See [probes & configuration](ecrs::ga::probe)
+//! * See [population generators](ecrs::ga::population)
+//! * See [fitness & configuration](ecrs::ga::fitness)
+//! * See [available params](self::GAParams)
 
 pub mod builder;
 pub mod individual;
@@ -232,4 +332,14 @@ where
       .on_end(&self.metadata, &population, &best_individual_all_time);
     Some(best_individual_all_time)
   }
+}
+
+#[cfg(test)]
+mod tests {
+	use crate::prelude::*;
+
+	#[test]
+	fn test_test() {
+	}
+
 }
