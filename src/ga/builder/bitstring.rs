@@ -136,6 +136,7 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
   ///
   /// * fitness function is not specified
   /// * any of the params has invalid value
+	/// * problem dimension is not set
   pub fn build(
     mut self,
   ) -> GeneticAlgorithm<
@@ -153,6 +154,10 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
     if self.config.fitness_fn.is_none() {
       panic!("Fitness function must be set");
     }
+
+		if self.dim.is_none() {
+			panic!("Problem dimension must be set");
+		}
 
     self
       .config

@@ -136,6 +136,7 @@ impl<F: Fitness<Rvc>> RealValuedBuilder<F> {
   ///
   /// * fitness function is not specified
   /// * any of the params has invalid value
+	/// * problem dimension is not set
   pub fn build(
     mut self,
   ) -> GeneticAlgorithm<
