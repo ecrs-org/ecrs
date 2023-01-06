@@ -1,3 +1,5 @@
+//! Implementations of a variety of test functions
+
 use std::{f64, i32};
 // use rand::{Rng, thread_rng};
 //use std::any::{Any, TypeId};

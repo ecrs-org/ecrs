@@ -1,4 +1,8 @@
-mod bistring;
+//! Builder interfaces & impls for genetic algorithm
+//!
+//! For usage see docs for particular builders.
+
+mod bitstring;
 mod generic;
 mod realvalued;
 use std::error::Error;
@@ -12,10 +16,12 @@ use super::population::PopulationGenerator;
 use super::{CrossoverOperator, GAConfig, GAParams, MutationOperator, Probe};
 
 use crate::ga::operators::fitness::Fitness;
-pub use bistring::BitStringBuilder;
+pub use bitstring::BitStringBuilder;
 pub use generic::GenericBuilder;
 pub use realvalued::RealValuedBuilder;
 
+/// The trait for fitness was already added. Moreover it rather
+/// should not be defined in builder module.
 type FitnessFn<S> = fn(&S) -> f64;
 
 /// Error type for internal use
@@ -218,14 +224,22 @@ where
       replacement_operator,
       population_factory,
       probe,
-      phantom: PhantomData::default(),
+      _phantom: PhantomData::default(),
     })
   }
 }
 
+/// # Builder
+///
+/// Use this struct to construct concrete builder of genetic algorithm.
+///
+/// See public methods descriptions for explaination.
 pub struct Builder;
 
 impl Builder {
+  /// Returns new instance of [GenericBuilder](self::generic::GenericBuilder)
+  ///
+  /// Use this function if you want to configure operators && parameters for your optimizer
   #[allow(clippy::new_ret_no_self)]
   pub fn new<T, M, C, S, R, P, F, Pr>() -> GenericBuilder<T, M, C, S, R, P, F, Pr>
   where
@@ -241,16 +255,32 @@ impl Builder {
     GenericBuilder::<T, M, C, S, R, P, F, Pr>::new()
   }
 
+  /// Returns new instance of [RealValuedBuilder](self::realvalued::RealValuedBuilder)
+  ///
+  /// Use this function if your problem uses real valued chromosome and you don't want
+  /// to specify all the operators manually but rely on provided defaults.
+  ///
+  /// Please note that sticking to defaults rarely results in great performance.
+  ///
   pub fn with_rvc<F: Fitness<realvalued::Rvc>>() -> RealValuedBuilder<F> {
     RealValuedBuilder::new()
   }
 
-  pub fn with_bsc<F: Fitness<bistring::Bsc>>() -> BitStringBuilder<F> {
+  /// Returns new instance of [BitStringBuilder](self::bitstring::BitStringBuilder)
+  ///
+  /// Use this function if your problem uses bit string chromosome and you don't want
+  /// to specify all the operators manually but rely on provided defaults.
+  ///
+  /// Please note that sticking to defaults rarely results in great performance.
+  ///
+  pub fn with_bsc<F: Fitness<bitstring::Bsc>>() -> BitStringBuilder<F> {
     BitStringBuilder::new()
   }
 }
 
-pub trait DefaultParams {
+/// Trait with default parameters definitions. Can be used as a bound to override
+/// some of the values.
+pub(crate) trait DefaultParams {
   const DEFAULT_PARAMS: GAParams = GAParams {
     selection_rate: 1.0,
     mutation_rate: 0.05,

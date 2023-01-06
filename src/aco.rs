@@ -1,4 +1,4 @@
-//! Implementation of Ant based algorithms.
+//! Implementation of Ant based algorithms
 //!
 //! # Ant Colony Optimization
 //! Implementation is based on those sources:
