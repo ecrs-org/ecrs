@@ -194,6 +194,59 @@ where
   }
 }
 
+/// ### [Inversion] mutation operator
+///
+/// This struct implements [MutationOperator] trait and can be used with GA
+///
+/// Two random locations are chosen marking out a segment of chromosome.
+/// Genes from this segment are then rotated around the segment's middle point.
+pub struct Inversion<R: Rng> {
+  rng: R,
+}
+
+impl Inversion<ThreadRng> {
+  /// Returns new instance of [Inversion] mutation operator with default RNG
+  pub fn new() -> Self {
+    Self::with_rng(rand::thread_rng())
+  }
+}
+
+impl<R: Rng> Inversion<R> {
+  /// Returns new instance of [Inversion] mutation operator with custom RNG
+  pub fn with_rng(rng: R) -> Self {
+    Self { rng }
+  }
+}
+
+impl<R: Rng> MutationOperator<Vec<usize>> for Inversion<R> {
+  /// Mutates provided solution in place
+  ///
+  /// Two random locations are chosen marking out a segment of chromosome.
+  /// Genes from this segment are then rotated around the segment's middle point.
+  ///
+  /// ## Arguments
+  ///
+  /// * `individual` - mutable reference to to-be-mutated individual
+  /// * `mutation_rate` - probability of gene mutation
+  fn apply(&mut self, individual: &mut Individual<Vec<usize>>, mutation_rate: f64) {
+    let r: f64 = self.rng.gen();
+
+    if r > mutation_rate {
+      return;
+    }
+
+    let chromosome_len = individual.chromosome.len();
+    let mut from: usize = self.rng.gen_range(0..chromosome_len);
+    let mut to: usize = self.rng.gen_range(from..chromosome_len);
+
+    while from < to {
+      individual.chromosome.swap(from, to);
+      from += 1;
+      to -= 1;
+    }
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use crate::ga::Individual;
