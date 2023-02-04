@@ -137,26 +137,26 @@ pub struct GAParams {
   pub max_duration: std::time::Duration,
 }
 
-pub struct GAConfig<T, M, C, S, R, P, F, Pr>
+pub struct GAConfig<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
-  T: Chromosome,
-  M: MutationOperator<T>,
-  C: CrossoverOperator<T>,
-  S: SelectionOperator<T>,
-  R: ReplacementOperator<T>,
-  P: PopulationGenerator<T>,
-  F: Fitness<T>,
-  Pr: Probe<T>,
+  ChromosomeT: Chromosome,
+  MutOpT: MutationOperator<ChromosomeT>,
+  CrossOpT: CrossoverOperator<ChromosomeT>,
+  SelOpT: SelectionOperator<ChromosomeT>,
+  ReplOpT: ReplacementOperator<ChromosomeT>,
+  PopGenT: PopulationGenerator<ChromosomeT>,
+  FitnessT: Fitness<ChromosomeT>,
+  ProbeT: Probe<ChromosomeT>,
 {
   pub params: GAParams,
-  pub fitness_fn: F,
-  pub mutation_operator: M,
-  pub crossover_operator: C,
-  pub selection_operator: S,
-  pub replacement_operator: R,
-  pub population_factory: P,
-  pub probe: Pr,
-  _phantom: PhantomData<T>,
+  pub fitness_fn: FitnessT,
+  pub mutation_operator: MutOpT,
+  pub crossover_operator: CrossOpT,
+  pub selection_operator: SelOpT,
+  pub replacement_operator: ReplOpT,
+  pub population_factory: PopGenT,
+  pub probe: ProbeT,
+  _phantom: PhantomData<ChromosomeT>,
 }
 
 #[derive(Default)]
