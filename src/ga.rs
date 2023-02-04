@@ -225,7 +225,7 @@ where
   }
 
   #[inline(always)]
-  fn evaluate_population(&mut self, population: &mut [Individual<T>]) {
+  fn eval_population(&mut self, population: &mut [Individual<T>]) {
     population
       .iter_mut()
       .for_each(|idv| idv.fitness = (self.config.fitness_fn).apply(idv));
@@ -245,7 +245,7 @@ where
 
     let mut population = self.generate_population();
 
-    self.evaluate_population(&mut population);
+    self.eval_population(&mut population);
 
     self.config.probe.on_initial_population_created(&population);
 
@@ -263,7 +263,7 @@ where
       self.config.probe.on_iteration_start(&self.metadata);
 
       // 2. Evaluate fitness for each individual.
-      self.evaluate_population(&mut population);
+      self.eval_population(&mut population);
 
       // 4. Create mating pool by applying selection operator.
       let mating_pool: Vec<&Individual<T>> =
@@ -294,14 +294,14 @@ where
       });
 
       if self.config.replacement_operator.requires_children_fitness() {
-        self.evaluate_population(&mut children);
+        self.eval_population(&mut children);
       }
 
       // 6. Replacement - merge new generation with old one
       population = self.config.replacement_operator.apply(population, children);
 
       // 7. Check for stop condition (Is good enough individual found)? If not goto 2.
-      self.evaluate_population(&mut population);
+      self.eval_population(&mut population);
 
       self.config.probe.on_new_generation(&self.metadata, &population);
 
