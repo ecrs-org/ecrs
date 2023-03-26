@@ -3,7 +3,6 @@
 //! To get data fom algorithm you must pass some kind of probe to AntSystem class.
 //! you can implement your own probe using [Probe](Probe) trait or use one of provided implementations.
 
-use crate::aco::FMatrix;
 use crate::aco::Solution;
 
 mod aggregated_probe;
@@ -19,10 +18,12 @@ pub use json_probe::JsonProbe;
 pub use policy_driven_probe::PolicyDrivenProbe;
 pub use probing_policy::{ElapsedTime, GenerationInterval};
 pub use stdout_probe::StdoutProbe;
+use crate::aco::pheromone::Pheromone;
+
 #[allow(unused_variables)]
-pub trait Probe {
+pub trait Probe<P: Pheromone> {
   /// Called when new pheromone has been calculated.
-  fn on_pheromone_update(&mut self, old_pheromone: &FMatrix, new_pheromone: &FMatrix) {}
+  fn on_pheromone_update(&mut self, old_pheromone: &P, new_pheromone: &P) {}
   /// Called every iteration with best solution in current iteration.
   fn on_current_best(&mut self, best: &Solution) {}
   /// Called on iteration begin when no process has started yet.

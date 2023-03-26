@@ -1,15 +1,15 @@
 use crate::aco::probe::Probe;
-use crate::aco::FMatrix;
+use crate::aco::pheromone::Pheromone;
 use crate::aco::Solution;
 
 /// Wrapper probe. It holds a list of probes and calls them sequentially.
 ///
 /// This structs implements [Probe] trait and can be used with ACO
-pub struct AggregatedProbe {
-  probes: Vec<Box<dyn Probe>>,
+pub struct AggregatedProbe<P: Pheromone> {
+  probes: Vec<Box<dyn Probe<P>>>,
 }
 
-impl AggregatedProbe {
+impl<P: Pheromone> AggregatedProbe<P> {
   /// Returns new instance of [AggregatedProbe]
   pub fn new() -> Self {
     Self { probes: Vec::new() }
@@ -18,14 +18,14 @@ impl AggregatedProbe {
   /// Add probe to list
   ///
   /// **Note**: Probes will be called in order they were added
-  pub fn add_probe<Pr: Probe + 'static>(mut self, probe: Pr) -> Self {
+  pub fn add_probe<Pr: Probe<P> + 'static>(mut self, probe: Pr) -> Self {
     self.probes.push(Box::new(probe));
     self
   }
 }
 
-impl Probe for AggregatedProbe {
-  fn on_pheromone_update(&mut self, old_pheromone: &FMatrix, new_pheromone: &FMatrix) {
+impl<P: Pheromone> Probe<P> for AggregatedProbe<P> {
+  fn on_pheromone_update(&mut self, old_pheromone: &P, new_pheromone: &P) {
     self
       .probes
       .iter_mut()

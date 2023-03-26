@@ -7,16 +7,17 @@
 //! trait [Goodness] that must be implemented for every goodness calculating object and
 //! implementations of aforementioned trait.
 use crate::aco::FMatrix;
+use crate::aco::pheromone::Pheromone;
 
 /// # Goodness
 ///
 /// This trait must be implemented for goodness calculating struct.
-pub trait Goodness {
+pub trait Goodness<P:  Pheromone> {
   /// Calculates goodness based on pheromone and its own internal state
   ///
   /// ## Arguments
   /// `pheromone` - Pheromone in matrix representation.
-  fn apply(&mut self, pheromone: &FMatrix) -> FMatrix;
+  fn apply(&mut self, pheromone: &P) -> P;
 }
 
 /// # Canonical Goodness
@@ -53,7 +54,7 @@ impl CanonicalGoodness {
   }
 }
 
-impl Goodness for CanonicalGoodness {
+impl Goodness<FMatrix> for CanonicalGoodness {
   fn apply(&mut self, pheromone: &FMatrix) -> FMatrix {
     let solution_size = pheromone.nrows();
     let iter = pheromone
