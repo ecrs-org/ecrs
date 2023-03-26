@@ -8,6 +8,7 @@ use std::time::Duration;
 pub fn bench_aco_small(c: &mut Criterion) {
   let dist = calc_dist(&CITIES_5);
   let heuristic = util::create_heuristic_from_weights(&dist);
+  let start_pheromone = FMatrix::repeat(heuristic.nrows(), heuristic.ncols(), 1.0);
 
   c.bench_function("aco small", |b| {
     b.iter(|| {
@@ -19,6 +20,7 @@ pub fn bench_aco_small(c: &mut Criterion) {
         .set_pheromone_update(AntSystemPU)
         .set_probe(EmptyProbe)
         .with_iteration_termination(black_box(20))
+        .set_start_pheromone(start_pheromone.clone())
         .build()
         .run()
     })
@@ -28,6 +30,7 @@ pub fn bench_aco_small(c: &mut Criterion) {
 pub fn bench_aco_medium(c: &mut Criterion) {
   let dist = calc_dist(&CITIES_15);
   let heuristic = util::create_heuristic_from_weights(&dist);
+  let start_pheromone = FMatrix::repeat(heuristic.nrows(), heuristic.ncols(), 1.0);
 
   c.bench_function("aco medium", |b| {
     b.iter(|| {
@@ -39,6 +42,7 @@ pub fn bench_aco_medium(c: &mut Criterion) {
         .set_ants_behaviour(AntSystemAB)
         .set_probe(EmptyProbe)
         .with_iteration_termination(black_box(20))
+        .set_start_pheromone(start_pheromone.clone())
         .build()
         .run()
     })
@@ -54,7 +58,7 @@ criterion_group! {
 criterion_main!(benches);
 
 struct EmptyProbe;
-impl aco::probe::Probe for EmptyProbe {}
+impl aco::probe::Probe<FMatrix> for EmptyProbe {}
 
 fn calc_dist(cities: &[(f64, f64)]) -> FMatrix {
   let sol_size = cities.len();

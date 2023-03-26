@@ -48,7 +48,7 @@ use crate::aco::ant::Ant;
 use crate::aco::ants_behaviour::AntsBehaviour;
 use crate::aco::fitness::Fitness;
 use crate::aco::goodness::Goodness;
-use crate::aco::pheromone::PheromoneUpdate;
+use crate::aco::pheromone::{Pheromone, PheromoneUpdate};
 use crate::aco::probe::Probe;
 use crate::aco::termination_condition::TerminationCondition;
 use nalgebra::{Dynamic, OMatrix};
@@ -60,20 +60,21 @@ pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 /// Encapsulates common ACO algorithm patterns.
 ///
 /// To extract data use a [probe](probe)
-pub struct AntColonyOptimization<P, A, G, AB, F, T, Pr>
+pub struct AntColonyOptimization<P, A, G, AB, F, T, Pr, Ph>
 where
-  P: PheromoneUpdate,
+  P: PheromoneUpdate<Ph>,
   A: Ant,
-  G: Goodness,
-  AB: AntsBehaviour<A, G>,
+  G: Goodness<Ph>,
+  AB: AntsBehaviour<A, G, Ph>,
   F: Fitness,
-  T: TerminationCondition<A>,
-  Pr: Probe,
+  T: TerminationCondition<A, Ph>,
+  Pr: Probe<Ph>,
+  Ph: Pheromone
 {
   pheromone_update: P,
   evaporation_rate: f64,
   ants_behaviour: AB,
-  pheromone: FMatrix,
+  pheromone: Ph,
   ants: Vec<A>,
   fitness: F,
   goodness: G,
@@ -81,15 +82,16 @@ where
   probe: Pr,
 }
 
-impl<P, A, G, AB, F, T, Pr> AntColonyOptimization<P, A, G, AB, F, T, Pr>
+impl<P, A, G, AB, F, T, Pr, Ph> AntColonyOptimization<P, A, G, AB, F, T, Pr, Ph>
 where
-  P: PheromoneUpdate,
+  P: PheromoneUpdate<Ph>,
   A: Ant,
-  G: Goodness,
-  AB: AntsBehaviour<A, G>,
+  G: Goodness<Ph>,
+  AB: AntsBehaviour<A, G, Ph>,
   F: Fitness,
-  T: TerminationCondition<A>,
-  Pr: Probe,
+  T: TerminationCondition<A, Ph>,
+  Pr: Probe<Ph>,
+  Ph: Pheromone
 {
   /// Executes the algorithm
   pub fn run(mut self) {
