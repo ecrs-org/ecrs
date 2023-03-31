@@ -10,7 +10,7 @@ use crate::aco::pheromone::Pheromone;
 /// # Ants Behaviour
 ///
 /// Trait contains common actions of ants simulation.
-pub trait AntsBehaviour<A: Ant, P: Pheromone> {
+pub trait AntsBehaviour<P: Pheromone> {
   /// Simulates ant by deciding on order of operations.
   ///
   /// ## Arguments
@@ -19,7 +19,7 @@ pub trait AntsBehaviour<A: Ant, P: Pheromone> {
   /// * `goodness_op` - Implementation of [Goodness].
   fn simulate_ants(
     &mut self,
-    ants: &mut [A],
+    ants: &mut [impl Ant],
     pheromone: &mut P,
     goodness_op: &mut impl Goodness<P>,
   ) -> Vec<Vec<usize>>;
@@ -31,10 +31,10 @@ pub trait AntsBehaviour<A: Ant, P: Pheromone> {
 /// will be fully equivalent to Ant System.
 pub struct AntSystemAB;
 
-impl<A: Ant, P: Pheromone> AntsBehaviour<A, P> for AntSystemAB {
+impl<P: Pheromone> AntsBehaviour<P> for AntSystemAB {
   fn simulate_ants(
     &mut self,
-    ants: &mut [A],
+    ants: &mut [impl Ant],
     pheromone: &mut P,
     goodness_op: &mut impl Goodness<P>,
   ) -> Vec<Vec<usize>> {
@@ -68,10 +68,10 @@ pub struct AntColonySystemAB<L: LocalUpdate> {
   local_update: L,
 }
 
-impl<A: Ant, L: LocalUpdate> AntsBehaviour<A, FMatrix> for AntColonySystemAB<L> {
+impl<L: LocalUpdate> AntsBehaviour<FMatrix> for AntColonySystemAB<L> {
   fn simulate_ants(
     &mut self,
-    ants: &mut [A],
+    ants: &mut [impl Ant],
     pheromone: &mut FMatrix,
     goodness_op: &mut impl Goodness<FMatrix>,
   ) -> Vec<Vec<usize>> {
