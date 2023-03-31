@@ -1,5 +1,6 @@
 use crate::aco::probe::Probe;
 use crate::aco::{FMatrix, Solution};
+use crate::aco::pheromone::Pheromone;
 
 /// Simple Probe implementation for writing algorithm output onto standard output.
 pub struct StdoutProbe {
@@ -13,7 +14,7 @@ impl StdoutProbe {
   }
 }
 
-impl Probe<FMatrix> for StdoutProbe {
+impl<P: Pheromone> Probe<P> for StdoutProbe {
   fn on_current_best(&mut self, best: &Solution) {
     println!("Iteration best fitness: {}", best.fitness);
   }

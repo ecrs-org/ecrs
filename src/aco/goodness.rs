@@ -6,7 +6,8 @@
 //! In this library we refer to this precalculated value as goodness, and this module contains
 //! trait [Goodness] that must be implemented for every goodness calculating object and
 //! implementations of aforementioned trait.
-use crate::aco::FMatrix;
+use rand::{Rng, thread_rng};
+use crate::aco::{FMatrix, FMatrixArray};
 use crate::aco::pheromone::Pheromone;
 
 /// # Goodness
@@ -17,7 +18,7 @@ pub trait Goodness<P:  Pheromone> {
   ///
   /// ## Arguments
   /// `pheromone` - Pheromone in matrix representation.
-  fn apply(&mut self, pheromone: &P) -> P;
+  fn apply(&mut self, pheromone: &P) -> FMatrix;
 }
 
 /// # Canonical Goodness
@@ -63,6 +64,47 @@ impl Goodness<FMatrix> for CanonicalGoodness {
       .map(|(p, h)| p.powf(self.alpha) * h.powf(self.beta));
 
     FMatrix::from_iterator(solution_size, solution_size, iter)
+  }
+}
+
+/// # Exponential Random Goodness
+///
+
+pub struct ExpRandGoodness {
+  c_goodness: CanonicalGoodness
+}
+
+impl ExpRandGoodness {
+  /// Creates a new instance of [ExpRandGoodness].
+  ///
+  /// ## Arguments
+  /// * `alpha` - importance of weights in edge choosing.
+  /// * `beta` - importance of heuristic in edge choosing.
+  /// * `heuristic` - Weighted graph in matrix representation.
+  pub fn new(alpha: f64, beta: f64, heuristic: FMatrix) -> Self {
+    Self {
+      c_goodness: CanonicalGoodness::new(alpha, beta, heuristic)
+    }
+  }
+}
+
+impl Goodness<FMatrixArray> for ExpRandGoodness{
+  fn apply(&mut self, pheromone: &FMatrixArray) -> FMatrix {
+    let nrows = pheromone[0].nrows();
+    let ncols = pheromone[0].ncols();
+    let mut collapsed_pher = FMatrix::zeros(nrows, ncols);
+    let mut rand = thread_rng();
+    for i in 0..nrows {
+      for j in 0..ncols {
+        for pher in pheromone {
+          if rand.gen_bool(0.5) {
+            collapsed_pher[(i,j)] = pher[(i,j)];
+          }
+        }
+      }
+    }
+
+    self.c_goodness.apply(&collapsed_pher)
   }
 }
 

@@ -1,7 +1,7 @@
 //! Implementation of pheromone calculations strategies.
 //!
 use crate::aco::pheromone::best_policy::{BestPolicy, OverallBest};
-use crate::aco::{FMatrix, Solution};
+use crate::aco::{FMatrix, FMatrixArray, Solution};
 use itertools::Itertools;
 use std::ops::Add;
 
@@ -10,6 +10,10 @@ pub mod best_policy;
 pub trait Pheromone {}
 
 impl Pheromone for FMatrix {}
+
+impl Pheromone for FMatrixArray {}
+
+
 
 /// # Pheromone Update
 ///
@@ -167,6 +171,7 @@ impl<B: BestPolicy> AntColonySystemPU<B> {
   }
 }
 
+
 impl<B: BestPolicy> PheromoneUpdate<FMatrix> for AntColonySystemPU<B> {
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
     self.best_policy.update_best(solutions);
@@ -175,6 +180,54 @@ impl<B: BestPolicy> PheromoneUpdate<FMatrix> for AntColonySystemPU<B> {
     old_pheromone
       .scale(1.0 - evaporation_rate)
       .add(best_pheromone.scale(evaporation_rate))
+  }
+}
+
+/// # Part From Evaluation Pheromone Update
+///
+/// Implements [PheromoneUpdate].
+/// The solution are split into the number of pheromone traits by value range
+pub struct PartFromEvalPU;
+
+impl PartFromEvalPU {
+  pub fn new() -> Self {
+    Self {}
+  }
+}
+
+impl PheromoneUpdate<FMatrixArray> for PartFromEvalPU{
+
+  fn apply(&mut self, old_pheromone: &FMatrixArray, solutions: &[Solution], evaporation_rate: f64) -> FMatrixArray {
+    let parts_num = old_pheromone.len() as f64;
+    let mut min = solutions[0].fitness;
+    let mut max = min;
+    for sol in solutions {
+      if sol.fitness < min {
+        min = sol.fitness
+      }
+      if sol.fitness > max {
+        max = sol.fitness
+      }
+    }
+    let increment = (max - min) / parts_num;
+
+    // evaporate
+    let mut new_pheromone: FMatrixArray = old_pheromone.iter()
+      .map(|x| x.scale(1.0 - evaporation_rate))
+      .collect();
+
+    // lay trail
+    for s in solutions.iter() {
+      let part = ((s.fitness - min) / increment) as usize;
+      let i = part.clamp(0, old_pheromone.len()-1);
+      let pheromone = &mut new_pheromone[i];
+      for (i, j) in s.path.iter().circular_tuple_windows::<(&usize, &usize)>() {
+        pheromone[(*i, *j)] += s.fitness;
+        pheromone[(*j, *i)] += s.fitness;
+      }
+
+    }
+    new_pheromone
   }
 }
 

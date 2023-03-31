@@ -54,6 +54,8 @@ use crate::aco::termination_condition::TerminationCondition;
 use nalgebra::{Dynamic, OMatrix};
 
 pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
+pub type FMatrixArray = Vec<FMatrix>;
+
 
 /// # Ant Colony Optimization
 ///

@@ -31,15 +31,15 @@ pub trait AntsBehaviour<A: Ant, G: Goodness<P>, P: Pheromone> {
 /// will be fully equivalent to Ant System.
 pub struct AntSystemAB;
 
-impl<A: Ant, G: Goodness<FMatrix>> AntsBehaviour<A, G, FMatrix> for AntSystemAB {
+impl<A: Ant, G: Goodness<P>, P: Pheromone> AntsBehaviour<A, G, P> for AntSystemAB {
   fn simulate_ants(
     &mut self,
     ants: &mut [A],
-    pheromone: &mut FMatrix,
+    pheromone: &mut P,
     goodness_op: &mut G,
   ) -> Vec<Vec<usize>> {
     let goodness = goodness_op.apply(pheromone);
-    let solution_size = pheromone.nrows();
+    let solution_size = goodness.nrows();
 
     let mut paths: Vec<Vec<usize>> = Vec::with_capacity(ants.len());
     for ant in ants.iter_mut() {
