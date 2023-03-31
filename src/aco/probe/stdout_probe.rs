@@ -1,5 +1,5 @@
 use crate::aco::probe::Probe;
-use crate::aco::{FMatrix, Solution};
+use crate::aco::{Solution};
 use crate::aco::pheromone::Pheromone;
 
 /// Simple Probe implementation for writing algorithm output onto standard output.

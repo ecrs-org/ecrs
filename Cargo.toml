@@ -53,3 +53,7 @@ harness = false
 [[bench]]
 name = "ff_bench"
 harness = false
+
+[[bench]]
+name = "aco_tsp_bench"
+harness = false
