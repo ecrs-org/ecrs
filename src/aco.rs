@@ -51,9 +51,9 @@ use crate::aco::goodness::Goodness;
 use crate::aco::pheromone::{Pheromone, PheromoneUpdate};
 use crate::aco::probe::Probe;
 use crate::aco::termination_condition::TerminationCondition;
-use nalgebra::{Dynamic, OMatrix};
+use nalgebra::{Dyn, OMatrix};
 
-pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
+pub type FMatrix = OMatrix<f64, Dyn, Dyn>;
 pub type FMatrixArray = Vec<FMatrix>;
 
 
