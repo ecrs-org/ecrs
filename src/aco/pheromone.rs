@@ -1,9 +1,9 @@
 //! Implementation of pheromone calculations strategies.
 //!
+use std::ops::AddAssign;
 use crate::aco::pheromone::best_policy::{BestPolicy, OverallBest};
 use crate::aco::{FMatrix, FMatrixArray, Solution};
 use itertools::Itertools;
-use std::ops::Add;
 
 pub mod best_policy;
 
@@ -20,14 +20,14 @@ impl Pheromone for FMatrixArray {}
 /// This trait defines common behaviour for pheromone update calculations.
 /// You can implement this trait to provide your custom way of calculating new pheromone to the ACO.
 pub trait PheromoneUpdate<P: Pheromone> {
-  /// Returns the new pheromone
+  /// Modifies the pheromone
   ///
   /// ## Arguments
   ///
   /// * `old_pheromone` - Pheromone used to generate current solutions
   /// * `solutions` - Current generated solution.
   /// * `evaporation_rate` - rate of old pheromone evaporation
-  fn apply(&mut self, old_pheromone: &P, solutions: &[Solution], evaporation_rate: f64) -> P;
+  fn apply(&mut self, pheromone: &mut P, solutions: &[Solution], evaporation_rate: f64);
 }
 
 /// # Ant System Pheromone Update
@@ -46,10 +46,10 @@ impl AntSystemPU {
 }
 
 impl PheromoneUpdate<FMatrix> for AntSystemPU {
-  fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
-    let delta_pheromone = sum_iter_pheromone(solutions, old_pheromone.nrows());
-
-    old_pheromone.scale(1.0 - evaporation_rate).add(delta_pheromone)
+  fn apply(&mut self, pheromone: &mut FMatrix, solutions: &[Solution], evaporation_rate: f64) {
+    let delta_pheromone = sum_iter_pheromone(solutions, pheromone.nrows());
+    pheromone.scale_mut(1.0 -evaporation_rate);
+    pheromone.add_assign(delta_pheromone);
   }
 }
 
@@ -73,14 +73,13 @@ impl ElitistAntSystemPU {
 }
 
 impl PheromoneUpdate<FMatrix> for ElitistAntSystemPU {
-  fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
+  fn apply(&mut self, pheromone: &mut FMatrix, solutions: &[Solution], evaporation_rate: f64) {
     self.overall_best.update_best(solutions);
-    let delta_pheromone = sum_iter_pheromone(solutions, old_pheromone.nrows());
+    let delta_pheromone = sum_iter_pheromone(solutions, pheromone.nrows());
 
-    old_pheromone
-      .scale(1.0 - evaporation_rate)
-      .add(delta_pheromone)
-      .add(self.overall_best.get_best_pheromone())
+    pheromone.scale_mut(1.0 - evaporation_rate);
+    pheromone.add_assign(delta_pheromone);
+    pheromone.add_assign(self.overall_best.get_best_pheromone());
   }
 }
 
@@ -130,14 +129,13 @@ impl MMAntSystemPU<OverallBest> {
 }
 
 impl<B: BestPolicy> PheromoneUpdate<FMatrix> for MMAntSystemPU<B> {
-  fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
+  fn apply(&mut self, pheromone: &mut FMatrix, solutions: &[Solution], evaporation_rate: f64) {
     self.best_policy.update_best(solutions);
     let best_pheromone = self.best_policy.get_best_pheromone();
 
-    old_pheromone
-      .scale(1.0 - evaporation_rate)
-      .add(best_pheromone)
-      .map(|a| a.clamp(self.lower_bound, self.upper_bound))
+    pheromone.scale_mut(1.0 - evaporation_rate);
+    pheromone.add_assign(best_pheromone);
+    pheromone.iter_mut().for_each(|a| *a = a.clamp(self.lower_bound, self.upper_bound));
   }
 }
 
@@ -173,13 +171,12 @@ impl<B: BestPolicy> AntColonySystemPU<B> {
 
 
 impl<B: BestPolicy> PheromoneUpdate<FMatrix> for AntColonySystemPU<B> {
-  fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
+  fn apply(&mut self, pheromone: &mut FMatrix, solutions: &[Solution], evaporation_rate: f64) {
     self.best_policy.update_best(solutions);
     let best_pheromone = self.best_policy.get_best_pheromone();
 
-    old_pheromone
-      .scale(1.0 - evaporation_rate)
-      .add(best_pheromone.scale(evaporation_rate))
+    pheromone.scale_mut(1.0 - evaporation_rate);
+    pheromone.add_assign(best_pheromone.scale(evaporation_rate))
   }
 }
 
@@ -197,8 +194,8 @@ impl PartFromEvalPU {
 
 impl PheromoneUpdate<FMatrixArray> for PartFromEvalPU{
 
-  fn apply(&mut self, old_pheromone: &FMatrixArray, solutions: &[Solution], evaporation_rate: f64) -> FMatrixArray {
-    let parts_num = old_pheromone.len() as f64;
+  fn apply(&mut self, pheromone: &mut FMatrixArray, solutions: &[Solution], evaporation_rate: f64) {
+    let parts_num = pheromone.len() as f64;
     let mut min = solutions[0].fitness;
     let mut max = min;
     for sol in solutions {
@@ -212,22 +209,19 @@ impl PheromoneUpdate<FMatrixArray> for PartFromEvalPU{
     let increment = (max - min) / parts_num;
 
     // evaporate
-    let mut new_pheromone: FMatrixArray = old_pheromone.iter()
-      .map(|x| x.scale(1.0 - evaporation_rate))
-      .collect();
+    pheromone.iter_mut()
+      .for_each(|x| x.scale_mut(1.0 - evaporation_rate));
 
     // lay trail
     for s in solutions.iter() {
       let part = ((s.fitness - min) / increment) as usize;
-      let i = part.clamp(0, old_pheromone.len()-1);
-      let pheromone = &mut new_pheromone[i];
+      let i = part.clamp(0, pheromone.len()-1);
+      let pheromone = &mut pheromone[i];
       for (i, j) in s.path.iter().circular_tuple_windows::<(&usize, &usize)>() {
         pheromone[(*i, *j)] += s.fitness;
         pheromone[(*j, *i)] += s.fitness;
       }
-
     }
-    new_pheromone
   }
 }
 
@@ -252,7 +246,7 @@ mod tests {
 
   #[test]
   fn check_ant_system_pu_with_example() {
-    let pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
+    let mut pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
 
     let sols = [
       Solution {
@@ -266,7 +260,8 @@ mod tests {
     ];
 
     let mut pu = AntSystemPU;
-    let new_pheromone = pu.apply(&pheromone, &sols, 0.25);
+    pu.apply(&mut pheromone, &sols, 0.25);
+    let new_pheromone = pheromone;
     let pheromone = vec![0.0, 1.125, 1.875, 1.125, 0.0, 3.375, 1.875, 3.375, 0.0];
 
     for (p, p_exp) in new_pheromone.iter().zip(pheromone.iter()) {
@@ -276,7 +271,7 @@ mod tests {
 
   #[test]
   fn check_elitist_ant_system_pu_with_example() {
-    let pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
+    let mut pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
 
     let sols = [
       Solution {
@@ -290,7 +285,8 @@ mod tests {
     ];
 
     let mut pu = ElitistAntSystemPU::new();
-    let new_pheromone = pu.apply(&pheromone, &sols, 0.25);
+    pu.apply(&mut pheromone, &sols, 0.25);
+    let new_pheromone = pheromone;
     let pheromone = vec![0.0, 1.375, 2.125, 1.375, 0.0, 3.625, 2.125, 3.625, 0.0];
 
     for (p, p_exp) in new_pheromone.iter().zip(pheromone.iter()) {
@@ -300,7 +296,7 @@ mod tests {
 
   #[test]
   fn check_max_min_ant_system_pu_with_example() {
-    let pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
+    let mut pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
 
     let sols = [
       Solution {
@@ -314,7 +310,8 @@ mod tests {
     ];
 
     let mut pu = MMAntSystemPU::new(1.5, 3.0);
-    let new_pheromone = pu.apply(&pheromone, &sols, 0.25);
+    pu.apply(&mut pheromone, &sols, 0.25);
+    let new_pheromone = pheromone;
     let pheromone = vec![1.5, 1.5, 1.75, 1.5, 1.5, 3.0, 1.75, 3.0, 1.5];
 
     for (p, p_exp) in new_pheromone.iter().zip(pheromone.iter()) {
@@ -324,7 +321,7 @@ mod tests {
 
   #[test]
   fn check_ant_colony_system_pu_with_example() {
-    let pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
+    let mut pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
 
     let sols = [
       Solution {
@@ -338,7 +335,8 @@ mod tests {
     ];
 
     let mut pu = AntColonySystemPU::new();
-    let new_pheromone = pu.apply(&pheromone, &sols, 0.25);
+    pu.apply(&mut pheromone, &sols, 0.25);
+    let new_pheromone = pheromone;
     let pheromone = vec![0.0, 0.8125, 1.5625, 0.8125, 0.0, 3.0625, 1.5625, 3.0625, 0.0];
 
     for (p, p_exp) in new_pheromone.iter().zip(pheromone.iter()) {

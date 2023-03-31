@@ -115,16 +115,14 @@ where
       .ants_behaviour
       .simulate_ants(&mut self.ants, &mut self.pheromone, &mut self.goodness);
     let sols = self.grade(paths);
+    // on graded solutions (sols)
 
     let best = self.find_best(&sols);
     self.probe.on_current_best(best);
 
-    let new_pheromone = self
-      .pheromone_update
-      .apply(&self.pheromone, &sols, self.evaporation_rate);
-
-    self.probe.on_pheromone_update(&self.pheromone, &new_pheromone);
-    self.pheromone = new_pheromone;
+    self.pheromone_update
+      .apply(&mut self.pheromone, &sols, self.evaporation_rate);
+    //on new pheromone
   }
 
   fn find_best<'a>(&mut self, sols: &'a [Solution]) -> &'a Solution {
