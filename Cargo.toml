@@ -10,8 +10,7 @@ Evolutionary computation tools & algorithms
 """
 keywords = ["evolution", "evolutionary", "algorithms", "genetic"]
 categories = ["science"]
-license-file = "LICENSE.md"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 exclude = [
 	".github/*",
 	"Cargo.lock",
