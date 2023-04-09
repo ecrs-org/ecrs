@@ -3,7 +3,7 @@ name: Bug report
 about: Use this template to report a bug
 ---
 
-<!-- If applicable - remmeber to add the issue to the EA Rust project  -->
+<!-- If applicable - remember to add the issue to the EA Rust project  -->
 
 ## Bug description
 
