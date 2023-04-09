@@ -1,4 +1,4 @@
-<!-- If applicable - remeber to add the PR to the EA Rust project (ONLY IF THERE IS NO LINKED ISSUE) -->
+<!-- If applicable - remember to add the PR to the EA Rust project (ONLY IF THERE IS NO LINKED ISSUE) -->
 
 ## Description
 
