@@ -137,26 +137,26 @@ pub struct GAParams {
   pub max_duration: std::time::Duration,
 }
 
-pub struct GAConfig<T, M, C, S, R, P, F, Pr>
+pub struct GAConfig<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
-  T: Chromosome,
-  M: MutationOperator<T>,
-  C: CrossoverOperator<T>,
-  S: SelectionOperator<T>,
-  R: ReplacementOperator<T>,
-  P: PopulationGenerator<T>,
-  F: Fitness<T>,
-  Pr: Probe<T>,
+  ChromosomeT: Chromosome,
+  MutOpT: MutationOperator<ChromosomeT>,
+  CrossOpT: CrossoverOperator<ChromosomeT>,
+  SelOpT: SelectionOperator<ChromosomeT>,
+  ReplOpT: ReplacementOperator<ChromosomeT>,
+  PopGenT: PopulationGenerator<ChromosomeT>,
+  FitnessT: Fitness<ChromosomeT>,
+  ProbeT: Probe<ChromosomeT>,
 {
   pub params: GAParams,
-  pub fitness_fn: F,
-  pub mutation_operator: M,
-  pub crossover_operator: C,
-  pub selection_operator: S,
-  pub replacement_operator: R,
-  pub population_factory: P,
-  pub probe: Pr,
-  _phantom: PhantomData<T>,
+  pub fitness_fn: FitnessT,
+  pub mutation_operator: MutOpT,
+  pub crossover_operator: CrossOpT,
+  pub selection_operator: SelOpT,
+  pub replacement_operator: ReplOpT,
+  pub population_factory: PopGenT,
+  pub probe: ProbeT,
+  _phantom: PhantomData<ChromosomeT>,
 }
 
 #[derive(Default)]
@@ -180,40 +180,43 @@ impl GAMetadata {
   }
 }
 
-pub struct GeneticAlgorithm<T, M, C, S, R, P, F, Pr>
+pub struct GeneticAlgorithm<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
-  T: Chromosome,
-  M: MutationOperator<T>,
-  C: CrossoverOperator<T>,
-  S: SelectionOperator<T>,
-  R: ReplacementOperator<T>,
-  P: PopulationGenerator<T>,
-  F: Fitness<T>,
-  Pr: Probe<T>,
+  ChromosomeT: Chromosome,
+  MutOpT: MutationOperator<ChromosomeT>,
+  CrossOpT: CrossoverOperator<ChromosomeT>,
+  SelOpT: SelectionOperator<ChromosomeT>,
+  ReplOpT: ReplacementOperator<ChromosomeT>,
+  PopGenT: PopulationGenerator<ChromosomeT>,
+  FitnessT: Fitness<ChromosomeT>,
+  ProbeT: Probe<ChromosomeT>,
 {
-  config: GAConfig<T, M, C, S, R, P, F, Pr>,
+  config: GAConfig<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
   metadata: GAMetadata,
 }
 
-impl<T, M, C, S, R, P, F, Pr> GeneticAlgorithm<T, M, C, S, R, P, F, Pr>
+impl<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
+  GeneticAlgorithm<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
-  T: Chromosome,
-  M: MutationOperator<T>,
-  C: CrossoverOperator<T>,
-  S: SelectionOperator<T>,
-  R: ReplacementOperator<T>,
-  P: PopulationGenerator<T>,
-  F: Fitness<T>,
-  Pr: Probe<T>,
+  ChromosomeT: Chromosome,
+  MutOpT: MutationOperator<ChromosomeT>,
+  CrossOpT: CrossoverOperator<ChromosomeT>,
+  SelOpT: SelectionOperator<ChromosomeT>,
+  ReplOpT: ReplacementOperator<ChromosomeT>,
+  PopGenT: PopulationGenerator<ChromosomeT>,
+  FitnessT: Fitness<ChromosomeT>,
+  ProbeT: Probe<ChromosomeT>,
 {
-  pub fn new(config: GAConfig<T, M, C, S, R, P, F, Pr>) -> Self {
+  pub fn new(
+    config: GAConfig<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
+  ) -> Self {
     GeneticAlgorithm {
       config,
       metadata: GAMetadata::new(None, None, 0),
     }
   }
 
-  fn find_best_individual(population: &Vec<Individual<T>>) -> &Individual<T> {
+  fn find_best_individual(population: &Vec<Individual<ChromosomeT>>) -> &Individual<ChromosomeT> {
     debug_assert!(!population.is_empty());
     let mut best_individual = &population[0];
     for idv in population.iter().skip(1) {
@@ -225,27 +228,27 @@ where
   }
 
   #[inline(always)]
-  fn evaluate_population(&mut self, population: &mut [Individual<T>]) {
+  fn eval_pop(&mut self, population: &mut [Individual<ChromosomeT>]) {
     population
       .iter_mut()
       .for_each(|idv| idv.fitness = (self.config.fitness_fn).apply(idv));
   }
 
   #[inline(always)]
-  fn generate_population(&mut self) -> Vec<Individual<T>> {
+  fn gen_pop(&mut self) -> Vec<Individual<ChromosomeT>> {
     self
       .config
       .population_factory
       .generate(self.config.params.population_size)
   }
 
-  pub fn run(&mut self) -> Option<Individual<T>> {
+  pub fn run(&mut self) -> Option<Individual<ChromosomeT>> {
     self.metadata.start_time = Some(std::time::Instant::now());
     self.config.probe.on_start(&self.metadata);
 
-    let mut population = self.generate_population();
+    let mut population = self.gen_pop();
 
-    self.evaluate_population(&mut population);
+    self.eval_pop(&mut population);
 
     self.config.probe.on_initial_population_created(&population);
 
@@ -263,17 +266,17 @@ where
       self.config.probe.on_iteration_start(&self.metadata);
 
       // 2. Evaluate fitness for each individual.
-      self.evaluate_population(&mut population);
+      self.eval_pop(&mut population);
 
       // 4. Create mating pool by applying selection operator.
-      let mating_pool: Vec<&Individual<T>> =
+      let mating_pool: Vec<&Individual<ChromosomeT>> =
         self
           .config
           .selection_operator
           .apply(&self.metadata, &population, population.len());
 
       // 5. From mating pool create new generation (apply crossover & mutation).
-      let mut children: Vec<Individual<T>> = Vec::with_capacity(self.config.params.population_size);
+      let mut children: Vec<Individual<ChromosomeT>> = Vec::with_capacity(self.config.params.population_size);
 
       // FIXME: Do not assume that population size is an even number.
       for i in (0..mating_pool.len()).step_by(2) {
@@ -294,14 +297,14 @@ where
       });
 
       if self.config.replacement_operator.requires_children_fitness() {
-        self.evaluate_population(&mut children);
+        self.eval_pop(&mut children);
       }
 
       // 6. Replacement - merge new generation with old one
       population = self.config.replacement_operator.apply(population, children);
 
       // 7. Check for stop condition (Is good enough individual found)? If not goto 2.
-      self.evaluate_population(&mut population);
+      self.eval_pop(&mut population);
 
       self.config.probe.on_new_generation(&self.metadata, &population);
 
