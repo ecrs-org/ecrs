@@ -40,18 +40,17 @@ pub mod probe;
 mod solution;
 pub mod termination_condition;
 pub mod util;
+pub mod colony;
 
 pub use builder::Builder;
 pub use solution::Solution;
 
-use crate::aco::ant::Ant;
-use crate::aco::ants_behaviour::AntsBehaviour;
 use crate::aco::fitness::Fitness;
-use crate::aco::goodness::Goodness;
 use crate::aco::pheromone::{Pheromone, PheromoneUpdate};
 use crate::aco::probe::Probe;
 use crate::aco::termination_condition::TerminationCondition;
 use nalgebra::{Dynamic, OMatrix};
+use crate::aco::colony::Colony;
 
 pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 
@@ -60,36 +59,30 @@ pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 /// Encapsulates common ACO algorithm patterns.
 ///
 /// To extract data use a [probe](probe)
-pub struct AntColonyOptimization<P, A, G, AB, F, T, Pr, Ph>
+pub struct AntColonyOptimization<P, C, F, T, Pr, Ph>
 where
   P: PheromoneUpdate<Ph>,
-  A: Ant,
-  G: Goodness<Ph>,
-  AB: AntsBehaviour<A, G, Ph>,
+  C: Colony<Ph>,
   F: Fitness,
-  T: TerminationCondition<A, Ph>,
+  T: TerminationCondition<Ph>,
   Pr: Probe<Ph>,
   Ph: Pheromone
 {
+  colony: C,
   pheromone_update: P,
   evaporation_rate: f64,
-  ants_behaviour: AB,
   pheromone: Ph,
-  ants: Vec<A>,
   fitness: F,
-  goodness: G,
   termination_cond: T,
   probe: Pr,
 }
 
-impl<P, A, G, AB, F, T, Pr, Ph> AntColonyOptimization<P, A, G, AB, F, T, Pr, Ph>
+impl<P, C, F, T, Pr, Ph> AntColonyOptimization<P, C, F, T, Pr, Ph>
 where
   P: PheromoneUpdate<Ph>,
-  A: Ant,
-  G: Goodness<Ph>,
-  AB: AntsBehaviour<A, G, Ph>,
+  C: Colony<Ph>,
   F: Fitness,
-  T: TerminationCondition<A, Ph>,
+  T: TerminationCondition<Ph>,
   Pr: Probe<Ph>,
   Ph: Pheromone
 {
@@ -98,7 +91,7 @@ where
     self.termination_cond.init(&self.pheromone);
     while !self
       .termination_cond
-      .update_and_check(&self.pheromone, &self.ants)
+      .update_and_check(&self.pheromone)
     {
       self.probe.on_iteration_start();
       self.iterate();
@@ -109,9 +102,7 @@ where
   }
 
   fn iterate(&mut self) {
-    let paths = self
-      .ants_behaviour
-      .simulate_ants(&mut self.ants, &mut self.pheromone, &mut self.goodness);
+    let paths = self.colony.build_solutions(&mut self.pheromone);
     let sols = self.grade(paths);
 
     let best = self.find_best(&sols);
