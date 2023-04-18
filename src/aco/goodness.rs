@@ -99,6 +99,7 @@ impl Goodness<FMatrixArray> for ExpRandGoodness{
         for pher in pheromone {
           if rand.gen_bool(0.5) {
             collapsed_pher[(i,j)] = pher[(i,j)];
+            continue;
           }
         }
       }
