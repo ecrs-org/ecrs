@@ -105,6 +105,14 @@ C: Colony<Ph>,
     self
   }
 
+  /// Sets ants colony.
+  /// ## Arguments
+  /// * `colony` - ants colony.
+  pub fn set_colony(mut self, colony: C) -> Self {
+    self.colony = Some(colony);
+    self
+  }
+
   /// Builds [AntColonyOptimization] with provided building blocks.
   ///
   /// * `pheromone_update` needs to be specified, if not program will panic
