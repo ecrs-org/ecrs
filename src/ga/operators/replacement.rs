@@ -33,7 +33,7 @@ pub trait ReplacementOperator<T: Chromosome> {
 
   /// Returns `true` when the operator requires children to possess valid fitness values.
   ///
-  /// Default implementation returns `false`
+  /// Default implementation returns `true`
   fn requires_children_fitness(&self) -> bool {
     true
   }
