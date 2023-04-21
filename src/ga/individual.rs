@@ -71,6 +71,8 @@ impl<T: Chromosome> From<T> for Individual<T> {
   }
 }
 
+// Traits required for more ergonomic sorting
+
 impl<T: Chromosome> PartialEq<Self> for Individual<T> {
   fn eq(&self, other: &Self) -> bool {
     self.fitness == other.fitness
