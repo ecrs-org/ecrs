@@ -10,24 +10,6 @@
 //!
 //! Logging system details can be found [here](probe)
 //!
-//! ## Example
-//! Solving TSP using Ant System algorithm variant
-//! ```rust
-//! pub fn ants_example_run() {
-//!   let (cities, cost) = ecrs::aco::util::generate_tsp_cost(10);
-//!
-//!   let heuristic = ecrs::aco::util::create_heuristic_from_weights(&cost);
-//!
-//!   let ant_s = ecrs::aco::Builder::new_as(10)
-//!       .set_weights(cost)
-//!       .set_heuristic(heuristic)
-//!       .with_standard_ants(10)
-//!       .with_iteration_termination(100)
-//!       .with_stdout_probe()
-//!       .build();
-//!
-//!   ant_s.run();
-//! }
 //! ```
 pub mod ant;
 pub mod ants_behaviour;
