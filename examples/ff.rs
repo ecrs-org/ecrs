@@ -7,3 +7,6 @@ fn main() {
 
   alg.run();
 }
+
+#[cfg(not(feature = "ff"))]
+compile_error!("Required feature \"ff\" is not enabled");

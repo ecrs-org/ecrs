@@ -22,3 +22,6 @@ fn main() {
 
   algorithm.run();
 }
+
+#[cfg(not(feature = "pso"))]
+compile_error!("Required feature \"pso\" is not enabled");

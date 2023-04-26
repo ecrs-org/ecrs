@@ -39,3 +39,6 @@ fn main() {
 
   println!("{:?}", res);
 }
+
+#[cfg(not(feature = "ga"))]
+compile_error!("Required feature \"ga\" is not enabled");
