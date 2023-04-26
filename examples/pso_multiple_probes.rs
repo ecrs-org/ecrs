@@ -1,3 +1,5 @@
+#![cfg(feature = "pso")]
+
 use ecrs::pso::{self, builder::PSOAlgorithmBuilder};
 
 fn main() {

@@ -1,3 +1,5 @@
+#![cfg(feature = "ff")]
+
 use ecrs::ff::FireflyAlgorithm;
 
 fn main() {

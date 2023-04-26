@@ -1,3 +1,5 @@
+#![cfg(feature = "ga")]
+
 use ecrs::{ga, test_functions};
 mod util;
 
