@@ -1,9 +1,9 @@
+use crate::aco::colony::Colony;
 use crate::aco::fitness::{CanonicalFitness, Fitness};
 use crate::aco::pheromone::{Pheromone, PheromoneUpdate};
 use crate::aco::probe::{Probe, StdoutProbe};
 use crate::aco::termination_condition::{IterationCond, TerminationCondition};
 use crate::aco::{AntColonyOptimization, FMatrix};
-use crate::aco::colony::Colony;
 
 /// Builder for [AntColonyOptimization]
 ///
@@ -14,7 +14,7 @@ where
   F: Fitness,
   T: TerminationCondition<Ph>,
   Pr: Probe<Ph>,
-  Ph: Pheromone
+  Ph: Pheromone,
 {
   evaporation_rate: f64,
   solution_size: usize,
@@ -29,11 +29,11 @@ where
 impl<P, C, F, T, Pr, Ph> Builder<P, C, F, T, Pr, Ph>
 where
   P: PheromoneUpdate<Ph>,
-C: Colony<Ph>,
+  C: Colony<Ph>,
   F: Fitness,
   T: TerminationCondition<Ph>,
   Pr: Probe<Ph>,
-  Ph: Pheromone
+  Ph: Pheromone,
 {
   /// Creates a new instance of Builder.
   ///
@@ -84,7 +84,6 @@ C: Colony<Ph>,
     self.fitness = Some(fitness);
     self
   }
-
 
   /// Sets the termination condition.
   ///
@@ -137,10 +136,10 @@ C: Colony<Ph>,
 impl<P, C, T, Pr, Ph> Builder<P, C, CanonicalFitness, T, Pr, Ph>
 where
   P: PheromoneUpdate<Ph>,
-C: Colony<Ph>,
+  C: Colony<Ph>,
   T: TerminationCondition<Ph>,
   Pr: Probe<Ph>,
-  Ph: Pheromone
+  Ph: Pheromone,
 {
   /// Sets the weighted graph to be searched.
   ///
@@ -173,7 +172,7 @@ where
   C: Colony<Ph>,
   F: Fitness,
   Pr: Probe<Ph>,
-  Ph: Pheromone
+  Ph: Pheromone,
 {
   /// Sets iteration termination condition.
   ///

@@ -1,5 +1,5 @@
-use crate::aco::probe::Probe;
 use crate::aco::pheromone::Pheromone;
+use crate::aco::probe::Probe;
 use crate::aco::Solution;
 
 /// Wrapper probe. It holds a list of probes and calls them sequentially.

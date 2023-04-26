@@ -6,13 +6,13 @@
 //! In this library we refer to this precalculated value as goodness, and this module contains
 //! trait [Goodness] that must be implemented for every goodness calculating object and
 //! implementations of aforementioned trait.
-use crate::aco::FMatrix;
 use crate::aco::pheromone::Pheromone;
+use crate::aco::FMatrix;
 
 /// # Goodness
 ///
 /// This trait must be implemented for goodness calculating struct.
-pub trait Goodness<P:  Pheromone> {
+pub trait Goodness<P: Pheromone> {
   /// Calculates goodness based on pheromone and its own internal state
   ///
   /// ## Arguments

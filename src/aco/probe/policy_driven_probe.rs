@@ -1,6 +1,6 @@
-use crate::aco::probe::{Probe, ProbingPolicy};
-use crate::aco::{Solution};
 use crate::aco::pheromone::Pheromone;
+use crate::aco::probe::{Probe, ProbingPolicy};
+use crate::aco::Solution;
 
 /// ## PolicyDrivenProbe
 ///

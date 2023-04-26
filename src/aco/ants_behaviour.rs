@@ -4,8 +4,8 @@
 use crate::aco::ant::Ant;
 use crate::aco::goodness::Goodness;
 use crate::aco::local_update::LocalUpdate;
-use crate::aco::FMatrix;
 use crate::aco::pheromone::Pheromone;
+use crate::aco::FMatrix;
 
 /// # Ants Behaviour
 ///
@@ -17,12 +17,7 @@ pub trait AntsBehaviour<A: Ant, G: Goodness<P>, P: Pheromone> {
   /// * `pheromone` - Pheromone after global pheromone update rule was applied.
   /// * `ants` - ants to be simulated
   /// * `goodness_op` - Implementation of [Goodness].
-  fn simulate_ants(
-    &mut self,
-    ants: &mut [A],
-    pheromone: &mut P,
-    goodness_op: &mut G,
-  ) -> Vec<Vec<usize>>;
+  fn simulate_ants(&mut self, ants: &mut [A], pheromone: &mut P, goodness_op: &mut G) -> Vec<Vec<usize>>;
 }
 /// # Ant System ants behaviour
 ///

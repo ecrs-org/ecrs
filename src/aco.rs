@@ -32,6 +32,7 @@
 pub mod ant;
 pub mod ants_behaviour;
 pub mod builder;
+pub mod colony;
 pub mod fitness;
 pub mod goodness;
 pub mod local_update;
@@ -40,17 +41,16 @@ pub mod probe;
 mod solution;
 pub mod termination_condition;
 pub mod util;
-pub mod colony;
 
 pub use builder::Builder;
 pub use solution::Solution;
 
+use crate::aco::colony::Colony;
 use crate::aco::fitness::Fitness;
 use crate::aco::pheromone::{Pheromone, PheromoneUpdate};
 use crate::aco::probe::Probe;
 use crate::aco::termination_condition::TerminationCondition;
 use nalgebra::{Dynamic, OMatrix};
-use crate::aco::colony::Colony;
 
 pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 
@@ -66,7 +66,7 @@ where
   F: Fitness,
   T: TerminationCondition<Ph>,
   Pr: Probe<Ph>,
-  Ph: Pheromone
+  Ph: Pheromone,
 {
   colony: C,
   pheromone_update: P,
@@ -84,15 +84,12 @@ where
   F: Fitness,
   T: TerminationCondition<Ph>,
   Pr: Probe<Ph>,
-  Ph: Pheromone
+  Ph: Pheromone,
 {
   /// Executes the algorithm
   pub fn run(mut self) {
     self.termination_cond.init(&self.pheromone);
-    while !self
-      .termination_cond
-      .update_and_check(&self.pheromone)
-    {
+    while !self.termination_cond.update_and_check(&self.pheromone) {
       self.probe.on_iteration_start();
       self.iterate();
       self.probe.on_iteration_end();

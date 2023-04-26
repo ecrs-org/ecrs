@@ -1,6 +1,6 @@
 //! Contains stuff related to algorithm termination
-use std::time::{Duration, Instant};
 use crate::aco::pheromone::Pheromone;
+use std::time::{Duration, Instant};
 
 /// # Termination Condition
 ///
