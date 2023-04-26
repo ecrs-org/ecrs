@@ -1,25 +1,23 @@
 //! Contains stuff related to algorithm termination
-
-use crate::aco::ant::Ant;
-use crate::aco::FMatrix;
+use crate::aco::pheromone::Pheromone;
 use std::time::{Duration, Instant};
 
 /// # Termination Condition
 ///
 /// Represents common interface between termination conditions
-pub trait TerminationCondition<A: Ant> {
+pub trait TerminationCondition<P: Pheromone> {
   /// Initialises condition internal state.
   ///
   /// ## Arguments
   /// * `pheromone` - start_pheromone.
-  fn init(&mut self, pheromone: &FMatrix);
+  fn init(&mut self, pheromone: &P);
 
   /// Updates internal state and then checks if condition is met.
   ///
   /// ## Arguments
   /// * `pheromone` - current pheromone.
   /// * `ants` - Ants containing solutions.
-  fn update_and_check(&mut self, pheromone: &FMatrix, ants: &[A]) -> bool;
+  fn update_and_check(&mut self, pheromone: &P) -> bool;
 }
 
 /// # Iteration Condition
@@ -45,12 +43,12 @@ impl IterationCond {
   }
 }
 
-impl<A: Ant> TerminationCondition<A> for IterationCond {
-  fn init(&mut self, _pheromone: &FMatrix) {
+impl<P: Pheromone> TerminationCondition<P> for IterationCond {
+  fn init(&mut self, _pheromone: &P) {
     self.curr_iteration = 0;
   }
 
-  fn update_and_check(&mut self, _pheromone: &FMatrix, _ants: &[A]) -> bool {
+  fn update_and_check(&mut self, _pheromone: &P) -> bool {
     self.curr_iteration += 1;
 
     self.curr_iteration > self.iterations_limit
@@ -80,12 +78,12 @@ impl TimeCond {
   }
 }
 
-impl<A: Ant> TerminationCondition<A> for TimeCond {
-  fn init(&mut self, _pheromone: &FMatrix) {
+impl<P: Pheromone> TerminationCondition<P> for TimeCond {
+  fn init(&mut self, _pheromone: &P) {
     self.start_time = Instant::now()
   }
 
-  fn update_and_check(&mut self, _pheromone: &FMatrix, _ants: &[A]) -> bool {
+  fn update_and_check(&mut self, _pheromone: &P) -> bool {
     let curr_duration = Instant::now() - self.start_time;
 
     curr_duration > self.duration

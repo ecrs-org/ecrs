@@ -10,28 +10,11 @@
 //!
 //! Logging system details can be found [here](probe)
 //!
-//! ## Example
-//! Solving TSP using Ant System algorithm variant
-//! ```rust
-//! pub fn ants_example_run() {
-//!   let (cities, cost) = ecrs::aco::util::generate_tsp_cost(10);
-//!
-//!   let heuristic = ecrs::aco::util::create_heuristic_from_weights(&cost);
-//!
-//!   let ant_s = ecrs::aco::Builder::new_as(10)
-//!       .set_weights(cost)
-//!       .set_heuristic(heuristic)
-//!       .with_standard_ants(10)
-//!       .with_iteration_termination(100)
-//!       .with_stdout_probe()
-//!       .build();
-//!
-//!   ant_s.run();
-//! }
 //! ```
 pub mod ant;
 pub mod ants_behaviour;
 pub mod builder;
+pub mod colony;
 pub mod fitness;
 pub mod goodness;
 pub mod local_update;
@@ -44,11 +27,9 @@ pub mod util;
 pub use builder::Builder;
 pub use solution::Solution;
 
-use crate::aco::ant::Ant;
-use crate::aco::ants_behaviour::AntsBehaviour;
+use crate::aco::colony::Colony;
 use crate::aco::fitness::Fitness;
-use crate::aco::goodness::Goodness;
-use crate::aco::pheromone::PheromoneUpdate;
+use crate::aco::pheromone::{Pheromone, PheromoneUpdate};
 use crate::aco::probe::Probe;
 use crate::aco::termination_condition::TerminationCondition;
 use nalgebra::{Dynamic, OMatrix};
@@ -60,44 +41,37 @@ pub type FMatrix = OMatrix<f64, Dynamic, Dynamic>;
 /// Encapsulates common ACO algorithm patterns.
 ///
 /// To extract data use a [probe](probe)
-pub struct AntColonyOptimization<P, A, G, AB, F, T, Pr>
+pub struct AntColonyOptimization<P, C, F, T, Pr, Ph>
 where
-  P: PheromoneUpdate,
-  A: Ant,
-  G: Goodness,
-  AB: AntsBehaviour<A, G>,
+  P: PheromoneUpdate<Ph>,
+  C: Colony<Ph>,
   F: Fitness,
-  T: TerminationCondition<A>,
-  Pr: Probe,
+  T: TerminationCondition<Ph>,
+  Pr: Probe<Ph>,
+  Ph: Pheromone,
 {
+  colony: C,
   pheromone_update: P,
   evaporation_rate: f64,
-  ants_behaviour: AB,
-  pheromone: FMatrix,
-  ants: Vec<A>,
+  pheromone: Ph,
   fitness: F,
-  goodness: G,
   termination_cond: T,
   probe: Pr,
 }
 
-impl<P, A, G, AB, F, T, Pr> AntColonyOptimization<P, A, G, AB, F, T, Pr>
+impl<P, C, F, T, Pr, Ph> AntColonyOptimization<P, C, F, T, Pr, Ph>
 where
-  P: PheromoneUpdate,
-  A: Ant,
-  G: Goodness,
-  AB: AntsBehaviour<A, G>,
+  P: PheromoneUpdate<Ph>,
+  C: Colony<Ph>,
   F: Fitness,
-  T: TerminationCondition<A>,
-  Pr: Probe,
+  T: TerminationCondition<Ph>,
+  Pr: Probe<Ph>,
+  Ph: Pheromone,
 {
   /// Executes the algorithm
   pub fn run(mut self) {
     self.termination_cond.init(&self.pheromone);
-    while !self
-      .termination_cond
-      .update_and_check(&self.pheromone, &self.ants)
-    {
+    while !self.termination_cond.update_and_check(&self.pheromone) {
       self.probe.on_iteration_start();
       self.iterate();
       self.probe.on_iteration_end();
@@ -107,9 +81,7 @@ where
   }
 
   fn iterate(&mut self) {
-    let paths = self
-      .ants_behaviour
-      .simulate_ants(&mut self.ants, &mut self.pheromone, &mut self.goodness);
+    let paths = self.colony.build_solutions(&mut self.pheromone);
     let sols = self.grade(paths);
 
     let best = self.find_best(&sols);

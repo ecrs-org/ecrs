@@ -1,27 +1,28 @@
+use crate::aco::pheromone::Pheromone;
 use crate::aco::probe::{Probe, ProbingPolicy};
-use crate::aco::{FMatrix, Solution};
+use crate::aco::Solution;
 
 /// ## PolicyDrivenProbe
 ///
 /// Checks whether policy allows for logging and if so, delegates actual logging to wrapped probe
-pub struct PolicyDrivenProbe {
-  probe: Box<dyn Probe>,
+pub struct PolicyDrivenProbe<Ph: Pheromone> {
+  probe: Box<dyn Probe<Ph>>,
   policy: Box<dyn ProbingPolicy>,
 }
 
-impl PolicyDrivenProbe {
+impl<Ph: Pheromone> PolicyDrivenProbe<Ph> {
   /// Returns new instance of [PolicyDrivenProbe]
   ///
   /// ### Arguments
   ///
   /// * `policy` - logging policy to apply
   /// * `probe` - probe used to logging
-  pub fn new(probe: Box<dyn Probe>, policy: Box<dyn ProbingPolicy>) -> PolicyDrivenProbe {
+  pub fn new(probe: Box<dyn Probe<Ph>>, policy: Box<dyn ProbingPolicy>) -> PolicyDrivenProbe<Ph> {
     PolicyDrivenProbe { probe, policy }
   }
 }
 
-impl Probe for PolicyDrivenProbe {
+impl<Ph: Pheromone> Probe<Ph> for PolicyDrivenProbe<Ph> {
   /// This method is called to report on pheromone update.
   ///
   /// Delegates actual logging to wrapped `probe` only if `policy` returns `true`
@@ -30,7 +31,7 @@ impl Probe for PolicyDrivenProbe {
   ///
   /// * `old_pheromone` - Matrix containing pheromone values before update
   /// * `new_pheromone` - Matrix containing pheromone values after update
-  fn on_pheromone_update(&mut self, old_pheromone: &FMatrix, new_pheromone: &FMatrix) {
+  fn on_pheromone_update(&mut self, old_pheromone: &Ph, new_pheromone: &Ph) {
     if self.policy.on_pheromone_update() {
       self.probe.on_pheromone_update(old_pheromone, new_pheromone);
     }

@@ -4,24 +4,20 @@
 use crate::aco::ant::Ant;
 use crate::aco::goodness::Goodness;
 use crate::aco::local_update::LocalUpdate;
+use crate::aco::pheromone::Pheromone;
 use crate::aco::FMatrix;
 
 /// # Ants Behaviour
 ///
 /// Trait contains common actions of ants simulation.
-pub trait AntsBehaviour<A: Ant, G: Goodness> {
+pub trait AntsBehaviour<A: Ant, G: Goodness<P>, P: Pheromone> {
   /// Simulates ant by deciding on order of operations.
   ///
   /// ## Arguments
   /// * `pheromone` - Pheromone after global pheromone update rule was applied.
   /// * `ants` - ants to be simulated
   /// * `goodness_op` - Implementation of [Goodness].
-  fn simulate_ants(
-    &mut self,
-    ants: &mut [A],
-    pheromone: &mut FMatrix,
-    goodness_op: &mut G,
-  ) -> Vec<Vec<usize>>;
+  fn simulate_ants(&mut self, ants: &mut [A], pheromone: &mut P, goodness_op: &mut G) -> Vec<Vec<usize>>;
 }
 /// # Ant System ants behaviour
 ///
@@ -30,7 +26,7 @@ pub trait AntsBehaviour<A: Ant, G: Goodness> {
 /// will be fully equivalent to Ant System.
 pub struct AntSystemAB;
 
-impl<A: Ant, G: Goodness> AntsBehaviour<A, G> for AntSystemAB {
+impl<A: Ant, G: Goodness<FMatrix>> AntsBehaviour<A, G, FMatrix> for AntSystemAB {
   fn simulate_ants(
     &mut self,
     ants: &mut [A],
@@ -67,7 +63,7 @@ pub struct AntColonySystemAB<L: LocalUpdate> {
   local_update: L,
 }
 
-impl<A: Ant, G: Goodness, L: LocalUpdate> AntsBehaviour<A, G> for AntColonySystemAB<L> {
+impl<A: Ant, G: Goodness<FMatrix>, L: LocalUpdate> AntsBehaviour<A, G, FMatrix> for AntColonySystemAB<L> {
   fn simulate_ants(
     &mut self,
     ants: &mut [A],

@@ -7,11 +7,15 @@ use std::ops::Add;
 
 pub mod best_policy;
 
+pub trait Pheromone {}
+
+impl Pheromone for FMatrix {}
+
 /// # Pheromone Update
 ///
 /// This trait defines common behaviour for pheromone update calculations.
 /// You can implement this trait to provide your custom way of calculating new pheromone to the ACO.
-pub trait PheromoneUpdate {
+pub trait PheromoneUpdate<P: Pheromone> {
   /// Returns the new pheromone
   ///
   /// ## Arguments
@@ -19,7 +23,7 @@ pub trait PheromoneUpdate {
   /// * `old_pheromone` - Pheromone used to generate current solutions
   /// * `solutions` - Current generated solution.
   /// * `evaporation_rate` - rate of old pheromone evaporation
-  fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix;
+  fn apply(&mut self, old_pheromone: &P, solutions: &[Solution], evaporation_rate: f64) -> P;
 }
 
 /// # Ant System Pheromone Update
@@ -37,7 +41,7 @@ impl AntSystemPU {
   }
 }
 
-impl PheromoneUpdate for AntSystemPU {
+impl PheromoneUpdate<FMatrix> for AntSystemPU {
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
     let delta_pheromone = sum_iter_pheromone(solutions, old_pheromone.nrows());
 
@@ -64,7 +68,7 @@ impl ElitistAntSystemPU {
   }
 }
 
-impl PheromoneUpdate for ElitistAntSystemPU {
+impl PheromoneUpdate<FMatrix> for ElitistAntSystemPU {
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
     self.overall_best.update_best(solutions);
     let delta_pheromone = sum_iter_pheromone(solutions, old_pheromone.nrows());
@@ -121,7 +125,7 @@ impl MMAntSystemPU<OverallBest> {
   }
 }
 
-impl<B: BestPolicy> PheromoneUpdate for MMAntSystemPU<B> {
+impl<B: BestPolicy> PheromoneUpdate<FMatrix> for MMAntSystemPU<B> {
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
     self.best_policy.update_best(solutions);
     let best_pheromone = self.best_policy.get_best_pheromone();
@@ -163,7 +167,7 @@ impl<B: BestPolicy> AntColonySystemPU<B> {
   }
 }
 
-impl<B: BestPolicy> PheromoneUpdate for AntColonySystemPU<B> {
+impl<B: BestPolicy> PheromoneUpdate<FMatrix> for AntColonySystemPU<B> {
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
     self.best_policy.update_best(solutions);
     let best_pheromone = self.best_policy.get_best_pheromone();

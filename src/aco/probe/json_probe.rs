@@ -68,7 +68,7 @@ impl JsonProbe {
   }
 }
 
-impl Probe for JsonProbe {
+impl Probe<FMatrix> for JsonProbe {
   fn on_pheromone_update(&mut self, old_pheromone: &FMatrix, _new_pheromone: &FMatrix) {
     self.iterations.last_mut().unwrap().pheromone = old_pheromone.clone()
   }

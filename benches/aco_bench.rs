@@ -1,24 +1,36 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use ecrs::aco;
 use ecrs::aco::ants_behaviour::AntSystemAB;
+use ecrs::aco::colony::LegacyColony;
+use ecrs::aco::goodness::CanonicalGoodness;
 use ecrs::aco::pheromone::AntSystemPU;
 use ecrs::aco::{util, FMatrix};
+use itertools::Itertools;
 use std::time::Duration;
 
 pub fn bench_aco_small(c: &mut Criterion) {
   let dist = calc_dist(&CITIES_5);
   let heuristic = util::create_heuristic_from_weights(&dist);
+  let start_pheromone = FMatrix::repeat(heuristic.nrows(), heuristic.ncols(), 1.0);
 
   c.bench_function("aco small", |b| {
     b.iter(|| {
+      let ants = (0..5)
+        .map(|_| aco::ant::CanonicalAnt::new(CITIES_5.len()))
+        .collect_vec();
+      let colony = LegacyColony::new(
+        AntSystemAB,
+        CanonicalGoodness::new(2.0, 2.0, heuristic.clone()),
+        ants,
+      );
+
       aco::Builder::new(5)
+        .set_colony(colony)
         .set_weights(black_box(dist.clone()))
-        .set_heuristic(black_box(heuristic.clone()))
-        .with_standard_ants(black_box(5))
-        .set_ants_behaviour(AntSystemAB)
         .set_pheromone_update(AntSystemPU)
         .set_probe(EmptyProbe)
         .with_iteration_termination(black_box(20))
+        .set_start_pheromone(start_pheromone.clone())
         .build()
         .run()
     })
@@ -28,17 +40,26 @@ pub fn bench_aco_small(c: &mut Criterion) {
 pub fn bench_aco_medium(c: &mut Criterion) {
   let dist = calc_dist(&CITIES_15);
   let heuristic = util::create_heuristic_from_weights(&dist);
+  let start_pheromone = FMatrix::repeat(heuristic.nrows(), heuristic.ncols(), 1.0);
 
   c.bench_function("aco medium", |b| {
     b.iter(|| {
+      let ants = (0..5)
+        .map(|_| aco::ant::CanonicalAnt::new(CITIES_15.len()))
+        .collect_vec();
+      let colony = LegacyColony::new(
+        AntSystemAB,
+        CanonicalGoodness::new(2.0, 2.0, heuristic.clone()),
+        ants,
+      );
+
       aco::Builder::new(15)
         .set_weights(black_box(dist.clone()))
-        .set_heuristic(black_box(heuristic.clone()))
+        .set_colony(colony)
         .set_pheromone_update(AntSystemPU)
-        .with_standard_ants(black_box(5))
-        .set_ants_behaviour(AntSystemAB)
         .set_probe(EmptyProbe)
         .with_iteration_termination(black_box(20))
+        .set_start_pheromone(start_pheromone.clone())
         .build()
         .run()
     })
@@ -54,7 +75,8 @@ criterion_group! {
 criterion_main!(benches);
 
 struct EmptyProbe;
-impl aco::probe::Probe for EmptyProbe {}
+
+impl aco::probe::Probe<FMatrix> for EmptyProbe {}
 
 fn calc_dist(cities: &[(f64, f64)]) -> FMatrix {
   let sol_size = cities.len();
