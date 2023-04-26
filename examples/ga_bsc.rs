@@ -23,6 +23,5 @@ fn main() {
   println!("Bitstring with most ones: {:#?}", best_individual)
 }
 
-
 #[cfg(not(feature = "ga"))]
 compile_error!("Required feature \"ga\" is not enabled");
