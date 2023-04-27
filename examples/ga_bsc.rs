@@ -1,3 +1,5 @@
+#![cfg(feature = "ga")]
+
 use ecrs::ga;
 mod util;
 
@@ -20,3 +22,6 @@ fn main() {
 
   println!("Bitstring with most ones: {:#?}", best_individual)
 }
+
+#[cfg(not(feature = "ga"))]
+compile_error!("Required feature \"ga\" is not enabled");

@@ -13,9 +13,13 @@
 
 extern crate core;
 
+#[cfg(feature = "aco")]
 pub mod aco;
+#[cfg(feature = "ff")]
 pub mod ff;
+#[cfg(feature = "ga")]
 pub mod ga;
 pub mod prelude;
+#[cfg(feature = "pso")]
 pub mod pso;
 pub mod test_functions;

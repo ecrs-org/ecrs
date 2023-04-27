@@ -21,4 +21,4 @@ jobs:
       - name: Update toolchain
         run: rustup update
       - name: Build
-        run: cargo build --examples --verbose
+        run: cargo build --all-features --examples --verbose

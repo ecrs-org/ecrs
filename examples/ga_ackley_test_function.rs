@@ -1,3 +1,5 @@
+#![cfg(feature = "ga")]
+
 use ecrs::{ga, test_functions};
 mod util;
 
@@ -14,3 +16,6 @@ fn main() {
 
   println!("4D ackley function zero approximation {:#?}", best_individual)
 }
+
+#[cfg(not(feature = "ga"))]
+compile_error!("Required feature \"ga\" is not enabled");

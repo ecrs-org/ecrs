@@ -1,3 +1,5 @@
+#![cfg(feature = "ff")]
+
 use ecrs::ff::probe::aggregated_probe::AggregatedProbe;
 use ecrs::ff::probe::csv_probe::CsvProbe;
 use ecrs::ff::probe::policy_driven_probe::PolicyDrivenProbe;
@@ -21,3 +23,6 @@ fn main() {
 
   alg.run();
 }
+
+#[cfg(not(feature = "ff"))]
+compile_error!("Required feature \"ff\" is not enabled");

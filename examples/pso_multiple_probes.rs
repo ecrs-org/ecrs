@@ -1,3 +1,5 @@
+#![cfg(feature = "pso")]
+
 use ecrs::pso::{self, builder::PSOAlgorithmBuilder};
 
 fn main() {
@@ -20,3 +22,6 @@ fn main() {
 
   algorithm.run();
 }
+
+#[cfg(not(feature = "pso"))]
+compile_error!("Required feature \"pso\" is not enabled");
