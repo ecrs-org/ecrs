@@ -2,7 +2,7 @@
 //!
 use crate::aco::pheromone::best_policy::{BestPolicy, OverallBest};
 use crate::aco::{FMatrix, Solution};
-use itertools::Itertools;
+use itertools::{izip, Itertools};
 use std::ops::Add;
 
 pub mod best_policy;
@@ -10,6 +10,8 @@ pub mod best_policy;
 pub trait Pheromone {}
 
 impl Pheromone for FMatrix {}
+
+impl Pheromone for Vec<FMatrix> {}
 
 /// # Pheromone Update
 ///
@@ -175,6 +177,59 @@ impl<B: BestPolicy> PheromoneUpdate<FMatrix> for AntColonySystemPU<B> {
     old_pheromone
       .scale(1.0 - evaporation_rate)
       .add(best_pheromone.scale(evaporation_rate))
+  }
+}
+
+/// # Part From Evaluation Pheromone Update
+///
+/// Implements [PheromoneUpdate].
+/// The solution are split into the number of pheromone traits by value range
+/// First pheromone in vec is updated by worst solutions.
+pub struct PartFromEvalPU {
+  pheromone_updates: Vec<Box<dyn PheromoneUpdate<FMatrix>>>,
+}
+
+impl PartFromEvalPU {
+  pub fn new(pheromone_updates: Vec<Box<dyn PheromoneUpdate<FMatrix>>>) -> Self {
+    Self { pheromone_updates }
+  }
+}
+
+impl PheromoneUpdate<Vec<FMatrix>> for PartFromEvalPU {
+  fn apply(
+    &mut self,
+    pheromone: &Vec<FMatrix>,
+    solutions: &[Solution],
+    evaporation_rate: f64,
+  ) -> Vec<FMatrix> {
+    let parts_num = pheromone.len() as f64;
+    let mut min = solutions[0].fitness;
+    let mut max = min;
+    for sol in solutions {
+      if sol.fitness < min {
+        min = sol.fitness
+      }
+      if sol.fitness > max {
+        max = sol.fitness
+      }
+    }
+    let increment = (max - min) / parts_num;
+
+    let mut sol_groups = pheromone.iter().map(|_| Vec::<Solution>::new()).collect_vec();
+
+    for s in solutions.iter() {
+      let part = ((s.fitness - min) / increment) as usize;
+      let i = part.clamp(0, pheromone.len() - 1);
+      sol_groups[i].push(s.clone())
+    }
+
+    izip!(
+      self.pheromone_updates.iter_mut(),
+      pheromone.iter(),
+      sol_groups.iter()
+    )
+    .map(|(pu, p, sg)| pu.apply(p, sg, evaporation_rate))
+    .collect_vec()
   }
 }
 
