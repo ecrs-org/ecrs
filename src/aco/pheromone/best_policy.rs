@@ -5,7 +5,7 @@
 //! * [OverallBest] - chooses the best in all iterations
 //! * [Iteration] - chooses the best in current iteration
 //!
-use crate::aco::{FMatrix, Solution};
+use crate::aco::Solution;
 
 /// # Best Choosing Policy
 ///
@@ -19,33 +19,35 @@ pub trait BestPolicy {
   fn update_best(&mut self, solutions: &[Solution]);
 
   /// Returns stored best pheromone trail
-  fn get_best_pheromone(&self) -> &FMatrix;
+  fn get_best(&self) -> &Solution;
 }
 
 /// # Iteration best choosing policy
 /// Implements [ChoosingPolicy].
 /// Chooses pheromone from current iteration best ant.
 pub struct IterationBest {
-  best_pheromone: FMatrix,
+  best_solution: Solution,
 }
 
 impl IterationBest {
   /// Crates a new instance of [IterationBest]
   pub fn new() -> Self {
     Self {
-      best_pheromone: FMatrix::zeros(0, 0),
+      best_solution: Solution::default(),
     }
   }
 }
 
 impl BestPolicy for IterationBest {
   fn update_best(&mut self, solutions: &[Solution]) {
-    let iter_best = find_best(solutions);
-    self.best_pheromone = iter_best.matrix().scale(iter_best.fitness);
+    if solutions.is_empty() {
+      return;
+    }
+    self.best_solution = find_best(solutions).clone();
   }
 
-  fn get_best_pheromone(&self) -> &FMatrix {
-    &self.best_pheromone
+  fn get_best(&self) -> &Solution {
+    &self.best_solution
   }
 }
 
@@ -53,32 +55,32 @@ impl BestPolicy for IterationBest {
 /// Implements [ChoosingPolicy].
 /// Chooses pheromone from all past iteration best ant.
 pub struct OverallBest {
-  best_pheromone: FMatrix,
-  fitness: f64,
+  best_solution: Solution,
 }
 
 impl OverallBest {
   /// Crates a new instance of [OverallBest]
   pub fn new() -> Self {
     Self {
-      best_pheromone: FMatrix::zeros(0, 0),
-      fitness: f64::MIN,
+      best_solution: Solution::default(),
     }
   }
 }
 
 impl BestPolicy for OverallBest {
   fn update_best(&mut self, solutions: &[Solution]) {
+    if solutions.is_empty() {
+      return;
+    }
     let iter_best = find_best(solutions);
 
-    if iter_best.fitness > self.fitness {
-      self.best_pheromone = iter_best.matrix().scale(iter_best.fitness);
-      self.fitness = iter_best.fitness;
+    if iter_best.fitness > self.best_solution.fitness {
+      self.best_solution = iter_best.clone()
     }
   }
 
-  fn get_best_pheromone(&self) -> &FMatrix {
-    &self.best_pheromone
+  fn get_best(&self) -> &Solution {
+    &self.best_solution
   }
 }
 
@@ -121,14 +123,14 @@ mod tests {
 
     let mut best_pol = IterationBest::new();
     best_pol.update_best(&gen1);
-    let pheromone = best_pol.get_best_pheromone();
+    let best = best_pol.get_best();
 
-    assert_eq!(pheromone[0], 0.5);
+    assert_eq!(best.fitness, 0.5);
 
     best_pol.update_best(&gen2);
-    let pheromone = best_pol.get_best_pheromone();
+    let best = best_pol.get_best();
 
-    assert_eq!(pheromone[0], 0.125);
+    assert_eq!(best.fitness, 0.125);
   }
 
   #[test]
@@ -157,13 +159,13 @@ mod tests {
 
     let mut best_pol = OverallBest::new();
     best_pol.update_best(&gen1);
-    let pheromone = best_pol.get_best_pheromone();
+    let best = best_pol.get_best();
 
-    assert_eq!(pheromone[0], 0.5);
+    assert_eq!(best.fitness, 0.5);
 
     best_pol.update_best(&gen2);
-    let pheromone = best_pol.get_best_pheromone();
+    let best = best_pol.get_best();
 
-    assert_eq!(pheromone[0], 0.5);
+    assert_eq!(best.fitness, 0.5);
   }
 }

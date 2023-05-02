@@ -73,12 +73,10 @@ impl ElitistAntSystemPU {
 impl PheromoneUpdate<FMatrix> for ElitistAntSystemPU {
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
     self.overall_best.update_best(solutions);
-    let delta_pheromone = sum_iter_pheromone(solutions, old_pheromone.nrows());
+    let delta_pheromone = sum_iter_pheromone(solutions, old_pheromone.nrows())
+      + sum_iter_pher(self.overall_best.get_best(), old_pheromone.nrows());
 
-    old_pheromone
-      .scale(1.0 - evaporation_rate)
-      .add(delta_pheromone)
-      .add(self.overall_best.get_best_pheromone())
+    old_pheromone.scale(1.0 - evaporation_rate).add(delta_pheromone)
   }
 }
 
@@ -130,7 +128,7 @@ impl MMAntSystemPU<OverallBest> {
 impl<B: BestPolicy> PheromoneUpdate<FMatrix> for MMAntSystemPU<B> {
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
     self.best_policy.update_best(solutions);
-    let best_pheromone = self.best_policy.get_best_pheromone();
+    let best_pheromone = sum_iter_pher(self.best_policy.get_best(), old_pheromone.nrows());
 
     old_pheromone
       .scale(1.0 - evaporation_rate)
@@ -172,7 +170,7 @@ impl<B: BestPolicy> AntColonySystemPU<B> {
 impl<B: BestPolicy> PheromoneUpdate<FMatrix> for AntColonySystemPU<B> {
   fn apply(&mut self, old_pheromone: &FMatrix, solutions: &[Solution], evaporation_rate: f64) -> FMatrix {
     self.best_policy.update_best(solutions);
-    let best_pheromone = self.best_policy.get_best_pheromone();
+    let best_pheromone = sum_iter_pher(self.best_policy.get_best(), old_pheromone.nrows());
 
     old_pheromone
       .scale(1.0 - evaporation_rate)
@@ -241,6 +239,16 @@ fn sum_iter_pheromone(solutions: &[Solution], solution_size: usize) -> FMatrix {
       sum[(*i, *j)] += s.fitness;
       sum[(*j, *i)] += s.fitness;
     }
+  }
+  sum
+}
+
+#[inline]
+fn sum_iter_pher(s: &Solution, solution_size: usize) -> FMatrix {
+  let mut sum = FMatrix::zeros(solution_size, solution_size);
+  for (i, j) in s.path.iter().circular_tuple_windows::<(&usize, &usize)>() {
+    sum[(*i, *j)] += s.fitness;
+    sum[(*j, *i)] += s.fitness;
   }
   sum
 }

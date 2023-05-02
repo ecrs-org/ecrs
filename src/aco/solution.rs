@@ -32,15 +32,6 @@ impl Solution {
       ..Self::default()
     }
   }
-
-  pub fn matrix(&self) -> FMatrix {
-    let mut m = FMatrix::zeros(self.path.len(), self.path.len());
-    for (i, j) in self.path.iter().circular_tuple_windows::<(&usize, &usize)>() {
-      m[(*i, *j)] = 1.0;
-      m[(*j, *i)] = 1.0;
-    }
-    m
-  }
 }
 
 impl Serialize for Solution {
@@ -58,6 +49,6 @@ impl Serialize for Solution {
 
 impl PartialEq<Self> for Solution {
   fn eq(&self, other: &Self) -> bool {
-    self.fitness == other.fitness && self.matrix() == other.matrix()
+    self.fitness == other.fitness && self.path == other.path
   }
 }
