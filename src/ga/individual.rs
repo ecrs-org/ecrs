@@ -103,3 +103,9 @@ pub type RealValueIndividual = Individual<Vec<f64>>;
 
 /// Type alias for bit string individual (gene is a bool)
 pub type BitStringIndividual = Individual<Vec<bool>>;
+
+pub trait IntoIndividual: Sized {
+    type ChromosomeType: Chromosome;
+
+    fn into_individual(self) -> Individual<Self::ChromosomeType>;
+}
