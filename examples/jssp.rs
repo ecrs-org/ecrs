@@ -7,43 +7,6 @@ use ecrs::prelude::selection::SelectionOperator;
 #[allow(unused_imports)]
 use ecrs::prelude::*;
 
-// ECRS nakłada zbyt duże ograniczenia.
-//
-// 1. Postać osobnika jest sprowadzona jedynie do chormosomu -- w przypadku rozwiązania
-// które próbuję zaimplementować posiadanie stanu jest krytyczne!
-//
-
-fn decode_chromosome(chromosome: &Vec<f64>, rmc: &mut Vec<Vec<i32>>) {
-    // We deduce the problem size from the chromosome
-    let n: usize = chromosome.len() / 2;
-
-    let mut priorities = vec![0; n];
-
-    let mut active_schedule = std::collections::HashSet::new();
-    let mut finish_times = std::collections::HashSet::new();
-    let mut scheduled = std::collections::HashSet::new();
-    let mut e_set = std::collections::HashSet::<i32>::new();
-
-    active_schedule.insert(0);
-    finish_times.insert(0);
-    scheduled.insert(0);
-
-    let mut g = 1;
-    let mut t = 0;
-
-    // while scheduled.len() < n + 1 {
-    //    // Update e_set
-    //    // e_set = ???
-    //    while !e_set.is_empty() {
-    //     // Select operation with highest priority
-    //     let j = e_set.iter().enumerate().max_by_key(|(_, &val)| val).map(|(idx, _)| idx);
-    //
-    //     // Calculate earliset finish time (in terms of precedence only)
-    //     earliset_finish_j =
-    //    }
-    // }
-}
-
 #[derive(Debug)]
 struct Operation {
     id: usize,
