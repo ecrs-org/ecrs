@@ -407,6 +407,95 @@ where
   }
 }
 
+/// # Parameterized Uniform  crossover operator
+///
+/// This struct implements [CrossoverOperator] and can be used with GA.
+///
+/// It works by creating a bit-mask of chromosome length. 1 means that gene should be taken from first
+/// parent, 0 means that gene should be take from second parent. This is inverted when creating second child.
+///
+/// Bias is a probability of drawing a 1 in the bit-mask.
+pub struct UniformParameterized<R: Rng> {
+  rng: R,
+  distr: rand::distributions::Uniform<f64>,
+  bias: f64,
+}
+
+impl UniformParameterized<ThreadRng> {
+  pub fn new(bias: f64) -> Self {
+    Self::with_rng(rand::thread_rng(), bias)
+  }
+}
+
+impl<R: Rng> UniformParameterized<R> {
+  pub fn with_rng(rng: R, bias: f64) -> Self {
+    Self {
+      rng,
+      distr: rand::distributions::Uniform::new(0.0, 1.0),
+      bias,
+    }
+  }
+}
+
+impl<GeneT, ChT, R> CrossoverOperator<ChT> for UniformParameterized<R>
+where
+  ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+  GeneT: Copy,
+  R: Rng + Clone,
+{
+  /// Returns a tuple of children
+  ///
+  /// It works by creating a bit-mask of chromosome length. 1 means that gene should be taken from first
+  /// parent, 0 means that gene should be take from second parent. This is inverted when creating second child.
+  ///
+  /// ## Arguments
+  ///
+  /// * `parent_1` - First parent to take part in recombination
+  /// * `parent_2` - Second parent to take part in recombination
+  fn apply(
+    &mut self,
+    parent_1: &Individual<ChT>,
+    parent_2: &Individual<ChT>,
+  ) -> (Individual<ChT>, Individual<ChT>) {
+    assert_eq!(
+      parent_1.chromosome_ref().len(),
+      parent_2.chromosome_ref().len(),
+      "Parent chromosome length must match"
+    );
+
+    let chromosome_len = parent_1.chromosome_ref().len();
+
+    let mut child_1: Individual<ChT> = Individual::new();
+    let mut child_2: Individual<ChT> = Individual::new();
+
+    let mask = self
+      .rng
+      .clone()
+      .sample_iter(self.distr)
+      .take(chromosome_len);
+
+    for (locus, val) in mask.enumerate() {
+      if val <= self.bias {
+        child_1
+          .chromosome_ref_mut()
+          .push(parent_1.chromosome_ref()[locus]);
+        child_2
+          .chromosome_ref_mut()
+          .push(parent_2.chromosome_ref()[locus]);
+      } else {
+        child_1
+          .chromosome_ref_mut()
+          .push(parent_2.chromosome_ref()[locus]);
+        child_2
+          .chromosome_ref_mut()
+          .push(parent_1.chromosome_ref()[locus]);
+      }
+    }
+
+    (child_1, child_2)
+  }
+}
+
 /// # Ordered crossover operator
 ///
 /// This struct implements [CrossoverOperator] trait and can be used with GA.
