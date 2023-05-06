@@ -468,11 +468,7 @@ where
     let mut child_1: Individual<ChT> = Individual::new();
     let mut child_2: Individual<ChT> = Individual::new();
 
-    let mask = self
-      .rng
-      .clone()
-      .sample_iter(self.distr)
-      .take(chromosome_len);
+    let mask = self.rng.clone().sample_iter(self.distr).take(chromosome_len);
 
     for (locus, val) in mask.enumerate() {
       if val <= self.bias {
