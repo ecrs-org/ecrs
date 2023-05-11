@@ -22,7 +22,6 @@ members = [
 	"coco",
 ]
 
-
 [lib]
 name = "ecrs"
 path = "src/lib.rs"

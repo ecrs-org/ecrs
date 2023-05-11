@@ -1,31 +1,22 @@
 use std::collections::HashSet;
-use std::fmt::Display;
 
-use ecrs::ga::{GAMetadata, Individual};
-use ecrs::prelude::crossover::CrossoverOperator;
-use ecrs::prelude::population::PopulationGenerator;
-use ecrs::prelude::replacement::ReplacementOperator;
-use ecrs::prelude::selection::SelectionOperator;
+use ecrs::{
+    ga::{self, Individual},
+    prelude::population::PopulationGenerator,
+};
 
-#[allow(unused_imports)]
-use ecrs::prelude::*;
+use crate::util::{print_hash_set, print_slice};
 
-fn print_hash_set<T: Display>(set: &HashSet<T>) {
-    for elem in set {
-        print!("{}, ", elem);
-    }
-    println!();
-}
-
-fn print_slice<T: Display>(slc: &[T]) {
-    for elem in slc {
-        print!("{}, ", elem);
-    }
-    println!();
+#[derive(Debug)]
+pub struct JsspIndividual {
+    pub chromosome: Vec<f64>,
+    operations: Vec<Operation>,
+    machines: Vec<Machine>,
+    pub fitness: usize,
 }
 
 #[derive(Debug)]
-struct Operation {
+pub struct Operation {
     id: usize,
     finish_time: usize,
     duration: usize,
@@ -36,14 +27,14 @@ struct Operation {
 }
 
 #[derive(Debug)]
-struct Machine {
+pub struct Machine {
     id: usize,
     // dummy structure
     rmc: Vec<usize>,
 }
 
 impl Machine {
-    fn is_idle(&self, range: std::ops::RangeInclusive<usize>) -> bool {
+    pub fn is_idle(&self, range: std::ops::RangeInclusive<usize>) -> bool {
         assert!(*range.end() < 40);
 
         for i in range {
@@ -54,7 +45,7 @@ impl Machine {
         return true;
     }
 
-    fn reserve(&mut self, range: std::ops::Range<usize>) {
+    pub fn reserve(&mut self, range: std::ops::Range<usize>) {
         for i in range.clone() {
             self.rmc[i] = 0;
         }
@@ -64,23 +55,15 @@ impl Machine {
 }
 
 #[derive(Debug)]
-struct JsspIndividual {
-    chromosome: Vec<f64>,
-    operations: Vec<Operation>,
-    machines: Vec<Machine>,
-    fitness: usize,
+pub struct JsspConfig {
+    pub n_jobs: usize,
+    pub n_machines: usize,
 }
 
 #[derive(Debug)]
-struct JsspConfig {
-    n_jobs: usize,
-    n_machines: usize,
-}
-
-#[derive(Debug)]
-struct JsspState {
-    cfg: JsspConfig,
-    population: Vec<JsspIndividual>,
+pub struct JsspState {
+    pub cfg: JsspConfig,
+    pub population: Vec<JsspIndividual>,
 }
 
 impl JsspState {
@@ -160,7 +143,7 @@ impl JsspState {
         machines
     }
 
-    fn init_pop(&mut self, size: usize) {
+    pub fn init_pop(&mut self, size: usize) {
         self.population = ga::population::RandomPoints::with_single_constraint(8, 0.0..1.0)
             .generate(size)
             .into_iter()
@@ -173,7 +156,7 @@ impl JsspState {
             .collect();
     }
 
-    fn inject_ecrs_pop(&mut self, population: Vec<Individual<Vec<f64>>>) {
+    pub fn inject_ecrs_pop(&mut self, population: Vec<Individual<Vec<f64>>>) {
         self.population = population
             .into_iter()
             .map(|idv| JsspIndividual {
@@ -185,7 +168,7 @@ impl JsspState {
             .collect();
     }
 
-    fn eval_pop(&mut self) {
+    pub fn eval_pop(&mut self) {
         for idv in self.population.iter_mut() {
             idv.eval();
         }
@@ -350,67 +333,4 @@ impl JsspIndividual {
         println!("++++++++++++++++++++++++++++++++++");
         last_finish_time
     }
-}
-
-fn run() -> () {
-    const POPULATION_SIZE: usize = 4;
-    const SELECTION_SIZE: usize = 2;
-
-    let mut state = JsspState {
-        cfg: JsspConfig {
-            n_jobs: 4,
-            n_machines: 2,
-        },
-        population: Vec::new(),
-    };
-
-    // Generate initial population
-    state.init_pop(POPULATION_SIZE);
-
-    // Evaluate population
-    state.eval_pop();
-
-    // For bounded number of iterations run evolution:
-    // 1. Select with elitism
-    // 2. Uniform crossover or chromosomes (not decoded solutions)
-    // 3. Instead of mutation
-
-    let mut selection_op = ga::operators::selection::Rank::new();
-    let mut crossover_op = ga::operators::crossover::Uniform::new();
-    let replacement_op = ga::operators::replacement::BothParents::new();
-    // assert!(replacement_op.requires_children_fitness() == false);
-
-    let stub_metadata = GAMetadata::new(None, None, 0);
-
-    for _ in 0..1 {
-        let mut ecrs_individuals: Vec<Individual<Vec<f64>>> = state
-            .population
-            .iter()
-            .map(|jssp_idv| Individual {
-                chromosome: jssp_idv.chromosome.clone(),
-                fitness: jssp_idv.fitness as f64,
-            })
-            .collect();
-
-        let selected_pop = selection_op.apply(&stub_metadata, &ecrs_individuals, SELECTION_SIZE);
-
-        let mut children: Vec<Individual<Vec<f64>>> = Vec::with_capacity(SELECTION_SIZE);
-
-        for i in (0..selected_pop.len()).step_by(2) {
-            let crt_children = crossover_op.apply(selected_pop[i], selected_pop[i + 1]);
-            children.push(crt_children.0);
-            children.push(crt_children.1);
-        }
-
-        // TODO: Sample new individuals from the initial distribution
-
-        ecrs_individuals = replacement_op.apply(ecrs_individuals, children);
-        state.inject_ecrs_pop(ecrs_individuals);
-        state.eval_pop();
-    }
-}
-
-fn main() -> Result<(), ()> {
-    run();
-    Ok(())
 }
