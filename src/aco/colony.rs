@@ -5,33 +5,32 @@ use crate::aco::pheromone::Pheromone;
 use std::marker::PhantomData;
 
 pub trait Colony<P: Pheromone> {
-  fn build_solutions(&mut self, pheromone: &mut P) -> Vec<Vec<usize>>;
+    fn build_solutions(&mut self, pheromone: &mut P) -> Vec<Vec<usize>>;
 }
 
 pub struct LegacyColony<P: Pheromone, AB: AntsBehaviour<A, G, P>, A: Ant, G: Goodness<P>> {
-  ants_behaviour: AB,
-  goodness: G,
-  ants: Vec<A>,
-  _phantom: PhantomData<P>,
+    ants_behaviour: AB,
+    goodness: G,
+    ants: Vec<A>,
+    _phantom: PhantomData<P>,
 }
 
 impl<P: Pheromone, AB: AntsBehaviour<A, G, P>, A: Ant, G: Goodness<P>> LegacyColony<P, AB, A, G> {
-  pub fn new(ants_behaviour: AB, goodness: G, ants: Vec<A>) -> Self {
-    Self {
-      ants_behaviour,
-      goodness,
-      ants,
-      _phantom: Default::default(),
+    pub fn new(ants_behaviour: AB, goodness: G, ants: Vec<A>) -> Self {
+        Self {
+            ants_behaviour,
+            goodness,
+            ants,
+            _phantom: Default::default(),
+        }
     }
-  }
 }
 
 impl<P: Pheromone, AB: AntsBehaviour<A, G, P>, A: Ant, G: Goodness<P>> Colony<P>
-  for LegacyColony<P, AB, A, G>
+    for LegacyColony<P, AB, A, G>
 {
-  fn build_solutions(&mut self, pheromone: &mut P) -> Vec<Vec<usize>> {
-    self
-      .ants_behaviour
-      .simulate_ants(&mut self.ants, pheromone, &mut self.goodness)
-  }
+    fn build_solutions(&mut self, pheromone: &mut P) -> Vec<Vec<usize>> {
+        self.ants_behaviour
+            .simulate_ants(&mut self.ants, pheromone, &mut self.goodness)
+    }
 }

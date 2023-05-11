@@ -43,81 +43,81 @@ pub type FMatrix = OMatrix<f64, Dyn, Dyn>;
 /// To extract data use a [probe](probe)
 pub struct AntColonyOptimization<P, C, F, T, Pr, Ph>
 where
-  P: PheromoneUpdate<Ph>,
-  C: Colony<Ph>,
-  F: Fitness,
-  T: TerminationCondition<Ph>,
-  Pr: Probe<Ph>,
-  Ph: Pheromone,
+    P: PheromoneUpdate<Ph>,
+    C: Colony<Ph>,
+    F: Fitness,
+    T: TerminationCondition<Ph>,
+    Pr: Probe<Ph>,
+    Ph: Pheromone,
 {
-  colony: C,
-  pheromone_update: P,
-  evaporation_rate: f64,
-  pheromone: Ph,
-  fitness: F,
-  termination_cond: T,
-  probe: Pr,
+    colony: C,
+    pheromone_update: P,
+    evaporation_rate: f64,
+    pheromone: Ph,
+    fitness: F,
+    termination_cond: T,
+    probe: Pr,
 }
 
 impl<P, C, F, T, Pr, Ph> AntColonyOptimization<P, C, F, T, Pr, Ph>
 where
-  P: PheromoneUpdate<Ph>,
-  C: Colony<Ph>,
-  F: Fitness,
-  T: TerminationCondition<Ph>,
-  Pr: Probe<Ph>,
-  Ph: Pheromone,
+    P: PheromoneUpdate<Ph>,
+    C: Colony<Ph>,
+    F: Fitness,
+    T: TerminationCondition<Ph>,
+    Pr: Probe<Ph>,
+    Ph: Pheromone,
 {
-  /// Executes the algorithm
-  pub fn run(mut self) {
-    self.termination_cond.init(&self.pheromone);
-    while !self.termination_cond.update_and_check(&self.pheromone) {
-      self.probe.on_iteration_start();
-      self.iterate();
-      self.probe.on_iteration_end();
+    /// Executes the algorithm
+    pub fn run(mut self) {
+        self.termination_cond.init(&self.pheromone);
+        while !self.termination_cond.update_and_check(&self.pheromone) {
+            self.probe.on_iteration_start();
+            self.iterate();
+            self.probe.on_iteration_end();
+        }
+
+        self.end()
     }
 
-    self.end()
-  }
+    fn iterate(&mut self) {
+        let paths = self.colony.build_solutions(&mut self.pheromone);
+        let sols = self.grade(paths);
 
-  fn iterate(&mut self) {
-    let paths = self.colony.build_solutions(&mut self.pheromone);
-    let sols = self.grade(paths);
+        let best = self.find_best(&sols);
+        self.probe.on_current_best(best);
 
-    let best = self.find_best(&sols);
-    self.probe.on_current_best(best);
+        let new_pheromone = self
+            .pheromone_update
+            .apply(&self.pheromone, &sols, self.evaporation_rate);
 
-    let new_pheromone = self
-      .pheromone_update
-      .apply(&self.pheromone, &sols, self.evaporation_rate);
-
-    self.probe.on_pheromone_update(&self.pheromone, &new_pheromone);
-    self.pheromone = new_pheromone;
-  }
-
-  fn find_best<'a>(&mut self, sols: &'a [Solution]) -> &'a Solution {
-    let best = sols
-      .iter()
-      .reduce(|a, b| if a.fitness > b.fitness { a } else { b });
-
-    best.unwrap()
-  }
-
-  fn grade(&mut self, paths: Vec<Vec<usize>>) -> Vec<Solution> {
-    let mut sols: Vec<Solution> = Vec::with_capacity(paths.len());
-
-    for path in paths {
-      let fitness = self.fitness.apply(&path);
-
-      let mut solution = Solution::from_path(path);
-      solution.fitness = fitness;
-      sols.push(solution);
+        self.probe.on_pheromone_update(&self.pheromone, &new_pheromone);
+        self.pheromone = new_pheromone;
     }
 
-    sols
-  }
+    fn find_best<'a>(&mut self, sols: &'a [Solution]) -> &'a Solution {
+        let best = sols
+            .iter()
+            .reduce(|a, b| if a.fitness > b.fitness { a } else { b });
 
-  fn end(mut self) {
-    self.probe.on_end();
-  }
+        best.unwrap()
+    }
+
+    fn grade(&mut self, paths: Vec<Vec<usize>>) -> Vec<Solution> {
+        let mut sols: Vec<Solution> = Vec::with_capacity(paths.len());
+
+        for path in paths {
+            let fitness = self.fitness.apply(&path);
+
+            let mut solution = Solution::from_path(path);
+            solution.fitness = fitness;
+            sols.push(solution);
+        }
+
+        sols
+    }
+
+    fn end(mut self) {
+        self.probe.on_end();
+    }
 }

@@ -298,9 +298,7 @@ impl JsspIndividual {
                 let finish_time_j = finish_times
                     .iter()
                     .filter(|&&t| t != usize::MAX && t >= pred_j_finish)
-                    .filter(|&&t| {
-                        self.machines[op_j.machine].is_idle(t..=t + op_j.duration)
-                    })
+                    .filter(|&&t| self.machines[op_j.machine].is_idle(t..=t + op_j.duration))
                     .min()
                     .unwrap()
                     + op_j.duration;
@@ -342,8 +340,7 @@ impl JsspIndividual {
                 print_hash_set(&e_set);
 
                 // Update RMC
-                self.machines[op_j.machine]
-                    .reserve(finish_time_j - op_j.duration..finish_time_j);
+                self.machines[op_j.machine].reserve(finish_time_j - op_j.duration..finish_time_j);
                 println!("---------------------------------");
             }
             // Update the scheduling time t_g associated with g

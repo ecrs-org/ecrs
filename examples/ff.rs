@@ -3,9 +3,9 @@
 use ecrs::ff::FireflyAlgorithm;
 
 fn main() {
-  let mut alg = FireflyAlgorithm::default();
+    let mut alg = FireflyAlgorithm::default();
 
-  alg.run();
+    alg.run();
 }
 
 #[cfg(not(feature = "ff"))]
