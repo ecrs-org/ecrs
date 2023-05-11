@@ -1,12 +1,14 @@
+mod problem;
 mod util;
-mod model;
 
-
-use ecrs::{ga::{GAMetadata, Individual}, prelude::{selection::SelectionOperator, crossover::CrossoverOperator, replacement::ReplacementOperator}};
 #[allow(unused_imports)]
 use ecrs::prelude::{crossover, ga, ops, replacement, selection};
+use ecrs::{
+    ga::{GAMetadata, Individual},
+    prelude::{crossover::CrossoverOperator, replacement::ReplacementOperator, selection::SelectionOperator},
+};
 
-use crate::model::{JsspState, JsspConfig};
+use crate::problem::{state::JsspState, JsspConfig};
 
 fn run() -> () {
     const POPULATION_SIZE: usize = 4;
