@@ -142,7 +142,7 @@ impl JsspState {
     }
 
     fn init_pop(&mut self, size: usize) {
-        self.population = ga::population::RandomPoints::with_constraints_single(8, (0.0..1.0))
+        self.population = ga::population::RandomPoints::with_single_constraint(8, 0.0..1.0)
             .generate(size)
             .into_iter()
             .map(|idv| JsspIndividual {
@@ -291,7 +291,7 @@ impl JsspIndividual {
                 //     .min()
                 //     .unwrap()
                 //     + self.operations[op_j.id].duration;
-                //
+
                 scheduled.insert(op_j.id);
                 finish_times[op_j.id] = finish_time_j;
                 g += 1;

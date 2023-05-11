@@ -52,6 +52,18 @@ impl RandomPoints<ThreadRng> {
     Self::with_constraints_and_rng(dim, noninclusive, thread_rng())
   }
 
+  /// Returns [RandomPoints] population generator with single constraint for all dimensions and
+  /// default RNG
+  ///
+  /// ### Arguments
+  ///
+  /// * `dim` -- Dimension of the sampling space
+  /// * `constraint` -- Range for coordinates
+  pub fn with_single_constraint(dim: usize, constraint: Range<f64>) -> Self {
+    let constraints = (1..=dim).map(|_| constraint.clone()).collect();
+    Self::with_constraints(dim, constraints)
+  }
+
   /// Returns [RandomPoints] population generator with no explicit constraints and default RNG.
   /// Points coords will be from range 0.0..1.0.
   ///
