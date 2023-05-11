@@ -71,6 +71,8 @@ impl<T: Chromosome> From<T> for Individual<T> {
   }
 }
 
+// Traits required for more ergonomic sorting
+
 impl<T: Chromosome> PartialEq<Self> for Individual<T> {
   fn eq(&self, other: &Self) -> bool {
     self.fitness == other.fitness
@@ -100,4 +102,10 @@ impl<T: Chromosome> Ord for Individual<T> {
 pub type RealValueIndividual = Individual<Vec<f64>>;
 
 /// Type alias for bit string individual (gene is a bool)
-pub type BitStringInvididual = Individual<Vec<bool>>;
+pub type BitStringIndividual = Individual<Vec<bool>>;
+
+pub trait IntoIndividual: Sized {
+    type ChromosomeType: Chromosome;
+
+    fn into_individual(self) -> Individual<Self::ChromosomeType>;
+}
