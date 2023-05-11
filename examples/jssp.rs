@@ -228,16 +228,12 @@ impl JsspIndividual {
 
     fn eval(&mut self) -> usize {
         println!("++++++++++++++++++++++++++++++++++");
-        for op in self.operations.iter() {
-            println!("Operation {}", op.id);
-        }
-        // We deduce the problem size from the chromosomno w sumie, niby ma działać
+        // We deduce the problem size from the chromosome size
         let n: usize = self.chromosome.len() / 2;
         println!("Deduced problem size n = {}", n);
 
         let mut active_schedule = std::collections::HashSet::new();
         let mut finish_times = vec![usize::MAX; n + 2];
-        debug_assert!(finish_times.len() == n + 2);
         let mut scheduled = std::collections::HashSet::new();
         let mut e_set = std::collections::HashSet::<usize>::new();
 
@@ -252,9 +248,9 @@ impl JsspIndividual {
         let max_dur = self.operations.iter().map(|op| op.duration).max().unwrap();
 
         println!("Entering main loop with g = 1, t_g = 0, max_dur = {}", max_dur);
-        
+
         let mut last_finish_time = 0;
-        while scheduled.len() < n + 1 && g < 10 {
+        while scheduled.len() < n + 1 {
             println!("==================================");
             println!("g = {}", g);
 
@@ -270,7 +266,7 @@ impl JsspIndividual {
             print!("e_set: ");
             print_hash_set(&e_set);
 
-            while !e_set.is_empty() && g < 10 {
+            while !e_set.is_empty() {
                 println!("---------------------------------");
                 println!("Inner loop for g = {}", g);
                 print!("e_set: ");
@@ -279,27 +275,22 @@ impl JsspIndividual {
                 // Select operation with highest priority
                 let j = e_set
                     .iter()
-                    .enumerate()
-                    .max_by(|(_, &a), (_, &b)| self.chromosome[a].partial_cmp(&self.chromosome[b]).unwrap())
-                    // .max_by_key(|(_, &val)| self.chromosome[val])
-                    .map(|(_idx, val)| val)
+                    .max_by(|&&a, &&b| self.chromosome[a].partial_cmp(&self.chromosome[b]).unwrap())
                     .unwrap()
                     .clone();
+
                 let op_j = &self.operations[j];
 
                 println!("Operation with highest priority: {}", j);
 
                 // Calculate earliset finish time (in terms of precedence only)
-                let mut earliest_finish_j = op_j
+                let pred_j_finish = op_j
                     .preds
                     .iter()
                     .filter(|&id| finish_times[*id] != usize::MAX)
                     .map(|&id| finish_times[id])
                     .max()
                     .unwrap_or(0);
-
-                let pred_j_finish = earliest_finish_j;
-                earliest_finish_j += self.operations[op_j.id].duration;
 
                 // Calculate the earliest finish time (in terms of precedence and capacity)
                 println!("pred finish_time = {}", pred_j_finish);
@@ -308,12 +299,13 @@ impl JsspIndividual {
                     .iter()
                     .filter(|&&t| t != usize::MAX && t >= pred_j_finish)
                     .filter(|&&t| {
-                        self.machines[self.operations[op_j.id].machine].is_idle(t..=t + op_j.duration)
+                        self.machines[op_j.machine].is_idle(t..=t + op_j.duration)
                     })
                     .min()
                     .unwrap()
-                    + self.operations[op_j.id].duration;
+                    + op_j.duration;
 
+                // Update state
                 scheduled.insert(op_j.id);
                 finish_times[op_j.id] = finish_time_j;
                 println!(
@@ -350,7 +342,7 @@ impl JsspIndividual {
                 print_hash_set(&e_set);
 
                 // Update RMC
-                self.machines[self.operations[op_j.id].machine]
+                self.machines[op_j.machine]
                     .reserve(finish_time_j - op_j.duration..finish_time_j);
                 println!("---------------------------------");
             }
