@@ -177,7 +177,7 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
         // GeneticAlgorithm::new(self.config.into())
         let config = match self.config.try_into() {
             Ok(config) => config,
-            Err(err) => panic!("Builder panicked with error: {}", err),
+            Err(err) => panic!("Builder panicked with error: {err}"),
         };
 
         GeneticAlgorithm::new(config)

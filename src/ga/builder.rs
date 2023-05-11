@@ -37,8 +37,8 @@ enum ConfigError {
 impl Display for ConfigError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::MissingParam(param) => write!(f, "Unspecified parameter: {}", param),
-            Self::MissingOperator(op) => write!(f, "Unspecified operator: {}", op),
+            Self::MissingParam(param) => write!(f, "Unspecified parameter: {param}"),
+            Self::MissingOperator(op) => write!(f, "Unspecified operator: {op}"),
             Self::MissingPopulationFactory => write!(f, "Unspecified population factory"),
             Self::NoProbe => write!(f, "Unspecified probe"),
             Self::NoParams => write!(f, "No parameters were specified"),
