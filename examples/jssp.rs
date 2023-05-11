@@ -346,7 +346,7 @@ impl JsspIndividual {
                     .reserve(finish_time_j - op_j.duration..finish_time_j);
                 println!("---------------------------------");
             }
-            // Update the time t_g associated with g
+            // Update the scheduling time t_g associated with g
             t_g = finish_times.iter().filter(|&&t| t > t_g).min().unwrap().clone();
             println!("==================================");
         }
