@@ -3,29 +3,29 @@ use std::fs::File;
 
 #[derive(Serialize)]
 struct JsonRecord {
-  generation_number: usize,
-  best_fitness: f64,
-  best_individual: Vec<f64>,
+    generation_number: usize,
+    best_fitness: f64,
+    best_individual: Vec<f64>,
 }
 
 pub struct JsonProbe {
-  writer: File,
-  best_fitness: f64,
-  generation_number: usize,
-  best_chromosome: Vec<f64>,
-  records: Vec<JsonRecord>,
+    writer: File,
+    best_fitness: f64,
+    generation_number: usize,
+    best_chromosome: Vec<f64>,
+    records: Vec<JsonRecord>,
 }
 
 impl JsonProbe {
-  pub fn new(file: String) -> JsonProbe {
-    JsonProbe {
-      writer: File::create(file).unwrap(),
-      best_fitness: 0f64,
-      generation_number: 0,
-      best_chromosome: vec![],
-      records: vec![],
+    pub fn new(file: String) -> JsonProbe {
+        JsonProbe {
+            writer: File::create(file).unwrap(),
+            best_fitness: 0f64,
+            generation_number: 0,
+            best_chromosome: vec![],
+            records: vec![],
+        }
     }
-  }
 }
 
 // impl Probe for JsonProbe {

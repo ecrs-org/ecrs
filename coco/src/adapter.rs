@@ -4,26 +4,25 @@ use ecrs::ga::operators::fitness::Fitness;
 type RealVector = Vec<f64>;
 
 pub struct CocoFitness<'a, 'suite> {
-  coco_problem: &'a mut Problem<'suite>,
-  output_cell: [f64; 1],
+    coco_problem: &'a mut Problem<'suite>,
+    output_cell: [f64; 1],
 }
 
 impl<'a, 'suite> CocoFitness<'a, 'suite> {
-  pub fn new(problem: &'a mut Problem<'suite>) -> Self {
-    Self {
-      coco_problem: problem,
-      output_cell: [f64::MIN],
+    pub fn new(problem: &'a mut Problem<'suite>) -> Self {
+        Self {
+            coco_problem: problem,
+            output_cell: [f64::MIN],
+        }
     }
-  }
 }
 
 impl<'a, 'suite> Fitness<RealVector> for CocoFitness<'a, 'suite> {
-  fn apply(&mut self, chromosome: &RealVector) -> f64 {
-    self
-      .coco_problem
-      .evaluate_function(chromosome, &mut self.output_cell);
-    self.output_cell[0]
-  }
+    fn apply(&mut self, chromosome: &RealVector) -> f64 {
+        self.coco_problem
+            .evaluate_function(chromosome, &mut self.output_cell);
+        self.output_cell[0]
+    }
 }
 
 // pub struct CocoPopulationGenerator<'a, 'suite> {

@@ -13,76 +13,76 @@ use crate::aco::FMatrix;
 ///
 /// This trait must be implemented for goodness calculating struct.
 pub trait Goodness<P: Pheromone> {
-  /// Calculates goodness based on pheromone and its own internal state
-  ///
-  /// ## Arguments
-  /// `pheromone` - Pheromone in matrix representation.
-  fn apply(&mut self, pheromone: &P) -> P;
+    /// Calculates goodness based on pheromone and its own internal state
+    ///
+    /// ## Arguments
+    /// `pheromone` - Pheromone in matrix representation.
+    fn apply(&mut self, pheromone: &P) -> P;
 }
 
 /// # Canonical Goodness
 ///
 /// Implements [Goodness]. Provides goodness calculation based on Ant System equations
 pub struct CanonicalGoodness {
-  pub(in crate::aco) alpha: f64,
-  pub(in crate::aco) beta: f64,
-  pub(in crate::aco) heuristic: FMatrix,
+    pub(in crate::aco) alpha: f64,
+    pub(in crate::aco) beta: f64,
+    pub(in crate::aco) heuristic: FMatrix,
 }
 
 impl CanonicalGoodness {
-  /// Creates a new instance of [CanonicalGoodness].
-  ///
-  /// ## Arguments
-  /// * `alpha` - importance of weights in edge choosing.
-  /// * `beta` - importance of heuristic in edge choosing.
-  /// * `heuristic` - Weighted graph in matrix representation.
-  pub fn new(alpha: f64, beta: f64, heuristic: FMatrix) -> Self {
-    Self {
-      alpha,
-      beta,
-      heuristic,
+    /// Creates a new instance of [CanonicalGoodness].
+    ///
+    /// ## Arguments
+    /// * `alpha` - importance of weights in edge choosing.
+    /// * `beta` - importance of heuristic in edge choosing.
+    /// * `heuristic` - Weighted graph in matrix representation.
+    pub fn new(alpha: f64, beta: f64, heuristic: FMatrix) -> Self {
+        Self {
+            alpha,
+            beta,
+            heuristic,
+        }
     }
-  }
 
-  /// Creates a new instance of [CanonicalGoodness] with default values.
-  ///
-  /// ## Arguments
-  /// * `solution_size` - number of vertices
-  pub fn default(solution_size: usize) -> Self {
-    let h = FMatrix::repeat(solution_size, solution_size, 1.0);
-    Self::new(1.0, 1.0, h)
-  }
+    /// Creates a new instance of [CanonicalGoodness] with default values.
+    ///
+    /// ## Arguments
+    /// * `solution_size` - number of vertices
+    pub fn default(solution_size: usize) -> Self {
+        let h = FMatrix::repeat(solution_size, solution_size, 1.0);
+        Self::new(1.0, 1.0, h)
+    }
 }
 
 impl Goodness<FMatrix> for CanonicalGoodness {
-  fn apply(&mut self, pheromone: &FMatrix) -> FMatrix {
-    let solution_size = pheromone.nrows();
-    let iter = pheromone
-      .iter()
-      .zip(self.heuristic.iter())
-      .map(|(p, h)| p.powf(self.alpha) * h.powf(self.beta));
+    fn apply(&mut self, pheromone: &FMatrix) -> FMatrix {
+        let solution_size = pheromone.nrows();
+        let iter = pheromone
+            .iter()
+            .zip(self.heuristic.iter())
+            .map(|(p, h)| p.powf(self.alpha) * h.powf(self.beta));
 
-    FMatrix::from_iterator(solution_size, solution_size, iter)
-  }
+        FMatrix::from_iterator(solution_size, solution_size, iter)
+    }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::aco::goodness::{CanonicalGoodness, Goodness};
-  use crate::aco::FMatrix;
+    use crate::aco::goodness::{CanonicalGoodness, Goodness};
+    use crate::aco::FMatrix;
 
-  #[test]
-  fn canonical_goodness_calculations_are_right() {
-    let heuristic = FMatrix::from_vec(2, 2, vec![1.0, 2.0, 4.0, 8.0]);
-    let alpha = 2.0;
-    let beta = 3.0;
-    let pheromone = FMatrix::from_vec(2, 2, vec![4.0, 2.0, 8.0, 0.5]);
+    #[test]
+    fn canonical_goodness_calculations_are_right() {
+        let heuristic = FMatrix::from_vec(2, 2, vec![1.0, 2.0, 4.0, 8.0]);
+        let alpha = 2.0;
+        let beta = 3.0;
+        let pheromone = FMatrix::from_vec(2, 2, vec![4.0, 2.0, 8.0, 0.5]);
 
-    let goodness = vec![16.0, 32.0, 4096.0, 128.0];
+        let goodness = vec![16.0, 32.0, 4096.0, 128.0];
 
-    let mut g_op = CanonicalGoodness::new(alpha, beta, heuristic);
-    for (a, b) in goodness.iter().zip(g_op.apply(&pheromone).iter()) {
-      assert_eq!(a, b);
+        let mut g_op = CanonicalGoodness::new(alpha, beta, heuristic);
+        for (a, b) in goodness.iter().zip(g_op.apply(&pheromone).iter()) {
+            assert_eq!(a, b);
+        }
     }
-  }
 }
