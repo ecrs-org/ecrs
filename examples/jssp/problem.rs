@@ -30,7 +30,7 @@ impl Machine {
                 return false;
             }
         }
-        return true;
+        true
     }
 
     pub fn reserve(&mut self, range: std::ops::Range<usize>) {
@@ -47,4 +47,3 @@ pub struct JsspConfig {
     pub n_jobs: usize,
     pub n_machines: usize,
 }
-

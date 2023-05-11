@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
-use crate::util::{print_slice, print_hash_set};
+use crate::util::{print_hash_set, print_slice};
 
-use super::{Operation, Machine};
+use super::{Machine, Operation};
 
 #[derive(Debug)]
 pub struct JsspIndividual {
@@ -16,7 +16,7 @@ impl JsspIndividual {
     fn update_delay_feasible_set(
         &self,
         feasibles: &mut HashSet<usize>,
-        finish_times: &Vec<usize>,
+        finish_times: &[usize],
         delay: f64,
         time: usize,
     ) {
@@ -39,7 +39,7 @@ impl JsspIndividual {
                         return false;
                     }
                 }
-                return true;
+                true
             })
             .for_each(|op| {
                 feasibles.insert(op.id);
@@ -50,7 +50,7 @@ impl JsspIndividual {
         println!("++++++++++++++++++++++++++++++++++");
         // We deduce the problem size from the chromosome size
         let n: usize = self.chromosome.len() / 2;
-        println!("Deduced problem size n = {}", n);
+        println!("Deduced problem size n = {n}");
 
         let mut active_schedule = std::collections::HashSet::new();
         let mut finish_times = vec![usize::MAX; n + 2];
@@ -67,16 +67,16 @@ impl JsspIndividual {
 
         let max_dur = self.operations.iter().map(|op| op.duration).max().unwrap();
 
-        println!("Entering main loop with g = 1, t_g = 0, max_dur = {}", max_dur);
+        println!("Entering main loop with g = 1, t_g = 0, max_dur = {max_dur}");
 
         let mut last_finish_time = 0;
         while scheduled.len() < n + 1 {
             println!("==================================");
-            println!("g = {}", g);
+            println!("g = {g}");
 
             // Update e_set
             let delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
-            println!("delay = {}", delay);
+            println!("delay = {delay}");
 
             print!("finish_times: ");
             print_slice(&finish_times);
@@ -88,20 +88,19 @@ impl JsspIndividual {
 
             while !e_set.is_empty() {
                 println!("---------------------------------");
-                println!("Inner loop for g = {}", g);
+                println!("Inner loop for g = {g}");
                 print!("e_set: ");
                 print_hash_set(&e_set);
 
                 // Select operation with highest priority
-                let j = e_set
+                let j = *e_set
                     .iter()
                     .max_by(|&&a, &&b| self.chromosome[a].partial_cmp(&self.chromosome[b]).unwrap())
-                    .unwrap()
-                    .clone();
+                    .unwrap();
 
                 let op_j = &self.operations[j];
 
-                println!("Operation with highest priority: {}", j);
+                println!("Operation with highest priority: {j}");
 
                 // Calculate earliset finish time (in terms of precedence only)
                 let pred_j_finish = op_j
@@ -113,7 +112,7 @@ impl JsspIndividual {
                     .unwrap_or(0);
 
                 // Calculate the earliest finish time (in terms of precedence and capacity)
-                println!("pred finish_time = {}", pred_j_finish);
+                println!("pred finish_time = {pred_j_finish}");
 
                 let finish_time_j = finish_times
                     .iter()
@@ -155,7 +154,7 @@ impl JsspIndividual {
 
                 e_set.remove(&j);
 
-                println!("Removed op {} from e_set", j);
+                println!("Removed op {j} from e_set");
                 print!("e_set: ");
                 print_hash_set(&e_set);
 
@@ -164,7 +163,7 @@ impl JsspIndividual {
                 println!("---------------------------------");
             }
             // Update the scheduling time t_g associated with g
-            t_g = finish_times.iter().filter(|&&t| t > t_g).min().unwrap().clone();
+            t_g = *finish_times.iter().filter(|&&t| t > t_g).min().unwrap();
             println!("==================================");
         }
         println!("++++++++++++++++++++++++++++++++++");

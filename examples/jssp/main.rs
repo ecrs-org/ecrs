@@ -10,7 +10,7 @@ use ecrs::{
 
 use crate::problem::{state::JsspState, JsspConfig};
 
-fn run() -> () {
+fn run() {
     const POPULATION_SIZE: usize = 4;
     const SELECTION_SIZE: usize = 2;
 

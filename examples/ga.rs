@@ -40,7 +40,7 @@ fn main() {
         .run()
         .unwrap();
 
-    println!("{:?}", res);
+    println!("{res:?}");
 }
 
 #[cfg(not(feature = "ga"))]
