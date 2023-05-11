@@ -252,7 +252,8 @@ impl JsspIndividual {
         let max_dur = self.operations.iter().map(|op| op.duration).max().unwrap();
 
         println!("Entering main loop with g = 1, t_g = 0, max_dur = {}", max_dur);
-
+        
+        let mut last_finish_time = 0;
         while scheduled.len() < n + 1 && g < 10 {
             println!("==================================");
             println!("g = {}", g);
@@ -324,6 +325,8 @@ impl JsspIndividual {
                 );
                 g += 1;
 
+                last_finish_time = usize::max(last_finish_time, finish_time_j);
+
                 // Update active schedule
                 let mut to_remove: Vec<usize> = vec![];
                 for el in active_schedule.iter() {
@@ -356,7 +359,7 @@ impl JsspIndividual {
             println!("==================================");
         }
         println!("++++++++++++++++++++++++++++++++++");
-        0
+        last_finish_time
     }
 }
 
