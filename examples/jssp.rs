@@ -27,7 +27,7 @@ struct Machine {
 
 impl Machine {
     fn is_idle(&self, range: std::ops::RangeInclusive<usize>) -> bool {
-        assert!(*range.end() < 20);
+        assert!(*range.end() < 40);
 
         for i in range {
             if self.rmc[i] == 0 {
@@ -35,6 +35,12 @@ impl Machine {
             }
         }
         return true;
+    }
+
+    fn reserve(&mut self, range: std::ops::RangeInclusive<usize>) {
+        for i in range {
+            self.rmc[i] = 0;
+        }
     }
 }
 
@@ -61,12 +67,12 @@ struct JsspState {
 impl JsspState {
     fn build_operations(&self) -> Vec<Operation> {
         // For now I'm implementing just for single case
-        assert!(self.cfg.n_jobs == 2 && self.cfg.n_machines == 2);
+        assert!(self.cfg.n_jobs == 4 && self.cfg.n_machines == 2);
 
         let mut operations = Vec::with_capacity(self.cfg.n_jobs + 2);
         operations.push(Operation {
             id: 0,
-            finish_time: 0,
+            finish_time: usize::MAX,
             duration: 0,
             machine: 0,
             preds: Vec::new(),
@@ -74,7 +80,7 @@ impl JsspState {
 
         operations.push(Operation {
             id: 1,
-            finish_time: 0,
+            finish_time: usize::MAX,
             duration: 4,
             machine: 1,
             // preds: Vec::new(), // or maybe should I put Operation 0 here?
@@ -83,7 +89,7 @@ impl JsspState {
 
         operations.push(Operation {
             id: 2,
-            finish_time: 0,
+            finish_time: usize::MAX,
             duration: 2,
             machine: 0,
             preds: vec![0, 1],
@@ -91,7 +97,7 @@ impl JsspState {
 
         operations.push(Operation {
             id: 3,
-            finish_time: 0,
+            finish_time: usize::MAX,
             duration: 1,
             machine: 0,
             // preds: Vec::new(),
@@ -100,7 +106,7 @@ impl JsspState {
 
         operations.push(Operation {
             id: 4,
-            finish_time: 0,
+            finish_time: usize::MAX,
             duration: 3,
             machine: 1,
             preds: vec![0, 3],
@@ -108,7 +114,7 @@ impl JsspState {
 
         operations.push(Operation {
             id: 5,
-            finish_time: 0,
+            finish_time: usize::MAX,
             duration: 0,
             machine: 0,
             preds: vec![0, 1, 2, 3, 4],
@@ -124,11 +130,11 @@ impl JsspState {
         let machines = vec![
             Machine {
                 id: 0,
-                rmc: vec![1, 20],
+                rmc: vec![1; 40],
             },
             Machine {
                 id: 1,
-                rmc: vec![1, 20],
+                rmc: vec![1; 40],
             },
         ];
 
@@ -136,7 +142,7 @@ impl JsspState {
     }
 
     fn init_pop(&mut self, size: usize) {
-        self.population = ga::population::RandomPoints::with_constraints(2, vec![(0.0..1.0), (0.0..1.0)])
+        self.population = ga::population::RandomPoints::with_constraints_single(8, (0.0..1.0))
             .generate(size)
             .into_iter()
             .map(|idv| JsspIndividual {
@@ -169,23 +175,64 @@ impl JsspState {
 
 impl JsspIndividual {
     fn eval(&mut self) -> usize {
-        // We deduce the problem size from the chromosome
+        for op in self.operations.iter() {
+            println!("Operation {}", op.id);
+        }
+        // We deduce the problem size from the chromosomno w sumie, niby ma działać
         let n: usize = self.chromosome.len() / 2;
+        dbg!(n);
 
         let mut active_schedule = std::collections::HashSet::new();
-        let mut finish_times = vec![0, n + 2];
+        let mut finish_times = vec![usize::MAX; n + 2];
+        debug_assert!(finish_times.len() == n + 2);
         let mut scheduled = std::collections::HashSet::new();
         let mut e_set = std::collections::HashSet::<usize>::new();
 
         active_schedule.insert(0);
         scheduled.insert(0);
+        finish_times[0] = 0;
+        self.operations[0].finish_time = 0;
 
         let mut g = 1;
-        let mut t = 0;
+        let mut t_g = 0;
+
+        let max_dur = self.operations.iter().map(|op| op.duration).max().unwrap();
+
+        println!("Entering main loop with g = 1, t_g = 0, max_dur = {}", max_dur);
 
         while scheduled.len() < n + 1 {
+            dbg!(g);
             // Update e_set
-            // e_set = ???
+            let delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
+            dbg!(delay);
+
+            println!("finish_times: ");
+            for item in finish_times.iter() {
+                print!("{} ", item);
+            }
+            println!();
+
+            self.operations
+                .iter()
+                .filter(|op| {
+                    // it is asssumed here, that dependencies are in order
+                    if let Some(pred) = op.preds.last() {
+                        println!("Pred: {}", pred);
+                        return finish_times[*pred] as f64 <= t_g as f64 + delay;
+                    } else {
+                        return false;
+                    }
+                })
+                .for_each(|op| {
+                    e_set.insert(op.id);
+                });
+
+            print!("e_set: ");
+            for item in e_set.iter() {
+                print!("{} ", item);
+            }
+            println!();
+
             while !e_set.is_empty() {
                 // Select operation with highest priority
                 let j = e_set
@@ -198,24 +245,93 @@ impl JsspIndividual {
                 let op_j = &self.operations[j];
 
                 // Calculate earliset finish time (in terms of precedence only)
-                let mut earliset_finish_j = usize::MIN;
+                let mut earliest_finish_j = op_j
+                    .preds
+                    .iter()
+                    .filter(|&id| finish_times[*id] != usize::MAX)
+                    .map(|&id| finish_times[id])
+                    .max()
+                    .unwrap_or(0);
 
-                for &pred in op_j.preds.iter() {
-                    if self.operations[pred as usize].finish_time > earliset_finish_j {
-                        earliset_finish_j = pred;
+                let pred_j_finish = earliest_finish_j;
+                earliest_finish_j += self.operations[op_j.id].duration;
+
+                // Calculate the earliest finish time (in terms of precedence and capacity)
+
+                let max_finish_time_j = finish_times
+                    .iter()
+                    .filter(|&&i| i != usize::MAX)
+                    .max()
+                    .unwrap()
+                    .clone();
+                let mut min_finish_time_j = finish_times
+                    .iter()
+                    .filter(|&&i| i != usize::MAX)
+                    .min()
+                    .unwrap()
+                    .clone();
+                if min_finish_time_j > pred_j_finish {
+                    min_finish_time_j = pred_j_finish;
+                }
+
+                debug_assert!(min_finish_time_j <= max_finish_time_j);
+
+                let finish_time_j = finish_times
+                    .iter()
+                    .filter(|&&t| t != usize::MAX && t >= pred_j_finish)
+                    .filter(|&&t| self.machines[self.operations[op_j.id].machine].is_idle(t..=t + op_j.duration))
+                    .min()
+                    .unwrap() + self.operations[op_j.id].duration;
+                    
+
+                // let finish_time_j = (min_finish_time_j..=max_finish_time_j)
+                //     .filter(|&t| {
+                //         self.machines[self.operations[op_j.id].machine].is_idle(t..=t + op_j.duration)
+                //     })
+                //     .min()
+                //     .unwrap()
+                //     + self.operations[op_j.id].duration;
+                //
+                scheduled.insert(op_j.id);
+                finish_times[op_j.id] = finish_time_j;
+                g += 1;
+
+                // Update active schedule
+                let mut to_remove: Vec<usize> = vec![];
+                for el in active_schedule.iter() {
+                    if finish_times[*el] <= t_g {
+                        to_remove.push(*el);
                     }
                 }
 
-                let pred_j_finish = earliset_finish_j;
-                earliset_finish_j += self.operations[earliset_finish_j].duration;
+                for el in to_remove {
+                    active_schedule.remove(&el);
+                }
 
-                // Calculate the earliest finish time (in terms of precedence and capacity)
-                
-                let mut finish_time_j = usize::MAX;
-                // let mut finish_times_g = scheduled.iter().map(|i_op| self.operations[i_op].)
-                // for i_op in finish_times
+                // Update e_set
+                println!("Index for delay: {}", n + g - 1);
+                let delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
 
+                self.operations
+                    .iter()
+                    .filter(|op| {
+                        // it is asssumed here, that dependencies are in order
+                        if let Some(pred) = op.preds.last() {
+                            return finish_times[*pred] as f64 <= t_g as f64 + delay;
+                        } else {
+                            return false;
+                        }
+                    })
+                    .for_each(|op| {
+                        e_set.insert(op.id);
+                    });
+
+                // Update RMC
+                self.machines[self.operations[op_j.id].machine]
+                    .reserve(finish_time_j - op_j.duration..=finish_time_j);
             }
+            // Update the time t_g associated with g
+            t_g = finish_times.iter().filter(|&&t| t > t_g).min().unwrap().clone();
         }
         0
     }
