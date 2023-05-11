@@ -193,7 +193,6 @@ impl JsspState {
 }
 
 impl JsspIndividual {
-
     fn update_delay_feasible_set(
         &self,
         feasibles: &mut HashSet<usize>,
@@ -217,7 +216,7 @@ impl JsspIndividual {
                 // current schedule time + delay window.
                 for &pred in op.preds.iter() {
                     if finish_times[pred] as f64 > time as f64 + delay {
-                        return false;  
+                        return false;
                     }
                 }
                 return true;
@@ -257,7 +256,7 @@ impl JsspIndividual {
         while scheduled.len() < n + 1 && g < 10 {
             println!("==================================");
             println!("g = {}", g);
-            
+
             // Update e_set
             let delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
             println!("delay = {}", delay);
@@ -283,7 +282,8 @@ impl JsspIndividual {
                     .max_by(|(_, &a), (_, &b)| self.chromosome[a].partial_cmp(&self.chromosome[b]).unwrap())
                     // .max_by_key(|(_, &val)| self.chromosome[val])
                     .map(|(_idx, val)| val)
-                    .unwrap().clone();
+                    .unwrap()
+                    .clone();
                 let op_j = &self.operations[j];
 
                 println!("Operation with highest priority: {}", j);
@@ -303,7 +303,8 @@ impl JsspIndividual {
                 // Calculate the earliest finish time (in terms of precedence and capacity)
                 println!("pred finish_time = {}", pred_j_finish);
 
-                let finish_time_j = finish_times.iter()
+                let finish_time_j = finish_times
+                    .iter()
                     .filter(|&&t| t != usize::MAX && t >= pred_j_finish)
                     .filter(|&&t| {
                         self.machines[self.operations[op_j.id].machine].is_idle(t..=t + op_j.duration)
@@ -314,7 +315,13 @@ impl JsspIndividual {
 
                 scheduled.insert(op_j.id);
                 finish_times[op_j.id] = finish_time_j;
-                println!("Scheduled op {} with for time = {}..{}, machine = {}", j, finish_time_j - op_j.duration, finish_time_j, op_j.machine);
+                println!(
+                    "Scheduled op {} with for time = {}..{}, machine = {}",
+                    j,
+                    finish_time_j - op_j.duration,
+                    finish_time_j,
+                    op_j.machine
+                );
                 g += 1;
 
                 // Update active schedule
