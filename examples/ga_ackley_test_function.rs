@@ -14,7 +14,7 @@ fn main() {
         .run()
         .unwrap();
 
-    println!("4D ackley function zero approximation {:#?}", best_individual)
+    println!("4D ackley function zero approximation {best_individual:#?}")
 }
 
 #[cfg(not(feature = "ga"))]

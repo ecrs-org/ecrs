@@ -26,7 +26,7 @@ fn main() {
         .run()
         .unwrap();
 
-    println!("5D Rastrigin function zero approximation {:#?}", best_individual)
+    println!("5D Rastrigin function zero approximation {best_individual:#?}")
 }
 
 #[cfg(not(feature = "ga"))]

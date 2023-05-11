@@ -20,7 +20,7 @@ fn main() {
         .run()
         .unwrap();
 
-    println!("Bitstring with most ones: {:#?}", best_individual)
+    println!("Bitstring with most ones: {best_individual:#?}")
 }
 
 #[cfg(not(feature = "ga"))]

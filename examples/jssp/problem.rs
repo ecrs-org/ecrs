@@ -30,7 +30,7 @@ impl Machine {
                 return false;
             }
         }
-        return true;
+        true
     }
 
     pub fn reserve(&mut self, range: std::ops::Range<usize>) {
