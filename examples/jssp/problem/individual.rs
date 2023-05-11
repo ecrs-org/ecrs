@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
-use crate::util::{print_slice, print_hash_set};
+use crate::util::{print_hash_set, print_slice};
 
-use super::{Operation, Machine};
+use super::{Machine, Operation};
 
 #[derive(Debug)]
 pub struct JsspIndividual {

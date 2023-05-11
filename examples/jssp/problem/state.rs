@@ -1,6 +1,9 @@
-use ecrs::{ga::{self, Individual}, prelude::population::PopulationGenerator};
+use ecrs::{
+    ga::{self, Individual},
+    prelude::population::PopulationGenerator,
+};
 
-use super::{JsspConfig, Operation, individual::JsspIndividual, Machine};
+use super::{individual::JsspIndividual, JsspConfig, Machine, Operation};
 
 #[derive(Debug)]
 pub struct JsspState {
@@ -116,4 +119,3 @@ impl JsspState {
         }
     }
 }
-

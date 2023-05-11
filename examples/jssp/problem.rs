@@ -47,4 +47,3 @@ pub struct JsspConfig {
     pub n_jobs: usize,
     pub n_machines: usize,
 }
-
