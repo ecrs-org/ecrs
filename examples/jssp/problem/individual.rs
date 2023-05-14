@@ -46,6 +46,18 @@ impl JsspIndividual {
             })
     }
 
+    fn update_active_schedule(&self, active_schedule: &mut HashSet<usize>, finish_times: &[usize], time: usize) {
+        let mut to_remove: Vec<usize> = vec![];
+        for el in active_schedule.iter() {
+            if finish_times[*el] <= time {
+                to_remove.push(*el);
+            }
+        }
+        for el in to_remove {
+            active_schedule.remove(&el);
+        }
+    }
+
     pub fn eval(&mut self) -> usize {
         println!("++++++++++++++++++++++++++++++++++");
         // We deduce the problem size from the chromosome size
@@ -91,6 +103,9 @@ impl JsspIndividual {
                 println!("Inner loop for g = {g}");
                 print!("e_set: ");
                 print_hash_set(&e_set);
+ 
+                let delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
+                println!("delay = {delay}");
 
                 // Select operation with highest priority
                 let j = *e_set
@@ -137,21 +152,9 @@ impl JsspIndividual {
                 last_finish_time = usize::max(last_finish_time, finish_time_j);
 
                 // Update active schedule
-                let mut to_remove: Vec<usize> = vec![];
-                for el in active_schedule.iter() {
-                    if finish_times[*el] <= t_g {
-                        to_remove.push(*el);
-                    }
-                }
-
-                for el in to_remove {
-                    active_schedule.remove(&el);
-                }
+                self.update_active_schedule(&mut active_schedule, &finish_times, t_g);
 
                 // Update e_set
-                // println!("Index for delay = {}", n + g - 1);
-                // let delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
-
                 e_set.remove(&j);
 
                 println!("Removed op {j} from e_set");

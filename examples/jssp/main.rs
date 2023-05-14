@@ -33,9 +33,9 @@ fn run() {
     // 2. Uniform crossover or chromosomes (not decoded solutions)
     // 3. Instead of mutation
 
-    let mut selection_op = ga::operators::selection::Rank::new();
-    let mut crossover_op = ga::operators::crossover::Uniform::new();
-    let replacement_op = ga::operators::replacement::BothParents::new();
+    let mut selection_op = selection::Rank::new();
+    let mut crossover_op = crossover::Uniform::new();
+    let replacement_op = replacement::BothParents::new();
     // assert!(replacement_op.requires_children_fitness() == false);
 
     let stub_metadata = GAMetadata::new(None, None, 0);
