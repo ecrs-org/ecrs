@@ -46,7 +46,12 @@ impl JsspIndividual {
             })
     }
 
-    fn update_active_schedule(&self, active_schedule: &mut HashSet<usize>, finish_times: &[usize], time: usize) {
+    fn update_active_schedule(
+        &self,
+        active_schedule: &mut HashSet<usize>,
+        finish_times: &[usize],
+        time: usize,
+    ) {
         let mut to_remove: Vec<usize> = vec![];
         for el in active_schedule.iter() {
             if finish_times[*el] <= time {
@@ -56,6 +61,9 @@ impl JsspIndividual {
         for el in to_remove {
             active_schedule.remove(&el);
         }
+
+        print!("active_shedule: ");
+        print_hash_set(&active_schedule);
     }
 
     pub fn eval(&mut self) -> usize {
@@ -81,6 +89,9 @@ impl JsspIndividual {
 
         println!("Entering main loop with g = 1, t_g = 0, max_dur = {max_dur}");
 
+        print!("active_shedule ");
+        print_hash_set(&active_schedule);
+
         let mut last_finish_time = 0;
         while scheduled.len() < n + 1 {
             println!("==================================");
@@ -103,7 +114,7 @@ impl JsspIndividual {
                 println!("Inner loop for g = {g}");
                 print!("e_set: ");
                 print_hash_set(&e_set);
- 
+
                 let delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
                 println!("delay = {delay}");
 
@@ -155,9 +166,10 @@ impl JsspIndividual {
                 self.update_active_schedule(&mut active_schedule, &finish_times, t_g);
 
                 // Update e_set
-                e_set.remove(&j);
+                // e_set.remove(&j);
+                self.update_delay_feasible_set(&mut e_set, &finish_times, delay, t_g);
 
-                println!("Removed op {j} from e_set");
+                // println!("Removed op {j} from e_set");
                 print!("e_set: ");
                 print_hash_set(&e_set);
 
