@@ -103,6 +103,9 @@ impl JsspIndividual {
                 println!("Inner loop for g = {g}");
                 print!("e_set: ");
                 print_hash_set(&e_set);
+ 
+                let delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
+                println!("delay = {delay}");
 
                 // Select operation with highest priority
                 let j = *e_set
