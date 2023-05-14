@@ -46,7 +46,12 @@ impl JsspIndividual {
             })
     }
 
-    fn update_active_schedule(&self, active_schedule: &mut HashSet<usize>, finish_times: &[usize], time: usize) {
+    fn update_active_schedule(
+        &self,
+        active_schedule: &mut HashSet<usize>,
+        finish_times: &[usize],
+        time: usize,
+    ) {
         let mut to_remove: Vec<usize> = vec![];
         for el in active_schedule.iter() {
             if finish_times[*el] <= time {
@@ -103,7 +108,7 @@ impl JsspIndividual {
                 println!("Inner loop for g = {g}");
                 print!("e_set: ");
                 print_hash_set(&e_set);
- 
+
                 let delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
                 println!("delay = {delay}");
 
