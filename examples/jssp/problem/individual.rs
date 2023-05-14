@@ -61,6 +61,9 @@ impl JsspIndividual {
         for el in to_remove {
             active_schedule.remove(&el);
         }
+
+        print!("active_shedule: ");
+        print_hash_set(&active_schedule);
     }
 
     pub fn eval(&mut self) -> usize {
@@ -85,6 +88,9 @@ impl JsspIndividual {
         let max_dur = self.operations.iter().map(|op| op.duration).max().unwrap();
 
         println!("Entering main loop with g = 1, t_g = 0, max_dur = {max_dur}");
+
+        print!("active_shedule ");
+        print_hash_set(&active_schedule);
 
         let mut last_finish_time = 0;
         while scheduled.len() < n + 1 {
@@ -160,9 +166,10 @@ impl JsspIndividual {
                 self.update_active_schedule(&mut active_schedule, &finish_times, t_g);
 
                 // Update e_set
-                e_set.remove(&j);
+                // e_set.remove(&j);
+                self.update_delay_feasible_set(&mut e_set, &finish_times, delay, t_g);
 
-                println!("Removed op {j} from e_set");
+                // println!("Removed op {j} from e_set");
                 print!("e_set: ");
                 print_hash_set(&e_set);
 
