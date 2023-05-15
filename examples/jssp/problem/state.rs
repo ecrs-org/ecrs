@@ -23,10 +23,7 @@ impl JsspState {
             duration: 0,
             machine: 0,
             preds: Vec::new(),
-            // direct_machine_pred: None,
-            // direct_job_succ: None,
-            // direct_job_pred: None,
-            // direct_job_succ:
+            direct_succs: vec![1, 3],
         });
 
         operations.push(Operation {
@@ -36,6 +33,7 @@ impl JsspState {
             machine: 1,
             // preds: Vec::new(), // or maybe should I put Operation 0 here?
             preds: vec![0],
+            direct_succs: vec![2],
         });
 
         operations.push(Operation {
@@ -44,6 +42,7 @@ impl JsspState {
             duration: 2,
             machine: 0,
             preds: vec![0, 1],
+            direct_succs: vec![5],
         });
 
         operations.push(Operation {
@@ -53,6 +52,7 @@ impl JsspState {
             machine: 0,
             // preds: Vec::new(),
             preds: vec![0],
+            direct_succs: vec![4],
         });
 
         operations.push(Operation {
@@ -61,6 +61,7 @@ impl JsspState {
             duration: 3,
             machine: 1,
             preds: vec![0, 3],
+            direct_succs: vec![5],
         });
 
         operations.push(Operation {
@@ -69,6 +70,7 @@ impl JsspState {
             duration: 0,
             machine: 0,
             preds: vec![0, 1, 2, 3, 4],
+            direct_succs: Vec::new(),
         });
 
         operations

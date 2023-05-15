@@ -67,17 +67,24 @@ impl JsspIndividual {
     }
 
     fn local_search(&mut self, curr_fitness: usize) -> usize {
-        // I can't just use simple bfs algorithm as the nodes are weighted.
-        // First I
         let n: usize = self.chromosome.len() / 2;
         let mut visited = vec![false; n + 2];
-        let mut queue = VecDeque::<usize>::new();
-
-        queue.push_back(n + 1);
-
-        while !queue.is_empty() {}
 
         curr_fitness
+    }
+
+    fn local_search_visit(&mut self, op: &mut Operation, visited: &mut [bool]) {
+        if visited[op.id] {
+            return;
+        }
+
+        visited[op.id] = true;
+        for &op_id in op.direct_succs.iter() {
+            if visited[op_id] == false {
+                // self.local_search_visit(&mut self.operations[op_id], &mut visited)
+            }
+        }
+
     }
 
     pub fn eval(&mut self) -> usize {

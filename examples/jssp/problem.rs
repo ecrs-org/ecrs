@@ -12,6 +12,7 @@ pub struct Operation {
 
     // Should I hold references to other operations or just their ids
     preds: Vec<usize>,
+    direct_succs: Vec<usize>,
     // direct_machine_pred: Option<usize>,
     // direct_machine_succ: Option<usize>,
     // direct_job_pred: Option<usize>,
