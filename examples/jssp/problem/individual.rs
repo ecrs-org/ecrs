@@ -4,7 +4,7 @@ use crate::util::{print_hash_set, print_slice};
 
 use super::{Machine, Operation};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct JsspIndividual {
     pub chromosome: Vec<f64>,
     pub operations: Vec<Operation>,
@@ -71,6 +71,8 @@ impl JsspIndividual {
         // We deduce the problem size from the chromosome size
         let n: usize = self.chromosome.len() / 2;
         println!("Deduced problem size n = {n}");
+        print!("chromosome: ");
+        print_slice(&self.chromosome);
 
         let mut active_schedule = std::collections::HashSet::new();
         let mut finish_times = vec![usize::MAX; n + 2];
@@ -95,10 +97,10 @@ impl JsspIndividual {
         let mut last_finish_time = 0;
         while scheduled.len() < n + 1 {
             println!("==================================");
-            println!("g = {g}");
+            println!("g = {g}, t_g = {t_g}");
 
             // Update e_set
-            let delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
+            let mut delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
             println!("delay = {delay}");
 
             print!("finish_times: ");
@@ -114,14 +116,18 @@ impl JsspIndividual {
                 println!("Inner loop for g = {g}");
                 print!("e_set: ");
                 print_hash_set(&e_set);
+                print!("finish_times: ");
+                print_slice(&finish_times);
 
-                let delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
+                delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
                 println!("delay = {delay}");
+
+                // self.update_delay_feasible_set(&mut e_set, &finish_times, delay, t_g);
 
                 // Select operation with highest priority
                 let j = *e_set
                     .iter()
-                    .max_by(|&&a, &&b| self.chromosome[a].partial_cmp(&self.chromosome[b]).unwrap())
+                    .max_by(|&&a, &&b| self.chromosome[a - 1].partial_cmp(&self.chromosome[b - 1]).unwrap())
                     .unwrap();
 
                 let op_j = &self.operations[j];
@@ -161,6 +167,14 @@ impl JsspIndividual {
                 g += 1;
 
                 last_finish_time = usize::max(last_finish_time, finish_time_j);
+
+                if g > n {
+                    break;
+                }
+
+                // delay = self.chromosome[usize::min(n + g - 1, self.chromosome.len() - 1)] * 1.5 * (max_dur as f64);
+                delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
+                println!("delay = {delay}");
 
                 // Update active schedule
                 self.update_active_schedule(&mut active_schedule, &finish_times, t_g);
