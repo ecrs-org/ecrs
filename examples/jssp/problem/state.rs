@@ -23,6 +23,10 @@ impl JsspState {
             duration: 0,
             machine: 0,
             preds: Vec::new(),
+            // direct_machine_pred: None,
+            // direct_job_succ: None,
+            // direct_job_pred: None,
+            // direct_job_succ:
         });
 
         operations.push(Operation {
@@ -99,6 +103,12 @@ impl JsspState {
                 machines: self.build_machines(),
             })
             .collect();
+        // self.population = vec![JsspIndividual {
+        //     chromosome: vec![0.20, 0.22, 0.25, 0.90, 0.14, 0.24, 0.25, 0.70],
+        //     operations: self.build_operations(),
+        //     fitness: usize::MAX,
+        //     machines: self.build_machines(),
+        // }; size];
     }
 
     pub fn inject_ecrs_pop(&mut self, population: Vec<Individual<Vec<f64>>>) {
@@ -107,15 +117,16 @@ impl JsspState {
             .map(|idv| JsspIndividual {
                 chromosome: idv.chromosome,
                 operations: self.build_operations(),
-                fitness: usize::MAX,
+                fitness: idv.fitness as usize,
                 machines: self.build_machines(),
             })
             .collect();
     }
 
-    pub fn eval_pop(&mut self) {
-        for idv in self.population.iter_mut() {
-            idv.eval();
-        }
+    pub fn eval_pop(&mut self) -> usize {
+        self.population.iter_mut().map(|idv| idv.eval()).min().unwrap()
+        // for idv in self.population.iter_mut() {
+        //     idv.eval();
+        // }
     }
 }
