@@ -13,6 +13,12 @@ use crate::problem::{state::JsspState, JsspConfig};
 fn run() {
     const POPULATION_SIZE: usize = 4;
     const SELECTION_SIZE: usize = 2;
+    const GENERATION_COUNT: usize = 15;
+    const ELITE_SIZE: usize = POPULATION_SIZE - SELECTION_SIZE;
+
+    // Requried for genetic operators to work properly
+    assert!(POPULATION_SIZE % 2 == 0);
+    assert!(SELECTION_SIZE % 2 == 0);
 
     let mut state = JsspState {
         cfg: JsspConfig {
@@ -26,7 +32,8 @@ fn run() {
     state.init_pop(POPULATION_SIZE);
 
     // Evaluate population
-    state.eval_pop();
+    let mut best_fitness = state.eval_pop();
+    println!("Best fitness: {best_fitness}");
 
     // For bounded number of iterations run evolution:
     // 1. Select with elitism
@@ -34,13 +41,13 @@ fn run() {
     // 3. Instead of mutation
 
     let mut selection_op = selection::Rank::new();
-    let mut crossover_op = crossover::Uniform::new();
+    // let mut crossover_op = crossover::Uniform::new();
+    let mut crossover_op = crossover::UniformParameterized::new(0.7);
     let replacement_op = replacement::BothParents::new();
-    // assert!(replacement_op.requires_children_fitness() == false);
 
     let stub_metadata = GAMetadata::new(None, None, 0);
 
-    for _ in 0..1 {
+    for _ in 0..GENERATION_COUNT {
         let mut ecrs_individuals: Vec<Individual<Vec<f64>>> = state
             .population
             .iter()
@@ -52,19 +59,30 @@ fn run() {
 
         let selected_pop = selection_op.apply(&stub_metadata, &ecrs_individuals, SELECTION_SIZE);
 
-        let mut children: Vec<Individual<Vec<f64>>> = Vec::with_capacity(SELECTION_SIZE);
+        let mut children: Vec<Individual<Vec<f64>>> = Vec::with_capacity(POPULATION_SIZE);
 
-        for i in (0..selected_pop.len()).step_by(2) {
-            let crt_children = crossover_op.apply(selected_pop[i], selected_pop[i + 1]);
+        for parents in selected_pop.chunks(2) {
+            let crt_children = crossover_op.apply(parents[0], parents[1]);
             children.push(crt_children.0);
             children.push(crt_children.1);
         }
 
+        if ELITE_SIZE > 0 {
+            // ecrs_individuals.sort_by(|a , b| b.cmp(a));
+            ecrs_individuals.sort();
+            ecrs_individuals
+                .iter()
+                .take(ELITE_SIZE)
+                .for_each(|idv| children.push(idv.clone()));
+        }
+
         // TODO: Sample new individuals from the initial distribution
+        assert!(children.len() == ecrs_individuals.len());
 
         ecrs_individuals = replacement_op.apply(ecrs_individuals, children);
         state.inject_ecrs_pop(ecrs_individuals);
-        state.eval_pop();
+        best_fitness = state.eval_pop();
+        println!("Best fitness: {best_fitness}");
     }
 }
 
