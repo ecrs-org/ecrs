@@ -14,14 +14,14 @@ pub type Error = JsspInstanceLoadingError;
 #[derive(Debug, Clone)]
 pub enum JsspInstanceLoadingError {
     FileDoesNotExist(String),
-    ParseError(String),
+    // ParseError(String),
 }
 
 impl fmt::Display for JsspInstanceLoadingError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::FileDoesNotExist(file) => write!(f, "File does not exist: {file}"),
-            Self::ParseError(err) => write!(f, "Parsing error: {err}"),
+            // Self::ParseError(err) => write!(f, "Parsing error: {err}"),
         }
     }
 }
