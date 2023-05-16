@@ -1,7 +1,6 @@
-use std::path::PathBuf;
 use clap::Parser;
 use log::error;
-
+use std::path::PathBuf;
 
 #[derive(Parser, Debug, Clone)]
 pub struct Args {
@@ -15,7 +14,7 @@ pub struct Args {
 }
 
 fn validate_args(args: &Args) -> Result<(), String> {
-    let cloned_args = args.clone(); 
+    let cloned_args = args.clone();
     if args.file.is_some() {
         if !cloned_args.file.unwrap().is_file() {
             return Err("Specified data file does not exist or is not a file".to_owned());
@@ -31,7 +30,7 @@ fn validate_args(args: &Args) -> Result<(), String> {
 }
 
 pub fn parse_args() -> Args {
-    let args = Args::parse();     
+    let args = Args::parse();
     if validate_args(&args).is_err() {
         error!("Validation of the cli args failed");
     }

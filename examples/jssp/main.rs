@@ -1,11 +1,11 @@
+mod cli;
+mod logging;
 mod problem;
 mod util;
-mod logging;
-mod cli;
 
 use std::path::PathBuf;
 
-use clap::{Parser, arg};
+use clap::{arg, Parser};
 
 #[allow(unused_imports)]
 use ecrs::prelude::{crossover, ga, ops, replacement, selection};
