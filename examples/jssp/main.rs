@@ -1,3 +1,6 @@
+mod cli;
+mod logging;
+mod parse;
 mod problem;
 mod util;
 
@@ -8,9 +11,26 @@ use ecrs::{
     prelude::{crossover::CrossoverOperator, replacement::ReplacementOperator, selection::SelectionOperator},
 };
 
-use crate::problem::{state::JsspState, JsspConfig};
+use crate::problem::{state::JsspState, JsspConfig, JsspInstance};
 
 fn run() {
+    if let Err(err) = logging::init_logging() {
+        println!("Logger initialization returned following error");
+        println!("{err}");
+        return;
+    }
+
+    let args = cli::parse_args();
+
+    if let Some(file) = args.file {
+        let instance = JsspInstance::try_from(file).unwrap();
+        for op in instance.ops.iter() {
+            println!("{op:?}");
+        }
+    }
+
+    return;
+
     const POPULATION_SIZE: usize = 4;
     const SELECTION_SIZE: usize = 2;
     const GENERATION_COUNT: usize = 15;

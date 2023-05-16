@@ -3,6 +3,8 @@ pub mod state;
 
 use crate::util::print_slice;
 
+use self::state::JsspState;
+
 #[derive(Debug, Clone)]
 pub struct Operation {
     id: usize,
@@ -17,6 +19,24 @@ pub struct Operation {
     // direct_job_pred: Option<usize>,
     // direct_job_succ: Option<usize>,
 }
+
+impl Operation {
+    pub fn new(id: usize, finish_time: usize, duration: usize, machine: usize, preds: Vec<usize>) -> Self {
+        Self {
+            id,
+            finish_time,
+            duration,
+            machine,
+            preds,
+        }
+    }
+}
+
+// impl std::fmt::Display for Operation {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         todo!()
+//     }
+// }
 
 #[derive(Debug, Clone)]
 pub struct Machine {
@@ -50,4 +70,16 @@ impl Machine {
 pub struct JsspConfig {
     pub n_jobs: usize,
     pub n_machines: usize,
+}
+
+#[derive(Debug)]
+pub struct JsspInstanceMetadata {
+    pub name: String,
+}
+
+#[derive(Debug)]
+pub struct JsspInstance {
+    pub ops: Vec<Operation>,
+    pub cfg: JsspConfig,
+    pub metadata: JsspInstanceMetadata,
 }

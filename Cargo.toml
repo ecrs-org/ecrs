@@ -49,6 +49,7 @@ push-trait = "0.6.0"
 [dev-dependencies]
 log4rs = "1.2.0"
 criterion = "0.4"
+clap = { version = "4.2.7", features = ["derive"] }
 
 
 [[bench]]
