@@ -1,5 +1,11 @@
 mod problem;
 mod util;
+mod logging;
+mod cli;
+
+use std::path::PathBuf;
+
+use clap::{Parser, arg};
 
 #[allow(unused_imports)]
 use ecrs::prelude::{crossover, ga, ops, replacement, selection};
@@ -11,6 +17,14 @@ use ecrs::{
 use crate::problem::{state::JsspState, JsspConfig};
 
 fn run() {
+    if let Err(err) = logging::init_logging() {
+        println!("Logger initialization returned following error");
+        println!("{err}");
+        return;
+    }
+
+    let args = cli::parse_args();
+
     const POPULATION_SIZE: usize = 4;
     const SELECTION_SIZE: usize = 2;
     const GENERATION_COUNT: usize = 15;
