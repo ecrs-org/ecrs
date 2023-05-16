@@ -5,7 +5,6 @@ use std::{
 };
 
 use itertools::Itertools;
-use log::info;
 
 use crate::problem::{JsspConfig, JsspInstance, JsspInstanceMetadata, Operation};
 
@@ -33,7 +32,6 @@ impl TryFrom<PathBuf> for JsspInstance {
     fn try_from(path: PathBuf) -> Result<Self> {
         let name = path.file_stem().unwrap().to_str().unwrap();
 
-        // Read file content
         let Ok(file) = std::fs::OpenOptions::new().read(true).open(&path) else {
             return Err(Error::FileDoesNotExist(path.to_str().unwrap().to_owned()));
         };
@@ -70,19 +68,13 @@ impl TryFrom<PathBuf> for JsspInstance {
                 .collect_vec()
                 .chunks(2)
                 .for_each(|op_def| {
-                    // let mut preds = vec![0];
-                    let mut preds = vec![];
-                    preds.extend(first_job_in_batch..op_id);
-
-                    let op = Operation::new(
+                    operations.push(Operation::new(
                         op_id,
                         usize::MAX,
                         op_def[1].parse().unwrap(),
                         op_def[0].parse().unwrap(),
-                        preds,
-                    );
-                    operations.push(op);
-
+                        Vec::from_iter(first_job_in_batch..op_id),
+                    ));
                     op_id += 1;
                 })
         });
