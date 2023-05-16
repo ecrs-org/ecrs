@@ -1,11 +1,8 @@
 mod cli;
 mod logging;
+mod parse;
 mod problem;
 mod util;
-
-use std::path::PathBuf;
-
-use clap::{arg, Parser};
 
 #[allow(unused_imports)]
 use ecrs::prelude::{crossover, ga, ops, replacement, selection};
@@ -14,7 +11,7 @@ use ecrs::{
     prelude::{crossover::CrossoverOperator, replacement::ReplacementOperator, selection::SelectionOperator},
 };
 
-use crate::problem::{state::JsspState, JsspConfig};
+use crate::problem::{state::JsspState, JsspConfig, JsspInstance};
 
 fn run() {
     if let Err(err) = logging::init_logging() {
@@ -24,6 +21,15 @@ fn run() {
     }
 
     let args = cli::parse_args();
+
+    if let Some(file) = args.file {
+        let instance = JsspInstance::try_from(file).unwrap();
+        for op in instance.ops.iter() {
+            println!("{op:?}");
+        }
+    }
+
+    return;
 
     const POPULATION_SIZE: usize = 4;
     const SELECTION_SIZE: usize = 2;

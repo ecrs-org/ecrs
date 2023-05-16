@@ -6,11 +6,11 @@ use std::path::PathBuf;
 pub struct Args {
     /// Path to the data directory
     #[arg(short, long)]
-    data_dir: Option<PathBuf>,
+    pub data_dir: Option<PathBuf>,
 
     /// Path to the single data file
     #[arg(short, long)]
-    file: Option<PathBuf>,
+    pub file: Option<PathBuf>,
 }
 
 fn validate_args(args: &Args) -> Result<(), String> {
