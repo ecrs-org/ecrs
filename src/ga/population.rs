@@ -5,12 +5,12 @@ use rand::{thread_rng, Rng};
 use std::fmt::Debug;
 use std::ops::{Range, RangeInclusive};
 
-use super::{individual::Chromosome, Individual};
+use super::{individual::Chromosome, ConcreteIndividual};
 
 /// Implement this trait in order to provide custom population generator
 /// and feed it to an solver.
 pub trait PopulationGenerator<T: Chromosome> {
-    fn generate(&mut self, count: usize) -> Vec<Individual<T>>;
+    fn generate(&mut self, count: usize) -> Vec<ConcreteIndividual<T>>;
 }
 
 /// Implements [PopulationGenerator] trait. Can be used with genetic algorithm.
@@ -125,11 +125,11 @@ impl<R: Rng> PopulationGenerator<Vec<f64>> for RandomPoints<R> {
     /// ### Arguments
     ///
     /// * `count` -- Number of points to generate
-    fn generate(&mut self, count: usize) -> Vec<Individual<Vec<f64>>> {
+    fn generate(&mut self, count: usize) -> Vec<ConcreteIndividual<Vec<f64>>> {
         // FIXME: Sampling from such short interval may cause some f64 values to be more unlikely...
         let distribution = rand::distributions::Uniform::from(0.0..1.0);
 
-        let mut population: Vec<Individual<Vec<f64>>> = Vec::with_capacity(count);
+        let mut population: Vec<ConcreteIndividual<Vec<f64>>> = Vec::with_capacity(count);
 
         // We do not use Option to designate whether there are constraints or not
         // because using unwrap moves!
@@ -139,7 +139,7 @@ impl<R: Rng> PopulationGenerator<Vec<f64>> for RandomPoints<R> {
                 for _ in 0..self.dim {
                     point.push(self.rng.sample(distribution));
                 }
-                population.push(Individual::from(point));
+                population.push(ConcreteIndividual::from(point));
             }
         } else {
             for _ in 0..count {
@@ -147,7 +147,7 @@ impl<R: Rng> PopulationGenerator<Vec<f64>> for RandomPoints<R> {
                 for restriction in &self.constraints {
                     point.push(restriction.0 * self.rng.sample(distribution) + restriction.1);
                 }
-                population.push(Individual::from(point));
+                population.push(ConcreteIndividual::from(point));
             }
         }
         population
@@ -192,13 +192,13 @@ impl<R: Rng> PopulationGenerator<Vec<bool>> for BitStrings<R> {
     /// ### Arguments
     ///
     /// * `count` -- Number of bitstrings to generate
-    fn generate(&mut self, count: usize) -> Vec<Individual<Vec<bool>>> {
-        let mut population: Vec<Individual<Vec<bool>>> = Vec::with_capacity(count);
+    fn generate(&mut self, count: usize) -> Vec<ConcreteIndividual<Vec<bool>>> {
+        let mut population: Vec<ConcreteIndividual<Vec<bool>>> = Vec::with_capacity(count);
 
         let distr = rand::distributions::Standard;
 
         for _ in 0..count {
-            population.push(Individual::from(
+            population.push(ConcreteIndividual::from(
                 (&mut self.rng).sample_iter(distr).take(self.dim).collect_vec(),
             ));
         }
@@ -250,13 +250,13 @@ where
     /// ### Arguments
     ///
     /// * `count` -- Number of random permutations to generate
-    fn generate(&mut self, count: usize) -> Vec<Individual<Vec<GeneT>>> {
-        let mut population: Vec<Individual<Vec<GeneT>>> = Vec::with_capacity(count);
+    fn generate(&mut self, count: usize) -> Vec<ConcreteIndividual<Vec<GeneT>>> {
+        let mut population: Vec<ConcreteIndividual<Vec<GeneT>>> = Vec::with_capacity(count);
 
         for _ in 0..count {
             let mut genome = self.genes.clone();
             genome.shuffle(&mut self.rng);
-            population.push(Individual::from(genome))
+            population.push(ConcreteIndividual::from(genome))
         }
 
         population
@@ -274,7 +274,7 @@ mod tests {
         let dim = 4;
         let mut gen =
             RandomPoints::with_constraints(dim, vec![(0.0..2.0), (-1.0..1.0), (3.0..10.0), (-5.0..-4.0)]);
-        let points: Vec<crate::ga::Individual<Vec<f64>>> = gen.generate(30);
+        let points: Vec<crate::ga::ConcreteIndividual<Vec<f64>>> = gen.generate(30);
 
         for p in points {
             assert_eq!(p.chromosome.len(), dim)
@@ -286,7 +286,7 @@ mod tests {
         let dim = 4;
         let constraints = vec![(0.0..2.0), (-1.0..1.0), (3.0..10.0), (-5.0..-4.0)];
         let mut gen = RandomPoints::with_constraints(dim, constraints.clone());
-        let points: Vec<crate::ga::Individual<Vec<f64>>> = gen.generate(30);
+        let points: Vec<crate::ga::ConcreteIndividual<Vec<f64>>> = gen.generate(30);
 
         for p in points {
             for (v, res) in std::iter::zip(p.chromosome_ref(), &constraints) {
@@ -301,7 +301,7 @@ mod tests {
         let count = 100;
 
         let mut gen = RandomPoints::new(dim);
-        let points: Vec<crate::ga::Individual<Vec<f64>>> = gen.generate(count);
+        let points: Vec<crate::ga::ConcreteIndividual<Vec<f64>>> = gen.generate(count);
 
         for p in points {
             for v in p.chromosome_ref() {
@@ -314,7 +314,7 @@ mod tests {
     fn bistrings_have_appropriate_len() {
         let dim = 30;
         let mut gen = BitStrings::new(dim);
-        let points: Vec<crate::ga::Individual<Vec<bool>>> = gen.generate(30);
+        let points: Vec<crate::ga::ConcreteIndividual<Vec<bool>>> = gen.generate(30);
 
         for p in points {
             assert_eq!(p.chromosome_ref().len(), dim)

@@ -114,7 +114,7 @@ pub mod probe;
 
 use crate::ga::operators::fitness::Fitness;
 pub use builder::*;
-pub use individual::Individual;
+pub use individual::ConcreteIndividual;
 pub use probe::CsvProbe;
 pub use probe::JsonProbe;
 pub use probe::Probe;
@@ -218,26 +218,28 @@ where
     }
 
     #[inline]
-    fn find_best_individual(population: &Vec<Individual<ChromosomeT>>) -> &Individual<ChromosomeT> {
+    fn find_best_individual(
+        population: &Vec<ConcreteIndividual<ChromosomeT>>,
+    ) -> &ConcreteIndividual<ChromosomeT> {
         debug_assert!(!population.is_empty());
         population.iter().max().unwrap()
     }
 
     #[inline]
-    fn eval_pop(&mut self, population: &mut [Individual<ChromosomeT>]) {
+    fn eval_pop(&mut self, population: &mut [ConcreteIndividual<ChromosomeT>]) {
         population
             .iter_mut()
             .for_each(|idv| idv.fitness = (self.config.fitness_fn).apply(idv));
     }
 
     #[inline]
-    fn gen_pop(&mut self) -> Vec<Individual<ChromosomeT>> {
+    fn gen_pop(&mut self) -> Vec<ConcreteIndividual<ChromosomeT>> {
         self.config
             .population_factory
             .generate(self.config.params.population_size)
     }
 
-    pub fn run(&mut self) -> Option<Individual<ChromosomeT>> {
+    pub fn run(&mut self) -> Option<ConcreteIndividual<ChromosomeT>> {
         self.metadata.start_time = Some(std::time::Instant::now());
         self.config.probe.on_start(&self.metadata);
 
@@ -263,13 +265,13 @@ where
             self.eval_pop(&mut population);
 
             // 4. Create mating pool by applying selection operator.
-            let mating_pool: Vec<&Individual<ChromosomeT>> =
+            let mating_pool: Vec<&ConcreteIndividual<ChromosomeT>> =
                 self.config
                     .selection_operator
                     .apply(&self.metadata, &population, population.len());
 
             // 5. From mating pool create new generation (apply crossover & mutation).
-            let mut children: Vec<Individual<ChromosomeT>> =
+            let mut children: Vec<ConcreteIndividual<ChromosomeT>> =
                 Vec::with_capacity(self.config.params.population_size);
 
             // FIXME: Do not assume that population size is an even number.

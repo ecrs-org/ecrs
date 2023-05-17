@@ -4,7 +4,7 @@
 //! original one and the result of crossover phase to a single one,
 //! which will be the next generation
 
-use crate::ga::{individual::Chromosome, Individual};
+use crate::ga::{individual::Chromosome, ConcreteIndividual};
 
 /// # Replacement Operator
 ///
@@ -29,7 +29,11 @@ pub trait ReplacementOperator<T: Chromosome> {
     /// * `population` - Original population, input to the crossover phase.
     /// This collection should be modified in place by the operator.
     /// * `children` - Result of the crossover phase.
-    fn apply(&self, population: Vec<Individual<T>>, children: Vec<Individual<T>>) -> Vec<Individual<T>>;
+    fn apply(
+        &self,
+        population: Vec<ConcreteIndividual<T>>,
+        children: Vec<ConcreteIndividual<T>>,
+    ) -> Vec<ConcreteIndividual<T>>;
 
     /// Returns `true` when the operator requires children to possess valid fitness values.
     ///
@@ -73,7 +77,11 @@ impl<T: Chromosome> ReplacementOperator<T> for BothParents {
     /// This collection should be modified in place by the operator.
     /// * `children` - Result of the crossover phase
     #[inline(always)]
-    fn apply(&self, _population: Vec<Individual<T>>, children: Vec<Individual<T>>) -> Vec<Individual<T>> {
+    fn apply(
+        &self,
+        _population: Vec<ConcreteIndividual<T>>,
+        children: Vec<ConcreteIndividual<T>>,
+    ) -> Vec<ConcreteIndividual<T>> {
         children
     }
 
@@ -103,7 +111,11 @@ impl Noop {
 impl<T: Chromosome> ReplacementOperator<T> for Noop {
     /// Returns input `population`.
     #[inline(always)]
-    fn apply(&self, population: Vec<Individual<T>>, _children: Vec<Individual<T>>) -> Vec<Individual<T>> {
+    fn apply(
+        &self,
+        population: Vec<ConcreteIndividual<T>>,
+        _children: Vec<ConcreteIndividual<T>>,
+    ) -> Vec<ConcreteIndividual<T>> {
         population
     }
 
@@ -168,9 +180,9 @@ impl<T: Chromosome> ReplacementOperator<T> for WeakParent {
     /// * `children` - Result of the crossover phase
     fn apply(
         &self,
-        mut population: Vec<Individual<T>>,
-        mut children: Vec<Individual<T>>,
-    ) -> Vec<Individual<T>> {
+        mut population: Vec<ConcreteIndividual<T>>,
+        mut children: Vec<ConcreteIndividual<T>>,
+    ) -> Vec<ConcreteIndividual<T>> {
         debug_assert_eq!(
             population.len(),
             children.len(),
@@ -208,7 +220,7 @@ impl<T: Chromosome> ReplacementOperator<T> for WeakParent {
 
 #[cfg(test)]
 mod tests {
-    use crate::ga::Individual;
+    use crate::ga::ConcreteIndividual;
 
     use super::{BothParents, Noop, ReplacementOperator, WeakParent};
 
@@ -225,22 +237,22 @@ mod tests {
     #[test]
     fn weak_parent_swaps_when_children_are_stronger() {
         let parents = vec![
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 60.0,
             },
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 40.0,
             },
         ];
 
         let children = vec![
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 120.0,
             },
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 100.0,
             },
@@ -256,22 +268,22 @@ mod tests {
     #[test]
     fn weak_parent_does_not_swap_when_parents_are_stronger() {
         let parents = vec![
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 60.0,
             },
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 40.0,
             },
         ];
 
         let children = vec![
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 10.0,
             },
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 12.0,
             },
@@ -287,33 +299,33 @@ mod tests {
     #[test]
     fn weak_parent_cross_swaps_child_1() {
         let parents = vec![
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 60.0,
             },
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 40.0,
             },
         ];
 
         let children = vec![
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 50.0,
             },
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 30.0,
             },
         ];
 
         let expected_result = vec![
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 60.0,
             },
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 50.0,
             },
@@ -327,33 +339,33 @@ mod tests {
     #[test]
     fn weak_parent_cross_swaps_child_2() {
         let parents = vec![
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 60.0,
             },
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 40.0,
             },
         ];
 
         let children = vec![
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 30.0,
             },
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 50.0,
             },
         ];
 
         let expected_result = vec![
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 60.0,
             },
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 50.0,
             },
@@ -367,33 +379,33 @@ mod tests {
     #[test]
     fn weak_parent_takes_two_best() {
         let parents = vec![
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 60.0,
             },
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 40.0,
             },
         ];
 
         let children = vec![
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 70.0,
             },
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 50.0,
             },
         ];
 
         let expected_result = vec![
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 70.0,
             },
-            Individual {
+            ConcreteIndividual {
                 chromosome: 0.0,
                 fitness: 60.0,
             },

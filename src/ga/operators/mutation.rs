@@ -3,7 +3,7 @@ use std::ops::IndexMut;
 use push_trait::{Nothing, Push};
 use rand::{rngs::ThreadRng, Rng};
 
-use crate::ga::{individual::Chromosome, Individual};
+use crate::ga::{individual::Chromosome, ConcreteIndividual};
 
 /// # Mutation Operator
 ///
@@ -16,7 +16,7 @@ pub trait MutationOperator<T: Chromosome> {
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut Individual<T>, mutation_rate: f64);
+    fn apply(&mut self, individual: &mut ConcreteIndividual<T>, mutation_rate: f64);
 }
 
 /// # Identity Mutation Operator
@@ -35,7 +35,7 @@ impl Identity {
 }
 
 impl<T: Chromosome> MutationOperator<T> for Identity {
-    fn apply(&mut self, _individual: &mut Individual<T>, _mutation_rate: f64) {}
+    fn apply(&mut self, _individual: &mut ConcreteIndividual<T>, _mutation_rate: f64) {}
 }
 
 /// ### Flilp bit mutation operator
@@ -74,7 +74,7 @@ where
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut Individual<T>, mutation_rate: f64) {
+    fn apply(&mut self, individual: &mut ConcreteIndividual<T>, mutation_rate: f64) {
         let distribution = rand::distributions::Uniform::from(0.0..1.0);
         let chromosome_ref = individual.chromosome_ref_mut();
         let chromosome_len = chromosome_ref.len();
@@ -124,7 +124,7 @@ where
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut Individual<T>, mutation_rate: f64) {
+    fn apply(&mut self, individual: &mut ConcreteIndividual<T>, mutation_rate: f64) {
         let chromosome_ref = individual.chromosome_ref_mut();
         let chromosome_len = chromosome_ref.len();
 
@@ -179,7 +179,7 @@ where
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut Individual<T>, mutation_rate: f64) {
+    fn apply(&mut self, individual: &mut ConcreteIndividual<T>, mutation_rate: f64) {
         let dist = rand::distributions::Uniform::from(0.0..1.0);
         let chromosome_ref = individual.chromosome_ref_mut();
         let chromosome_len = chromosome_ref.len();
@@ -228,7 +228,7 @@ impl<R: Rng> MutationOperator<Vec<usize>> for Inversion<R> {
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut Individual<Vec<usize>>, mutation_rate: f64) {
+    fn apply(&mut self, individual: &mut ConcreteIndividual<Vec<usize>>, mutation_rate: f64) {
         let r: f64 = self.rng.gen();
 
         if r > mutation_rate {
@@ -249,7 +249,7 @@ impl<R: Rng> MutationOperator<Vec<usize>> for Inversion<R> {
 
 #[cfg(test)]
 mod tests {
-    use crate::ga::Individual;
+    use crate::ga::ConcreteIndividual;
     use itertools::Itertools;
     use rand::{distributions::Uniform, Rng};
 
@@ -262,7 +262,7 @@ mod tests {
             .take(30)
             .collect_vec();
 
-        let mut individual = Individual {
+        let mut individual = ConcreteIndividual {
             chromosome: chromosome.clone(),
             fitness: f64::default(),
         };
@@ -284,7 +284,7 @@ mod tests {
 
         let chromosome_clone = chromosome.clone();
 
-        let mut individual = Individual {
+        let mut individual = ConcreteIndividual {
             chromosome,
             fitness: f64::default(),
         };
@@ -308,7 +308,7 @@ mod tests {
 
         let chromosome_clone = chromosome.clone();
 
-        let mut individual = Individual {
+        let mut individual = ConcreteIndividual {
             chromosome,
             fitness: f64::default(),
         };
@@ -332,7 +332,7 @@ mod tests {
 
         let chromosome_clone = chromosome.clone();
 
-        let mut individual = Individual {
+        let mut individual = ConcreteIndividual {
             chromosome,
             fitness: f64::default(),
         };
@@ -356,7 +356,7 @@ mod tests {
 
         let chromosome_clone = chromosome.clone();
 
-        let mut individual = Individual {
+        let mut individual = ConcreteIndividual {
             chromosome,
             fitness: f64::default(),
         };
@@ -377,7 +377,7 @@ mod tests {
             .take(40)
             .collect_vec();
 
-        let mut individual = Individual {
+        let mut individual = ConcreteIndividual {
             chromosome,
             fitness: f64::default(),
         };

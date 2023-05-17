@@ -7,7 +7,7 @@ mod util;
 #[allow(unused_imports)]
 use ecrs::prelude::{crossover, ga, ops, replacement, selection};
 use ecrs::{
-    ga::{GAMetadata, Individual},
+    ga::{ConcreteIndividual, GAMetadata},
     prelude::{crossover::CrossoverOperator, replacement::ReplacementOperator, selection::SelectionOperator},
 };
 
@@ -62,10 +62,10 @@ fn run() {
     let stub_metadata = GAMetadata::new(None, None, 0);
 
     for _ in 0..GENERATION_COUNT {
-        let mut ecrs_individuals: Vec<Individual<Vec<f64>>> = state
+        let mut ecrs_individuals: Vec<ConcreteIndividual<Vec<f64>>> = state
             .population
             .iter()
-            .map(|jssp_idv| Individual {
+            .map(|jssp_idv| ConcreteIndividual {
                 chromosome: jssp_idv.chromosome.clone(),
                 fitness: jssp_idv.fitness as f64,
             })
@@ -73,7 +73,7 @@ fn run() {
 
         let selected_pop = selection_op.apply(&stub_metadata, &ecrs_individuals, SELECTION_SIZE);
 
-        let mut children: Vec<Individual<Vec<f64>>> = Vec::with_capacity(POPULATION_SIZE);
+        let mut children: Vec<ConcreteIndividual<Vec<f64>>> = Vec::with_capacity(POPULATION_SIZE);
 
         for parents in selected_pop.chunks(2) {
             let crt_children = crossover_op.apply(parents[0], parents[1]);

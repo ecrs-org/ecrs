@@ -4,7 +4,7 @@ use ecrs::ga::operators::crossover::Ppx;
 use ecrs::ga::{
     operators::crossover::{CrossoverOperator, MultiPoint, SinglePoint, TwoPoint, Uniform},
     population::{PopulationGenerator, RandomPoints},
-    Individual,
+    ConcreteIndividual,
 };
 use itertools::Itertools;
 
@@ -48,8 +48,8 @@ fn uniform_takes_values_from_parents() {
 fn ppx_test() {
     let mut op = Ppx::new();
 
-    let p1 = Individual::from((0..10).collect_vec());
-    let p2 = Individual::from((0..10).rev().collect_vec());
+    let p1 = ConcreteIndividual::from((0..10).collect_vec());
+    let p2 = ConcreteIndividual::from((0..10).rev().collect_vec());
     let (c1, c2) = op.apply(&p1, &p2);
 
     c1.chromosome

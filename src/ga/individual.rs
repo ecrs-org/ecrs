@@ -23,15 +23,15 @@ impl<T: Sized + Sync + Send + Clone + Default + Debug> Chromosome for T {}
 /// however it will most likely be private in future versions,
 /// as there in reason for the end user to interact with it directly.
 #[derive(Clone, Debug, Serialize)]
-pub struct Individual<T: Chromosome> {
+pub struct ConcreteIndividual<T: Chromosome> {
     pub chromosome: T,
     pub fitness: f64,
 }
 
-impl<T: Chromosome> Individual<T> {
+impl<T: Chromosome> ConcreteIndividual<T> {
     /// Returns new instance of individual with default values for its fields.
     pub fn new() -> Self {
-        Individual {
+        ConcreteIndividual {
             chromosome: T::default(),
             fitness: f64::default(),
         }
@@ -54,7 +54,7 @@ impl<T: Chromosome> Individual<T> {
 /// can avoid some refactorings. This needs to be checked whether
 /// it is a bad practice or not to implement `Deref` for other
 /// types than smart pointers.
-impl<T: Chromosome> Deref for Individual<T> {
+impl<T: Chromosome> Deref for ConcreteIndividual<T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -62,9 +62,9 @@ impl<T: Chromosome> Deref for Individual<T> {
     }
 }
 
-impl<T: Chromosome> From<T> for Individual<T> {
+impl<T: Chromosome> From<T> for ConcreteIndividual<T> {
     fn from(chromosome: T) -> Self {
-        Individual {
+        ConcreteIndividual {
             chromosome,
             fitness: f64::MIN,
         }
@@ -73,15 +73,15 @@ impl<T: Chromosome> From<T> for Individual<T> {
 
 // Traits required for more ergonomic sorting
 
-impl<T: Chromosome> PartialEq<Self> for Individual<T> {
+impl<T: Chromosome> PartialEq<Self> for ConcreteIndividual<T> {
     fn eq(&self, other: &Self) -> bool {
         self.fitness == other.fitness
     }
 }
 
-impl<T: Chromosome> Eq for Individual<T> {}
+impl<T: Chromosome> Eq for ConcreteIndividual<T> {}
 
-impl<T: Chromosome> PartialOrd<Self> for Individual<T> {
+impl<T: Chromosome> PartialOrd<Self> for ConcreteIndividual<T> {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         self.fitness.partial_cmp(&other.fitness)
     }
@@ -89,7 +89,7 @@ impl<T: Chromosome> PartialOrd<Self> for Individual<T> {
 
 /// Implementation of `Ord` is important for many operators, so that the solutions
 /// can be sorted.
-impl<T: Chromosome> Ord for Individual<T> {
+impl<T: Chromosome> Ord for ConcreteIndividual<T> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         if let Some(ord) = self.partial_cmp(other) {
             return ord;
@@ -99,13 +99,13 @@ impl<T: Chromosome> Ord for Individual<T> {
 }
 
 /// Type alias for real valued individual (gene is a f64)
-pub type RealValueIndividual = Individual<Vec<f64>>;
+pub type RealValueIndividual = ConcreteIndividual<Vec<f64>>;
 
 /// Type alias for bit string individual (gene is a bool)
-pub type BitStringIndividual = Individual<Vec<bool>>;
+pub type BitStringIndividual = ConcreteIndividual<Vec<bool>>;
 
 pub trait IntoIndividual: Sized {
     type ChromosomeType: Chromosome;
 
-    fn into_individual(self) -> Individual<Self::ChromosomeType>;
+    fn into_individual(self) -> ConcreteIndividual<Self::ChromosomeType>;
 }

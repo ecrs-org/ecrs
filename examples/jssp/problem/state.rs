@@ -1,5 +1,5 @@
 use ecrs::{
-    ga::{self, Individual},
+    ga::{self, ConcreteIndividual},
     prelude::population::PopulationGenerator,
 };
 
@@ -111,7 +111,7 @@ impl JsspState {
         // }; size];
     }
 
-    pub fn inject_ecrs_pop(&mut self, population: Vec<Individual<Vec<f64>>>) {
+    pub fn inject_ecrs_pop(&mut self, population: Vec<ConcreteIndividual<Vec<f64>>>) {
         self.population = population
             .into_iter()
             .map(|idv| JsspIndividual {

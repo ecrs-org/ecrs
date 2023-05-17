@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::ops::Index;
 
-use crate::ga::individual::{Chromosome, Individual};
+use crate::ga::individual::{Chromosome, ConcreteIndividual};
 use push_trait::{Nothing, Push};
 use rand::prelude::SliceRandom;
 use rand::{rngs::ThreadRng, Rng};
@@ -19,8 +19,11 @@ pub trait CrossoverOperator<T: Chromosome> {
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(&mut self, parent_1: &Individual<T>, parent_2: &Individual<T>)
-        -> (Individual<T>, Individual<T>);
+    fn apply(
+        &mut self,
+        parent_1: &ConcreteIndividual<T>,
+        parent_2: &ConcreteIndividual<T>,
+    ) -> (ConcreteIndividual<T>, ConcreteIndividual<T>);
 }
 
 /// # Single point crossover operator
@@ -70,14 +73,14 @@ where
     /// * `parent_2` - Second parent to take part in recombination
     fn apply(
         &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+        parent_1: &ConcreteIndividual<ChT>,
+        parent_2: &ConcreteIndividual<ChT>,
+    ) -> (ConcreteIndividual<ChT>, ConcreteIndividual<ChT>) {
         let chromosome_len = parent_1.chromosome_ref().len();
         let cut_point = self.rng.gen_range(0..chromosome_len);
 
-        let mut child_1: Individual<ChT> = Individual::new();
-        let mut child_2: Individual<ChT> = Individual::new();
+        let mut child_1: ConcreteIndividual<ChT> = ConcreteIndividual::new();
+        let mut child_2: ConcreteIndividual<ChT> = ConcreteIndividual::new();
 
         for locus in 0..cut_point {
             child_1
@@ -148,9 +151,9 @@ where
     /// * `parent_2` - Second parent to take part in recombination
     fn apply(
         &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+        parent_1: &ConcreteIndividual<ChT>,
+        parent_2: &ConcreteIndividual<ChT>,
+    ) -> (ConcreteIndividual<ChT>, ConcreteIndividual<ChT>) {
         assert_eq!(
             parent_1.chromosome_ref().len(),
             parent_2.chromosome_ref().len(),
@@ -170,8 +173,8 @@ where
             (cut_points.1, cut_points.0)
         };
 
-        let mut child_1: Individual<ChT> = Individual::new();
-        let mut child_2: Individual<ChT> = Individual::new();
+        let mut child_1: ConcreteIndividual<ChT> = ConcreteIndividual::new();
+        let mut child_2: ConcreteIndividual<ChT> = ConcreteIndividual::new();
 
         for locus in 0..cut_point_1 {
             child_1
@@ -265,9 +268,9 @@ where
     /// * `parent_2` - Second parent to take part in recombination
     fn apply(
         &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+        parent_1: &ConcreteIndividual<ChT>,
+        parent_2: &ConcreteIndividual<ChT>,
+    ) -> (ConcreteIndividual<ChT>, ConcreteIndividual<ChT>) {
         assert_eq!(
             parent_1.chromosome_ref().len(),
             parent_2.chromosome_ref().len(),
@@ -285,8 +288,8 @@ where
             rand::seq::index::sample(&mut self.rng, chromosome_len, self.cut_points_no).into_vec();
         cut_points.sort_unstable();
 
-        let mut child_1: Individual<ChT> = Individual::new();
-        let mut child_2: Individual<ChT> = Individual::new();
+        let mut child_1: ConcreteIndividual<ChT> = ConcreteIndividual::new();
+        let mut child_2: ConcreteIndividual<ChT> = ConcreteIndividual::new();
 
         let (mut curr_parent_1, mut curr_parent_2) = (&parent_1, &parent_2);
 
@@ -366,9 +369,9 @@ where
     /// * `parent_2` - Second parent to take part in recombination
     fn apply(
         &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+        parent_1: &ConcreteIndividual<ChT>,
+        parent_2: &ConcreteIndividual<ChT>,
+    ) -> (ConcreteIndividual<ChT>, ConcreteIndividual<ChT>) {
         assert_eq!(
             parent_1.chromosome_ref().len(),
             parent_2.chromosome_ref().len(),
@@ -377,8 +380,8 @@ where
 
         let chromosome_len = parent_1.chromosome_ref().len();
 
-        let mut child_1: Individual<ChT> = Individual::new();
-        let mut child_2: Individual<ChT> = Individual::new();
+        let mut child_1: ConcreteIndividual<ChT> = ConcreteIndividual::new();
+        let mut child_2: ConcreteIndividual<ChT> = ConcreteIndividual::new();
 
         let mask = self
             .rng
@@ -455,9 +458,9 @@ where
     /// * `parent_2` - Second parent to take part in recombination
     fn apply(
         &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+        parent_1: &ConcreteIndividual<ChT>,
+        parent_2: &ConcreteIndividual<ChT>,
+    ) -> (ConcreteIndividual<ChT>, ConcreteIndividual<ChT>) {
         assert_eq!(
             parent_1.chromosome_ref().len(),
             parent_2.chromosome_ref().len(),
@@ -466,8 +469,8 @@ where
 
         let chromosome_len = parent_1.chromosome_ref().len();
 
-        let mut child_1: Individual<ChT> = Individual::new();
-        let mut child_2: Individual<ChT> = Individual::new();
+        let mut child_1: ConcreteIndividual<ChT> = ConcreteIndividual::new();
+        let mut child_2: ConcreteIndividual<ChT> = ConcreteIndividual::new();
 
         let mask = self.rng.clone().sample_iter(self.distr).take(chromosome_len);
 
@@ -530,11 +533,11 @@ impl<R: Rng> OrderedCrossover<R> {
     /// * `end` - End (exclusive) of substring to transplant
     fn create_child<GeneT, ChT>(
         &self,
-        p1: &Individual<ChT>,
-        p2: &Individual<ChT>,
+        p1: &ConcreteIndividual<ChT>,
+        p2: &ConcreteIndividual<ChT>,
         begin: usize,
         end: usize,
-    ) -> Individual<ChT>
+    ) -> ConcreteIndividual<ChT>
     where
         ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
         GeneT: Copy + Eq + Hash,
@@ -547,7 +550,7 @@ impl<R: Rng> OrderedCrossover<R> {
             substring_set.push(p1.chromosome_ref()[i]);
         }
 
-        let mut child: Individual<ChT> = Individual::new();
+        let mut child: ConcreteIndividual<ChT> = ConcreteIndividual::new();
         let mut index: usize = 0;
 
         while child.chromosome_ref().len() < begin {
@@ -597,9 +600,9 @@ where
     /// * `parent_2` - Second parent to take part in crossover
     fn apply(
         &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+        parent_1: &ConcreteIndividual<ChT>,
+        parent_2: &ConcreteIndividual<ChT>,
+    ) -> (ConcreteIndividual<ChT>, ConcreteIndividual<ChT>) {
         assert_eq!(
             parent_1.chromosome_ref().len(),
             parent_2.chromosome_ref().len(),
@@ -661,10 +664,10 @@ impl<R: Rng> Ppx<R> {
     /// * `take_from_p1` - Which genes should be taken from p1
     fn create_child<GeneT, ChT>(
         &self,
-        p1: &Individual<ChT>,
-        p2: &Individual<ChT>,
+        p1: &ConcreteIndividual<ChT>,
+        p2: &ConcreteIndividual<ChT>,
         take_from_p1: &[bool],
-    ) -> Individual<ChT>
+    ) -> ConcreteIndividual<ChT>
     where
         ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
         GeneT: Copy + Eq + Hash,
@@ -673,7 +676,7 @@ impl<R: Rng> Ppx<R> {
 
         let mut already_taken: HashSet<GeneT> = HashSet::new();
 
-        let mut child: Individual<ChT> = Individual::new();
+        let mut child: ConcreteIndividual<ChT> = ConcreteIndividual::new();
         let mut index_p: [usize; 2] = [0, 0];
         let parents = [p1, p2];
 
@@ -722,9 +725,9 @@ where
     /// * `parent_2` - one of the parents to take part in crossover
     fn apply(
         &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+        parent_1: &ConcreteIndividual<ChT>,
+        parent_2: &ConcreteIndividual<ChT>,
+    ) -> (ConcreteIndividual<ChT>, ConcreteIndividual<ChT>) {
         assert_eq!(
             parent_1.chromosome_ref().len(),
             parent_2.chromosome_ref().len(),
@@ -807,11 +810,11 @@ impl<R: Rng> Pmx<R> {
     /// * `end` - End (exclusive) of substring to transplant
     fn create_child<GeneT, ChT>(
         &self,
-        p1: &Individual<ChT>,
-        p2: &Individual<ChT>,
+        p1: &ConcreteIndividual<ChT>,
+        p2: &ConcreteIndividual<ChT>,
         begin: usize,
         end: usize,
-    ) -> Individual<ChT>
+    ) -> ConcreteIndividual<ChT>
     where
         ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
         GeneT: Copy + Eq + Hash,
@@ -846,7 +849,7 @@ impl<R: Rng> Pmx<R> {
             }
         }
 
-        let mut child: Individual<ChT> = Individual::new();
+        let mut child: ConcreteIndividual<ChT> = ConcreteIndividual::new();
         for (index, gene_opt) in enumerate(new_chromosome) {
             match gene_opt {
                 Some(gene) => child.chromosome_ref_mut().push(gene),
@@ -887,9 +890,9 @@ where
     /// * `parent_2` - Second parent to take part in crossover
     fn apply(
         &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+        parent_1: &ConcreteIndividual<ChT>,
+        parent_2: &ConcreteIndividual<ChT>,
+    ) -> (ConcreteIndividual<ChT>, ConcreteIndividual<ChT>) {
         assert_eq!(
             parent_1.chromosome_ref().len(),
             parent_2.chromosome_ref().len(),
@@ -959,9 +962,9 @@ where
     /// * `parent_2` - Second parent to take part in recombination
     fn apply(
         &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+        parent_1: &ConcreteIndividual<ChT>,
+        parent_2: &ConcreteIndividual<ChT>,
+    ) -> (ConcreteIndividual<ChT>, ConcreteIndividual<ChT>) {
         let chromosome_len = parent_1.chromosome_ref().len();
         let cut_point = self.rng.gen_range(0..chromosome_len);
 
@@ -969,8 +972,8 @@ where
         shuffled.shuffle(&mut self.rng);
         let mask = shuffled.iter().map(|x| x < &cut_point).collect_vec();
 
-        let mut child_1: Individual<ChT> = Individual::new();
-        let mut child_2: Individual<ChT> = Individual::new();
+        let mut child_1: ConcreteIndividual<ChT> = ConcreteIndividual::new();
+        let mut child_2: ConcreteIndividual<ChT> = ConcreteIndividual::new();
 
         for (i, fist_parent) in enumerate(mask) {
             if fist_parent {
@@ -990,14 +993,14 @@ where
 mod test {
     use crate::ga::operators::crossover::Ppx;
     use crate::ga::operators::crossover::{CrossoverOperator, Pmx, Shuffle};
-    use crate::ga::Individual;
+    use crate::ga::ConcreteIndividual;
     use std::iter::zip;
 
     #[test]
     fn check_ppx_example() {
         let op = Ppx::new();
-        let p1 = Individual::from(vec![1, 2, 3, 4, 5, 6]);
-        let p2 = Individual::from(vec![3, 1, 2, 6, 4, 5]);
+        let p1 = ConcreteIndividual::from(vec![1, 2, 3, 4, 5, 6]);
+        let p2 = ConcreteIndividual::from(vec![3, 1, 2, 6, 4, 5]);
         let take_from_p1 = [true, false, true, true, false, false];
 
         let child = op.create_child(&p1, &p2, &take_from_p1);
@@ -1014,8 +1017,8 @@ mod test {
         // https://www.rubicite.com/Tutorials/GeneticAlgorithms/CrossoverOperators/PMXCrossoverOperator.aspx/
         let op = Pmx::new();
 
-        let p1 = Individual::from(vec![8, 4, 7, 3, 6, 2, 5, 1, 9, 0]);
-        let p2 = Individual::from(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        let p1 = ConcreteIndividual::from(vec![8, 4, 7, 3, 6, 2, 5, 1, 9, 0]);
+        let p2 = ConcreteIndividual::from(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
         let child = op.create_child(&p1, &p2, 3, 8);
         for (i, j) in zip(child.chromosome, vec![0, 7, 4, 3, 6, 2, 5, 1, 8, 9]) {
@@ -1027,8 +1030,8 @@ mod test {
     fn shuffle_gives_appropriate_len() {
         let mut op = Shuffle::new();
 
-        let p1 = Individual::from(vec![8, 4, 7, 3, 6, 2, 5, 1, 9, 0]);
-        let p2 = Individual::from(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        let p1 = ConcreteIndividual::from(vec![8, 4, 7, 3, 6, 2, 5, 1, 9, 0]);
+        let p2 = ConcreteIndividual::from(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
         let (child_1, child_2) = op.apply(&p1, &p2);
         assert_eq!(child_1.chromosome.len(), 10);
@@ -1039,8 +1042,8 @@ mod test {
     fn shuffle_fulfills_conditions() {
         let mut op = Shuffle::new();
 
-        let p1 = Individual::from(vec![1, 0, 0, 1, 0, 1, 0, 1, 0, 0]);
-        let p2 = Individual::from(vec![0, 1, 1, 0, 1, 0, 1, 0, 1, 1]);
+        let p1 = ConcreteIndividual::from(vec![1, 0, 0, 1, 0, 1, 0, 1, 0, 0]);
+        let p2 = ConcreteIndividual::from(vec![0, 1, 1, 0, 1, 0, 1, 0, 1, 1]);
 
         let (c1, c2) = op.apply(&p1, &p2);
         for (g1, g2) in c1.chromosome.iter().zip(c2.chromosome.iter()) {
