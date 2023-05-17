@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if ! command -v cargo &> /dev/null
 then
@@ -7,4 +7,3 @@ then
 fi
 
 cargo fmt || exit 1
-
