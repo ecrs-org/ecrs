@@ -20,4 +20,5 @@ pub use crate::ga::operators::{crossover, fitness, mutation, replacement, select
 pub use crate::ga::population;
 #[cfg(feature = "pso")]
 pub use crate::pso;
+#[cfg(feature = "test_functions")]
 pub use crate::test_functions as tf;

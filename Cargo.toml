@@ -11,16 +11,10 @@ Evolutionary computation tools & algorithms
 keywords = ["evolution", "evolutionary", "algorithms", "genetic"]
 categories = ["science"]
 license = "MIT OR Apache-2.0"
-exclude = [
-	".github/*",
-	"Cargo.lock",
-	"coco/"
-]
+exclude = [".github/*", "Cargo.lock", "coco/"]
 
 [workspace]
-members = [
-	"coco",
-]
+members = ["coco"]
 
 [lib]
 name = "ecrs"
@@ -29,19 +23,20 @@ path = "src/lib.rs"
 [features]
 default = ["ga"]
 ga = []
-aco = ["dep:nalgebra"]
-ff = []
-pso = []
+aco = ["dep:nalgebra", "dep:num"]
+ff = ["dep:rayon"]
+pso = ["dep:rayon", "dep:num", "test_functions"]
+test_functions = []
 
 
 [dependencies]
 rand = "0.8.5"
-nalgebra = { version = "0.32.2", optional = true}
-rayon = "1.5.2"
+nalgebra = { version = "0.32.2", optional = true }
+rayon = { version = "1.5.2", optional = true }
 csv = "1.1.6"
 serde = { version = "1", features = ["derive"] }
 log = "0.4.17"
-num = "0.4.0"
+num = { version = "0.4.0", optional = true }
 itertools = "0.10.2"
 serde_json = "1.0.79"
 push-trait = "0.6.0"

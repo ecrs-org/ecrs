@@ -22,4 +22,5 @@ pub mod ga;
 pub mod prelude;
 #[cfg(feature = "pso")]
 pub mod pso;
+#[cfg(feature = "test_functions")]
 pub mod test_functions;
