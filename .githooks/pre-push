@@ -8,4 +8,4 @@ fi
 
 cargo fmt || exit 1
 # cargo check --workspace --bins --tests --all-targets --all-features || exit 1
-cargo clippy --workspace --all-features --all-targets || exit 1
+RUSTFLAGS="-Dwarnings" cargo clippy --workspace --all-features --all-targets || exit 1
