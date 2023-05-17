@@ -274,10 +274,7 @@ where
 
             // FIXME: Do not assume that population size is an even number.
             for parents in mating_pool.chunks(2) {
-                let crt_children = self
-                    .config
-                    .crossover_operator
-                    .apply(parents[0], parents[1]);
+                let crt_children = self.config.crossover_operator.apply(parents[0], parents[1]);
 
                 children.push(crt_children.0);
                 children.push(crt_children.1);
