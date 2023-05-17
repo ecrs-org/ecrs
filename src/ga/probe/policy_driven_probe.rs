@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::ga::{individual::Chromosome, GAMetadata, Individual};
+use crate::ga::{individual::Chromosome, ConcreteIndividual, GAMetadata};
 
 use super::{Probe, ProbingPolicy};
 
@@ -54,7 +54,7 @@ impl<T: Chromosome, Pc: ProbingPolicy<T>, Pr: Probe<T>> Probe<T> for PolicyDrive
     /// ### Arguments
     ///
     /// * `population` - Freshly generated population
-    fn on_initial_population_created(&mut self, population: &[Individual<T>]) {
+    fn on_initial_population_created(&mut self, population: &[ConcreteIndividual<T>]) {
         if self.policy.on_initial_population_created(population) {
             self.probe.on_initial_population_created(population);
         }
@@ -69,7 +69,7 @@ impl<T: Chromosome, Pc: ProbingPolicy<T>, Pr: Probe<T>> Probe<T> for PolicyDrive
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
     /// * `individual` - New best individual
-    fn on_new_best(&mut self, metadata: &GAMetadata, individual: &Individual<T>) {
+    fn on_new_best(&mut self, metadata: &GAMetadata, individual: &ConcreteIndividual<T>) {
         if self.policy.on_new_best(metadata, individual) {
             self.probe.on_new_best(metadata, individual);
         }
@@ -82,7 +82,7 @@ impl<T: Chromosome, Pc: ProbingPolicy<T>, Pr: Probe<T>> Probe<T> for PolicyDrive
     /// ### Arguments
     ///
     /// * `generation` - Newly created generation
-    fn on_new_generation(&mut self, metadata: &GAMetadata, generation: &[Individual<T>]) {
+    fn on_new_generation(&mut self, metadata: &GAMetadata, generation: &[ConcreteIndividual<T>]) {
         if self.policy.on_new_generation(metadata, generation) {
             self.probe.on_new_generation(metadata, generation);
         }
@@ -97,7 +97,7 @@ impl<T: Chromosome, Pc: ProbingPolicy<T>, Pr: Probe<T>> Probe<T> for PolicyDrive
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
     /// * `individual` - Best individual in current generation
-    fn on_best_fit_in_generation(&mut self, metadata: &GAMetadata, individual: &Individual<T>) {
+    fn on_best_fit_in_generation(&mut self, metadata: &GAMetadata, individual: &ConcreteIndividual<T>) {
         if self.policy.on_best_fit_in_generation(metadata, individual) {
             self.probe.on_best_fit_in_generation(metadata, individual);
         }
@@ -146,8 +146,8 @@ impl<T: Chromosome, Pc: ProbingPolicy<T>, Pr: Probe<T>> Probe<T> for PolicyDrive
     fn on_end(
         &mut self,
         metadata: &GAMetadata,
-        population: &[Individual<T>],
-        best_individual: &Individual<T>,
+        population: &[ConcreteIndividual<T>],
+        best_individual: &ConcreteIndividual<T>,
     ) {
         if self.policy.on_end(metadata, population, best_individual) {
             self.probe.on_end(metadata, population, best_individual);
