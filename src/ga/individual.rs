@@ -17,7 +17,7 @@ impl<T: Sized + Sync + Send + Clone + Default + Debug> Chromosome for T {}
 /// provided with the crate.
 ///
 /// [ci]: ConcreteIndividual
-pub trait Individual: Clone + Debug + Serialize {
+pub trait Individual: Clone {
     type ChromosomeT: Chromosome;
 
     /// Returns reference to chromosome
@@ -65,6 +65,22 @@ impl<T: Chromosome> ConcreteIndividual<T> {
     #[inline]
     pub fn chromosome_ref_mut(&mut self) -> &mut T {
         &mut self.chromosome
+    }
+}
+
+impl<T: Chromosome> Individual for ConcreteIndividual<T> {
+    type ChromosomeT = T;
+
+    fn chromosome(&self) -> &Self::ChromosomeT {
+        &self.chromosome
+    }
+
+    fn chromosome_mut(&mut self) -> &mut Self::ChromosomeT {
+        &mut self.chromosome
+    }
+
+    fn fitness(&self) -> f64 {
+        self.fitness
     }
 }
 
@@ -121,9 +137,3 @@ pub type RealValueIndividual = ConcreteIndividual<Vec<f64>>;
 
 /// Type alias for bit string individual (gene is a bool)
 pub type BitStringIndividual = ConcreteIndividual<Vec<bool>>;
-
-pub trait IntoIndividual: Sized {
-    type ChromosomeType: Chromosome;
-
-    fn into_individual(self) -> ConcreteIndividual<Self::ChromosomeType>;
-}
