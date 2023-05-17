@@ -3,7 +3,10 @@ use std::ops::IndexMut;
 use push_trait::{Nothing, Push};
 use rand::{rngs::ThreadRng, Rng};
 
-use crate::ga::{individual::Chromosome, ConcreteIndividual};
+use crate::ga::{
+    individual::{Chromosome, Individual},
+    ConcreteIndividual,
+};
 
 /// # Mutation Operator
 ///
@@ -76,7 +79,7 @@ where
     /// * `mutation_rate` - probability of gene mutation
     fn apply(&mut self, individual: &mut ConcreteIndividual<T>, mutation_rate: f64) {
         let distribution = rand::distributions::Uniform::from(0.0..1.0);
-        let chromosome_ref = individual.chromosome_ref_mut();
+        let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
 
         for i in 0..chromosome_len {
@@ -125,7 +128,7 @@ where
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
     fn apply(&mut self, individual: &mut ConcreteIndividual<T>, mutation_rate: f64) {
-        let chromosome_ref = individual.chromosome_ref_mut();
+        let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
 
         let dist = rand::distributions::Uniform::from(0.0..1.0);
@@ -181,7 +184,7 @@ where
     /// * `mutation_rate` - probability of gene mutation
     fn apply(&mut self, individual: &mut ConcreteIndividual<T>, mutation_rate: f64) {
         let dist = rand::distributions::Uniform::from(0.0..1.0);
-        let chromosome_ref = individual.chromosome_ref_mut();
+        let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
 
         for i in 1..chromosome_len {
@@ -249,7 +252,7 @@ impl<R: Rng> MutationOperator<Vec<usize>> for Inversion<R> {
 
 #[cfg(test)]
 mod tests {
-    use crate::ga::ConcreteIndividual;
+    use crate::ga::{individual::Individual, ConcreteIndividual};
     use itertools::Itertools;
     use rand::{distributions::Uniform, Rng};
 
@@ -293,7 +296,7 @@ mod tests {
 
         operator.apply(&mut individual, 1.);
 
-        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome_ref()) {
+        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome()) {
             assert_eq!(actual, !*expected);
         }
     }
@@ -317,7 +320,7 @@ mod tests {
 
         operator.apply(&mut individual, 0.);
 
-        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome_ref()) {
+        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome()) {
             assert_eq!(actual, *expected);
         }
     }
@@ -340,7 +343,7 @@ mod tests {
         let mut operator = Interchange::new();
 
         operator.apply(&mut individual, 1.);
-        let changes = std::iter::zip(chromosome_clone, individual.chromosome_ref())
+        let changes = std::iter::zip(chromosome_clone, individual.chromosome())
             .filter(|p| p.0 != *p.1)
             .count();
         assert!(changes > 0);
@@ -365,7 +368,7 @@ mod tests {
 
         operator.apply(&mut individual, 0.);
 
-        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome_ref()) {
+        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome()) {
             assert_eq!(actual, *expected);
         }
     }
@@ -382,7 +385,7 @@ mod tests {
             fitness: f64::default(),
         };
 
-        let first_gene_value = individual.chromosome_ref()[0];
+        let first_gene_value = individual.chromosome()[0];
 
         let mut operator = Reversing::new();
 
@@ -390,7 +393,7 @@ mod tests {
 
         assert_eq!(
             first_gene_value,
-            individual.chromosome_ref()[individual.chromosome_ref().len() - 1]
+            individual.chromosome()[individual.chromosome().len() - 1]
         );
     }
 }

@@ -22,7 +22,7 @@ path = "src/lib.rs"
 
 [features]
 default = ["ga"]
-ga = []
+ga = ["test_functions"]
 aco = ["dep:nalgebra", "dep:num"]
 ff = ["dep:rayon"]
 pso = ["dep:rayon", "dep:num", "test_functions"]

@@ -121,6 +121,7 @@ pub use probe::Probe;
 pub use probe::StdoutProbe;
 use std::marker::PhantomData;
 
+use self::individual::Individual;
 use self::{
     individual::Chromosome,
     operators::{
@@ -181,8 +182,9 @@ impl GAMetadata {
     }
 }
 
-pub struct GeneticAlgorithm<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
+pub struct GeneticAlgorithm<IndvT, ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
+    IndvT: Individual,
     ChromosomeT: Chromosome,
     MutOpT: MutationOperator<ChromosomeT>,
     CrossOpT: CrossoverOperator<ChromosomeT>,
@@ -194,11 +196,13 @@ where
 {
     config: GAConfig<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
     metadata: GAMetadata,
+    _phantom: PhantomData<IndvT>,
 }
 
-impl<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
-    GeneticAlgorithm<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
+impl<IndvT, ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
+    GeneticAlgorithm<IndvT, ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
+    IndvT: Individual,
     ChromosomeT: Chromosome,
     MutOpT: MutationOperator<ChromosomeT>,
     CrossOpT: CrossoverOperator<ChromosomeT>,
@@ -214,6 +218,7 @@ where
         GeneticAlgorithm {
             config,
             metadata: GAMetadata::new(None, None, 0),
+            _phantom: PhantomData::default(),
         }
     }
 

@@ -266,7 +266,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::{BitStrings, PopulationGenerator, RandomPoints};
-    use crate::ga::population::RandomPermutations;
+    use crate::ga::{individual::Individual, population::RandomPermutations};
     use itertools::Itertools;
 
     #[test]
@@ -289,7 +289,7 @@ mod tests {
         let points: Vec<crate::ga::ConcreteIndividual<Vec<f64>>> = gen.generate(30);
 
         for p in points {
-            for (v, res) in std::iter::zip(p.chromosome_ref(), &constraints) {
+            for (v, res) in std::iter::zip(p.chromosome(), &constraints) {
                 assert!(res.contains(v));
             }
         }
@@ -304,7 +304,7 @@ mod tests {
         let points: Vec<crate::ga::ConcreteIndividual<Vec<f64>>> = gen.generate(count);
 
         for p in points {
-            for v in p.chromosome_ref() {
+            for v in p.chromosome() {
                 assert!((0.0..1.0).contains(v));
             }
         }
@@ -317,7 +317,7 @@ mod tests {
         let points: Vec<crate::ga::ConcreteIndividual<Vec<bool>>> = gen.generate(30);
 
         for p in points {
-            assert_eq!(p.chromosome_ref().len(), dim)
+            assert_eq!(p.chromosome().len(), dim)
         }
     }
 
@@ -328,7 +328,7 @@ mod tests {
         let points = gen.generate(30);
 
         for p in points {
-            assert_eq!(p.chromosome_ref().len(), dim)
+            assert_eq!(p.chromosome().len(), dim)
         }
     }
 
@@ -339,7 +339,7 @@ mod tests {
         let points = gen.generate(10);
 
         for p in points {
-            let sum: usize = p.chromosome_ref().iter().sum();
+            let sum: usize = p.chromosome().iter().sum();
             assert_eq!(sum, ((dim + 1) * dim) / 2)
         }
     }

@@ -1,6 +1,9 @@
 //! Fully configurable builder implementation for any type of chromosome
 
+use std::marker::PhantomData;
+
 use crate::ga::builder::FitnessFn;
+use crate::ga::individual::Individual;
 use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
 use crate::ga::operators::replacement::ReplacementOperator;
 use crate::ga::{
@@ -14,22 +17,34 @@ use super::{DefaultParams, GAConfigOpt};
 
 /// [GenericBuilder] must be fully configured. Only defaults for params are provided,
 /// altough it is preffered to override them.
-pub struct GenericBuilder<T, M, C, S, R, P, F, Pr>
-where
-    T: Chromosome,
-    M: MutationOperator<T>,
-    C: CrossoverOperator<T>,
-    S: SelectionOperator<T>,
-    R: ReplacementOperator<T>,
-    P: PopulationGenerator<T>,
-    F: Fitness<T>,
-    Pr: Probe<T>,
+pub struct GenericBuilder<
+    IndividualT,
+    ChromosomeT,
+    MutOpT,
+    CrossOpT,
+    SelOpT,
+    ReplOpT,
+    PopGenT,
+    FitnessT,
+    ProbeT,
+> where
+    IndividualT: Individual,
+    ChromosomeT: Chromosome,
+    MutOpT: MutationOperator<ChromosomeT>,
+    CrossOpT: CrossoverOperator<ChromosomeT>,
+    SelOpT: SelectionOperator<ChromosomeT>,
+    ReplOpT: ReplacementOperator<ChromosomeT>,
+    PopGenT: PopulationGenerator<ChromosomeT>,
+    FitnessT: Fitness<ChromosomeT>,
+    ProbeT: Probe<ChromosomeT>,
 {
-    config: GAConfigOpt<T, M, C, S, R, P, F, Pr>,
+    config: GAConfigOpt<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
+    _phantom: PhantomData<IndividualT>,
 }
 
-impl<T, M, C, S, R, P, Pr> GenericBuilder<T, M, C, S, R, P, FnBasedFitness<T>, Pr>
+impl<I, T, M, C, S, R, P, Pr> GenericBuilder<I, T, M, C, S, R, P, FnBasedFitness<T>, Pr>
 where
+    I: Individual,
     T: Chromosome,
     M: MutationOperator<T>,
     C: CrossoverOperator<T>,
@@ -43,8 +58,9 @@ where
     }
 }
 
-impl<T, M, C, S, R, P, F, Pr> GenericBuilder<T, M, C, S, R, P, F, Pr>
+impl<I, T, M, C, S, R, P, F, Pr> GenericBuilder<I, T, M, C, S, R, P, F, Pr>
 where
+    I: Individual,
     T: Chromosome,
     M: MutationOperator<T>,
     C: CrossoverOperator<T>,
@@ -58,6 +74,7 @@ where
     pub fn new() -> Self {
         GenericBuilder {
             config: GAConfigOpt::new(),
+            _phantom: PhantomData::default(),
         }
     }
 
@@ -206,7 +223,7 @@ where
     /// ## Panics
     ///
     /// Iff any of the parameters has invalid value.
-    pub fn build(mut self) -> GeneticAlgorithm<T, M, C, S, R, P, F, Pr> {
+    pub fn build(mut self) -> GeneticAlgorithm<I, T, M, C, S, R, P, F, Pr> {
         self.config.params.fill_from(&Self::DEFAULT_PARAMS);
 
         let config = match self.config.try_into() {
@@ -218,8 +235,9 @@ where
     }
 }
 
-impl<T, M, C, S, R, P, F, Pr> DefaultParams for GenericBuilder<T, M, C, S, R, P, F, Pr>
+impl<I, T, M, C, S, R, P, F, Pr> DefaultParams for GenericBuilder<I, T, M, C, S, R, P, F, Pr>
 where
+    I: Individual,
     T: Chromosome,
     M: MutationOperator<T>,
     C: CrossoverOperator<T>,

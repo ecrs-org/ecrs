@@ -3,6 +3,7 @@
 use crate::ga::builder::FitnessFn;
 use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
 use crate::ga::operators::replacement::BothParents;
+use crate::ga::ConcreteIndividual;
 use crate::ga::{
     operators::{crossover::SinglePoint, mutation::FlipBit, selection::Tournament},
     population::BitStrings,
@@ -140,6 +141,7 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
     pub fn build(
         mut self,
     ) -> GeneticAlgorithm<
+        ConcreteIndividual<Bsc>,
         Bsc,
         FlipBit<rand::rngs::ThreadRng>,
         SinglePoint<rand::rngs::ThreadRng>,

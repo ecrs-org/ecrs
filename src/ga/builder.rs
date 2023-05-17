@@ -9,7 +9,7 @@ use std::error::Error;
 use std::fmt::Display;
 use std::marker::PhantomData;
 
-use super::individual::Chromosome;
+use super::individual::{Chromosome, Individual};
 use super::operators::replacement::ReplacementOperator;
 use super::operators::selection::SelectionOperator;
 use super::population::PopulationGenerator;
@@ -241,8 +241,9 @@ impl Builder {
     ///
     /// Use this function if you want to configure operators && parameters for your optimizer
     #[allow(clippy::new_ret_no_self)]
-    pub fn new<T, M, C, S, R, P, F, Pr>() -> GenericBuilder<T, M, C, S, R, P, F, Pr>
+    pub fn new<I, T, M, C, S, R, P, F, Pr>() -> GenericBuilder<I, T, M, C, S, R, P, F, Pr>
     where
+        I: Individual,
         T: Chromosome,
         M: MutationOperator<T>,
         C: CrossoverOperator<T>,
@@ -252,7 +253,7 @@ impl Builder {
         F: Fitness<T>,
         Pr: Probe<T>,
     {
-        GenericBuilder::<T, M, C, S, R, P, F, Pr>::new()
+        GenericBuilder::<I, T, M, C, S, R, P, F, Pr>::new()
     }
 
     /// Returns new instance of [RealValuedBuilder](self::realvalued::RealValuedBuilder)

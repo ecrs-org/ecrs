@@ -54,31 +54,22 @@ impl<T: Chromosome> ConcreteIndividual<T> {
             fitness: f64::default(),
         }
     }
-
-    /// Returns reference to chromosome
-    #[inline]
-    pub fn chromosome_ref(&self) -> &T {
-        &self.chromosome
-    }
-
-    /// Returns mutable reference to chromosome
-    #[inline]
-    pub fn chromosome_ref_mut(&mut self) -> &mut T {
-        &mut self.chromosome
-    }
 }
 
 impl<T: Chromosome> Individual for ConcreteIndividual<T> {
     type ChromosomeT = T;
 
+    #[inline]
     fn chromosome(&self) -> &Self::ChromosomeT {
         &self.chromosome
     }
 
+    #[inline]
     fn chromosome_mut(&mut self) -> &mut Self::ChromosomeT {
         &mut self.chromosome
     }
 
+    #[inline]
     fn fitness(&self) -> f64 {
         self.fitness
     }
