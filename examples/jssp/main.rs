@@ -29,8 +29,6 @@ fn run() {
         }
     }
 
-    return;
-
     const POPULATION_SIZE: usize = 4;
     const SELECTION_SIZE: usize = 2;
     const GENERATION_COUNT: usize = 15;
