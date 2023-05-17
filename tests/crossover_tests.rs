@@ -1,3 +1,5 @@
+#![cfg(feature = "ga")]
+
 use ecrs::ga::operators::crossover::Ppx;
 use ecrs::ga::{
     operators::crossover::{CrossoverOperator, MultiPoint, SinglePoint, TwoPoint, Uniform},

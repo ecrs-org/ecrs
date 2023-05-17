@@ -1,3 +1,5 @@
+#![cfg(feature = "ga")]
+
 use ecrs::ga::{
     operators::selection::{
         Boltzmann, Random, Rank, RankR, RouletteWheel, SelectionOperator, StochasticUniversalSampling,

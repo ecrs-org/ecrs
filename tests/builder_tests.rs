@@ -1,3 +1,5 @@
+#![cfg(feature = "ga")]
+
 #[test]
 fn generic_does_not_panic_with_some_params_unspecified() {
     // selection_rate, mutation_rate omitted
