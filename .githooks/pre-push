@@ -2,10 +2,10 @@
 
 if ! command -v cargo &> /dev/null
 then
-  echo "cargo command is missing, could not execute pre-commit hook fully"
+  echo "cargo command is missing, could not execute pre-push hook fully"
   exit 1
 fi
 
 cargo fmt || exit 1
-cargo check --workspace --bins --tests --all-targets --all-features || exit 1
+# cargo check --workspace --bins --tests --all-targets --all-features || exit 1
 cargo clippy --workspace --all-features --all-targets || exit 1
