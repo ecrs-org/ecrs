@@ -34,10 +34,6 @@ fn run() {
     const GENERATION_COUNT: usize = 15;
     const ELITE_SIZE: usize = POPULATION_SIZE - SELECTION_SIZE;
 
-    // Requried for genetic operators to work properly
-    assert!(POPULATION_SIZE % 2 == 0);
-    assert!(SELECTION_SIZE % 2 == 0);
-
     let mut state = JsspState {
         cfg: JsspConfig {
             n_jobs: 4,
