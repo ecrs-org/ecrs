@@ -217,19 +217,20 @@ where
         }
     }
 
+    #[inline]
     fn find_best_individual(population: &Vec<Individual<ChromosomeT>>) -> &Individual<ChromosomeT> {
         debug_assert!(!population.is_empty());
         population.iter().max().unwrap()
     }
 
-    #[inline(always)]
+    #[inline]
     fn eval_pop(&mut self, population: &mut [Individual<ChromosomeT>]) {
         population
             .iter_mut()
             .for_each(|idv| idv.fitness = (self.config.fitness_fn).apply(idv));
     }
 
-    #[inline(always)]
+    #[inline]
     fn gen_pop(&mut self) -> Vec<Individual<ChromosomeT>> {
         self.config
             .population_factory
