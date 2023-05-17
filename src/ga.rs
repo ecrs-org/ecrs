@@ -219,13 +219,7 @@ where
 
     fn find_best_individual(population: &Vec<Individual<ChromosomeT>>) -> &Individual<ChromosomeT> {
         debug_assert!(!population.is_empty());
-        let mut best_individual = &population[0];
-        for idv in population.iter().skip(1) {
-            if *idv > *best_individual {
-                best_individual = idv;
-            }
-        }
-        best_individual
+        population.iter().max().unwrap()
     }
 
     #[inline(always)]
