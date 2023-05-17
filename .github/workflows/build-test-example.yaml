@@ -9,6 +9,7 @@ on:
       - 'examples/**'
       - '.github/workflows/build-test-example.yaml'
       - 'Cargo.toml'
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always

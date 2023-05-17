@@ -1,4 +1,4 @@
-use std::collections::{HashSet, VecDeque};
+use std::collections::HashSet;
 
 use crate::util::{print_hash_set, print_slice};
 
@@ -63,22 +63,22 @@ impl JsspIndividual {
         }
 
         print!("active_shedule: ");
-        print_hash_set(&active_schedule);
+        print_hash_set(active_schedule);
     }
 
-    fn local_search(&mut self, curr_fitness: usize) -> usize {
-        // I can't just use simple bfs algorithm as the nodes are weighted.
-        // First I
-        let n: usize = self.chromosome.len() / 2;
-        let mut visited = vec![false; n + 2];
-        let mut queue = VecDeque::<usize>::new();
-
-        queue.push_back(n + 1);
-
-        while !queue.is_empty() {}
-
-        curr_fitness
-    }
+    // fn local_search(&mut self, curr_fitness: usize) -> usize {
+    //     // I can't just use simple bfs algorithm as the nodes are weighted.
+    //     // First I
+    //     let n: usize = self.chromosome.len() / 2;
+    //     let _visited = vec![false; n + 2];
+    //     let mut queue = VecDeque::<usize>::new();
+    //
+    //     queue.push_back(n + 1);
+    //
+    //     while !queue.is_empty() {}
+    //
+    //     curr_fitness
+    // }
 
     pub fn eval(&mut self) -> usize {
         println!("++++++++++++++++++++++++++++++++++");

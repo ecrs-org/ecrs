@@ -60,3 +60,13 @@ For now the best method to get started is checking out our [examples](examples/)
 ## MSRV
 
 During this stage of development there is not MSRV policy estabilished yet. Currently `MSRV == 1.65.0` as there are some usages of syntax introduced in `1.65.0` in the codebase.
+
+## Clone & repo setup
+
+```bash
+# Clone the repository
+git clone git@github.com:ecrs-org/ecrs.git ecrs
+
+# Install the hooks
+git config core.hooksPath .githooks
+```

@@ -3,8 +3,6 @@ pub mod state;
 
 use crate::util::print_slice;
 
-use self::state::JsspState;
-
 #[derive(Debug, Clone)]
 pub struct Operation {
     id: usize,

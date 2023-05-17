@@ -11,6 +11,7 @@ use crate::pso::probe::stdout_probe::StdoutProbe;
 use crate::pso::probe::Probe;
 use crate::pso::swarm::Swarm;
 use crate::pso::termination_condition::{GenerationLimit, TerminationCondition};
+
 use crate::test_functions::rosenbrock;
 
 /// Struct wrapping all configuration parameters of PSO algorithm.

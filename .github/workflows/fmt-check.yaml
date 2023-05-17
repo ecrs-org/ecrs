@@ -8,6 +8,7 @@ on:
     paths:
       - 'src/**'
       - '.github/workflows/fmt-check.yaml'
+  workflow_dispatch:
 
 # Make sure CI fails on all warnings, including Clippy lints
 env:

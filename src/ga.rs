@@ -1,3 +1,4 @@
+#![cfg(feature = "ga")]
 //! Implementation of genetic algorithm and genetic operators
 //!
 //! #### Description

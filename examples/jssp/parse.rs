@@ -45,7 +45,6 @@ impl TryFrom<PathBuf> for JsspInstance {
             .take(1)
             .last()
             .unwrap()
-            .trim()
             .split_whitespace()
             .map(|n_str| n_str.parse::<usize>().unwrap())
             .collect_vec();
@@ -63,7 +62,6 @@ impl TryFrom<PathBuf> for JsspInstance {
         line_buffer.lines().skip(1).for_each(|job_def| {
             let first_job_in_batch = op_id;
             job_def
-                .trim()
                 .split_whitespace()
                 .collect_vec()
                 .chunks(2)

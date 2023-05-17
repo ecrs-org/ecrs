@@ -57,24 +57,15 @@ fn run_experiment(
         let no_int_objectives = problem.number_of_integer_variables();
 
         if no_constraints != 0 {
-            panic!(
-                "PROBLEM OF DIMENSION {} WITH {} CONSTRAINTS",
-                dimension, no_constraints
-            );
+            panic!("PROBLEM OF DIMENSION {dimension} WITH {no_constraints} CONSTRAINTS");
         }
 
         if no_objectives > 1 {
-            panic!(
-                "PROBLEM OF DIMENSION {} WITH {} OBJECTIVES",
-                dimension, no_objectives
-            );
+            panic!("PROBLEM OF DIMENSION {dimension} WITH {no_objectives} OBJECTIVES");
         }
 
         if no_int_objectives > 0 {
-            panic!(
-                "PROBLEM OF DIMENSION {} WITH {} INT OBJECTIVES",
-                dimension, no_int_objectives
-            );
+            panic!("PROBLEM OF DIMENSION {dimension} WITH {no_int_objectives} INT OBJECTIVES");
         }
 
         for _ in 1..=INDEPENDENT_RESTARTS_100K {

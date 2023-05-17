@@ -15,16 +15,12 @@ pub struct Args {
 
 fn validate_args(args: &Args) -> Result<(), String> {
     let cloned_args = args.clone();
-    if args.file.is_some() {
-        if !cloned_args.file.unwrap().is_file() {
-            return Err("Specified data file does not exist or is not a file".to_owned());
-        }
+    if args.file.is_some() && !cloned_args.file.unwrap().is_file() {
+        return Err("Specified data file does not exist or is not a file".to_owned());
     }
 
-    if args.data_dir.is_some() {
-        if !cloned_args.data_dir.unwrap().is_dir() {
-            return Err("Specified data directory does not exist or is not a directory".to_owned());
-        }
+    if args.data_dir.is_some() && !cloned_args.data_dir.unwrap().is_dir() {
+        return Err("Specified data directory does not exist or is not a directory".to_owned());
     }
     Ok(())
 }

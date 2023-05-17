@@ -1,3 +1,5 @@
+#![cfg(feature = "ga")]
+
 use ecrs::ga::{
     operators::replacement::{BothParents, Noop, ReplacementOperator},
     population::{PopulationGenerator, RandomPoints},

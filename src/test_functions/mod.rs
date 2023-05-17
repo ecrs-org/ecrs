@@ -1,3 +1,4 @@
+#![cfg(feature = "test_functions")]
 //! Implementations of a variety of test functions
 
 use std::{f64, i32};
