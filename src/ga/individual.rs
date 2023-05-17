@@ -12,6 +12,24 @@ pub trait Chromosome: Sized + Sync + Send + Clone + Default + Debug {}
 /// Blanket implementation of Chromosome trait for any type that satisfies the bounds
 impl<T: Sized + Sync + Send + Clone + Default + Debug> Chromosome for T {}
 
+/// Common behaviour to all individuals. If you want to provide custom state to the individual
+/// you should implement this trait. Otherwise you should use [ConcreteIndividual][ci] type
+/// provided with the crate.
+///
+/// [ci]: ConcreteIndividual
+pub trait Individual: Clone + Debug + Serialize {
+    type ChromosomeT: Chromosome;
+
+    /// Returns reference to chromosome
+    fn chromosome(&self) -> &Self::ChromosomeT;
+
+    /// Returns mutable reference to chromosome
+    fn chromosome_mut(&mut self) -> &mut Self::ChromosomeT;
+
+    /// Returns fitness
+    fn fitness(&self) -> f64;
+}
+
 /// Representation of an individual for a genetic algorithm.
 ///
 /// This struct has two fileds:
