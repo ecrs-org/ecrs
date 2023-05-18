@@ -181,7 +181,7 @@ impl GAMetadata {
     }
 }
 
-pub struct GeneticAlgorithm<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
+pub struct GeneticSolver<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
     ChromosomeT: Chromosome,
     MutOpT: MutationOperator<ChromosomeT>,
@@ -197,7 +197,7 @@ where
 }
 
 impl<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
-    GeneticAlgorithm<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
+    GeneticSolver<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
     ChromosomeT: Chromosome,
     MutOpT: MutationOperator<ChromosomeT>,
@@ -211,7 +211,7 @@ where
     pub fn new(
         config: GAConfig<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
     ) -> Self {
-        GeneticAlgorithm {
+        GeneticSolver {
             config,
             metadata: GAMetadata::new(None, None, 0),
         }

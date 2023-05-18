@@ -7,7 +7,7 @@ use crate::ga::{
     operators::{crossover::SinglePoint, mutation::FlipBit, selection::Tournament},
     population::BitStrings,
     probe::StdoutProbe,
-    GeneticAlgorithm,
+    GeneticSolver,
 };
 
 use super::{DefaultParams, GAConfigOpt};
@@ -139,7 +139,7 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
     /// * problem dimension is not set
     pub fn build(
         mut self,
-    ) -> GeneticAlgorithm<
+    ) -> GeneticSolver<
         Bsc,
         FlipBit<rand::rngs::ThreadRng>,
         SinglePoint<rand::rngs::ThreadRng>,
@@ -174,13 +174,13 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
             .get_or_insert_with(|| BitStrings::new(self.dim.unwrap_or(10)));
         self.config.probe.get_or_insert_with(StdoutProbe::new);
 
-        // GeneticAlgorithm::new(self.config.into())
+        // GeneticSolver::new(self.config.into())
         let config = match self.config.try_into() {
             Ok(config) => config,
             Err(err) => panic!("Builder panicked with error: {err}"),
         };
 
-        GeneticAlgorithm::new(config)
+        GeneticSolver::new(config)
     }
 }
 

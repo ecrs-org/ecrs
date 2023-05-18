@@ -3,11 +3,11 @@
 use crate::ga::builder::FitnessFn;
 use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
 use crate::ga::operators::replacement::BothParents;
+use crate::ga::GeneticSolver;
 use crate::ga::{
     operators::{crossover::SinglePoint, mutation::Interchange, selection::Tournament},
     population::RandomPoints,
     probe::StdoutProbe,
-    GeneticAlgorithm,
 };
 
 use super::{DefaultParams, GAConfigOpt};
@@ -139,7 +139,7 @@ impl<F: Fitness<Rvc>> RealValuedBuilder<F> {
     /// * problem dimension is not set
     pub fn build(
         mut self,
-    ) -> GeneticAlgorithm<
+    ) -> GeneticSolver<
         Rvc,
         Interchange<rand::rngs::ThreadRng>,
         SinglePoint<rand::rngs::ThreadRng>,
@@ -179,7 +179,7 @@ impl<F: Fitness<Rvc>> RealValuedBuilder<F> {
             Err(err) => panic!("Builder panicked with error: {err}"),
         };
 
-        GeneticAlgorithm::new(config)
+        GeneticSolver::new(config)
     }
 }
 

@@ -7,7 +7,7 @@ use crate::ga::{
     individual::Chromosome,
     operators::{crossover::CrossoverOperator, mutation::MutationOperator, selection::SelectionOperator},
     population::PopulationGenerator,
-    GeneticAlgorithm, Probe,
+    GeneticSolver, Probe,
 };
 
 use super::{DefaultParams, GAConfigOpt};
@@ -206,7 +206,7 @@ where
     /// ## Panics
     ///
     /// Iff any of the parameters has invalid value.
-    pub fn build(mut self) -> GeneticAlgorithm<T, M, C, S, R, P, F, Pr> {
+    pub fn build(mut self) -> GeneticSolver<T, M, C, S, R, P, F, Pr> {
         self.config.params.fill_from(&Self::DEFAULT_PARAMS);
 
         let config = match self.config.try_into() {
@@ -214,7 +214,7 @@ where
             Err(err) => panic!("Builder panicked with error: {err}"),
         };
 
-        GeneticAlgorithm::new(config)
+        GeneticSolver::new(config)
     }
 }
 
