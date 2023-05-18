@@ -33,7 +33,7 @@ pub trait IndividualTrait: Clone {
 
     fn fitness_mut(&mut self) -> &mut f64;
 
-    /// Should return `true` iff the cached fitness value is not up to date, e.g. chromosome 
+    /// Should return `true` iff the cached fitness value is not up to date, e.g. chromosome
     /// was modified. Default implementation always returns `true`.
     fn requires_evaluation(&self) -> bool {
         true
