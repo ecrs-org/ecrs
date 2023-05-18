@@ -1,10 +1,10 @@
 //! Fully configurable builder implementation for any type of chromosome
 
 use crate::ga::builder::FitnessFn;
+use crate::ga::individual::IndividualTrait;
 use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
 use crate::ga::operators::replacement::ReplacementOperator;
 use crate::ga::{
-    individual::Chromosome,
     operators::{crossover::CrossoverOperator, mutation::MutationOperator, selection::SelectionOperator},
     population::PopulationGenerator,
     GeneticSolver, Probe,
@@ -14,45 +14,56 @@ use super::{DefaultParams, GAConfigOpt};
 
 /// [GenericBuilder] must be fully configured. Only defaults for params are provided,
 /// altough it is preffered to override them.
-pub struct GenericBuilder<T, M, C, S, R, P, F, Pr>
+pub struct GenericBuilder<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
-    T: Chromosome,
-    M: MutationOperator<T>,
-    C: CrossoverOperator<T>,
-    S: SelectionOperator<T>,
-    R: ReplacementOperator<T>,
-    P: PopulationGenerator<T>,
-    F: Fitness<T>,
-    Pr: Probe<T>,
+    IndividualT: IndividualTrait,
+    MutOpT: MutationOperator<IndividualT::ChromosomeT>,
+    CrossOpT: CrossoverOperator<IndividualT::ChromosomeT>,
+    SelOpT: SelectionOperator<IndividualT::ChromosomeT>,
+    ReplOpT: ReplacementOperator<IndividualT::ChromosomeT>,
+    PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
+    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT::ChromosomeT>,
 {
-    config: GAConfigOpt<T, M, C, S, R, P, F, Pr>,
+    config: GAConfigOpt<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
 }
 
-impl<T, M, C, S, R, P, Pr> GenericBuilder<T, M, C, S, R, P, FnBasedFitness<T>, Pr>
+impl<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, ProbeT>
+    GenericBuilder<
+        IndividualT,
+        MutOpT,
+        CrossOpT,
+        SelOpT,
+        ReplOpT,
+        PopGenT,
+        FnBasedFitness<IndividualT::ChromosomeT>,
+        ProbeT,
+    >
 where
-    T: Chromosome,
-    M: MutationOperator<T>,
-    C: CrossoverOperator<T>,
-    S: SelectionOperator<T>,
-    R: ReplacementOperator<T>,
-    P: PopulationGenerator<T>,
-    Pr: Probe<T>,
+    IndividualT: IndividualTrait,
+    MutOpT: MutationOperator<IndividualT::ChromosomeT>,
+    CrossOpT: CrossoverOperator<IndividualT::ChromosomeT>,
+    SelOpT: SelectionOperator<IndividualT::ChromosomeT>,
+    ReplOpT: ReplacementOperator<IndividualT::ChromosomeT>,
+    PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT::ChromosomeT>,
 {
-    pub fn set_fitness_fn(self, fitness_fn: FitnessFn<T>) -> Self {
+    pub fn set_fitness_fn(self, fitness_fn: FitnessFn<IndividualT::ChromosomeT>) -> Self {
         self.set_fitness(FnBasedFitness::new(fitness_fn))
     }
 }
 
-impl<T, M, C, S, R, P, F, Pr> GenericBuilder<T, M, C, S, R, P, F, Pr>
+impl<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
+    GenericBuilder<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
-    T: Chromosome,
-    M: MutationOperator<T>,
-    C: CrossoverOperator<T>,
-    S: SelectionOperator<T>,
-    P: PopulationGenerator<T>,
-    R: ReplacementOperator<T>,
-    F: Fitness<T>,
-    Pr: Probe<T>,
+    IndividualT: IndividualTrait,
+    MutOpT: MutationOperator<IndividualT::ChromosomeT>,
+    CrossOpT: CrossoverOperator<IndividualT::ChromosomeT>,
+    SelOpT: SelectionOperator<IndividualT::ChromosomeT>,
+    PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
+    ReplOpT: ReplacementOperator<IndividualT::ChromosomeT>,
+    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT::ChromosomeT>,
 {
     /// Returns new instance of [GenericBuilder]
     pub fn new() -> Self {
@@ -136,7 +147,7 @@ where
     /// ## Arguments
     ///
     /// * `fitness` - Structure implementing the Fitness trait. See its documentation for details.
-    pub fn set_fitness(mut self, fitness: F) -> Self {
+    pub fn set_fitness(mut self, fitness: FitnessT) -> Self {
         self.config.fitness_fn = Some(fitness);
         self
     }
@@ -146,7 +157,7 @@ where
     /// ## Arguments
     ///
     /// * `mutation_op` - struct implementing [MutationOperator](crate::ga::operators::mutation::MutationOperator) trait
-    pub fn set_mutation_operator(mut self, mutation_op: M) -> Self {
+    pub fn set_mutation_operator(mut self, mutation_op: MutOpT) -> Self {
         self.config.mutation_operator = Some(mutation_op);
         self
     }
@@ -156,7 +167,7 @@ where
     /// ## Arguments
     ///
     /// * `crossover_op` - struct implementing [CrossoverOperator](crate::ga::operators::crossover::CrossoverOperator) trait
-    pub fn set_crossover_operator(mut self, crossover_op: C) -> Self {
+    pub fn set_crossover_operator(mut self, crossover_op: CrossOpT) -> Self {
         self.config.crossover_operator = Some(crossover_op);
         self
     }
@@ -166,7 +177,7 @@ where
     /// ## Arguments
     ///
     /// * `selection_op` - struct implementing [SelectionOperator](crate::ga::operators::selection::SelectionOperator) trait
-    pub fn set_selection_operator(mut self, selection_op: S) -> Self {
+    pub fn set_selection_operator(mut self, selection_op: SelOpT) -> Self {
         self.config.selection_operator = Some(selection_op);
         self
     }
@@ -176,7 +187,7 @@ where
     /// ## Arguments
     ///
     /// * `replacement_op` - struct implementing [ReplacementOperator](crate::ga::operators::replacement::ReplacementOperator) trait
-    pub fn set_replacement_operator(mut self, replacement_op: R) -> Self {
+    pub fn set_replacement_operator(mut self, replacement_op: ReplOpT) -> Self {
         self.config.replacement_operator = Some(replacement_op);
         self
     }
@@ -186,7 +197,7 @@ where
     /// ## Arguments
     ///
     /// * `generator` - struct implementing [PopulationGenerator](crate::ga::population::PopulationGenerator) trait
-    pub fn set_population_generator(mut self, generator: P) -> Self {
+    pub fn set_population_generator(mut self, generator: PopGenT) -> Self {
         self.config.population_factory = Some(generator);
         self
     }
@@ -196,7 +207,7 @@ where
     /// ## Arguments
     ///
     /// * `probe` - struct implementing [Probe](crate::ga::probe::Probe) trait
-    pub fn set_probe(mut self, probe: Pr) -> Self {
+    pub fn set_probe(mut self, probe: ProbeT) -> Self {
         self.config.probe = Some(probe);
         self
     }
@@ -206,7 +217,9 @@ where
     /// ## Panics
     ///
     /// Iff any of the parameters has invalid value.
-    pub fn build(mut self) -> GeneticSolver<T, M, C, S, R, P, F, Pr> {
+    pub fn build(
+        mut self,
+    ) -> GeneticSolver<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT> {
         self.config.params.fill_from(&Self::DEFAULT_PARAMS);
 
         let config = match self.config.try_into() {
@@ -218,15 +231,16 @@ where
     }
 }
 
-impl<T, M, C, S, R, P, F, Pr> DefaultParams for GenericBuilder<T, M, C, S, R, P, F, Pr>
+impl<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT> DefaultParams
+    for GenericBuilder<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
-    T: Chromosome,
-    M: MutationOperator<T>,
-    C: CrossoverOperator<T>,
-    S: SelectionOperator<T>,
-    P: PopulationGenerator<T>,
-    R: ReplacementOperator<T>,
-    F: Fitness<T>,
-    Pr: Probe<T>,
+    IndividualT: IndividualTrait,
+    MutOpT: MutationOperator<IndividualT::ChromosomeT>,
+    CrossOpT: CrossoverOperator<IndividualT::ChromosomeT>,
+    SelOpT: SelectionOperator<IndividualT::ChromosomeT>,
+    PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
+    ReplOpT: ReplacementOperator<IndividualT::ChromosomeT>,
+    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT::ChromosomeT>,
 {
 }
