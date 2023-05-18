@@ -85,6 +85,30 @@ impl<T: Chromosome> Individual<T> {
     }
 }
 
+impl<T: Chromosome> IndividualTrait for Individual<T> {
+    type ChromosomeT = T;
+
+    #[inline]
+    fn chromosome(&self) -> &Self::ChromosomeT {
+        &self.chromosome
+    }
+
+    #[inline]
+    fn chromosome_mut(&mut self) -> &mut Self::ChromosomeT {
+        &mut self.chromosome
+    }
+
+    #[inline]
+    fn fitness(&self) -> f64 {
+        self.fitness
+    }
+
+    #[inline]
+    fn fitness_mut(&mut self) -> &mut f64 {
+        &mut self.fitness
+    }
+}
+
 /// This trait is implemented so some usecases are simpler & we
 /// can avoid some refactorings. This needs to be checked whether
 /// it is a bad practice or not to implement `Deref` for other
