@@ -18,6 +18,9 @@ impl<T: Sized + Sync + Send + Clone + Default + Debug> Chromosome for T {}
 pub trait IndividualTrait: Clone {
     type ChromosomeT: Chromosome;
 
+    // Unfortunately associated type defaults are not stable yet & we can not write following:
+    // type FitnessValueT = f64;
+
     /// Returns reference to chromosome
     fn chromosome(&self) -> &Self::ChromosomeT;
 
@@ -31,6 +34,10 @@ pub trait IndividualTrait: Clone {
     /// [req_eval]: IndividualTrait::requires_evaluation
     fn fitness(&self) -> f64;
 
+    /// Returns mutable reference to fitness value of a individual. This allows various operators
+    /// to modify fitness value of the individual.
+    ///
+    /// TODO(kkafar): Consider creation of `set_fitness` method.
     fn fitness_mut(&mut self) -> &mut f64;
 
     /// Should return `true` iff the cached fitness value is not up to date, e.g. chromosome
