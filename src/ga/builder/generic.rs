@@ -17,10 +17,10 @@ use super::{DefaultParams, GAConfigOpt};
 pub struct GenericBuilder<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
     IndividualT: IndividualTrait,
-    MutOpT: MutationOperator<IndividualT::ChromosomeT>,
-    CrossOpT: CrossoverOperator<IndividualT::ChromosomeT>,
-    SelOpT: SelectionOperator<IndividualT::ChromosomeT>,
-    ReplOpT: ReplacementOperator<IndividualT::ChromosomeT>,
+    MutOpT: MutationOperator<IndividualT>,
+    CrossOpT: CrossoverOperator<IndividualT>,
+    SelOpT: SelectionOperator<IndividualT>,
+    ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
     ProbeT: Probe<IndividualT::ChromosomeT>,
@@ -41,10 +41,10 @@ impl<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, ProbeT>
     >
 where
     IndividualT: IndividualTrait,
-    MutOpT: MutationOperator<IndividualT::ChromosomeT>,
-    CrossOpT: CrossoverOperator<IndividualT::ChromosomeT>,
-    SelOpT: SelectionOperator<IndividualT::ChromosomeT>,
-    ReplOpT: ReplacementOperator<IndividualT::ChromosomeT>,
+    MutOpT: MutationOperator<IndividualT>,
+    CrossOpT: CrossoverOperator<IndividualT>,
+    SelOpT: SelectionOperator<IndividualT>,
+    ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
     ProbeT: Probe<IndividualT::ChromosomeT>,
 {
@@ -57,11 +57,11 @@ impl<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
     GenericBuilder<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
     IndividualT: IndividualTrait,
-    MutOpT: MutationOperator<IndividualT::ChromosomeT>,
-    CrossOpT: CrossoverOperator<IndividualT::ChromosomeT>,
-    SelOpT: SelectionOperator<IndividualT::ChromosomeT>,
+    MutOpT: MutationOperator<IndividualT>,
+    CrossOpT: CrossoverOperator<IndividualT>,
+    SelOpT: SelectionOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
-    ReplOpT: ReplacementOperator<IndividualT::ChromosomeT>,
+    ReplOpT: ReplacementOperator<IndividualT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
     ProbeT: Probe<IndividualT::ChromosomeT>,
 {
@@ -235,11 +235,11 @@ impl<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT> 
     for GenericBuilder<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
     IndividualT: IndividualTrait,
-    MutOpT: MutationOperator<IndividualT::ChromosomeT>,
-    CrossOpT: CrossoverOperator<IndividualT::ChromosomeT>,
-    SelOpT: SelectionOperator<IndividualT::ChromosomeT>,
+    MutOpT: MutationOperator<IndividualT>,
+    CrossOpT: CrossoverOperator<IndividualT>,
+    SelOpT: SelectionOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
-    ReplOpT: ReplacementOperator<IndividualT::ChromosomeT>,
+    ReplOpT: ReplacementOperator<IndividualT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
     ProbeT: Probe<IndividualT::ChromosomeT>,
 {
