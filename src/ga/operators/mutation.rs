@@ -3,20 +3,20 @@ use std::ops::IndexMut;
 use push_trait::{Nothing, Push};
 use rand::{rngs::ThreadRng, Rng};
 
-use crate::ga::{individual::Chromosome, Individual};
+use crate::ga::{individual::IndividualTrait, Individual};
 
 /// # Mutation Operator
 ///
 /// This trait defines common behaviour for mutation operators.
 /// You can implement this trait to provide your custom crossover operator to the GA.
-pub trait MutationOperator<T: Chromosome> {
+pub trait MutationOperator<IndividualT: IndividualTrait> {
     /// Mutates provided solution in place
     ///
     /// ## Arguments
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut Individual<T>, mutation_rate: f64);
+    fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64);
 }
 
 /// # Identity Mutation Operator
@@ -34,8 +34,8 @@ impl Identity {
     }
 }
 
-impl<T: Chromosome> MutationOperator<T> for Identity {
-    fn apply(&mut self, _individual: &mut Individual<T>, _mutation_rate: f64) {}
+impl<IndividualT: IndividualTrait> MutationOperator<IndividualT> for Identity {
+    fn apply(&mut self, _individual: &mut IndividualT, _mutation_rate: f64) {}
 }
 
 /// ### Flilp bit mutation operator
@@ -61,9 +61,10 @@ impl<R: Rng> FlipBit<R> {
     }
 }
 
-impl<T, R> MutationOperator<T> for FlipBit<R>
+impl<IndividualT, R> MutationOperator<IndividualT> for FlipBit<R>
 where
-    T: Chromosome + IndexMut<usize, Output = bool> + Push<bool, PushedOut = Nothing>,
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: IndexMut<usize, Output = bool> + Push<bool, PushedOut = Nothing>,
     R: Rng,
 {
     /// Mutates provided solution in place
@@ -74,7 +75,7 @@ where
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut Individual<T>, mutation_rate: f64) {
+    fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
         let distribution = rand::distributions::Uniform::from(0.0..1.0);
         let chromosome_ref = individual.chromosome_ref_mut();
         let chromosome_len = chromosome_ref.len();
@@ -110,10 +111,11 @@ impl<R: Rng> Interchange<R> {
     }
 }
 
-impl<T, G, R> MutationOperator<T> for Interchange<R>
+impl<IndividualT, G, R> MutationOperator<IndividualT> for Interchange<R>
 where
     G: Copy,
-    T: Chromosome + IndexMut<usize, Output = G> + Push<G, PushedOut = Nothing>,
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: IndexMut<usize, Output = G> + Push<G, PushedOut = Nothing>,
     R: Rng,
 {
     /// Mutates provided solution in place
@@ -124,7 +126,7 @@ where
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut Individual<T>, mutation_rate: f64) {
+    fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
         let chromosome_ref = individual.chromosome_ref_mut();
         let chromosome_len = chromosome_ref.len();
 
@@ -165,10 +167,11 @@ impl<R: Rng> Reversing<R> {
     }
 }
 
-impl<T, G, R> MutationOperator<T> for Reversing<R>
+impl<IndividualT, GeneT, R> MutationOperator<IndividualT> for Reversing<R>
 where
-    G: Copy,
-    T: Chromosome + IndexMut<usize, Output = G> + Push<G, PushedOut = Nothing>,
+    GeneT: Copy,
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: IndexMut<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
     R: Rng,
 {
     /// Mutates provided solution in place
@@ -179,7 +182,7 @@ where
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut Individual<T>, mutation_rate: f64) {
+    fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
         let dist = rand::distributions::Uniform::from(0.0..1.0);
         let chromosome_ref = individual.chromosome_ref_mut();
         let chromosome_len = chromosome_ref.len();
@@ -218,7 +221,7 @@ impl<R: Rng> Inversion<R> {
     }
 }
 
-impl<R: Rng> MutationOperator<Vec<usize>> for Inversion<R> {
+impl<IndividualT: IndividualTrait, R: Rng> MutationOperator<IndividualT> for Inversion<R> {
     /// Mutates provided solution in place
     ///
     /// Two random locations are chosen marking out a segment of chromosome.
