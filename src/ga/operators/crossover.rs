@@ -1,4 +1,5 @@
 use itertools::{enumerate, Itertools};
+use len_trait::Len;
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::ops::Index;
@@ -72,8 +73,8 @@ where
         let chromosome_len = parent_1.chromosome().len();
         let cut_point = self.rng.gen_range(0..chromosome_len);
 
-        let mut child_1_ch: IndividualT = IndividualT::ChromosomeT::default();
-        let mut child_2_ch: IndividualT = IndividualT::ChromosomeT::default();
+        let mut child_1_ch = IndividualT::ChromosomeT::default();
+        let mut child_2_ch = IndividualT::ChromosomeT::default();
 
         for locus in 0..cut_point {
             child_1_ch.push(parent_1.chromosome()[locus]);
@@ -155,8 +156,8 @@ where
             (cut_points.1, cut_points.0)
         };
 
-        let mut child_1_ch: IndividualT = IndividualT::ChromosomeT::default();
-        let mut child_2_ch: IndividualT = IndividualT::ChromosomeT::default();
+        let mut child_1_ch = IndividualT::ChromosomeT::default();
+        let mut child_2_ch = IndividualT::ChromosomeT::default();
 
         for locus in 0..cut_point_1 {
             child_1_ch.push(parent_1.chromosome()[locus]);
@@ -255,8 +256,8 @@ where
             rand::seq::index::sample(&mut self.rng, chromosome_len, self.cut_points_no).into_vec();
         cut_points.sort_unstable();
 
-        let mut child_1_ch: IndividualT = IndividualT::ChromosomeT::default();
-        let mut child_2_ch: IndividualT = IndividualT::ChromosomeT::default();
+        let mut child_1_ch = IndividualT::ChromosomeT::default();
+        let mut child_2_ch = IndividualT::ChromosomeT::default();
 
         let (mut curr_parent_1, mut curr_parent_2) = (&parent_1, &parent_2);
 
@@ -332,8 +333,8 @@ where
 
         let chromosome_len = parent_1.chromosome().len();
 
-        let mut child_1_ch: IndividualT = IndividualT::ChromosomeT::default();
-        let mut child_2_ch: IndividualT = IndividualT::ChromosomeT::default();
+        let mut child_1_ch = IndividualT::ChromosomeT::default();
+        let mut child_2_ch = IndividualT::ChromosomeT::default();
 
         let mask = self
             .rng
@@ -410,8 +411,8 @@ where
 
         let chromosome_len = parent_1.chromosome().len();
 
-        let mut child_1_ch: IndividualT = IndividualT::ChromosomeT::default();
-        let mut child_2_ch: IndividualT = IndividualT::ChromosomeT::default();
+        let mut child_1_ch = IndividualT::ChromosomeT::default();
+        let mut child_2_ch = IndividualT::ChromosomeT::default();
 
         let mask = self.rng.clone().sample_iter(self.distr).take(chromosome_len);
 
@@ -484,7 +485,7 @@ impl<R: Rng> OrderedCrossover<R> {
             substring_set.push(p1.chromosome()[i]);
         }
 
-        let mut child_ch: IndividualT = IndividualT::ChromosomeT::default();
+        let mut child_ch = IndividualT::ChromosomeT::default();
         let mut index: usize = 0;
 
         while child_ch.len() < begin {
@@ -496,7 +497,7 @@ impl<R: Rng> OrderedCrossover<R> {
         }
 
         for i in begin..end {
-            child_ch.push(p1.chromosome_ref()[i]);
+            child_ch.push(p1.chromosome()[i]);
         }
 
         while index < chromosome_len {
@@ -608,7 +609,7 @@ impl<R: Rng> Ppx<R> {
 
         let mut already_taken: HashSet<GeneT> = HashSet::new();
 
-        let mut child_ch: IndividualT = IndividualT::ChromosomeT::default();
+        let mut child_ch = IndividualT::ChromosomeT::default();
         let mut index_p: [usize; 2] = [0, 0];
         let parents = [p1, p2];
 
@@ -669,10 +670,10 @@ where
             .take(chromosome_len)
             .collect_vec();
 
-        let child_1_ch = self.create_child(parent_1, parent_2, &take_from_p1);
-        let child_2_ch = self.create_child(parent_2, parent_1, &take_from_p1);
+        let child_1 = self.create_child(parent_1, parent_2, &take_from_p1);
+        let child_2 = self.create_child(parent_2, parent_1, &take_from_p1);
 
-        (IndividualT::from(child_1_ch), IndividualT::from(child_2_ch))
+        (child_1, child_2)
     }
 }
 
@@ -782,7 +783,7 @@ impl<R: Rng> Pmx<R> {
         for (index, gene_opt) in enumerate(new_chromosome) {
             match gene_opt {
                 Some(gene) => child_ch.push(gene),
-                None => child_ch.push(p2.chromosome_ref()[index]),
+                None => child_ch.push(p2.chromosome()[index]),
             };
         }
         IndividualT::from(child_ch)
@@ -891,7 +892,7 @@ where
         let chromosome_len = parent_1.chromosome().len();
         let cut_point = self.rng.gen_range(0..chromosome_len);
 
-        let mut shuffled = Vec::from(0..chromosome_len);
+        let mut shuffled = Vec::from_iter(0..chromosome_len);
         shuffled.shuffle(&mut self.rng);
         let mask = shuffled.iter().map(|x| x < &cut_point).collect_vec();
 
@@ -900,11 +901,11 @@ where
 
         for (i, fist_parent) in enumerate(mask) {
             if fist_parent {
-                child_1_ch.push(parent_1.chromosome_ref()[i]);
-                child_2_ch.push(parent_2.chromosome_ref()[i]);
+                child_1_ch.push(parent_1.chromosome()[i]);
+                child_2_ch.push(parent_2.chromosome()[i]);
             } else {
-                child_1_ch.push(parent_2.chromosome_ref()[i]);
-                child_2_ch.push(parent_1.chromosome_ref()[i]);
+                child_1_ch.push(parent_2.chromosome()[i]);
+                child_2_ch.push(parent_1.chromosome()[i]);
             }
         }
 
@@ -914,6 +915,7 @@ where
 
 #[cfg(test)]
 mod test {
+    use crate::ga::individual::IndividualTrait;
     use crate::ga::operators::crossover::Ppx;
     use crate::ga::operators::crossover::{CrossoverOperator, Pmx, Shuffle};
     use crate::ga::Individual;

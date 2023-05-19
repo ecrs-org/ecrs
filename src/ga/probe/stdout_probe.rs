@@ -1,7 +1,7 @@
 use log::info;
 
 use crate::ga::{
-    individual::{Chromosome, Individual},
+    individual::{Chromosome, Individual, IndividualTrait},
     GAMetadata, Probe,
 };
 
@@ -23,7 +23,7 @@ impl<T: Chromosome> Probe<T> for StdoutProbe {
             "[NEW_BEST] {},{},{:?},{}",
             metadata.duration.unwrap().as_millis(),
             metadata.generation,
-            individual.chromosome_ref(),
+            individual.chromosome(),
             individual.fitness
         );
     }
@@ -39,7 +39,7 @@ impl<T: Chromosome> Probe<T> for StdoutProbe {
             "[BEST_IN_GEN] {},{},{:?},{}",
             metadata.duration.unwrap().as_millis(),
             metadata.generation,
-            individual.chromosome_ref(),
+            individual.chromosome(),
             individual.fitness
         );
     }
@@ -54,7 +54,7 @@ impl<T: Chromosome> Probe<T> for StdoutProbe {
             "[END] {},{},{:?},{}",
             metadata.duration.unwrap().as_millis(),
             metadata.generation,
-            best_individual.chromosome_ref(),
+            best_individual.chromosome(),
             best_individual.fitness
         );
     }

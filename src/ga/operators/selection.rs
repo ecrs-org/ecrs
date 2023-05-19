@@ -92,7 +92,7 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Ro
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
-        let total_fitness: f64 = population.iter().map(|indiv| indiv.fitness).sum();
+        let total_fitness: f64 = population.iter().map(|indiv| indiv.fitness()).sum();
 
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
 
@@ -101,7 +101,7 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Ro
 
             let mut crt_sum = 0.0;
             for indiv in population {
-                crt_sum += indiv.fitness;
+                crt_sum += indiv.fitness();
 
                 if crt_sum >= threshold {
                     selected.push(indiv);
@@ -221,7 +221,7 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Ra
             let p1 = &population[self.rng.gen_range(0..population_len)];
             let p2 = &population[self.rng.gen_range(0..population_len)];
 
-            selected.push(if p1.fitness >= p2.fitness { p1 } else { p2 })
+            selected.push(if p1.fitness() >= p2.fitness() { p1 } else { p2 })
         }
 
         selected
@@ -469,7 +469,7 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for St
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
-        let total_fitness: f64 = population.iter().map(|indiv| indiv.fitness).sum();
+        let total_fitness: f64 = population.iter().map(|indiv| indiv.fitness()).sum();
 
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
 
@@ -481,7 +481,7 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for St
 
         let mut curr_sum = 0.0;
         for idv in population {
-            curr_sum += idv.fitness;
+            curr_sum += idv.fitness();
 
             while curr_sum >= pointer_pos {
                 selected.push(idv);
@@ -570,7 +570,7 @@ where
         let temp = self.temp_0 * (1.0 - self.alpha).powf(k);
 
         for idv in population {
-            weights.push((-idv.fitness / temp).exp())
+            weights.push((-idv.fitness() / temp).exp())
         }
 
         let Ok(indices) = rand::seq::index::sample_weighted(&mut self.rng, population.len(), |i| weights[i], count) else {

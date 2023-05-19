@@ -141,10 +141,10 @@ pub struct GAParams {
 pub struct GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
     IndividualT: IndividualTrait,
-    MutOpT: MutationOperator<IndividualT::ChromosomeT>,
-    CrossOpT: CrossoverOperator<IndividualT::ChromosomeT>,
-    SelOpT: SelectionOperator<IndividualT::ChromosomeT>,
-    ReplOpT: ReplacementOperator<IndividualT::ChromosomeT>,
+    MutOpT: MutationOperator<IndividualT>,
+    CrossOpT: CrossoverOperator<IndividualT>,
+    SelOpT: SelectionOperator<IndividualT>,
+    ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
     ProbeT: Probe<IndividualT::ChromosomeT>,
@@ -184,10 +184,10 @@ impl GAMetadata {
 pub struct GeneticSolver<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
     IndividualT: IndividualTrait,
-    MutOpT: MutationOperator<IndividualT::ChromosomeT>,
-    CrossOpT: CrossoverOperator<IndividualT::ChromosomeT>,
-    SelOpT: SelectionOperator<IndividualT::ChromosomeT>,
-    ReplOpT: ReplacementOperator<IndividualT::ChromosomeT>,
+    MutOpT: MutationOperator<IndividualT>,
+    CrossOpT: CrossoverOperator<IndividualT>,
+    SelOpT: SelectionOperator<IndividualT>,
+    ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
     ProbeT: Probe<IndividualT::ChromosomeT>,
@@ -200,10 +200,10 @@ impl<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
     GeneticSolver<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
     IndividualT: IndividualTrait,
-    MutOpT: MutationOperator<IndividualT::ChromosomeT>,
-    CrossOpT: CrossoverOperator<IndividualT::ChromosomeT>,
-    SelOpT: SelectionOperator<IndividualT::ChromosomeT>,
-    ReplOpT: ReplacementOperator<IndividualT::ChromosomeT>,
+    MutOpT: MutationOperator<IndividualT>,
+    CrossOpT: CrossoverOperator<IndividualT>,
+    SelOpT: SelectionOperator<IndividualT>,
+    ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
     ProbeT: Probe<IndividualT::ChromosomeT>,
@@ -231,7 +231,7 @@ where
     fn eval_pop(&mut self, population: &mut [IndividualT]) {
         population
             .iter_mut()
-            .for_each(|idv| idv.fitness = (self.config.fitness_fn).apply(idv));
+            .for_each(|idv| *idv.fitness_mut() = (self.config.fitness_fn).apply(idv.chromosome()));
     }
 
     #[inline(always)]
@@ -267,7 +267,7 @@ where
             self.eval_pop(&mut population);
 
             // 4. Create mating pool by applying selection operator.
-            let mating_pool: Vec<&Individual<IndividualT>> =
+            let mating_pool: Vec<&IndividualT> =
                 self.config
                     .selection_operator
                     .apply(&self.metadata, &population, population.len());

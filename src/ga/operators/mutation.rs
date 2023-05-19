@@ -1,5 +1,6 @@
 use std::ops::IndexMut;
 
+use len_trait::Len;
 use push_trait::{Nothing, Push};
 use rand::{rngs::ThreadRng, Rng};
 
@@ -77,7 +78,7 @@ where
     /// * `mutation_rate` - probability of gene mutation
     fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
         let distribution = rand::distributions::Uniform::from(0.0..1.0);
-        let chromosome_ref = individual.chromosome_ref_mut();
+        let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
 
         for i in 0..chromosome_len {
@@ -127,7 +128,7 @@ where
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
     fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
-        let chromosome_ref = individual.chromosome_ref_mut();
+        let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
 
         let dist = rand::distributions::Uniform::from(0.0..1.0);
@@ -184,7 +185,7 @@ where
     /// * `mutation_rate` - probability of gene mutation
     fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
         let dist = rand::distributions::Uniform::from(0.0..1.0);
-        let chromosome_ref = individual.chromosome_ref_mut();
+        let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
 
         for i in 1..chromosome_len {
@@ -231,19 +232,19 @@ impl<IndividualT: IndividualTrait, R: Rng> MutationOperator<IndividualT> for Inv
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut Individual<Vec<usize>>, mutation_rate: f64) {
+    fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
         let r: f64 = self.rng.gen();
 
         if r > mutation_rate {
             return;
         }
 
-        let chromosome_len = individual.chromosome.len();
+        let chromosome_len = individual.chromosome().len();
         let mut from: usize = self.rng.gen_range(0..chromosome_len);
         let mut to: usize = self.rng.gen_range(from..chromosome_len);
 
         while from < to {
-            individual.chromosome.swap(from, to);
+            individual.chromosome().swap(from, to);
             from += 1;
             to -= 1;
         }
