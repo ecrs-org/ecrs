@@ -15,7 +15,7 @@ impl<T: Sized + Sync + Send + Clone + Default + Debug> Chromosome for T {}
 /// Common behaviour to all individuals. If you want to provide custom state to the indiviudal
 /// you should implement this trait. Otherwise you shoule use one of the concrete individual types
 /// provided with the crate.
-pub trait IndividualTrait: Clone + From<Self::ChromosomeT> {
+pub trait IndividualTrait: Clone + From<Self::ChromosomeT> + Ord {
     type ChromosomeT: Chromosome;
 
     // Unfortunately associated type defaults are not stable yet & we can not write following:
