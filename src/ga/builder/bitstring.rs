@@ -3,6 +3,7 @@
 use crate::ga::builder::FitnessFn;
 use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
 use crate::ga::operators::replacement::BothParents;
+use crate::ga::Individual;
 use crate::ga::{
     operators::{crossover::SinglePoint, mutation::FlipBit, selection::Tournament},
     population::BitStrings,
@@ -20,7 +21,7 @@ pub(super) type Bsc = Vec<bool>;
 /// If more configuration options are desired please see [GenericBuilder](super::generic::GenericBuilder).
 pub struct BitStringBuilder<F: Fitness<Bsc>> {
     config: GAConfigOpt<
-        Bsc,
+        Individual<Bsc>,
         FlipBit<rand::rngs::ThreadRng>,
         SinglePoint<rand::rngs::ThreadRng>,
         Tournament<rand::rngs::ThreadRng>,
@@ -140,7 +141,7 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
     pub fn build(
         mut self,
     ) -> GeneticSolver<
-        Bsc,
+        Individual<Bsc>,
         FlipBit<rand::rngs::ThreadRng>,
         SinglePoint<rand::rngs::ThreadRng>,
         Tournament<rand::rngs::ThreadRng>,

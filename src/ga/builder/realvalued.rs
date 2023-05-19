@@ -3,12 +3,12 @@
 use crate::ga::builder::FitnessFn;
 use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
 use crate::ga::operators::replacement::BothParents;
-use crate::ga::GeneticSolver;
 use crate::ga::{
     operators::{crossover::SinglePoint, mutation::Interchange, selection::Tournament},
     population::RandomPoints,
     probe::StdoutProbe,
 };
+use crate::ga::{GeneticSolver, Individual};
 
 use super::{DefaultParams, GAConfigOpt};
 
@@ -20,7 +20,7 @@ pub(super) type Rvc = Vec<f64>;
 /// If more configuration options are desired please see [GenericBuilder](super::generic::GenericBuilder).
 pub struct RealValuedBuilder<F: Fitness<Rvc>> {
     config: GAConfigOpt<
-        Rvc,
+        Individual<Rvc>,
         Interchange<rand::rngs::ThreadRng>,
         SinglePoint<rand::rngs::ThreadRng>,
         Tournament<rand::rngs::ThreadRng>,
@@ -140,7 +140,7 @@ impl<F: Fitness<Rvc>> RealValuedBuilder<F> {
     pub fn build(
         mut self,
     ) -> GeneticSolver<
-        Rvc,
+        Individual<Rvc>,
         Interchange<rand::rngs::ThreadRng>,
         SinglePoint<rand::rngs::ThreadRng>,
         Tournament<rand::rngs::ThreadRng>,
