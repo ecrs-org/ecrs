@@ -12,6 +12,41 @@ pub trait Chromosome: Sized + Sync + Send + Clone + Default + Debug {}
 /// Blanket implementation of Chromosome trait for any type that satisfies the bounds
 impl<T: Sized + Sync + Send + Clone + Default + Debug> Chromosome for T {}
 
+/// Common behaviour to all individuals. If you want to provide custom state to the indiviudal
+/// you should implement this trait. Otherwise you shoule use one of the concrete individual types
+/// provided with the crate.
+pub trait IndividualTrait: Clone + From<Self::ChromosomeT> + Ord {
+    type ChromosomeT: Chromosome;
+
+    // Unfortunately associated type defaults are not stable yet & we can not write following:
+    // type FitnessValueT = f64;
+
+    /// Returns reference to chromosome
+    fn chromosome(&self) -> &Self::ChromosomeT;
+
+    /// Returns mutable reference to chromosome
+    fn chromosome_mut(&mut self) -> &mut Self::ChromosomeT;
+
+    /// Returns fitness value of a individual. Please note that this value
+    /// may not be up to date. To verify, whether the individual requires
+    /// evaluation please check [`requires_evaluation`][req_eval] method.
+    ///
+    /// [req_eval]: IndividualTrait::requires_evaluation
+    fn fitness(&self) -> f64;
+
+    /// Returns mutable reference to fitness value of a individual. This allows various operators
+    /// to modify fitness value of the individual.
+    ///
+    /// TODO(kkafar): Consider creation of `set_fitness` method.
+    fn fitness_mut(&mut self) -> &mut f64;
+
+    /// Should return `true` iff the cached fitness value is not up to date, e.g. chromosome
+    /// was modified. Default implementation always returns `true`.
+    fn requires_evaluation(&self) -> bool {
+        true
+    }
+}
+
 /// Representation of an individual for a genetic algorithm.
 ///
 /// This struct has two fileds:
@@ -37,16 +72,40 @@ impl<T: Chromosome> Individual<T> {
         }
     }
 
-    /// Returns reference to chromosome
+    // /// Returns reference to chromosome
+    // #[inline]
+    // pub fn chromosome_ref(&self) -> &T {
+    //     &self.chromosome
+    // }
+    //
+    // /// Returns mutable reference to chromosome
+    // #[inline]
+    // pub fn chromosome_ref_mut(&mut self) -> &mut T {
+    //     &mut self.chromosome
+    // }
+}
+
+impl<T: Chromosome> IndividualTrait for Individual<T> {
+    type ChromosomeT = T;
+
     #[inline]
-    pub fn chromosome_ref(&self) -> &T {
+    fn chromosome(&self) -> &Self::ChromosomeT {
         &self.chromosome
     }
 
-    /// Returns mutable reference to chromosome
     #[inline]
-    pub fn chromosome_ref_mut(&mut self) -> &mut T {
+    fn chromosome_mut(&mut self) -> &mut Self::ChromosomeT {
         &mut self.chromosome
+    }
+
+    #[inline]
+    fn fitness(&self) -> f64 {
+        self.fitness
+    }
+
+    #[inline]
+    fn fitness_mut(&mut self) -> &mut f64 {
+        &mut self.fitness
     }
 }
 
@@ -72,7 +131,6 @@ impl<T: Chromosome> From<T> for Individual<T> {
 }
 
 // Traits required for more ergonomic sorting
-
 impl<T: Chromosome> PartialEq<Self> for Individual<T> {
     fn eq(&self, other: &Self) -> bool {
         self.fitness == other.fitness

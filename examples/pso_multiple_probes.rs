@@ -1,7 +1,7 @@
-#![cfg(feature = "pso")]
-
+#[cfg(feature = "pso")]
 use ecrs::pso::{self, builder::PSOAlgorithmBuilder};
 
+#[cfg(feature = "pso")]
 fn main() {
     let stdout_probe = Box::new(pso::probe::stdout_probe::StdoutProbe::new());
     let csv_probe = Box::new(pso::probe::csv_probe::CsvProbe::new("pso_example.csv"));
@@ -24,4 +24,6 @@ fn main() {
 }
 
 #[cfg(not(feature = "pso"))]
-compile_error!("Required feature \"pso\" is not enabled");
+fn main() {
+    panic!("Required feature \"pso\" is not enabled");
+}

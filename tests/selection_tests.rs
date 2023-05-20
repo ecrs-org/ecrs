@@ -1,6 +1,7 @@
 #![cfg(feature = "ga")]
 
 use ecrs::ga::{
+    individual::{BitStringIndividual, RealValueIndividual},
     operators::selection::{
         Boltzmann, Random, Rank, RankR, RouletteWheel, SelectionOperator, StochasticUniversalSampling,
         Tournament,
@@ -12,7 +13,7 @@ use ecrs::ga::{
 #[test]
 fn random_selection_returns_demanded_size() {
     let expected_population_size: usize = 42;
-    let population = BitStrings::new(21).generate(expected_population_size);
+    let population: Vec<BitStringIndividual> = BitStrings::new(21).generate(expected_population_size);
 
     assert_eq!(
         expected_population_size,
@@ -37,7 +38,7 @@ fn random_selection_returns_demanded_size() {
 #[test]
 fn roulette_whell_returns_demanded_size() {
     let expected_population_size: usize = 42;
-    let population = BitStrings::new(21).generate(expected_population_size);
+    let population: Vec<BitStringIndividual> = BitStrings::new(21).generate(expected_population_size);
 
     assert_eq!(
         expected_population_size,
@@ -62,7 +63,7 @@ fn roulette_whell_returns_demanded_size() {
 #[test]
 fn rank_returns_demanded_size() {
     let expected_population_size: usize = 42;
-    let population = BitStrings::new(21).generate(expected_population_size);
+    let population: Vec<BitStringIndividual> = BitStrings::new(21).generate(expected_population_size);
 
     assert_eq!(
         expected_population_size,
@@ -87,7 +88,7 @@ fn rank_returns_demanded_size() {
 #[test]
 fn rankr_returns_demanded_size() {
     let expected_population_size: usize = 42;
-    let population = BitStrings::new(21).generate(expected_population_size);
+    let population: Vec<BitStringIndividual> = BitStrings::new(21).generate(expected_population_size);
 
     assert_eq!(
         expected_population_size,
@@ -112,7 +113,7 @@ fn rankr_returns_demanded_size() {
 #[test]
 fn tournament_returns_demanded_size() {
     let expected_population_size: usize = 42;
-    let population = BitStrings::new(21).generate(expected_population_size);
+    let population: Vec<BitStringIndividual> = BitStrings::new(21).generate(expected_population_size);
 
     assert_eq!(
         expected_population_size,
@@ -137,7 +138,7 @@ fn tournament_returns_demanded_size() {
 #[test]
 fn sus_returns_demanded_size_when_fitness_positive() {
     let expected_population_size: usize = 42;
-    let mut population = BitStrings::new(21).generate(expected_population_size);
+    let mut population: Vec<BitStringIndividual> = BitStrings::new(21).generate(expected_population_size);
 
     // SUS requires positive fitness
     for mut individual in &mut population {
@@ -175,7 +176,8 @@ fn boltzmann_returns_demanded_size() {
         constraints.push(-1.0..1.0);
     }
 
-    let population = RandomPoints::with_constraints(dim, constraints).generate(expected_population_size);
+    let population: Vec<RealValueIndividual> =
+        RandomPoints::with_constraints(dim, constraints).generate(expected_population_size);
 
     assert_eq!(
         expected_population_size,
@@ -200,7 +202,7 @@ fn random_returns_whole_population_in_order() {
     let population_size = 42;
     let dim = 21;
 
-    let population = RandomPoints::new(dim).generate(population_size);
+    let population: Vec<RealValueIndividual> = RandomPoints::new(dim).generate(population_size);
     let mut operator = Random::with_rng(rand::rngs::mock::StepRng::new(0, 1));
 
     let selected = operator.apply(&GAMetadata::default(), &population, population_size);

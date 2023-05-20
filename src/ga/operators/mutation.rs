@@ -1,22 +1,23 @@
-use std::ops::IndexMut;
+use std::{marker::PhantomData, ops::IndexMut};
 
+use len_trait::Len;
 use push_trait::{Nothing, Push};
 use rand::{rngs::ThreadRng, Rng};
 
-use crate::ga::{individual::Chromosome, Individual};
+use crate::ga::individual::IndividualTrait;
 
 /// # Mutation Operator
 ///
 /// This trait defines common behaviour for mutation operators.
 /// You can implement this trait to provide your custom crossover operator to the GA.
-pub trait MutationOperator<T: Chromosome> {
+pub trait MutationOperator<IndividualT: IndividualTrait> {
     /// Mutates provided solution in place
     ///
     /// ## Arguments
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut Individual<T>, mutation_rate: f64);
+    fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64);
 }
 
 /// # Identity Mutation Operator
@@ -34,8 +35,8 @@ impl Identity {
     }
 }
 
-impl<T: Chromosome> MutationOperator<T> for Identity {
-    fn apply(&mut self, _individual: &mut Individual<T>, _mutation_rate: f64) {}
+impl<IndividualT: IndividualTrait> MutationOperator<IndividualT> for Identity {
+    fn apply(&mut self, _individual: &mut IndividualT, _mutation_rate: f64) {}
 }
 
 /// ### Flilp bit mutation operator
@@ -61,9 +62,10 @@ impl<R: Rng> FlipBit<R> {
     }
 }
 
-impl<T, R> MutationOperator<T> for FlipBit<R>
+impl<IndividualT, R> MutationOperator<IndividualT> for FlipBit<R>
 where
-    T: Chromosome + IndexMut<usize, Output = bool> + Push<bool, PushedOut = Nothing>,
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: IndexMut<usize, Output = bool> + Push<bool, PushedOut = Nothing>,
     R: Rng,
 {
     /// Mutates provided solution in place
@@ -74,9 +76,9 @@ where
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut Individual<T>, mutation_rate: f64) {
+    fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
         let distribution = rand::distributions::Uniform::from(0.0..1.0);
-        let chromosome_ref = individual.chromosome_ref_mut();
+        let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
 
         for i in 0..chromosome_len {
@@ -110,10 +112,11 @@ impl<R: Rng> Interchange<R> {
     }
 }
 
-impl<T, G, R> MutationOperator<T> for Interchange<R>
+impl<IndividualT, G, R> MutationOperator<IndividualT> for Interchange<R>
 where
     G: Copy,
-    T: Chromosome + IndexMut<usize, Output = G> + Push<G, PushedOut = Nothing>,
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: IndexMut<usize, Output = G> + Push<G, PushedOut = Nothing>,
     R: Rng,
 {
     /// Mutates provided solution in place
@@ -124,8 +127,8 @@ where
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut Individual<T>, mutation_rate: f64) {
-        let chromosome_ref = individual.chromosome_ref_mut();
+    fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
+        let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
 
         let dist = rand::distributions::Uniform::from(0.0..1.0);
@@ -147,7 +150,7 @@ where
 /// This struct implements [MutationOperator] trait and can be used with GA
 ///
 /// Random locus is selected and genes next to the selection position are reversed
-pub struct Reversing<R: Rng> {
+pub struct Reversing<R: Rng = ThreadRng> {
     rng: R,
 }
 
@@ -165,10 +168,11 @@ impl<R: Rng> Reversing<R> {
     }
 }
 
-impl<T, G, R> MutationOperator<T> for Reversing<R>
+impl<IndividualT, GeneT, R> MutationOperator<IndividualT> for Reversing<R>
 where
-    G: Copy,
-    T: Chromosome + IndexMut<usize, Output = G> + Push<G, PushedOut = Nothing>,
+    GeneT: Copy,
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: IndexMut<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
     R: Rng,
 {
     /// Mutates provided solution in place
@@ -179,9 +183,9 @@ where
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut Individual<T>, mutation_rate: f64) {
+    fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
         let dist = rand::distributions::Uniform::from(0.0..1.0);
-        let chromosome_ref = individual.chromosome_ref_mut();
+        let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
 
         for i in 1..chromosome_len {
@@ -200,25 +204,32 @@ where
 ///
 /// Two random locations are chosen marking out a segment of chromosome.
 /// Genes from this segment are then rotated around the segment's middle point.
-pub struct Inversion<R: Rng> {
+pub struct Inversion<R: Rng, GeneT: Copy> {
     rng: R,
+    _marker: PhantomData<GeneT>,
 }
 
-impl Inversion<ThreadRng> {
+impl<GeneT: Copy> Inversion<ThreadRng, GeneT> {
     /// Returns new instance of [Inversion] mutation operator with default RNG
     pub fn new() -> Self {
         Self::with_rng(rand::thread_rng())
     }
 }
 
-impl<R: Rng> Inversion<R> {
+impl<R: Rng, GeneT: Copy> Inversion<R, GeneT> {
     /// Returns new instance of [Inversion] mutation operator with custom RNG
     pub fn with_rng(rng: R) -> Self {
-        Self { rng }
+        Self {
+            rng,
+            _marker: PhantomData::default(),
+        }
     }
 }
 
-impl<R: Rng> MutationOperator<Vec<usize>> for Inversion<R> {
+impl<IndividualT: IndividualTrait, GeneT: Copy, R: Rng> MutationOperator<IndividualT> for Inversion<R, GeneT>
+where
+    IndividualT::ChromosomeT: Len + AsMut<[GeneT]>,
+{
     /// Mutates provided solution in place
     ///
     /// Two random locations are chosen marking out a segment of chromosome.
@@ -228,19 +239,21 @@ impl<R: Rng> MutationOperator<Vec<usize>> for Inversion<R> {
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut Individual<Vec<usize>>, mutation_rate: f64) {
+    fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
+        let _marker: PhantomData<GeneT> = PhantomData::default();
+
         let r: f64 = self.rng.gen();
 
         if r > mutation_rate {
             return;
         }
 
-        let chromosome_len = individual.chromosome.len();
+        let chromosome_len = individual.chromosome().len();
         let mut from: usize = self.rng.gen_range(0..chromosome_len);
         let mut to: usize = self.rng.gen_range(from..chromosome_len);
 
         while from < to {
-            individual.chromosome.swap(from, to);
+            individual.chromosome_mut().as_mut().swap(from, to);
             from += 1;
             to -= 1;
         }
@@ -249,7 +262,7 @@ impl<R: Rng> MutationOperator<Vec<usize>> for Inversion<R> {
 
 #[cfg(test)]
 mod tests {
-    use crate::ga::Individual;
+    use crate::ga::{individual::IndividualTrait, Individual};
     use itertools::Itertools;
     use rand::{distributions::Uniform, Rng};
 
@@ -293,7 +306,7 @@ mod tests {
 
         operator.apply(&mut individual, 1.);
 
-        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome_ref()) {
+        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome()) {
             assert_eq!(actual, !*expected);
         }
     }
@@ -317,7 +330,7 @@ mod tests {
 
         operator.apply(&mut individual, 0.);
 
-        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome_ref()) {
+        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome()) {
             assert_eq!(actual, *expected);
         }
     }
@@ -340,7 +353,7 @@ mod tests {
         let mut operator = Interchange::new();
 
         operator.apply(&mut individual, 1.);
-        let changes = std::iter::zip(chromosome_clone, individual.chromosome_ref())
+        let changes = std::iter::zip(chromosome_clone, individual.chromosome())
             .filter(|p| p.0 != *p.1)
             .count();
         assert!(changes > 0);
@@ -365,7 +378,7 @@ mod tests {
 
         operator.apply(&mut individual, 0.);
 
-        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome_ref()) {
+        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome()) {
             assert_eq!(actual, *expected);
         }
     }
@@ -382,7 +395,7 @@ mod tests {
             fitness: f64::default(),
         };
 
-        let first_gene_value = individual.chromosome_ref()[0];
+        let first_gene_value = individual.chromosome()[0];
 
         let mut operator = Reversing::new();
 
@@ -390,7 +403,7 @@ mod tests {
 
         assert_eq!(
             first_gene_value,
-            individual.chromosome_ref()[individual.chromosome_ref().len() - 1]
+            individual.chromosome()[individual.chromosome().len() - 1]
         );
     }
 }

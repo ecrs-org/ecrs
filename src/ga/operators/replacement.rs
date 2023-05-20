@@ -4,7 +4,7 @@
 //! original one and the result of crossover phase to a single one,
 //! which will be the next generation
 
-use crate::ga::{individual::Chromosome, Individual};
+use crate::ga::individual::IndividualTrait;
 
 /// # Replacement Operator
 ///
@@ -16,7 +16,7 @@ use crate::ga::{individual::Chromosome, Individual};
 /// at indices i, i+1 in `population` collection there are parents of children i, i+1
 /// from `children` collection. Any violation of this invariant may lead to bugs - it can
 /// be considered an undefined behaviour. We'll work towards improving this case in the future.
-pub trait ReplacementOperator<T: Chromosome> {
+pub trait ReplacementOperator<IndividualT: IndividualTrait> {
     /// Merges `children` - output of crossover operator with current population.
     ///
     /// **NOTE**: In current implementation, all library-implemented operators assume that
@@ -29,7 +29,7 @@ pub trait ReplacementOperator<T: Chromosome> {
     /// * `population` - Original population, input to the crossover phase.
     /// This collection should be modified in place by the operator.
     /// * `children` - Result of the crossover phase.
-    fn apply(&self, population: Vec<Individual<T>>, children: Vec<Individual<T>>) -> Vec<Individual<T>>;
+    fn apply(&self, population: Vec<IndividualT>, children: Vec<IndividualT>) -> Vec<IndividualT>;
 
     /// Returns `true` when the operator requires children to possess valid fitness values.
     ///
@@ -59,7 +59,7 @@ impl BothParents {
     }
 }
 
-impl<T: Chromosome> ReplacementOperator<T> for BothParents {
+impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for BothParents {
     /// Works simply by replacing parents with their children
     ///
     /// **NOTE**: In current implementation, all library-implemented operators assume that
@@ -73,7 +73,7 @@ impl<T: Chromosome> ReplacementOperator<T> for BothParents {
     /// This collection should be modified in place by the operator.
     /// * `children` - Result of the crossover phase
     #[inline(always)]
-    fn apply(&self, _population: Vec<Individual<T>>, children: Vec<Individual<T>>) -> Vec<Individual<T>> {
+    fn apply(&self, _population: Vec<IndividualT>, children: Vec<IndividualT>) -> Vec<IndividualT> {
         children
     }
 
@@ -100,10 +100,10 @@ impl Noop {
     }
 }
 
-impl<T: Chromosome> ReplacementOperator<T> for Noop {
+impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for Noop {
     /// Returns input `population`.
     #[inline(always)]
-    fn apply(&self, population: Vec<Individual<T>>, _children: Vec<Individual<T>>) -> Vec<Individual<T>> {
+    fn apply(&self, population: Vec<IndividualT>, _children: Vec<IndividualT>) -> Vec<IndividualT> {
         population
     }
 
@@ -144,7 +144,7 @@ impl WeakParent {
     }
 }
 
-impl<T: Chromosome> ReplacementOperator<T> for WeakParent {
+impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for WeakParent {
     /// Works by taking two out of four individuals (two parents and two children) with the largest fitness.
     ///
     /// **NOTE**: In current implementation, all library-implemented operators assume that
@@ -166,11 +166,7 @@ impl<T: Chromosome> ReplacementOperator<T> for WeakParent {
     /// * `population` - Original population, input to the crossover phase.
     /// This collection should be modified in place by the operator.
     /// * `children` - Result of the crossover phase
-    fn apply(
-        &self,
-        mut population: Vec<Individual<T>>,
-        mut children: Vec<Individual<T>>,
-    ) -> Vec<Individual<T>> {
+    fn apply(&self, mut population: Vec<IndividualT>, mut children: Vec<IndividualT>) -> Vec<IndividualT> {
         debug_assert_eq!(
             population.len(),
             children.len(),

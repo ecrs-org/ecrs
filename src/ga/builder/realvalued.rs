@@ -7,8 +7,8 @@ use crate::ga::{
     operators::{crossover::SinglePoint, mutation::Interchange, selection::Tournament},
     population::RandomPoints,
     probe::StdoutProbe,
-    GeneticAlgorithm,
 };
+use crate::ga::{GeneticSolver, Individual};
 
 use super::{DefaultParams, GAConfigOpt};
 
@@ -20,7 +20,7 @@ pub(super) type Rvc = Vec<f64>;
 /// If more configuration options are desired please see [GenericBuilder](super::generic::GenericBuilder).
 pub struct RealValuedBuilder<F: Fitness<Rvc>> {
     config: GAConfigOpt<
-        Rvc,
+        Individual<Rvc>,
         Interchange<rand::rngs::ThreadRng>,
         SinglePoint<rand::rngs::ThreadRng>,
         Tournament<rand::rngs::ThreadRng>,
@@ -139,8 +139,8 @@ impl<F: Fitness<Rvc>> RealValuedBuilder<F> {
     /// * problem dimension is not set
     pub fn build(
         mut self,
-    ) -> GeneticAlgorithm<
-        Rvc,
+    ) -> GeneticSolver<
+        Individual<Rvc>,
         Interchange<rand::rngs::ThreadRng>,
         SinglePoint<rand::rngs::ThreadRng>,
         Tournament<rand::rngs::ThreadRng>,
@@ -179,7 +179,7 @@ impl<F: Fitness<Rvc>> RealValuedBuilder<F> {
             Err(err) => panic!("Builder panicked with error: {err}"),
         };
 
-        GeneticAlgorithm::new(config)
+        GeneticSolver::new(config)
     }
 }
 

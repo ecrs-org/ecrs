@@ -1,6 +1,6 @@
 //! Builder interfaces & impls for genetic algorithm
 //!
-//! For usage see docs for particular builders.
+//! For usage see docs for par::ChromosomeTticular builders.
 
 mod bitstring;
 mod generic;
@@ -9,7 +9,7 @@ use std::error::Error;
 use std::fmt::Display;
 use std::marker::PhantomData;
 
-use super::individual::Chromosome;
+use super::individual::IndividualTrait;
 use super::operators::replacement::ReplacementOperator;
 use super::operators::selection::SelectionOperator;
 use super::population::PopulationGenerator;
@@ -121,38 +121,39 @@ impl TryFrom<GAParamsOpt> for GAParams {
 /// inside `Option` type, so that builders can incrementally fill it up.
 // TODO: We should really consider creating a macro here, so that we
 // don't have to write it by hand...
-pub(self) struct GAConfigOpt<T, M, C, S, R, P, F, Pr>
+pub(self) struct GAConfigOpt<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
-    T: Chromosome,
-    M: MutationOperator<T>,
-    C: CrossoverOperator<T>,
-    S: SelectionOperator<T>,
-    R: ReplacementOperator<T>,
-    P: PopulationGenerator<T>,
-    F: Fitness<T>,
-    Pr: Probe<T>,
+    IndividualT: IndividualTrait,
+    MutOpT: MutationOperator<IndividualT>,
+    CrossOpT: CrossoverOperator<IndividualT>,
+    SelOpT: SelectionOperator<IndividualT>,
+    ReplOpT: ReplacementOperator<IndividualT>,
+    PopGenT: PopulationGenerator<IndividualT>,
+    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
     pub params: GAParamsOpt,
-    pub fitness_fn: Option<F>,
-    pub mutation_operator: Option<M>,
-    pub crossover_operator: Option<C>,
-    pub selection_operator: Option<S>,
-    pub replacement_operator: Option<R>,
-    pub population_factory: Option<P>,
-    pub probe: Option<Pr>,
-    phantom: PhantomData<T>,
+    pub fitness_fn: Option<FitnessT>,
+    pub mutation_operator: Option<MutOpT>,
+    pub crossover_operator: Option<CrossOpT>,
+    pub selection_operator: Option<SelOpT>,
+    pub replacement_operator: Option<ReplOpT>,
+    pub population_factory: Option<PopGenT>,
+    pub probe: Option<ProbeT>,
+    _phantom: PhantomData<IndividualT>,
 }
 
-impl<T, M, C, S, R, P, F, Pr> GAConfigOpt<T, M, C, S, R, P, F, Pr>
+impl<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
+    GAConfigOpt<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
-    T: Chromosome,
-    M: MutationOperator<T>,
-    C: CrossoverOperator<T>,
-    S: SelectionOperator<T>,
-    R: ReplacementOperator<T>,
-    P: PopulationGenerator<T>,
-    F: Fitness<T>,
-    Pr: Probe<T>,
+    IndividualT: IndividualTrait,
+    MutOpT: MutationOperator<IndividualT>,
+    CrossOpT: CrossoverOperator<IndividualT>,
+    SelOpT: SelectionOperator<IndividualT>,
+    ReplOpT: ReplacementOperator<IndividualT>,
+    PopGenT: PopulationGenerator<IndividualT>,
+    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
     /// Returns new instance of [GAConfigOpt] struct. All fields are `None` initially, except params.
     pub fn new() -> Self {
@@ -165,26 +166,29 @@ where
             replacement_operator: None,
             population_factory: None,
             probe: None,
-            phantom: Default::default(),
+            _phantom: Default::default(),
         }
     }
 }
 
-impl<T, M, C, S, R, P, F, Pr> TryFrom<GAConfigOpt<T, M, C, S, R, P, F, Pr>>
-    for GAConfig<T, M, C, S, R, P, F, Pr>
+impl<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
+    TryFrom<GAConfigOpt<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>>
+    for GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
-    T: Chromosome,
-    M: MutationOperator<T>,
-    C: CrossoverOperator<T>,
-    S: SelectionOperator<T>,
-    R: ReplacementOperator<T>,
-    P: PopulationGenerator<T>,
-    F: Fitness<T>,
-    Pr: Probe<T>,
+    IndividualT: IndividualTrait,
+    MutOpT: MutationOperator<IndividualT>,
+    CrossOpT: CrossoverOperator<IndividualT>,
+    SelOpT: SelectionOperator<IndividualT>,
+    ReplOpT: ReplacementOperator<IndividualT>,
+    PopGenT: PopulationGenerator<IndividualT>,
+    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
     type Error = ConfigError;
 
-    fn try_from(config_opt: GAConfigOpt<T, M, C, S, R, P, F, Pr>) -> Result<Self, Self::Error> {
+    fn try_from(
+        config_opt: GAConfigOpt<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
+    ) -> Result<Self, Self::Error> {
         let params = GAParams::try_from(config_opt.params)?;
 
         let Some(fitness_fn) = config_opt.fitness_fn else {
@@ -241,18 +245,19 @@ impl Builder {
     ///
     /// Use this function if you want to configure operators && parameters for your optimizer
     #[allow(clippy::new_ret_no_self)]
-    pub fn new<T, M, C, S, R, P, F, Pr>() -> GenericBuilder<T, M, C, S, R, P, F, Pr>
+    pub fn new<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>(
+    ) -> GenericBuilder<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
     where
-        T: Chromosome,
-        M: MutationOperator<T>,
-        C: CrossoverOperator<T>,
-        S: SelectionOperator<T>,
-        R: ReplacementOperator<T>,
-        P: PopulationGenerator<T>,
-        F: Fitness<T>,
-        Pr: Probe<T>,
+        IndividualT: IndividualTrait,
+        MutOpT: MutationOperator<IndividualT>,
+        CrossOpT: CrossoverOperator<IndividualT>,
+        SelOpT: SelectionOperator<IndividualT>,
+        ReplOpT: ReplacementOperator<IndividualT>,
+        PopGenT: PopulationGenerator<IndividualT>,
+        FitnessT: Fitness<IndividualT::ChromosomeT>,
+        ProbeT: Probe<IndividualT>,
     {
-        GenericBuilder::<T, M, C, S, R, P, F, Pr>::new()
+        GenericBuilder::<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>::new()
     }
 
     /// Returns new instance of [RealValuedBuilder](self::realvalued::RealValuedBuilder)

@@ -55,12 +55,22 @@
 //!
 //! ```no_run
 //! use ecrs::prelude::*;
+//! use ecrs::ga;
 //!
 //! # fn rastrigin_fitness(chromosome: &Vec<f64>) -> f64 {
 //! #   1000.0 * f64::exp(-ecrs::test_functions::rastrigin(chromosome))
 //! # }
 //!
-//! let mut res = ga::Builder::new()
+//! let mut res = ga::Builder::new::<
+//!     ga::individual::RealValueIndividual,
+//!     mutation::Identity,
+//!     crossover::SinglePoint,
+//!     selection::Boltzmann,
+//!     replacement::WeakParent,
+//!     population::RandomPoints,
+//!     fitness::FnBasedFitness<Vec<f64>>,
+//!     ga::probe::AggregatedProbe<ga::individual::RealValueIndividual>
+//! >()
 //!   .set_max_generation_count(50_000)
 //!   .set_population_size(100)
 //!   .set_fitness_fn(rastrigin_fitness)
@@ -121,8 +131,8 @@ pub use probe::Probe;
 pub use probe::StdoutProbe;
 use std::marker::PhantomData;
 
+use self::individual::IndividualTrait;
 use self::{
-    individual::Chromosome,
     operators::{
         crossover::CrossoverOperator, mutation::MutationOperator, replacement::ReplacementOperator,
         selection::SelectionOperator,
@@ -138,16 +148,16 @@ pub struct GAParams {
     pub max_duration: std::time::Duration,
 }
 
-pub struct GAConfig<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
+pub struct GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
-    ChromosomeT: Chromosome,
-    MutOpT: MutationOperator<ChromosomeT>,
-    CrossOpT: CrossoverOperator<ChromosomeT>,
-    SelOpT: SelectionOperator<ChromosomeT>,
-    ReplOpT: ReplacementOperator<ChromosomeT>,
-    PopGenT: PopulationGenerator<ChromosomeT>,
-    FitnessT: Fitness<ChromosomeT>,
-    ProbeT: Probe<ChromosomeT>,
+    IndividualT: IndividualTrait,
+    MutOpT: MutationOperator<IndividualT>,
+    CrossOpT: CrossoverOperator<IndividualT>,
+    SelOpT: SelectionOperator<IndividualT>,
+    ReplOpT: ReplacementOperator<IndividualT>,
+    PopGenT: PopulationGenerator<IndividualT>,
+    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
     pub params: GAParams,
     pub fitness_fn: FitnessT,
@@ -157,7 +167,7 @@ where
     pub replacement_operator: ReplOpT,
     pub population_factory: PopGenT,
     pub probe: ProbeT,
-    _phantom: PhantomData<ChromosomeT>,
+    _phantom: PhantomData<IndividualT::ChromosomeT>,
 }
 
 #[derive(Default)]
@@ -181,44 +191,43 @@ impl GAMetadata {
     }
 }
 
-pub struct GeneticAlgorithm<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
+pub struct GeneticSolver<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
-    ChromosomeT: Chromosome,
-    MutOpT: MutationOperator<ChromosomeT>,
-    CrossOpT: CrossoverOperator<ChromosomeT>,
-    SelOpT: SelectionOperator<ChromosomeT>,
-    ReplOpT: ReplacementOperator<ChromosomeT>,
-    PopGenT: PopulationGenerator<ChromosomeT>,
-    FitnessT: Fitness<ChromosomeT>,
-    ProbeT: Probe<ChromosomeT>,
+    IndividualT: IndividualTrait,
+    MutOpT: MutationOperator<IndividualT>,
+    CrossOpT: CrossoverOperator<IndividualT>,
+    SelOpT: SelectionOperator<IndividualT>,
+    ReplOpT: ReplacementOperator<IndividualT>,
+    PopGenT: PopulationGenerator<IndividualT>,
+    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
-    config: GAConfig<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
+    config: GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
     metadata: GAMetadata,
 }
 
-impl<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
-    GeneticAlgorithm<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
+impl<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
+    GeneticSolver<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
-    ChromosomeT: Chromosome,
-    MutOpT: MutationOperator<ChromosomeT>,
-    CrossOpT: CrossoverOperator<ChromosomeT>,
-    SelOpT: SelectionOperator<ChromosomeT>,
-    ReplOpT: ReplacementOperator<ChromosomeT>,
-    PopGenT: PopulationGenerator<ChromosomeT>,
-    FitnessT: Fitness<ChromosomeT>,
-    ProbeT: Probe<ChromosomeT>,
+    IndividualT: IndividualTrait,
+    MutOpT: MutationOperator<IndividualT>,
+    CrossOpT: CrossoverOperator<IndividualT>,
+    SelOpT: SelectionOperator<IndividualT>,
+    ReplOpT: ReplacementOperator<IndividualT>,
+    PopGenT: PopulationGenerator<IndividualT>,
+    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
     pub fn new(
-        config: GAConfig<ChromosomeT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
+        config: GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
     ) -> Self {
-        GeneticAlgorithm {
+        GeneticSolver {
             config,
             metadata: GAMetadata::new(None, None, 0),
         }
     }
 
-    fn find_best_individual(population: &Vec<Individual<ChromosomeT>>) -> &Individual<ChromosomeT> {
-        debug_assert!(!population.is_empty());
+    fn find_best_individual(population: &[IndividualT]) -> &IndividualT {
         let mut best_individual = &population[0];
         for idv in population.iter().skip(1) {
             if *idv > *best_individual {
@@ -229,20 +238,20 @@ where
     }
 
     #[inline(always)]
-    fn eval_pop(&mut self, population: &mut [Individual<ChromosomeT>]) {
+    fn eval_pop(&mut self, population: &mut [IndividualT]) {
         population
             .iter_mut()
-            .for_each(|idv| idv.fitness = (self.config.fitness_fn).apply(idv));
+            .for_each(|idv| *idv.fitness_mut() = (self.config.fitness_fn).apply(idv.chromosome()));
     }
 
     #[inline(always)]
-    fn gen_pop(&mut self) -> Vec<Individual<ChromosomeT>> {
+    fn gen_pop(&mut self) -> Vec<IndividualT> {
         self.config
             .population_factory
             .generate(self.config.params.population_size)
     }
 
-    pub fn run(&mut self) -> Option<Individual<ChromosomeT>> {
+    pub fn run(&mut self) -> Option<IndividualT> {
         self.metadata.start_time = Some(std::time::Instant::now());
         self.config.probe.on_start(&self.metadata);
 
@@ -268,30 +277,26 @@ where
             self.eval_pop(&mut population);
 
             // 4. Create mating pool by applying selection operator.
-            let mating_pool: Vec<&Individual<ChromosomeT>> =
+            let mating_pool: Vec<&IndividualT> =
                 self.config
                     .selection_operator
                     .apply(&self.metadata, &population, population.len());
 
             // 5. From mating pool create new generation (apply crossover & mutation).
-            let mut children: Vec<Individual<ChromosomeT>> =
-                Vec::with_capacity(self.config.params.population_size);
+            let mut children: Vec<IndividualT> = Vec::with_capacity(self.config.params.population_size);
 
             // FIXME: Do not assume that population size is an even number.
-            for i in (0..mating_pool.len()).step_by(2) {
-                let crt_children = self
-                    .config
-                    .crossover_operator
-                    .apply(mating_pool[i], mating_pool[i + 1]);
+            for parents in mating_pool.chunks(2) {
+                let crt_children = self.config.crossover_operator.apply(parents[0], parents[1]);
 
                 children.push(crt_children.0);
                 children.push(crt_children.1);
             }
 
-            (0..children.len()).for_each(|i| {
+            children.iter_mut().for_each(|child| {
                 self.config
                     .mutation_operator
-                    .apply(&mut children[i], self.config.params.mutation_rate)
+                    .apply(child, self.config.params.mutation_rate)
             });
 
             if self.config.replacement_operator.requires_children_fitness() {

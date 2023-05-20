@@ -3,11 +3,12 @@
 use crate::ga::builder::FitnessFn;
 use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
 use crate::ga::operators::replacement::BothParents;
+use crate::ga::Individual;
 use crate::ga::{
     operators::{crossover::SinglePoint, mutation::FlipBit, selection::Tournament},
     population::BitStrings,
     probe::StdoutProbe,
-    GeneticAlgorithm,
+    GeneticSolver,
 };
 
 use super::{DefaultParams, GAConfigOpt};
@@ -20,7 +21,7 @@ pub(super) type Bsc = Vec<bool>;
 /// If more configuration options are desired please see [GenericBuilder](super::generic::GenericBuilder).
 pub struct BitStringBuilder<F: Fitness<Bsc>> {
     config: GAConfigOpt<
-        Bsc,
+        Individual<Bsc>,
         FlipBit<rand::rngs::ThreadRng>,
         SinglePoint<rand::rngs::ThreadRng>,
         Tournament<rand::rngs::ThreadRng>,
@@ -139,8 +140,8 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
     /// * problem dimension is not set
     pub fn build(
         mut self,
-    ) -> GeneticAlgorithm<
-        Bsc,
+    ) -> GeneticSolver<
+        Individual<Bsc>,
         FlipBit<rand::rngs::ThreadRng>,
         SinglePoint<rand::rngs::ThreadRng>,
         Tournament<rand::rngs::ThreadRng>,
@@ -174,13 +175,13 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
             .get_or_insert_with(|| BitStrings::new(self.dim.unwrap_or(10)));
         self.config.probe.get_or_insert_with(StdoutProbe::new);
 
-        // GeneticAlgorithm::new(self.config.into())
+        // GeneticSolver::new(self.config.into())
         let config = match self.config.try_into() {
             Ok(config) => config,
             Err(err) => panic!("Builder panicked with error: {err}"),
         };
 
-        GeneticAlgorithm::new(config)
+        GeneticSolver::new(config)
     }
 }
 

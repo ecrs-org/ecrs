@@ -1,13 +1,15 @@
-#![cfg(feature = "ga")]
-
+#[cfg(feature = "ga")]
 use ecrs::ga;
+#[cfg(feature = "ga")]
 mod util;
 
 #[allow(clippy::ptr_arg)]
+#[cfg(feature = "ga")]
 pub fn rastrigin_fitness(chromosome: &Vec<f64>) -> f64 {
     1000.0 * f64::exp(-rastrigin(chromosome))
 }
 
+#[cfg(feature = "ga")]
 fn rastrigin(chromosome: &[f64]) -> f64 {
     10.0 * chromosome.len() as f64
         + chromosome.iter().fold(0.0, |sum, x| {
@@ -15,6 +17,7 @@ fn rastrigin(chromosome: &[f64]) -> f64 {
         })
 }
 
+#[cfg(feature = "ga")]
 fn main() {
     let _ = util::init_logging();
 
@@ -30,4 +33,6 @@ fn main() {
 }
 
 #[cfg(not(feature = "ga"))]
-compile_error!("Required feature \"ga\" is not enabled");
+fn main() {
+    panic!("Required feature \"ga\" is not enabled");
+}

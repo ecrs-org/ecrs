@@ -1,5 +1,5 @@
 use ecrs::{
-    ga::{self, Individual},
+    ga::{self, individual::RealValueIndividual, Individual},
     prelude::population::PopulationGenerator,
 };
 
@@ -96,7 +96,7 @@ impl JsspState {
         self.population = ga::population::RandomPoints::with_single_constraint(8, 0.0..1.0)
             .generate(size)
             .into_iter()
-            .map(|idv| JsspIndividual {
+            .map(|idv: RealValueIndividual| JsspIndividual {
                 chromosome: idv.chromosome,
                 operations: self.build_operations(),
                 fitness: usize::MAX,

@@ -1,7 +1,7 @@
-#![cfg(feature = "ff")]
-
+#[cfg(feature = "ff")]
 use ecrs::ff::FireflyAlgorithm;
 
+#[cfg(feature = "ff")]
 fn main() {
     let mut alg = FireflyAlgorithm::default();
 
@@ -9,4 +9,6 @@ fn main() {
 }
 
 #[cfg(not(feature = "ff"))]
-compile_error!("Required feature \"ff\" is not enabled");
+fn main() {
+    panic!("Required feature \"ff\" is not enabled");
+}

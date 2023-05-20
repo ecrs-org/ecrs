@@ -1,12 +1,13 @@
-#![cfg(feature = "ff")]
+#[cfg(feature = "ff")]
+use ecrs::ff::probe::{
+    aggregated_probe::AggregatedProbe, csv_probe::CsvProbe, policy_driven_probe::PolicyDrivenProbe,
+    probing_policy::GenerationInterval, stdout_probe::StdoutProbe,
+};
 
-use ecrs::ff::probe::aggregated_probe::AggregatedProbe;
-use ecrs::ff::probe::csv_probe::CsvProbe;
-use ecrs::ff::probe::policy_driven_probe::PolicyDrivenProbe;
-use ecrs::ff::probe::probing_policy::GenerationInterval;
-use ecrs::ff::probe::stdout_probe::StdoutProbe;
+#[cfg(feature = "ff")]
 use ecrs::ff::FireflyAlgorithm;
 
+#[cfg(feature = "ff")]
 fn main() {
     let stdout_probe = StdoutProbe::new();
     let csv_probe = CsvProbe::new("firefly_example.csv");
@@ -25,4 +26,6 @@ fn main() {
 }
 
 #[cfg(not(feature = "ff"))]
-compile_error!("Required feature \"ff\" is not enabled");
+fn main() {
+    panic!("Required feature \"ff\" is not enabled");
+}

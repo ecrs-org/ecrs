@@ -1,9 +1,10 @@
 use itertools::{enumerate, Itertools};
+use len_trait::Len;
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::ops::Index;
 
-use crate::ga::individual::{Chromosome, Individual};
+use crate::ga::individual::{Chromosome, IndividualTrait};
 use push_trait::{Nothing, Push};
 use rand::prelude::SliceRandom;
 use rand::{rngs::ThreadRng, Rng};
@@ -12,15 +13,14 @@ use rand::{rngs::ThreadRng, Rng};
 ///
 /// This trait defines common behaviour for crossover operators.
 /// You can implement this trait to provide your custom crossover operator to the GA.
-pub trait CrossoverOperator<T: Chromosome> {
+pub trait CrossoverOperator<IndividualT: IndividualTrait> {
     /// Returns a tuple of children
     ///
     /// ## Arguments
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(&mut self, parent_1: &Individual<T>, parent_2: &Individual<T>)
-        -> (Individual<T>, Individual<T>);
+    fn apply(&mut self, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT);
 }
 
 /// # Single point crossover operator
@@ -32,7 +32,7 @@ pub trait CrossoverOperator<T: Chromosome> {
 /// Second child gets `parent_2`'s first part and `parent_1`'s second part.
 ///
 /// Degenerated case when cutpoint is selected at index 0 or last can occur.
-pub struct SinglePoint<R: Rng> {
+pub struct SinglePoint<R: Rng = ThreadRng> {
     rng: R,
 }
 
@@ -50,9 +50,10 @@ impl<R: Rng> SinglePoint<R> {
     }
 }
 
-impl<GeneT, ChT, R> CrossoverOperator<ChT> for SinglePoint<R>
+impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for SinglePoint<R>
 where
-    ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
     GeneT: Copy,
     R: Rng,
 {
@@ -68,36 +69,24 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(
-        &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
-        let chromosome_len = parent_1.chromosome_ref().len();
+    fn apply(&mut self, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
+        let chromosome_len = parent_1.chromosome().len();
         let cut_point = self.rng.gen_range(0..chromosome_len);
 
-        let mut child_1: Individual<ChT> = Individual::new();
-        let mut child_2: Individual<ChT> = Individual::new();
+        let mut child_1_ch = IndividualT::ChromosomeT::default();
+        let mut child_2_ch = IndividualT::ChromosomeT::default();
 
         for locus in 0..cut_point {
-            child_1
-                .chromosome_ref_mut()
-                .push(parent_1.chromosome_ref()[locus]);
-            child_2
-                .chromosome_ref_mut()
-                .push(parent_2.chromosome_ref()[locus]);
+            child_1_ch.push(parent_1.chromosome()[locus]);
+            child_2_ch.push(parent_2.chromosome()[locus]);
         }
 
         for locus in cut_point..chromosome_len {
-            child_1
-                .chromosome_ref_mut()
-                .push(parent_2.chromosome_ref()[locus]);
-            child_2
-                .chromosome_ref_mut()
-                .push(parent_1.chromosome_ref()[locus]);
+            child_1_ch.push(parent_2.chromosome()[locus]);
+            child_2_ch.push(parent_1.chromosome()[locus]);
         }
 
-        (child_1, child_2)
+        (IndividualT::from(child_1_ch), IndividualT::from(child_2_ch))
     }
 }
 
@@ -128,9 +117,10 @@ impl<R: Rng> TwoPoint<R> {
     }
 }
 
-impl<GeneT, ChT, R> CrossoverOperator<ChT> for TwoPoint<R>
+impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for TwoPoint<R>
 where
-    ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
     GeneT: Copy,
     R: Rng,
 {
@@ -146,18 +136,14 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(
-        &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+    fn apply(&mut self, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
         assert_eq!(
-            parent_1.chromosome_ref().len(),
-            parent_2.chromosome_ref().len(),
+            parent_1.chromosome().len(),
+            parent_2.chromosome().len(),
             "Parent chromosome length must match"
         );
 
-        let chromosome_len = parent_1.chromosome_ref().len();
+        let chromosome_len = parent_1.chromosome().len();
 
         let cut_points = (
             self.rng.gen_range(0..chromosome_len),
@@ -170,37 +156,25 @@ where
             (cut_points.1, cut_points.0)
         };
 
-        let mut child_1: Individual<ChT> = Individual::new();
-        let mut child_2: Individual<ChT> = Individual::new();
+        let mut child_1_ch = IndividualT::ChromosomeT::default();
+        let mut child_2_ch = IndividualT::ChromosomeT::default();
 
         for locus in 0..cut_point_1 {
-            child_1
-                .chromosome_ref_mut()
-                .push(parent_1.chromosome_ref()[locus]);
-            child_2
-                .chromosome_ref_mut()
-                .push(parent_2.chromosome_ref()[locus]);
+            child_1_ch.push(parent_1.chromosome()[locus]);
+            child_2_ch.push(parent_2.chromosome()[locus]);
         }
 
         for locus in cut_point_1..cut_point_2 {
-            child_1
-                .chromosome_ref_mut()
-                .push(parent_2.chromosome_ref()[locus]);
-            child_2
-                .chromosome_ref_mut()
-                .push(parent_1.chromosome_ref()[locus]);
+            child_1_ch.push(parent_2.chromosome()[locus]);
+            child_2_ch.push(parent_1.chromosome()[locus]);
         }
 
         for locus in cut_point_2..chromosome_len {
-            child_1
-                .chromosome_ref_mut()
-                .push(parent_1.chromosome_ref()[locus]);
-            child_2
-                .chromosome_ref_mut()
-                .push(parent_2.chromosome_ref()[locus]);
+            child_1_ch.push(parent_1.chromosome()[locus]);
+            child_2_ch.push(parent_2.chromosome()[locus]);
         }
 
-        (child_1, child_2)
+        (IndividualT::from(child_1_ch), IndividualT::from(child_2_ch))
     }
 }
 
@@ -247,9 +221,10 @@ impl<R: Rng> MultiPoint<R> {
     }
 }
 
-impl<GeneT, ChT, R> CrossoverOperator<ChT> for MultiPoint<R>
+impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for MultiPoint<R>
 where
-    ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
     GeneT: Copy,
     R: Rng,
 {
@@ -263,65 +238,49 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(
-        &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+    fn apply(&mut self, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
         assert_eq!(
-            parent_1.chromosome_ref().len(),
-            parent_2.chromosome_ref().len(),
+            parent_1.chromosome().len(),
+            parent_2.chromosome().len(),
             "Parent chromosome length must match"
         );
         assert!(
-            self.cut_points_no <= parent_1.chromosome_ref().len(),
+            self.cut_points_no <= parent_1.chromosome().len(),
             "There can't be more cut points than chromosome length"
         );
         assert!(self.cut_points_no >= 1, "Numver of cut points must be >= 1");
 
-        let chromosome_len = parent_1.chromosome_ref().len();
+        let chromosome_len = parent_1.chromosome().len();
 
         let mut cut_points =
             rand::seq::index::sample(&mut self.rng, chromosome_len, self.cut_points_no).into_vec();
         cut_points.sort_unstable();
 
-        let mut child_1: Individual<ChT> = Individual::new();
-        let mut child_2: Individual<ChT> = Individual::new();
+        let mut child_1_ch = IndividualT::ChromosomeT::default();
+        let mut child_2_ch = IndividualT::ChromosomeT::default();
 
         let (mut curr_parent_1, mut curr_parent_2) = (&parent_1, &parent_2);
 
         for locus in 0..cut_points[0] {
-            child_1
-                .chromosome_ref_mut()
-                .push(parent_1.chromosome_ref()[locus]);
-            child_2
-                .chromosome_ref_mut()
-                .push(parent_2.chromosome_ref()[locus]);
+            child_1_ch.push(parent_1.chromosome()[locus]);
+            child_2_ch.push(parent_2.chromosome()[locus]);
             (curr_parent_1, curr_parent_2) = (curr_parent_2, curr_parent_1);
         }
 
         for cut_point_idx in 0..self.cut_points_no - 1 {
             for locus in cut_points[cut_point_idx]..cut_points[cut_point_idx + 1] {
-                child_1
-                    .chromosome_ref_mut()
-                    .push(curr_parent_1.chromosome_ref()[locus]);
-                child_2
-                    .chromosome_ref_mut()
-                    .push(curr_parent_2.chromosome_ref()[locus]);
+                child_1_ch.push(curr_parent_1.chromosome()[locus]);
+                child_2_ch.push(curr_parent_2.chromosome()[locus]);
             }
             (curr_parent_1, curr_parent_2) = (curr_parent_2, curr_parent_1);
         }
 
         for locus in cut_points[self.cut_points_no - 1]..chromosome_len {
-            child_1
-                .chromosome_ref_mut()
-                .push(curr_parent_1.chromosome_ref()[locus]);
-            child_2
-                .chromosome_ref_mut()
-                .push(curr_parent_2.chromosome_ref()[locus]);
+            child_1_ch.push(curr_parent_1.chromosome()[locus]);
+            child_2_ch.push(curr_parent_2.chromosome()[locus]);
         }
 
-        (child_1, child_2)
+        (IndividualT::from(child_1_ch), IndividualT::from(child_2_ch))
     }
 }
 
@@ -331,7 +290,7 @@ where
 ///
 /// It works by creating a bit-mask of chromosome length. 1 means that gene should be taken from first
 /// parent, 0 means that gene should be take from second parent. This is inverted when creating second child.
-pub struct Uniform<R: Rng + Clone> {
+pub struct Uniform<R: Rng + Clone = ThreadRng> {
     rng: R,
 }
 
@@ -349,9 +308,10 @@ impl<R: Rng + Clone> Uniform<R> {
     }
 }
 
-impl<GeneT, ChT, R> CrossoverOperator<ChT> for Uniform<R>
+impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for Uniform<R>
 where
-    ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
     GeneT: Copy,
     R: Rng + Clone,
 {
@@ -364,21 +324,17 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(
-        &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+    fn apply(&mut self, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
         assert_eq!(
-            parent_1.chromosome_ref().len(),
-            parent_2.chromosome_ref().len(),
+            parent_1.chromosome().len(),
+            parent_2.chromosome().len(),
             "Parent chromosome length must match"
         );
 
-        let chromosome_len = parent_1.chromosome_ref().len();
+        let chromosome_len = parent_1.chromosome().len();
 
-        let mut child_1: Individual<ChT> = Individual::new();
-        let mut child_2: Individual<ChT> = Individual::new();
+        let mut child_1_ch = IndividualT::ChromosomeT::default();
+        let mut child_2_ch = IndividualT::ChromosomeT::default();
 
         let mask = self
             .rng
@@ -388,23 +344,15 @@ where
 
         for (locus, val) in mask.enumerate() {
             if val >= 0.5 {
-                child_1
-                    .chromosome_ref_mut()
-                    .push(parent_1.chromosome_ref()[locus]);
-                child_2
-                    .chromosome_ref_mut()
-                    .push(parent_2.chromosome_ref()[locus]);
+                child_1_ch.push(parent_1.chromosome()[locus]);
+                child_2_ch.push(parent_2.chromosome()[locus]);
             } else {
-                child_1
-                    .chromosome_ref_mut()
-                    .push(parent_2.chromosome_ref()[locus]);
-                child_2
-                    .chromosome_ref_mut()
-                    .push(parent_1.chromosome_ref()[locus]);
+                child_1_ch.push(parent_2.chromosome()[locus]);
+                child_2_ch.push(parent_1.chromosome()[locus]);
             }
         }
 
-        (child_1, child_2)
+        (IndividualT::from(child_1_ch), IndividualT::from(child_2_ch))
     }
 }
 
@@ -438,9 +386,10 @@ impl<R: Rng> UniformParameterized<R> {
     }
 }
 
-impl<GeneT, ChT, R> CrossoverOperator<ChT> for UniformParameterized<R>
+impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for UniformParameterized<R>
 where
-    ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
     GeneT: Copy,
     R: Rng + Clone,
 {
@@ -453,43 +402,31 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(
-        &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+    fn apply(&mut self, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
         assert_eq!(
-            parent_1.chromosome_ref().len(),
-            parent_2.chromosome_ref().len(),
+            parent_1.chromosome().len(),
+            parent_2.chromosome().len(),
             "Parent chromosome length must match"
         );
 
-        let chromosome_len = parent_1.chromosome_ref().len();
+        let chromosome_len = parent_1.chromosome().len();
 
-        let mut child_1: Individual<ChT> = Individual::new();
-        let mut child_2: Individual<ChT> = Individual::new();
+        let mut child_1_ch = IndividualT::ChromosomeT::default();
+        let mut child_2_ch = IndividualT::ChromosomeT::default();
 
         let mask = self.rng.clone().sample_iter(self.distr).take(chromosome_len);
 
         for (locus, val) in mask.enumerate() {
             if val <= self.bias {
-                child_1
-                    .chromosome_ref_mut()
-                    .push(parent_1.chromosome_ref()[locus]);
-                child_2
-                    .chromosome_ref_mut()
-                    .push(parent_2.chromosome_ref()[locus]);
+                child_1_ch.push(parent_1.chromosome()[locus]);
+                child_2_ch.push(parent_2.chromosome()[locus]);
             } else {
-                child_1
-                    .chromosome_ref_mut()
-                    .push(parent_2.chromosome_ref()[locus]);
-                child_2
-                    .chromosome_ref_mut()
-                    .push(parent_1.chromosome_ref()[locus]);
+                child_1_ch.push(parent_2.chromosome()[locus]);
+                child_2_ch.push(parent_1.chromosome()[locus]);
             }
         }
 
-        (child_1, child_2)
+        (IndividualT::from(child_1_ch), IndividualT::from(child_2_ch))
     }
 }
 
@@ -528,54 +465,56 @@ impl<R: Rng> OrderedCrossover<R> {
     /// * `p2` - Second parent to take part in crossover
     /// * `begin` - Start (inclusive) of substring to transplant
     /// * `end` - End (exclusive) of substring to transplant
-    fn create_child<GeneT, ChT>(
+    fn create_child<GeneT, IndividualT>(
         &self,
-        p1: &Individual<ChT>,
-        p2: &Individual<ChT>,
+        p1: &IndividualT,
+        p2: &IndividualT,
         begin: usize,
         end: usize,
-    ) -> Individual<ChT>
+    ) -> IndividualT
     where
-        ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+        IndividualT: IndividualTrait,
+        IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
         GeneT: Copy + Eq + Hash,
     {
-        let chromosome_len = p1.chromosome_ref().len();
+        let chromosome_len = p1.chromosome().len();
 
         let mut substring_set: HashSet<GeneT> = HashSet::new();
 
         for i in begin..end {
-            substring_set.push(p1.chromosome_ref()[i]);
+            substring_set.push(p1.chromosome()[i]);
         }
 
-        let mut child: Individual<ChT> = Individual::new();
+        let mut child_ch = IndividualT::ChromosomeT::default();
         let mut index: usize = 0;
 
-        while child.chromosome_ref().len() < begin {
-            let gene = p2.chromosome_ref()[index];
+        while child_ch.len() < begin {
+            let gene = p2.chromosome()[index];
             if !substring_set.contains(&gene) {
-                child.chromosome_ref_mut().push(gene);
+                child_ch.push(gene);
             }
             index += 1;
         }
 
         for i in begin..end {
-            child.chromosome_ref_mut().push(p1.chromosome_ref()[i]);
+            child_ch.push(p1.chromosome()[i]);
         }
 
         while index < chromosome_len {
-            let gene = p2.chromosome_ref()[index];
+            let gene = p2.chromosome()[index];
             if !substring_set.contains(&gene) {
-                child.chromosome_ref_mut().push(gene);
+                child_ch.push(gene);
             }
             index += 1;
         }
-        child
+        IndividualT::from(child_ch)
     }
 }
 
-impl<GeneT, ChT, R> CrossoverOperator<ChT> for OrderedCrossover<R>
+impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for OrderedCrossover<R>
 where
-    ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
     GeneT: Copy + Eq + Hash,
     R: Rng,
 {
@@ -595,18 +534,14 @@ where
     ///
     /// * `parent_1` - First parent to take part in crossover
     /// * `parent_2` - Second parent to take part in crossover
-    fn apply(
-        &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+    fn apply(&mut self, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
         assert_eq!(
-            parent_1.chromosome_ref().len(),
-            parent_2.chromosome_ref().len(),
+            parent_1.chromosome().len(),
+            parent_2.chromosome().len(),
             "Parent chromosome length must match"
         );
 
-        let chromosome_len = parent_1.chromosome_ref().len();
+        let chromosome_len = parent_1.chromosome().len();
 
         let begin: usize = self.rng.gen_range(0..chromosome_len);
         let end: usize = self.rng.gen_range(begin..=chromosome_len);
@@ -659,46 +594,47 @@ impl<R: Rng> Ppx<R> {
     /// * `p1` - First parent to take part in crossover
     /// * `p2` - Second parent to take part in crossover
     /// * `take_from_p1` - Which genes should be taken from p1
-    fn create_child<GeneT, ChT>(
+    fn create_child<GeneT, IndividualT>(
         &self,
-        p1: &Individual<ChT>,
-        p2: &Individual<ChT>,
+        p1: &IndividualT,
+        p2: &IndividualT,
         take_from_p1: &[bool],
-    ) -> Individual<ChT>
+    ) -> IndividualT
     where
-        ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+        IndividualT: IndividualTrait,
+        IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
         GeneT: Copy + Eq + Hash,
     {
-        let chromosome_len = p1.chromosome_ref().len();
+        let chromosome_len = p1.chromosome().len();
 
         let mut already_taken: HashSet<GeneT> = HashSet::new();
 
-        let mut child: Individual<ChT> = Individual::new();
+        let mut child_ch = IndividualT::ChromosomeT::default();
         let mut index_p: [usize; 2] = [0, 0];
         let parents = [p1, p2];
 
-        while child.chromosome_ref().len() < chromosome_len {
-            let index_child = child.chromosome_ref().len();
+        while child_ch.len() < chromosome_len {
+            let index_child = child_ch.len();
             let parent_i = usize::from(!take_from_p1[index_child]);
 
-            while child.chromosome_ref().len() == index_child {
-                let gene = parents[parent_i].chromosome_ref()[index_p[parent_i]];
+            while child_ch.len() == index_child {
+                let gene = parents[parent_i].chromosome()[index_p[parent_i]];
                 index_p[parent_i] += 1;
 
                 if !already_taken.contains(&gene) {
                     already_taken.push(gene);
-                    child.chromosome_ref_mut().push(gene);
+                    child_ch.push(gene);
                 }
             }
         }
-
-        child
+        IndividualT::from(child_ch)
     }
 }
 
-impl<GeneT, ChT, R> CrossoverOperator<ChT> for Ppx<R>
+impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for Ppx<R>
 where
-    ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
     GeneT: Copy + Eq + Hash,
     R: Rng,
 {
@@ -720,18 +656,14 @@ where
     ///
     /// * `parent_1` - one of the parents to take part in crossover
     /// * `parent_2` - one of the parents to take part in crossover
-    fn apply(
-        &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+    fn apply(&mut self, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
         assert_eq!(
-            parent_1.chromosome_ref().len(),
-            parent_2.chromosome_ref().len(),
+            parent_1.chromosome().len(),
+            parent_2.chromosome().len(),
             "Parent chromosome length must match"
         );
 
-        let chromosome_len = parent_1.chromosome_ref().len();
+        let chromosome_len = parent_1.chromosome().len();
 
         let take_from_p1: Vec<bool> = (&mut self.rng)
             .sample_iter(self.distribution)
@@ -783,16 +715,16 @@ impl<R: Rng> Pmx<R> {
         Self { rng }
     }
 
-    fn to_val_index_map<GeneT, ChT>(&self, chromosome_ref: &ChT) -> HashMap<GeneT, usize>
+    fn to_val_index_map<GeneT, ChT>(&self, chromosome: &ChT) -> HashMap<GeneT, usize>
     where
         ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
         GeneT: Copy + Eq + Hash,
     {
-        let chromosome_len = chromosome_ref.len();
+        let chromosome_len = chromosome.len();
         let mut val_index_map: HashMap<GeneT, usize> = HashMap::new();
 
         for i in 0..chromosome_len {
-            val_index_map.push((chromosome_ref[i], i));
+            val_index_map.push((chromosome[i], i));
         }
 
         val_index_map
@@ -805,38 +737,39 @@ impl<R: Rng> Pmx<R> {
     /// * `p2` - Second parent to take part in crossover
     /// * `begin` - Start (inclusive) of substring to transplant
     /// * `end` - End (exclusive) of substring to transplant
-    fn create_child<GeneT, ChT>(
+    fn create_child<GeneT, IndividualT>(
         &self,
-        p1: &Individual<ChT>,
-        p2: &Individual<ChT>,
+        p1: &IndividualT,
+        p2: &IndividualT,
         begin: usize,
         end: usize,
-    ) -> Individual<ChT>
+    ) -> IndividualT
     where
-        ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+        IndividualT: IndividualTrait,
+        IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
         GeneT: Copy + Eq + Hash,
     {
-        let chromosome_len = p1.chromosome_ref().len();
+        let chromosome_len = p1.chromosome().len();
 
         let mut substring_set: HashSet<GeneT> = HashSet::new();
-        let mut new_chromosome: Vec<Option<GeneT>> = (0..chromosome_len).map(|_| None).collect_vec();
-        let val_to_i_p2 = self.to_val_index_map(p2.chromosome_ref());
+        let mut new_chromosome: Vec<Option<GeneT>> = vec![None; chromosome_len];
+        let val_to_i_p2 = self.to_val_index_map(p2.chromosome());
 
         #[allow(clippy::needless_range_loop)]
         for i in begin..end {
-            substring_set.push(p1.chromosome_ref()[i]);
-            new_chromosome[i] = Some(p1.chromosome_ref()[i])
+            substring_set.push(p1.chromosome()[i]);
+            new_chromosome[i] = Some(p1.chromosome()[i])
         }
 
         for i in begin..end {
-            let gene = p2.chromosome_ref()[i];
+            let gene = p2.chromosome()[i];
             if substring_set.contains(&gene) {
                 continue;
             }
 
             let mut j = i;
             loop {
-                let val = &p1.chromosome_ref()[j];
+                let val = &p1.chromosome()[j];
                 let gene_place_candidate = val_to_i_p2.get(val).unwrap();
                 if !(begin..end).contains(gene_place_candidate) {
                     new_chromosome[*gene_place_candidate] = Some(gene);
@@ -846,20 +779,21 @@ impl<R: Rng> Pmx<R> {
             }
         }
 
-        let mut child: Individual<ChT> = Individual::new();
+        let mut child_ch = IndividualT::ChromosomeT::default();
         for (index, gene_opt) in enumerate(new_chromosome) {
             match gene_opt {
-                Some(gene) => child.chromosome_ref_mut().push(gene),
-                None => child.chromosome_ref_mut().push(p2.chromosome_ref()[index]),
+                Some(gene) => child_ch.push(gene),
+                None => child_ch.push(p2.chromosome()[index]),
             };
         }
-        child
+        IndividualT::from(child_ch)
     }
 }
 
-impl<GeneT, ChT, R> CrossoverOperator<ChT> for Pmx<R>
+impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for Pmx<R>
 where
-    ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
     GeneT: Copy + Eq + Hash,
     R: Rng,
 {
@@ -885,18 +819,14 @@ where
     ///
     /// * `parent_1` - First parent to take part in crossover
     /// * `parent_2` - Second parent to take part in crossover
-    fn apply(
-        &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
+    fn apply(&mut self, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
         assert_eq!(
-            parent_1.chromosome_ref().len(),
-            parent_2.chromosome_ref().len(),
+            parent_1.chromosome().len(),
+            parent_2.chromosome().len(),
             "Parent chromosome length must match"
         );
 
-        let chromosome_len = parent_1.chromosome_ref().len();
+        let chromosome_len = parent_1.chromosome().len();
 
         let begin: usize = self.rng.gen_range(0..chromosome_len);
         let end: usize = self.rng.gen_range(begin..=chromosome_len);
@@ -937,9 +867,10 @@ impl<R: Rng> Shuffle<R> {
     }
 }
 
-impl<GeneT, ChT, R> CrossoverOperator<ChT> for Shuffle<R>
+impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for Shuffle<R>
 where
-    ChT: Chromosome + Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
     GeneT: Copy,
     R: Rng,
 {
@@ -957,37 +888,34 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(
-        &mut self,
-        parent_1: &Individual<ChT>,
-        parent_2: &Individual<ChT>,
-    ) -> (Individual<ChT>, Individual<ChT>) {
-        let chromosome_len = parent_1.chromosome_ref().len();
+    fn apply(&mut self, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
+        let chromosome_len = parent_1.chromosome().len();
         let cut_point = self.rng.gen_range(0..chromosome_len);
 
-        let mut shuffled = (0..chromosome_len).collect_vec();
+        let mut shuffled = Vec::from_iter(0..chromosome_len);
         shuffled.shuffle(&mut self.rng);
         let mask = shuffled.iter().map(|x| x < &cut_point).collect_vec();
 
-        let mut child_1: Individual<ChT> = Individual::new();
-        let mut child_2: Individual<ChT> = Individual::new();
+        let mut child_1_ch = IndividualT::ChromosomeT::default();
+        let mut child_2_ch = IndividualT::ChromosomeT::default();
 
         for (i, fist_parent) in enumerate(mask) {
             if fist_parent {
-                child_1.chromosome_ref_mut().push(parent_1.chromosome_ref()[i]);
-                child_2.chromosome_ref_mut().push(parent_2.chromosome_ref()[i]);
+                child_1_ch.push(parent_1.chromosome()[i]);
+                child_2_ch.push(parent_2.chromosome()[i]);
             } else {
-                child_1.chromosome_ref_mut().push(parent_2.chromosome_ref()[i]);
-                child_2.chromosome_ref_mut().push(parent_1.chromosome_ref()[i]);
+                child_1_ch.push(parent_2.chromosome()[i]);
+                child_2_ch.push(parent_1.chromosome()[i]);
             }
         }
 
-        (child_1, child_2)
+        (IndividualT::from(child_1_ch), IndividualT::from(child_2_ch))
     }
 }
 
 #[cfg(test)]
 mod test {
+    use crate::ga::individual::IndividualTrait;
     use crate::ga::operators::crossover::Ppx;
     use crate::ga::operators::crossover::{CrossoverOperator, Pmx, Shuffle};
     use crate::ga::Individual;
@@ -1003,7 +931,7 @@ mod test {
         let child = op.create_child(&p1, &p2, &take_from_p1);
 
         child
-            .chromosome_ref()
+            .chromosome()
             .iter()
             .zip(vec![1, 3, 2, 4, 6, 5].iter())
             .for_each(|(x, x_expected)| assert_eq!(x, x_expected))

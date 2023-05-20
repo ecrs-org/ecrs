@@ -1,13 +1,15 @@
-#![cfg(feature = "ga")]
-
+#[cfg(feature = "ga")]
 use ecrs::ga;
+#[cfg(feature = "ga")]
 mod util;
 
 #[allow(clippy::ptr_arg)]
+#[cfg(feature = "ga")]
 pub fn wordmax_fitness(chromosome: &Vec<bool>) -> f64 {
     chromosome.iter().filter(|gene| **gene).count() as f64
 }
 
+#[cfg(feature = "ga")]
 fn main() {
     let _ = util::init_logging();
 
@@ -24,4 +26,6 @@ fn main() {
 }
 
 #[cfg(not(feature = "ga"))]
-compile_error!("Required feature \"ga\" is not enabled");
+fn main() {
+    panic!("Required feature \"ga\" is not enabled");
+}

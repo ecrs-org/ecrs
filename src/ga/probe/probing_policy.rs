@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::ga::{individual::Chromosome, GAMetadata};
+use crate::ga::{individual::IndividualTrait, GAMetadata};
 
 use super::ProbingPolicy;
 
@@ -26,32 +26,24 @@ impl GenerationInterval {
     }
 }
 
-impl<T: Chromosome> ProbingPolicy<T> for GenerationInterval {
+impl<IndividualT: IndividualTrait> ProbingPolicy<IndividualT> for GenerationInterval {
     #[inline(always)]
     fn on_start(&mut self, _metadata: &crate::ga::GAMetadata) -> bool {
         true
     }
 
     #[inline(always)]
-    fn on_initial_population_created(&mut self, _population: &[crate::ga::Individual<T>]) -> bool {
+    fn on_initial_population_created(&mut self, _population: &[IndividualT]) -> bool {
         true
     }
 
     #[inline(always)]
-    fn on_new_best(
-        &mut self,
-        _metadata: &crate::ga::GAMetadata,
-        _individual: &crate::ga::Individual<T>,
-    ) -> bool {
+    fn on_new_best(&mut self, _metadata: &crate::ga::GAMetadata, _individual: &IndividualT) -> bool {
         true
     }
 
     #[inline(always)]
-    fn on_new_generation(
-        &mut self,
-        _metadata: &GAMetadata,
-        _generation: &[crate::ga::Individual<T>],
-    ) -> bool {
+    fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[IndividualT]) -> bool {
         self.should_log
     }
 
@@ -59,7 +51,7 @@ impl<T: Chromosome> ProbingPolicy<T> for GenerationInterval {
     fn on_best_fit_in_generation(
         &mut self,
         _metadata: &crate::ga::GAMetadata,
-        _individual: &crate::ga::Individual<T>,
+        _individual: &IndividualT,
     ) -> bool {
         self.should_log
     }
@@ -86,8 +78,8 @@ impl<T: Chromosome> ProbingPolicy<T> for GenerationInterval {
     fn on_end(
         &mut self,
         _metadata: &crate::ga::GAMetadata,
-        _population: &[crate::ga::Individual<T>],
-        _best_individual: &crate::ga::Individual<T>,
+        _population: &[IndividualT],
+        _best_individual: &IndividualT,
     ) -> bool {
         true
     }
@@ -115,32 +107,24 @@ impl ElapsedTime {
     }
 }
 
-impl<T: Chromosome> ProbingPolicy<T> for ElapsedTime {
+impl<IndividualT: IndividualTrait> ProbingPolicy<IndividualT> for ElapsedTime {
     #[inline(always)]
     fn on_start(&mut self, _metadata: &crate::ga::GAMetadata) -> bool {
         true
     }
 
     #[inline(always)]
-    fn on_initial_population_created(&mut self, _population: &[crate::ga::Individual<T>]) -> bool {
+    fn on_initial_population_created(&mut self, _population: &[IndividualT]) -> bool {
         true
     }
 
     #[inline(always)]
-    fn on_new_best(
-        &mut self,
-        _metadata: &crate::ga::GAMetadata,
-        _individual: &crate::ga::Individual<T>,
-    ) -> bool {
+    fn on_new_best(&mut self, _metadata: &crate::ga::GAMetadata, _individual: &IndividualT) -> bool {
         true
     }
 
     #[inline(always)]
-    fn on_new_generation(
-        &mut self,
-        _metadata: &GAMetadata,
-        _generation: &[crate::ga::Individual<T>],
-    ) -> bool {
+    fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[IndividualT]) -> bool {
         self.should_log
     }
 
@@ -148,7 +132,7 @@ impl<T: Chromosome> ProbingPolicy<T> for ElapsedTime {
     fn on_best_fit_in_generation(
         &mut self,
         _metadata: &crate::ga::GAMetadata,
-        _individual: &crate::ga::Individual<T>,
+        _individual: &IndividualT,
     ) -> bool {
         self.should_log
     }
@@ -174,8 +158,8 @@ impl<T: Chromosome> ProbingPolicy<T> for ElapsedTime {
     fn on_end(
         &mut self,
         _metadata: &crate::ga::GAMetadata,
-        _population: &[crate::ga::Individual<T>],
-        _best_individual: &crate::ga::Individual<T>,
+        _population: &[IndividualT],
+        _best_individual: &IndividualT,
     ) -> bool {
         true
     }
