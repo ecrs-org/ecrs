@@ -6,8 +6,8 @@ use coco_rs::{LogLevel, Observer, ObserverName, Problem, RandomState, Suite, Sui
 use ecrs::{
     ga::{individual::RealValueIndividual, probe::EmptyProbe},
     prelude::{
-        crossover::Uniform, mutation::Reversing, population::RandomPoints,
-        replacement::WeakParent, selection::Tournament, *,
+        crossover::Uniform, mutation::Reversing, population::RandomPoints, replacement::WeakParent,
+        selection::Tournament, *,
     },
 };
 
