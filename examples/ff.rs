@@ -1,7 +1,7 @@
-#![cfg(feature = "ff")]
-
+#[cfg(feature = "ff")]
 use ecrs::ff::FireflyAlgorithm;
 
+#[cfg(feature = "ff")]
 fn main() {
     let mut alg = FireflyAlgorithm::default();
 

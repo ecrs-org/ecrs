@@ -1,5 +1,4 @@
-#![cfg(feature = "ga")]
-
+#[cfg(feature = "ga")]
 use ecrs::{
     ga::{self, individual::RealValueIndividual, probe::AggregatedProbe},
     prelude::{
@@ -7,12 +6,16 @@ use ecrs::{
         replacement::WeakParent, selection::Boltzmann,
     },
 };
+
+#[cfg(feature = "ga")]
 mod util;
 
+#[cfg(feature = "ga")]
 fn rastrigin_fitness(chromosome: &Vec<f64>) -> f64 {
     1000.0 * f64::exp(-ecrs::test_functions::rastrigin(chromosome))
 }
 
+#[cfg(feature = "ga")]
 fn main() {
     let _ = util::init_logging();
 

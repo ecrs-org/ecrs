@@ -55,12 +55,22 @@
 //!
 //! ```no_run
 //! use ecrs::prelude::*;
+//! use ecrs::ga;
 //!
 //! # fn rastrigin_fitness(chromosome: &Vec<f64>) -> f64 {
 //! #   1000.0 * f64::exp(-ecrs::test_functions::rastrigin(chromosome))
 //! # }
 //!
-//! let mut res = ga::Builder::new()
+//! let mut res = ga::Builder::new::<
+//!     ga::individual::RealValueIndividual,
+//!     mutation::Identity,
+//!     crossover::SinglePoint,
+//!     selection::Boltzmann,
+//!     replacement::WeakParent,
+//!     population::RandomPoints,
+//!     fitness::FnBasedFitness<Vec<f64>>,
+//!     ga::probe::AggregatedProbe<ga::individual::RealValueIndividual>
+//! >()
 //!   .set_max_generation_count(50_000)
 //!   .set_population_size(100)
 //!   .set_fitness_fn(rastrigin_fitness)

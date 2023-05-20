@@ -1,12 +1,13 @@
 #![cfg(feature = "ga")]
 
 use ecrs::ga::{
+    individual::{BitStringIndividual, RealValueIndividual},
     operators::selection::{
         Boltzmann, Random, Rank, RankR, RouletteWheel, SelectionOperator, StochasticUniversalSampling,
         Tournament,
     },
     population::{BitStrings, PopulationGenerator, RandomPoints},
-    GAMetadata, individual::{BitStringIndividual, RealValueIndividual},
+    GAMetadata,
 };
 
 #[test]
@@ -175,7 +176,8 @@ fn boltzmann_returns_demanded_size() {
         constraints.push(-1.0..1.0);
     }
 
-    let population: Vec<RealValueIndividual> = RandomPoints::with_constraints(dim, constraints).generate(expected_population_size);
+    let population: Vec<RealValueIndividual> =
+        RandomPoints::with_constraints(dim, constraints).generate(expected_population_size);
 
     assert_eq!(
         expected_population_size,

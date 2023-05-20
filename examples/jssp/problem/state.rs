@@ -1,5 +1,5 @@
 use ecrs::{
-    ga::{self, Individual, individual::RealValueIndividual},
+    ga::{self, individual::RealValueIndividual, Individual},
     prelude::population::PopulationGenerator,
 };
 

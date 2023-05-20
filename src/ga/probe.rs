@@ -138,13 +138,13 @@ pub trait Probe<IndividualT: IndividualTrait> {
 /// Probing policy to print only on even iterations
 ///
 /// ```
-/// # use ecrs::ga::individual::{Chromosome, Individual};
+/// # use ecrs::ga::individual::IndividualTrait;
 /// # use ecrs::ga::GAMetadata;
 /// # use ecrs::ga::probe::ProbingPolicy;
 ///
 /// struct EvenIteration;
 ///
-/// impl<T: Chromosome> ProbingPolicy<T> for EvenIteration {
+/// impl<IndividualT: IndividualTrait> ProbingPolicy<IndividualT> for EvenIteration {
 ///   fn on_start(&mut self, _metadata: &GAMetadata) -> bool {
 ///     // We want to always log on start
 ///     true

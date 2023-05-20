@@ -2,7 +2,8 @@
 
 use ecrs::ga::{
     operators::replacement::{BothParents, Noop, ReplacementOperator},
-    population::{PopulationGenerator, RandomPoints}, Individual,
+    population::{PopulationGenerator, RandomPoints},
+    Individual,
 };
 
 #[test]

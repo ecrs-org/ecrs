@@ -1,6 +1,6 @@
 #![cfg(feature = "ga")]
 
-use ecrs::ga::individual::{RealValueIndividual, IndividualTrait};
+use ecrs::ga::individual::{IndividualTrait, RealValueIndividual};
 use ecrs::ga::operators::crossover::Ppx;
 use ecrs::ga::{
     operators::crossover::{CrossoverOperator, MultiPoint, SinglePoint, TwoPoint, Uniform},
@@ -14,9 +14,7 @@ fn operator_takes_values_from_parents<T: CrossoverOperator<RealValueIndividual>>
     assert_eq!(parents.len(), 2, "Expected population of size 2");
 
     let (child_1, child_2) = operator.apply(&parents[0], &parents[1]);
-    for (i, (gene_1, gene_2)) in
-        std::iter::zip(child_1.chromosome(), child_2.chromosome()).enumerate()
-    {
+    for (i, (gene_1, gene_2)) in std::iter::zip(child_1.chromosome(), child_2.chromosome()).enumerate() {
         assert!(parents[0].chromosome()[i] == *gene_1 || parents[1].chromosome()[i] == *gene_1);
         assert!(parents[0].chromosome()[i] == *gene_2 || parents[1].chromosome()[i] == *gene_2);
     }
