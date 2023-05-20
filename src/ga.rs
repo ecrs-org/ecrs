@@ -147,7 +147,7 @@ where
     ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
-    ProbeT: Probe<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
     pub params: GAParams,
     pub fitness_fn: FitnessT,
@@ -190,7 +190,7 @@ where
     ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
-    ProbeT: Probe<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
     config: GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
     metadata: GAMetadata,
@@ -206,7 +206,7 @@ where
     ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
-    ProbeT: Probe<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
     pub fn new(
         config: GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
@@ -273,24 +273,20 @@ where
                     .apply(&self.metadata, &population, population.len());
 
             // 5. From mating pool create new generation (apply crossover & mutation).
-            let mut children: Vec<Individual<IndividualT>> =
-                Vec::with_capacity(self.config.params.population_size);
+            let mut children: Vec<IndividualT> = Vec::with_capacity(self.config.params.population_size);
 
             // FIXME: Do not assume that population size is an even number.
-            for i in (0..mating_pool.len()).step_by(2) {
-                let crt_children = self
-                    .config
-                    .crossover_operator
-                    .apply(mating_pool[i], mating_pool[i + 1]);
+            for parents in mating_pool.chunks(2) {
+                let crt_children = self.config.crossover_operator.apply(parents[0], parents[1]);
 
                 children.push(crt_children.0);
                 children.push(crt_children.1);
             }
 
-            (0..children.len()).for_each(|i| {
+            children.iter_mut().for_each(|child| {
                 self.config
                     .mutation_operator
-                    .apply(&mut children[i], self.config.params.mutation_rate)
+                    .apply(child, self.config.params.mutation_rate)
             });
 
             if self.config.replacement_operator.requires_children_fitness() {

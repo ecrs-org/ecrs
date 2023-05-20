@@ -38,20 +38,12 @@ impl<IndividualT: IndividualTrait> ProbingPolicy<IndividualT> for GenerationInte
     }
 
     #[inline(always)]
-    fn on_new_best(
-        &mut self,
-        _metadata: &crate::ga::GAMetadata,
-        _individual: &IndividualT,
-    ) -> bool {
+    fn on_new_best(&mut self, _metadata: &crate::ga::GAMetadata, _individual: &IndividualT) -> bool {
         true
     }
 
     #[inline(always)]
-    fn on_new_generation(
-        &mut self,
-        _metadata: &GAMetadata,
-        _generation: &[IndividualT],
-    ) -> bool {
+    fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[IndividualT]) -> bool {
         self.should_log
     }
 
@@ -127,20 +119,12 @@ impl<IndividualT: IndividualTrait> ProbingPolicy<IndividualT> for ElapsedTime {
     }
 
     #[inline(always)]
-    fn on_new_best(
-        &mut self,
-        _metadata: &crate::ga::GAMetadata,
-        _individual: &IndividualT,
-    ) -> bool {
+    fn on_new_best(&mut self, _metadata: &crate::ga::GAMetadata, _individual: &IndividualT) -> bool {
         true
     }
 
     #[inline(always)]
-    fn on_new_generation(
-        &mut self,
-        _metadata: &GAMetadata,
-        _generation: &[IndividualT],
-    ) -> bool {
+    fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[IndividualT]) -> bool {
         self.should_log
     }
 

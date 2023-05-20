@@ -1,6 +1,6 @@
 //! Builder interfaces & impls for genetic algorithm
 //!
-//! For usage see docs for particular builders.
+//! For usage see docs for par::ChromosomeTticular builders.
 
 mod bitstring;
 mod generic;
@@ -130,7 +130,7 @@ where
     ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
-    ProbeT: Probe<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
     pub params: GAParamsOpt,
     pub fitness_fn: Option<FitnessT>,
@@ -153,7 +153,7 @@ where
     ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
-    ProbeT: Probe<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
     /// Returns new instance of [GAConfigOpt] struct. All fields are `None` initially, except params.
     pub fn new() -> Self {
@@ -182,7 +182,7 @@ where
     ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
-    ProbeT: Probe<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
     type Error = ConfigError;
 
@@ -255,7 +255,7 @@ impl Builder {
         ReplOpT: ReplacementOperator<IndividualT>,
         PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
         FitnessT: Fitness<IndividualT::ChromosomeT>,
-        ProbeT: Probe<IndividualT::ChromosomeT>,
+        ProbeT: Probe<IndividualT>,
     {
         GenericBuilder::<IndividualT, MulOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>::new()
     }

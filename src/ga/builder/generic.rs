@@ -23,7 +23,7 @@ where
     ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
-    ProbeT: Probe<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
     config: GAConfigOpt<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
 }
@@ -46,7 +46,7 @@ where
     SelOpT: SelectionOperator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
-    ProbeT: Probe<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
     pub fn set_fitness_fn(self, fitness_fn: FitnessFn<IndividualT::ChromosomeT>) -> Self {
         self.set_fitness(FnBasedFitness::new(fitness_fn))
@@ -63,7 +63,7 @@ where
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
     ReplOpT: ReplacementOperator<IndividualT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
-    ProbeT: Probe<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
     /// Returns new instance of [GenericBuilder]
     pub fn new() -> Self {
@@ -241,6 +241,6 @@ where
     PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
     ReplOpT: ReplacementOperator<IndividualT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
-    ProbeT: Probe<IndividualT::ChromosomeT>,
+    ProbeT: Probe<IndividualT>,
 {
 }

@@ -1,10 +1,10 @@
-use std::ops::IndexMut;
+use std::{ops::IndexMut, marker::PhantomData};
 
 use len_trait::Len;
 use push_trait::{Nothing, Push};
 use rand::{rngs::ThreadRng, Rng};
 
-use crate::ga::{individual::IndividualTrait, Individual};
+use crate::ga::individual::IndividualTrait;
 
 /// # Mutation Operator
 ///
@@ -204,25 +204,29 @@ where
 ///
 /// Two random locations are chosen marking out a segment of chromosome.
 /// Genes from this segment are then rotated around the segment's middle point.
-pub struct Inversion<R: Rng> {
+pub struct Inversion<R: Rng, GeneT: Copy> {
     rng: R,
+    _marker: PhantomData<GeneT>,
 }
 
-impl Inversion<ThreadRng> {
+impl<GeneT: Copy> Inversion<ThreadRng, GeneT> {
     /// Returns new instance of [Inversion] mutation operator with default RNG
     pub fn new() -> Self {
         Self::with_rng(rand::thread_rng())
     }
 }
 
-impl<R: Rng> Inversion<R> {
+impl<R: Rng, GeneT: Copy> Inversion<R, GeneT> {
     /// Returns new instance of [Inversion] mutation operator with custom RNG
     pub fn with_rng(rng: R) -> Self {
-        Self { rng }
+        Self { rng, _marker: PhantomData::default() }
     }
 }
 
-impl<IndividualT: IndividualTrait, R: Rng> MutationOperator<IndividualT> for Inversion<R> {
+impl<IndividualT: IndividualTrait, GeneT: Copy, R: Rng> MutationOperator<IndividualT> for Inversion<R, GeneT> 
+where
+    IndividualT::ChromosomeT: Len + AsMut<[GeneT]>
+{
     /// Mutates provided solution in place
     ///
     /// Two random locations are chosen marking out a segment of chromosome.
@@ -233,6 +237,8 @@ impl<IndividualT: IndividualTrait, R: Rng> MutationOperator<IndividualT> for Inv
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
     fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
+        let _marker: PhantomData<GeneT> = PhantomData::default();
+
         let r: f64 = self.rng.gen();
 
         if r > mutation_rate {
@@ -244,7 +250,7 @@ impl<IndividualT: IndividualTrait, R: Rng> MutationOperator<IndividualT> for Inv
         let mut to: usize = self.rng.gen_range(from..chromosome_len);
 
         while from < to {
-            individual.chromosome().swap(from, to);
+            individual.chromosome_mut().as_mut().swap(from, to);
             from += 1;
             to -= 1;
         }
@@ -253,7 +259,7 @@ impl<IndividualT: IndividualTrait, R: Rng> MutationOperator<IndividualT> for Inv
 
 #[cfg(test)]
 mod tests {
-    use crate::ga::Individual;
+    use crate::ga::{Individual, individual::IndividualTrait};
     use itertools::Itertools;
     use rand::{distributions::Uniform, Rng};
 
@@ -297,7 +303,7 @@ mod tests {
 
         operator.apply(&mut individual, 1.);
 
-        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome_ref()) {
+        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome()) {
             assert_eq!(actual, !*expected);
         }
     }
@@ -321,7 +327,7 @@ mod tests {
 
         operator.apply(&mut individual, 0.);
 
-        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome_ref()) {
+        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome()) {
             assert_eq!(actual, *expected);
         }
     }
@@ -344,7 +350,7 @@ mod tests {
         let mut operator = Interchange::new();
 
         operator.apply(&mut individual, 1.);
-        let changes = std::iter::zip(chromosome_clone, individual.chromosome_ref())
+        let changes = std::iter::zip(chromosome_clone, individual.chromosome())
             .filter(|p| p.0 != *p.1)
             .count();
         assert!(changes > 0);
@@ -369,7 +375,7 @@ mod tests {
 
         operator.apply(&mut individual, 0.);
 
-        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome_ref()) {
+        for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome()) {
             assert_eq!(actual, *expected);
         }
     }
@@ -386,7 +392,7 @@ mod tests {
             fitness: f64::default(),
         };
 
-        let first_gene_value = individual.chromosome_ref()[0];
+        let first_gene_value = individual.chromosome()[0];
 
         let mut operator = Reversing::new();
 
@@ -394,7 +400,7 @@ mod tests {
 
         assert_eq!(
             first_gene_value,
-            individual.chromosome_ref()[individual.chromosome_ref().len() - 1]
+            individual.chromosome()[individual.chromosome().len() - 1]
         );
     }
 }

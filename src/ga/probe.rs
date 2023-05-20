@@ -1,6 +1,6 @@
 use super::{
-    individual::{Chromosome, IndividualTrait},
-    GAMetadata, Individual,
+    individual::IndividualTrait,
+    GAMetadata,
 };
 
 mod aggregated_probe;
