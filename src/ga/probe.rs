@@ -1,4 +1,4 @@
-use super::{individual::Chromosome, GAMetadata, Individual};
+use super::{individual::{Chromosome, IndividualTrait}, GAMetadata, Individual};
 
 mod aggregated_probe;
 mod csv_probe;
@@ -19,7 +19,7 @@ pub use stdout_probe::StdoutProbe;
 /// Thit trait specifies common behaviour for probes that can be used with GA
 ///
 /// You can implement this trait to define your custom probe.
-pub trait Probe<T: Chromosome> {
+pub trait Probe<IndividualT: IndividualTrait> {
     /// This method is called in the very beginning of genetic algorithm, even before
     /// initial population is generated.
     ///
@@ -41,7 +41,7 @@ pub trait Probe<T: Chromosome> {
     /// ### Arguments
     ///
     /// * `population` - Freshly generated population
-    fn on_initial_population_created(&mut self, _population: &[Individual<T>]) {
+    fn on_initial_population_created(&mut self, _population: &[IndividualT]) {
         /* defaults to noop */
     }
 
@@ -54,7 +54,7 @@ pub trait Probe<T: Chromosome> {
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
     /// * `individual` - New best individual
-    fn on_new_best(&mut self, _metadata: &GAMetadata, _individual: &Individual<T>) {
+    fn on_new_best(&mut self, _metadata: &GAMetadata, _individual: &IndividualT) {
         /* defaults to noop */
     }
 
@@ -67,7 +67,7 @@ pub trait Probe<T: Chromosome> {
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
     /// * `generation` - Newly created generation
-    fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[Individual<T>]) {
+    fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[IndividualT]) {
         /* defaults to noop */
     }
 
@@ -80,7 +80,7 @@ pub trait Probe<T: Chromosome> {
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
     /// * `individual` - Best individual in current generation
-    fn on_best_fit_in_generation(&mut self, _metadata: &GAMetadata, _individual: &Individual<T>) {
+    fn on_best_fit_in_generation(&mut self, _metadata: &GAMetadata, _individual: &IndividualT) {
         /* defaults to noop */
     }
 
@@ -119,8 +119,8 @@ pub trait Probe<T: Chromosome> {
     fn on_end(
         &mut self,
         _metadata: &GAMetadata,
-        _population: &[Individual<T>],
-        _best_individual: &Individual<T>,
+        _population: &[IndividualT],
+        _best_individual: &IndividualT,
     ) { /* defaults to noop */
     }
 }
@@ -150,22 +150,22 @@ pub trait Probe<T: Chromosome> {
 ///     true
 ///   }
 ///
-///   fn on_initial_population_created(&mut self, _population: &[Individual<T>]) -> bool {
+///   fn on_initial_population_created(&mut self, _population: &[IndividualT]) -> bool {
 ///     // We want to log initial population
 ///     true
 ///   }
 ///
-///   fn on_new_best(&mut self, _metadata: &GAMetadata, _individual: &Individual<T>) -> bool {
+///   fn on_new_best(&mut self, _metadata: &GAMetadata, _individual: &IndividualT) -> bool {
 ///     // We want to see when algorithm improves
 ///     true
 ///   }
 ///
-///   fn on_new_generation(&mut self, metadata: &GAMetadata, _generation: &[Individual<T>]) -> bool {
+///   fn on_new_generation(&mut self, metadata: &GAMetadata, _generation: &[IndividualT]) -> bool {
 ///     // Only on even iterations
 ///     metadata.generation % 2 == 0
 ///   }
 ///
-///   fn on_best_fit_in_generation(&mut self, metadata: &GAMetadata, _individual: &Individual<T>) -> bool {
+///   fn on_best_fit_in_generation(&mut self, metadata: &GAMetadata, _individual: &IndividualT) -> bool {
 ///     // Only on even iterations
 ///     metadata.generation % 2 == 0
 ///   }
@@ -181,8 +181,8 @@ pub trait Probe<T: Chromosome> {
 ///   fn on_end(
 ///     &mut self,
 ///     _metadata: &GAMetadata,
-///     _population: &[Individual<T>],
-///     _best_individual: &Individual<T>,
+///     _population: &[IndividualT],
+///     _best_individual: &IndividualT,
 ///   ) -> bool {
 ///     // We want to see the end result
 ///     true
@@ -191,18 +191,18 @@ pub trait Probe<T: Chromosome> {
 /// ```
 ///
 /// Later you can use it with [PolicyDrivenProbe]
-pub trait ProbingPolicy<T: Chromosome> {
+pub trait ProbingPolicy<IndividualT: IndividualTrait> {
     fn on_start(&mut self, _metadata: &GAMetadata) -> bool;
-    fn on_initial_population_created(&mut self, _population: &[Individual<T>]) -> bool;
-    fn on_new_best(&mut self, _metadata: &GAMetadata, _individual: &Individual<T>) -> bool;
-    fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[Individual<T>]) -> bool;
-    fn on_best_fit_in_generation(&mut self, _metadata: &GAMetadata, _individual: &Individual<T>) -> bool;
+    fn on_initial_population_created(&mut self, _population: &[IndividualT]) -> bool;
+    fn on_new_best(&mut self, _metadata: &GAMetadata, _individual: &IndividualT) -> bool;
+    fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[IndividualT]) -> bool;
+    fn on_best_fit_in_generation(&mut self, _metadata: &GAMetadata, _individual: &IndividualT) -> bool;
     fn on_iteration_start(&mut self, _metadata: &GAMetadata) -> bool;
     fn on_iteration_end(&mut self, _metadata: &GAMetadata) -> bool;
     fn on_end(
         &mut self,
         _metadata: &GAMetadata,
-        _population: &[Individual<T>],
-        _best_individual: &Individual<T>,
+        _population: &[IndividualT],
+        _best_individual: &IndividualT,
     ) -> bool;
 }
