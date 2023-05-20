@@ -324,7 +324,7 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Ra
 /// 1. Select `ceil(size_factor * population_size)` distinct, random individuals
 /// 2. Select one with the highest fitness
 /// 3. Repeat 1-2 number of times necessary to fill mating pool
-pub struct Tournament<R: Rng> {
+pub struct Tournament<R: Rng = ThreadRng> {
     size_factor: f64,
     rng: R,
 }
@@ -499,7 +499,7 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for St
 ///
 /// This struct implements [SelectionOperator] trait and can be used with GA
 ///
-pub struct Boltzmann<R: Rng> {
+pub struct Boltzmann<R: Rng = ThreadRng> {
     alpha: f64,
     max_gen_count: usize, // FIXME: This should be removed after operators are passed whole algorithm state & config
     temp_0: f64,
@@ -553,7 +553,7 @@ impl<R: Rng> Boltzmann<R> {
 
 impl<IndividualT, R> SelectionOperator<IndividualT> for Boltzmann<R>
 where
-    IndividualT: IndividualTrait + Index<usize, Output = f64>,
+    IndividualT: IndividualTrait,
     IndividualT::ChromosomeT: Index<usize, Output = f64>,
     R: Rng,
 {

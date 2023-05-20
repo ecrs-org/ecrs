@@ -32,7 +32,7 @@ pub trait CrossoverOperator<IndividualT: IndividualTrait> {
 /// Second child gets `parent_2`'s first part and `parent_1`'s second part.
 ///
 /// Degenerated case when cutpoint is selected at index 0 or last can occur.
-pub struct SinglePoint<R: Rng> {
+pub struct SinglePoint<R: Rng = ThreadRng> {
     rng: R,
 }
 
@@ -290,7 +290,7 @@ where
 ///
 /// It works by creating a bit-mask of chromosome length. 1 means that gene should be taken from first
 /// parent, 0 means that gene should be take from second parent. This is inverted when creating second child.
-pub struct Uniform<R: Rng + Clone> {
+pub struct Uniform<R: Rng + Clone = ThreadRng> {
     rng: R,
 }
 

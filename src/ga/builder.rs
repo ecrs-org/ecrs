@@ -245,11 +245,11 @@ impl Builder {
     ///
     /// Use this function if you want to configure operators && parameters for your optimizer
     #[allow(clippy::new_ret_no_self)]
-    pub fn new<IndividualT, MulOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>(
-    ) -> GenericBuilder<IndividualT, MulOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
+    pub fn new<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>(
+    ) -> GenericBuilder<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
     where
         IndividualT: IndividualTrait,
-        MulOpT: MutationOperator<IndividualT>,
+        MutOpT: MutationOperator<IndividualT>,
         CrossOpT: CrossoverOperator<IndividualT>,
         SelOpT: SelectionOperator<IndividualT>,
         ReplOpT: ReplacementOperator<IndividualT>,
@@ -257,7 +257,7 @@ impl Builder {
         FitnessT: Fitness<IndividualT::ChromosomeT>,
         ProbeT: Probe<IndividualT>,
     {
-        GenericBuilder::<IndividualT, MulOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>::new()
+        GenericBuilder::<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>::new()
     }
 
     /// Returns new instance of [RealValuedBuilder](self::realvalued::RealValuedBuilder)

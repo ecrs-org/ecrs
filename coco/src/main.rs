@@ -3,7 +3,13 @@
 mod adapter;
 
 use coco_rs::{LogLevel, Observer, ObserverName, Problem, RandomState, Suite, SuiteName};
-use ecrs::prelude::*;
+use ecrs::{
+    ga::{individual::RealValueIndividual, probe::EmptyProbe},
+    prelude::{
+        crossover::Uniform, fitness::FnBasedFitness, mutation::Reversing, replacement::WeakParent,
+        selection::Tournament, *, population::RandomPoints,
+    },
+};
 
 const BUDGET_MULTIPLIER: usize = 10;
 const INDEPENDENT_RESTARTS_100K: u64 = 1e5 as u64;
@@ -93,21 +99,30 @@ fn ecrs_ga_search(problem: &mut Problem, _max_budget: usize, _random_generator: 
     // TODO: Find a way to take advantage of feasible solution
     // let mut init_solution_box = [0.0];
 
-    let mut solver = ecrs::ga::Builder::new()
-        .set_population_size(population_size)
-        .set_max_generation_count(10_000)
-        .set_max_duration(std::time::Duration::from_millis(200))
-        .set_fitness(fitness)
-        .set_probe(ecrs::ga::probe::EmptyProbe)
-        .set_population_generator(population::RandomPoints::with_constraints_inclusive(
-            dimension,
-            constraints,
-        ))
-        .set_selection_operator(selection::Tournament::new(0.2))
-        .set_crossover_operator(crossover::Uniform::new())
-        .set_mutation_operator(mutation::Reversing::new())
-        .set_replacement_operator(replacement::WeakParent::new())
-        .build();
+    let mut solver = ecrs::ga::Builder::new::<
+        RealValueIndividual,
+        Reversing,
+        Uniform,
+        Tournament,
+        WeakParent,
+        RandomPoints,
+        adapter::CocoFitness,
+        EmptyProbe,
+    >()
+    .set_population_size(population_size)
+    .set_max_generation_count(10_000)
+    .set_max_duration(std::time::Duration::from_millis(200))
+    .set_fitness(fitness)
+    .set_probe(ecrs::ga::probe::EmptyProbe)
+    .set_population_generator(population::RandomPoints::with_constraints_inclusive(
+        dimension,
+        constraints,
+    ))
+    .set_selection_operator(selection::Tournament::new(0.2))
+    .set_crossover_operator(crossover::Uniform::new())
+    .set_mutation_operator(mutation::Reversing::new())
+    .set_replacement_operator(replacement::WeakParent::new())
+    .build();
 
     solver.run();
 }

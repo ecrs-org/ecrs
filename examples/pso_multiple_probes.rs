@@ -24,4 +24,6 @@ fn main() {
 }
 
 #[cfg(not(feature = "pso"))]
-compile_error!("Required feature \"pso\" is not enabled");
+fn main() {
+    panic!("Required feature \"pso\" is not enabled");
+}

@@ -18,4 +18,6 @@ fn main() {
 }
 
 #[cfg(not(feature = "ga"))]
-compile_error!("Required feature \"ga\" is not enabled");
+fn main() {
+    panic!("Required feature \"ga\" is not enabled");
+}

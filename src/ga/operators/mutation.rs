@@ -150,7 +150,7 @@ where
 /// This struct implements [MutationOperator] trait and can be used with GA
 ///
 /// Random locus is selected and genes next to the selection position are reversed
-pub struct Reversing<R: Rng> {
+pub struct Reversing<R: Rng = ThreadRng> {
     rng: R,
 }
 

@@ -16,7 +16,7 @@ pub trait PopulationGenerator<IndividualT: IndividualTrait> {
 /// Implements [PopulationGenerator] trait. Can be used with genetic algorithm.
 ///
 /// Generates vector of random points from R^(dim) space within passed domain constraints.
-pub struct RandomPoints<R: Rng> {
+pub struct RandomPoints<R: Rng = ThreadRng> {
     dim: usize,
     constraints: Vec<(f64, f64)>,
     rng: R,
@@ -159,7 +159,7 @@ impl<IndividualT: IndividualTrait<ChromosomeT = Vec<f64>>, R: Rng> PopulationGen
 /// Implements [PopulationGenerator] trait. Can be used with genetic algorithm.
 ///
 /// Generates vector of random bit-strings.
-pub struct BitStrings<R: Rng> {
+pub struct BitStrings<R: Rng = ThreadRng> {
     dim: usize,
     rng: R,
 }

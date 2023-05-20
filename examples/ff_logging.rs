@@ -25,4 +25,6 @@ fn main() {
 }
 
 #[cfg(not(feature = "ff"))]
-compile_error!("Required feature \"ff\" is not enabled");
+fn main() {
+    panic!("Required feature \"ff\" is not enabled");
+}
