@@ -180,7 +180,7 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Ra
 /// rated individual from selected pair goes to mating pool. In case of equal fitness - only one goes to mating pool.
 ///
 /// **Note**: The same individual *can* be selected multiple times.
-pub struct Rank<R: Rng> {
+pub struct Rank<R: Rng = ThreadRng> {
     rng: R,
 }
 
