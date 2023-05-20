@@ -1,9 +1,6 @@
 use log::info;
 
-use crate::ga::{
-    individual::IndividualTrait,
-    GAMetadata, Probe,
-};
+use crate::ga::{individual::IndividualTrait, GAMetadata, Probe};
 
 pub struct StdoutProbe;
 
@@ -44,12 +41,7 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for StdoutProbe {
         );
     }
 
-    fn on_end(
-        &mut self,
-        metadata: &GAMetadata,
-        _population: &[IndividualT],
-        best_individual: &IndividualT,
-    ) {
+    fn on_end(&mut self, metadata: &GAMetadata, _population: &[IndividualT], best_individual: &IndividualT) {
         info!(
             "[END] {},{},{:?},{}",
             metadata.duration.unwrap().as_millis(),

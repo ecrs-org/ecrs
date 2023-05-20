@@ -1,7 +1,4 @@
-use super::{
-    individual::IndividualTrait,
-    GAMetadata,
-};
+use super::{individual::IndividualTrait, GAMetadata};
 
 mod aggregated_probe;
 mod csv_probe;

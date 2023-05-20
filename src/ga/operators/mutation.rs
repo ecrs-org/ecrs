@@ -1,4 +1,4 @@
-use std::{ops::IndexMut, marker::PhantomData};
+use std::{marker::PhantomData, ops::IndexMut};
 
 use len_trait::Len;
 use push_trait::{Nothing, Push};
@@ -219,13 +219,16 @@ impl<GeneT: Copy> Inversion<ThreadRng, GeneT> {
 impl<R: Rng, GeneT: Copy> Inversion<R, GeneT> {
     /// Returns new instance of [Inversion] mutation operator with custom RNG
     pub fn with_rng(rng: R) -> Self {
-        Self { rng, _marker: PhantomData::default() }
+        Self {
+            rng,
+            _marker: PhantomData::default(),
+        }
     }
 }
 
-impl<IndividualT: IndividualTrait, GeneT: Copy, R: Rng> MutationOperator<IndividualT> for Inversion<R, GeneT> 
+impl<IndividualT: IndividualTrait, GeneT: Copy, R: Rng> MutationOperator<IndividualT> for Inversion<R, GeneT>
 where
-    IndividualT::ChromosomeT: Len + AsMut<[GeneT]>
+    IndividualT::ChromosomeT: Len + AsMut<[GeneT]>,
 {
     /// Mutates provided solution in place
     ///
@@ -259,7 +262,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::ga::{Individual, individual::IndividualTrait};
+    use crate::ga::{individual::IndividualTrait, Individual};
     use itertools::Itertools;
     use rand::{distributions::Uniform, Rng};
 
