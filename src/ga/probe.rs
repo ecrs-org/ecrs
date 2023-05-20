@@ -1,4 +1,7 @@
-use super::{individual::{Chromosome, IndividualTrait}, GAMetadata, Individual};
+use super::{
+    individual::{Chromosome, IndividualTrait},
+    GAMetadata, Individual,
+};
 
 mod aggregated_probe;
 mod csv_probe;

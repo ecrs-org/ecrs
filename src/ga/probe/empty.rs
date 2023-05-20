@@ -1,4 +1,4 @@
-use crate::ga::individual::Chromosome;
+use crate::ga::individual::IndividualTrait;
 
 use super::Probe;
 
@@ -10,4 +10,4 @@ impl EmptyProbe {
     }
 }
 
-impl<T: Chromosome> Probe<T> for EmptyProbe {}
+impl<IndividualT: IndividualTrait> Probe<IndividualT> for EmptyProbe {}
