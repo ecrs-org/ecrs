@@ -1,5 +1,7 @@
 use std::collections::HashSet;
 
+use ecrs::ga::individual::IndividualTrait;
+
 use crate::util::{print_hash_set, print_slice};
 
 use super::{Machine, Operation};
@@ -10,6 +12,7 @@ pub struct JsspIndividual {
     pub operations: Vec<Operation>,
     pub machines: Vec<Machine>,
     pub fitness: usize,
+    is_fitness_valid: bool,
 }
 
 impl JsspIndividual {
@@ -222,3 +225,55 @@ impl JsspIndividual {
         last_finish_time
     }
 }
+
+impl PartialEq for JsspIndividual {
+    fn eq(&self, other: &Self) -> bool {
+        self.fitness == other.fitness
+    }
+}
+
+impl Eq for JsspIndividual {}
+
+impl PartialOrd for JsspIndividual {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.fitness.partial_cmp(&other.fitness)
+    }
+}
+
+impl Ord for JsspIndividual {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.fitness.cmp(&other.fitness)
+    }
+}
+
+impl IndividualTrait for JsspIndividual {
+    type ChromosomeT = Vec<f64>;
+
+    fn chromosome(&self) -> &Self::ChromosomeT {
+        &self.chromosome
+    }
+
+    fn chromosome_mut(&mut self) -> &mut Self::ChromosomeT {
+        &mut self.chromosome
+    }
+
+    fn fitness(&self) -> f64 {
+        self.fitness as f64
+    }
+
+    fn fitness_mut(&mut self) -> &mut f64 {
+        &mut (self.fitness as f64)
+    }
+
+    fn requires_evaluation(&self) -> bool {
+        self.is_fitness_valid
+    }
+}
+
+impl From<Vec<f64>> for JsspIndividual {
+    fn from(value: Vec<f64>) -> Self {
+        todo!()
+    }
+}
+
+
