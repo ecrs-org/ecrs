@@ -145,7 +145,7 @@ where
     CrossOpT: CrossoverOperator<IndividualT>,
     SelOpT: SelectionOperator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
-    PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
+    PopGenT: PopulationGenerator<IndividualT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
     ProbeT: Probe<IndividualT>,
 {
@@ -188,7 +188,7 @@ where
     CrossOpT: CrossoverOperator<IndividualT>,
     SelOpT: SelectionOperator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
-    PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
+    PopGenT: PopulationGenerator<IndividualT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
     ProbeT: Probe<IndividualT>,
 {
@@ -204,7 +204,7 @@ where
     CrossOpT: CrossoverOperator<IndividualT>,
     SelOpT: SelectionOperator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
-    PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
+    PopGenT: PopulationGenerator<IndividualT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
     ProbeT: Probe<IndividualT>,
 {

@@ -21,7 +21,7 @@ where
     CrossOpT: CrossoverOperator<IndividualT>,
     SelOpT: SelectionOperator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
-    PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
+    PopGenT: PopulationGenerator<IndividualT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
     ProbeT: Probe<IndividualT>,
 {
@@ -45,7 +45,7 @@ where
     CrossOpT: CrossoverOperator<IndividualT>,
     SelOpT: SelectionOperator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
-    PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
+    PopGenT: PopulationGenerator<IndividualT>,
     ProbeT: Probe<IndividualT>,
 {
     pub fn set_fitness_fn(self, fitness_fn: FitnessFn<IndividualT::ChromosomeT>) -> Self {
@@ -60,7 +60,7 @@ where
     MutOpT: MutationOperator<IndividualT>,
     CrossOpT: CrossoverOperator<IndividualT>,
     SelOpT: SelectionOperator<IndividualT>,
-    PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
+    PopGenT: PopulationGenerator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
     ProbeT: Probe<IndividualT>,
@@ -238,7 +238,7 @@ where
     MutOpT: MutationOperator<IndividualT>,
     CrossOpT: CrossoverOperator<IndividualT>,
     SelOpT: SelectionOperator<IndividualT>,
-    PopGenT: PopulationGenerator<IndividualT::ChromosomeT>,
+    PopGenT: PopulationGenerator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
     FitnessT: Fitness<IndividualT::ChromosomeT>,
     ProbeT: Probe<IndividualT>,
