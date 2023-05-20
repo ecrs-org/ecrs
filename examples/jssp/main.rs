@@ -7,11 +7,35 @@ mod util;
 #[allow(unused_imports)]
 use ecrs::prelude::{crossover, ga, ops, replacement, selection};
 use ecrs::{
-    ga::{GAMetadata, Individual},
-    prelude::{crossover::CrossoverOperator, replacement::ReplacementOperator, selection::SelectionOperator},
+    ga::{GAMetadata, Individual, StdoutProbe},
+    prelude::{
+        crossover::{CrossoverOperator, UniformParameterized},
+        mutation::{self, Identity},
+        replacement::{BothParents, ReplacementOperator},
+        selection::{Rank, SelectionOperator},
+    },
 };
+use problem::individual::JsspIndividual;
 
 use crate::problem::{state::JsspState, JsspConfig, JsspInstance};
+
+fn run_with_ecrs() {
+    let mut solver = ga::Builder::new::<
+        JsspIndividual,
+        Identity,
+        UniformParameterized,
+        Rank,
+        BothParents,
+        JsspPopProvider,
+        JsspFitness,
+        StdoutProbe,
+    >()
+    .set_selection_operator(selection::Rank::new())
+    .set_crossover_operator(crossover::UniformParameterized::new(0.7))
+    .set_mutation_operator(mutation::Identity::new())
+    .set_replacement_operator(replacement::BothParents::new())
+    .set_probe(ga::probe::StdoutProbe::new());
+}
 
 fn run() {
     if let Err(err) = logging::init_logging() {

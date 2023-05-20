@@ -14,4 +14,3 @@ impl Fitness<Vec<f64>> for JsspFitness {
         todo!()
     }
 }
-

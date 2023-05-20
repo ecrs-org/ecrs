@@ -275,5 +275,3 @@ impl From<Vec<f64>> for JsspIndividual {
         todo!()
     }
 }
-
-
