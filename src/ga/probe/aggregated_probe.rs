@@ -1,14 +1,14 @@
 use super::Probe;
-use crate::ga::{individual::Chromosome, GAMetadata, Individual};
+use crate::ga::{individual::IndividualTrait, GAMetadata};
 
 /// Wrapper probe. It holds a list of probes and calls them sequentially.
 ///
 /// This structs implements [Probe] trait and can be used with GA
-pub struct AggregatedProbe<T: Chromosome> {
-    probes: Vec<Box<dyn Probe<T>>>,
+pub struct AggregatedProbe<IndividualT: IndividualTrait> {
+    probes: Vec<Box<dyn Probe<IndividualT>>>,
 }
 
-impl<T: Chromosome> AggregatedProbe<T> {
+impl<IndividualT: IndividualTrait> AggregatedProbe<IndividualT> {
     /// Returns new instance of [AggregatedProbe]
     pub fn new() -> Self {
         Self { probes: Vec::new() }
@@ -17,13 +17,13 @@ impl<T: Chromosome> AggregatedProbe<T> {
     /// Add probe to list
     ///
     /// **Note**: Probes will be called in order they were added
-    pub fn add_probe<Pr: Probe<T> + 'static>(mut self, probe: Pr) -> Self {
+    pub fn add_probe<Pr: Probe<IndividualT> + 'static>(mut self, probe: Pr) -> Self {
         self.probes.push(Box::new(probe));
         self
     }
 }
 
-impl<T: Chromosome> Probe<T> for AggregatedProbe<T> {
+impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<IndividualT> {
     /// This method is called in the very beginning of genetic algorithm, even before
     /// initial population is generated.
     ///
@@ -48,7 +48,7 @@ impl<T: Chromosome> Probe<T> for AggregatedProbe<T> {
     /// ### Arguments
     ///
     /// * `population` - Freshly generated population
-    fn on_initial_population_created(&mut self, population: &[Individual<T>]) {
+    fn on_initial_population_created(&mut self, population: &[IndividualT]) {
         for probe in &mut self.probes {
             probe.on_initial_population_created(population);
         }
@@ -63,7 +63,7 @@ impl<T: Chromosome> Probe<T> for AggregatedProbe<T> {
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
     /// * `individual` - New best individual
-    fn on_new_best(&mut self, metadata: &GAMetadata, individual: &Individual<T>) {
+    fn on_new_best(&mut self, metadata: &GAMetadata, individual: &IndividualT) {
         for probe in &mut self.probes {
             probe.on_new_best(metadata, individual);
         }
@@ -76,7 +76,7 @@ impl<T: Chromosome> Probe<T> for AggregatedProbe<T> {
     /// ### Arguments
     ///
     /// * `generation` - Newly created generation
-    fn on_new_generation(&mut self, metadata: &GAMetadata, generation: &[Individual<T>]) {
+    fn on_new_generation(&mut self, metadata: &GAMetadata, generation: &[IndividualT]) {
         /* defaults to noop */
         for probe in &mut self.probes {
             probe.on_new_generation(metadata, generation);
@@ -92,7 +92,7 @@ impl<T: Chromosome> Probe<T> for AggregatedProbe<T> {
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
     /// * `individual` - Best individual in current generation
-    fn on_best_fit_in_generation(&mut self, metadata: &GAMetadata, individual: &Individual<T>) {
+    fn on_best_fit_in_generation(&mut self, metadata: &GAMetadata, individual: &IndividualT) {
         for probe in &mut self.probes {
             probe.on_best_fit_in_generation(metadata, individual);
         }
@@ -140,12 +140,7 @@ impl<T: Chromosome> Probe<T> for AggregatedProbe<T> {
     /// See [GAMetadata] for reference.
     /// * `population` - Final population
     /// * `best_individual` - Best individual found by algorithm
-    fn on_end(
-        &mut self,
-        metadata: &GAMetadata,
-        population: &[Individual<T>],
-        best_individual: &Individual<T>,
-    ) {
+    fn on_end(&mut self, metadata: &GAMetadata, population: &[IndividualT], best_individual: &IndividualT) {
         for probe in &mut self.probes {
             probe.on_end(metadata, population, best_individual);
         }
