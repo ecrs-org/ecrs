@@ -1,21 +1,21 @@
-use crate::ga::individual::Chromosome;
+use crate::ga::individual::IndividualTrait;
 
-pub trait Fitness<T: Chromosome> {
-    fn apply(&mut self, chromosome: &T) -> f64;
+pub trait Fitness<IndividualT: IndividualTrait> {
+    fn apply(&mut self, individual: &IndividualT) -> f64;
 }
 
-pub struct FnBasedFitness<T: Chromosome> {
-    fn_ptr: fn(&T) -> f64,
+pub struct FnBasedFitness<IndividualT: IndividualTrait> {
+    fn_ptr: fn(&IndividualT::ChromosomeT) -> f64,
 }
 
-impl<T: Chromosome> FnBasedFitness<T> {
-    pub fn new(fn_ptr: fn(&T) -> f64) -> Self {
+impl<IndividualT: IndividualTrait> FnBasedFitness<IndividualT> {
+    pub fn new(fn_ptr: fn(&IndividualT::ChromosomeT) -> f64) -> Self {
         FnBasedFitness { fn_ptr }
     }
 }
 
-impl<T: Chromosome> Fitness<T> for FnBasedFitness<T> {
-    fn apply(&mut self, chromosome: &T) -> f64 {
-        (self.fn_ptr)(chromosome)
+impl<IndividualT: IndividualTrait> Fitness<IndividualT> for FnBasedFitness<IndividualT> {
+    fn apply(&mut self, individual: &IndividualT) -> f64 {
+        (self.fn_ptr)(individual.chromosome())
     }
 }
