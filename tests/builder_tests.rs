@@ -18,7 +18,7 @@ fn generic_does_not_panic_with_some_params_unspecified() {
         Boltzmann,
         BothParents,
         RandomPoints,
-        FnBasedFitness<Vec<f64>>,
+        FnBasedFitness<RealValueIndividual>,
         StdoutProbe,
     >()
     .set_max_generation_count(500)
@@ -45,7 +45,7 @@ fn generic_does_not_panic_with_some_params_unspecified() {
         Boltzmann,
         BothParents,
         RandomPoints,
-        FnBasedFitness<Vec<f64>>,
+        FnBasedFitness<RealValueIndividual>,
         StdoutProbe,
     >()
     .set_fitness_fn(ecrs::test_functions::rastrigin)

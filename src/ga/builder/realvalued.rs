@@ -1,6 +1,7 @@
 //! Builder implementation with default values for problems with real valued chromosome
 
 use crate::ga::builder::FitnessFn;
+use crate::ga::individual::RealValueIndividual;
 use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
 use crate::ga::operators::replacement::BothParents;
 use crate::ga::{
@@ -18,7 +19,7 @@ pub(super) type Rvc = Vec<f64>;
 /// altough all the parameters can.
 ///
 /// If more configuration options are desired please see [GenericBuilder](super::generic::GenericBuilder).
-pub struct RealValuedBuilder<F: Fitness<Rvc>> {
+pub struct RealValuedBuilder<F: Fitness<RealValueIndividual>> {
     config: GAConfigOpt<
         Individual<Rvc>,
         Interchange<rand::rngs::ThreadRng>,
@@ -32,7 +33,7 @@ pub struct RealValuedBuilder<F: Fitness<Rvc>> {
     dim: Option<usize>,
 }
 
-impl RealValuedBuilder<FnBasedFitness<Rvc>> {
+impl RealValuedBuilder<FnBasedFitness<RealValueIndividual>> {
     /// Specify fitness function as pointer to a normal function.
     ///
     /// ## Arguments
@@ -43,7 +44,7 @@ impl RealValuedBuilder<FnBasedFitness<Rvc>> {
     }
 }
 
-impl<F: Fitness<Rvc>> RealValuedBuilder<F> {
+impl<F: Fitness<RealValueIndividual>> RealValuedBuilder<F> {
     /// Returns new instance of [BitStringBuilder]
     pub(super) fn new() -> Self {
         RealValuedBuilder {
@@ -183,4 +184,4 @@ impl<F: Fitness<Rvc>> RealValuedBuilder<F> {
     }
 }
 
-impl<F: Fitness<Rvc>> DefaultParams for RealValuedBuilder<F> {}
+impl<F: Fitness<RealValueIndividual>> DefaultParams for RealValuedBuilder<F> {}

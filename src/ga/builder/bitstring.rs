@@ -1,6 +1,7 @@
 //! Builder implementation with defualt values for problems with bit string chromosome
 
 use crate::ga::builder::FitnessFn;
+use crate::ga::individual::BitStringIndividual;
 use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
 use crate::ga::operators::replacement::BothParents;
 use crate::ga::Individual;
@@ -19,7 +20,7 @@ pub(super) type Bsc = Vec<bool>;
 /// altough all the parameters can.
 ///
 /// If more configuration options are desired please see [GenericBuilder](super::generic::GenericBuilder).
-pub struct BitStringBuilder<F: Fitness<Bsc>> {
+pub struct BitStringBuilder<F: Fitness<BitStringIndividual>> {
     config: GAConfigOpt<
         Individual<Bsc>,
         FlipBit<rand::rngs::ThreadRng>,
@@ -33,7 +34,7 @@ pub struct BitStringBuilder<F: Fitness<Bsc>> {
     dim: Option<usize>,
 }
 
-impl BitStringBuilder<FnBasedFitness<Bsc>> {
+impl BitStringBuilder<FnBasedFitness<BitStringIndividual>> {
     /// Specify fitness function as pointer to a normal function.
     ///
     /// ## Arguments
@@ -44,7 +45,7 @@ impl BitStringBuilder<FnBasedFitness<Bsc>> {
     }
 }
 
-impl<F: Fitness<Bsc>> BitStringBuilder<F> {
+impl<F: Fitness<BitStringIndividual>> BitStringBuilder<F> {
     /// Returns new instance of [BitStringBuilder]
     pub(super) fn new() -> Self {
         BitStringBuilder {
@@ -185,4 +186,4 @@ impl<F: Fitness<Bsc>> BitStringBuilder<F> {
     }
 }
 
-impl<F: Fitness<Bsc>> DefaultParams for BitStringBuilder<F> {}
+impl<F: Fitness<BitStringIndividual>> DefaultParams for BitStringBuilder<F> {}
