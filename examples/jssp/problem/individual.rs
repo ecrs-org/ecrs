@@ -16,6 +16,16 @@ pub struct JsspIndividual {
 }
 
 impl JsspIndividual {
+    pub fn new(chromosome: Vec<f64>, ops: Vec<Operation>, machines: Vec<Machine>, fitness: usize) -> Self {
+        Self {
+            chromosome,
+            operations: ops,
+            machines,
+            fitness,
+            is_fitness_valid: false,
+        }
+    }
+
     fn update_delay_feasible_set(
         &self,
         feasibles: &mut HashSet<usize>,

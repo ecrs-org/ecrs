@@ -1,6 +1,8 @@
 use ecrs::prelude::fitness::Fitness;
 
-struct JsspFitness {}
+use super::individual::JsspIndividual;
+
+pub struct JsspFitness {}
 
 impl JsspFitness {
     fn new() -> Self {
@@ -8,9 +10,8 @@ impl JsspFitness {
     }
 }
 
-impl Fitness<Vec<f64>> for JsspFitness {
-    fn apply(&mut self, chromosome: &Vec<f64>) -> f64 {
-        // chromosome.
-        todo!()
+impl Fitness<JsspIndividual> for JsspFitness {
+    fn apply(&mut self, individual: &mut JsspIndividual) -> f64 {
+        individual.eval() as f64
     }
 }

@@ -21,7 +21,7 @@ impl<'a, 'suite> CocoFitness<'a, 'suite> {
 }
 
 impl<'a, 'suite> Fitness<RealValueIndividual> for CocoFitness<'a, 'suite> {
-    fn apply(&mut self, individual: &RealValueIndividual) -> f64 {
+    fn apply(&mut self, individual: &mut RealValueIndividual) -> f64 {
         self.coco_problem
             .evaluate_function(individual.chromosome(), &mut self.output_cell);
         self.output_cell[0]

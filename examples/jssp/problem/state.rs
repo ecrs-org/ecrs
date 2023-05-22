@@ -3,7 +3,7 @@ use ecrs::{
     prelude::population::PopulationGenerator,
 };
 
-use super::{individual::JsspIndividual, JsspConfig, Machine, Operation};
+use super::{individual::JsspIndividual, JsspConfig, JsspInstance, Machine, Operation};
 
 #[derive(Debug)]
 pub struct JsspState {
@@ -96,13 +96,16 @@ impl JsspState {
         self.population = ga::population::RandomPoints::with_single_constraint(8, 0.0..1.0)
             .generate(size)
             .into_iter()
-            .map(|idv: RealValueIndividual| JsspIndividual {
-                chromosome: idv.chromosome,
-                operations: self.build_operations(),
-                fitness: usize::MAX,
-                machines: self.build_machines(),
+            .map(|idv: RealValueIndividual| {
+                JsspIndividual::new(
+                    idv.chromosome,
+                    self.build_operations(),
+                    self.build_machines(),
+                    usize::MAX,
+                )
             })
             .collect();
+
         // self.population = vec![JsspIndividual {
         //     chromosome: vec![0.20, 0.22, 0.25, 0.90, 0.14, 0.24, 0.25, 0.70],
         //     operations: self.build_operations(),
@@ -114,19 +117,24 @@ impl JsspState {
     pub fn inject_ecrs_pop(&mut self, population: Vec<Individual<Vec<f64>>>) {
         self.population = population
             .into_iter()
-            .map(|idv| JsspIndividual {
-                chromosome: idv.chromosome,
-                operations: self.build_operations(),
-                fitness: idv.fitness as usize,
-                machines: self.build_machines(),
+            .map(|idv: RealValueIndividual| {
+                JsspIndividual::new(
+                    idv.chromosome,
+                    self.build_operations(),
+                    self.build_machines(),
+                    idv.fitness as usize,
+                )
             })
             .collect();
     }
 
     pub fn eval_pop(&mut self) -> usize {
         self.population.iter_mut().map(|idv| idv.eval()).min().unwrap()
-        // for idv in self.population.iter_mut() {
-        //     idv.eval();
-        // }
+    }
+}
+
+impl From<JsspInstance> for JsspState {
+    fn from(instance: JsspInstance) -> Self {
+        todo!()
     }
 }

@@ -19,23 +19,23 @@ use problem::individual::JsspIndividual;
 
 use crate::problem::{state::JsspState, JsspConfig, JsspInstance};
 
-fn run_with_ecrs() {
-    let mut solver = ga::Builder::new::<
-        JsspIndividual,
-        Identity,
-        UniformParameterized,
-        Rank,
-        BothParents,
-        JsspPopProvider,
-        JsspFitness,
-        StdoutProbe,
-    >()
-    .set_selection_operator(selection::Rank::new())
-    .set_crossover_operator(crossover::UniformParameterized::new(0.7))
-    .set_mutation_operator(mutation::Identity::new())
-    .set_replacement_operator(replacement::BothParents::new())
-    .set_probe(ga::probe::StdoutProbe::new());
-}
+// fn run_with_ecrs() {
+//     let mut solver = ga::Builder::new::<
+//         JsspIndividual,
+//         Identity,
+//         UniformParameterized,
+//         Rank,
+//         BothParents,
+//         JsspPopProvider,
+//         JsspFitness,
+//         StdoutProbe,
+//     >()
+//     .set_selection_operator(selection::Rank::new())
+//     .set_crossover_operator(crossover::UniformParameterized::new(0.7))
+//     .set_mutation_operator(mutation::Identity::new())
+//     .set_replacement_operator(replacement::BothParents::new())
+//     .set_probe(ga::probe::StdoutProbe::new());
+// }
 
 fn run() {
     if let Err(err) = logging::init_logging() {
