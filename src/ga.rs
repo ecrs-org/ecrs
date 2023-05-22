@@ -68,7 +68,7 @@
 //!     selection::Boltzmann,
 //!     replacement::WeakParent,
 //!     population::RandomPoints,
-//!     fitness::FnBasedFitness<Vec<f64>>,
+//!     fitness::FnBasedFitness<ga::individual::RealValueIndividual>,
 //!     ga::probe::AggregatedProbe<ga::individual::RealValueIndividual>
 //! >()
 //!   .set_max_generation_count(50_000)
