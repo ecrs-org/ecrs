@@ -9,7 +9,7 @@ use std::error::Error;
 use std::fmt::Display;
 use std::marker::PhantomData;
 
-use super::individual::IndividualTrait;
+use super::individual::{BitStringIndividual, IndividualTrait, RealValueIndividual};
 use super::operators::replacement::ReplacementOperator;
 use super::operators::selection::SelectionOperator;
 use super::population::PopulationGenerator;
@@ -129,7 +129,7 @@ where
     SelOpT: SelectionOperator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT>,
-    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    FitnessT: Fitness<IndividualT>,
     ProbeT: Probe<IndividualT>,
 {
     pub params: GAParamsOpt,
@@ -152,7 +152,7 @@ where
     SelOpT: SelectionOperator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT>,
-    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    FitnessT: Fitness<IndividualT>,
     ProbeT: Probe<IndividualT>,
 {
     /// Returns new instance of [GAConfigOpt] struct. All fields are `None` initially, except params.
@@ -181,7 +181,7 @@ where
     SelOpT: SelectionOperator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT>,
-    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    FitnessT: Fitness<IndividualT>,
     ProbeT: Probe<IndividualT>,
 {
     type Error = ConfigError;
@@ -254,7 +254,7 @@ impl Builder {
         SelOpT: SelectionOperator<IndividualT>,
         ReplOpT: ReplacementOperator<IndividualT>,
         PopGenT: PopulationGenerator<IndividualT>,
-        FitnessT: Fitness<IndividualT::ChromosomeT>,
+        FitnessT: Fitness<IndividualT>,
         ProbeT: Probe<IndividualT>,
     {
         GenericBuilder::<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>::new()
@@ -267,7 +267,7 @@ impl Builder {
     ///
     /// Please note that sticking to defaults rarely results in great performance.
     ///
-    pub fn with_rvc<F: Fitness<realvalued::Rvc>>() -> RealValuedBuilder<F> {
+    pub fn with_rvc<F: Fitness<RealValueIndividual>>() -> RealValuedBuilder<F> {
         RealValuedBuilder::new()
     }
 
@@ -278,7 +278,7 @@ impl Builder {
     ///
     /// Please note that sticking to defaults rarely results in great performance.
     ///
-    pub fn with_bsc<F: Fitness<bitstring::Bsc>>() -> BitStringBuilder<F> {
+    pub fn with_bsc<F: Fitness<BitStringIndividual>>() -> BitStringBuilder<F> {
         BitStringBuilder::new()
     }
 }

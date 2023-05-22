@@ -22,7 +22,7 @@ where
     SelOpT: SelectionOperator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT>,
-    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    FitnessT: Fitness<IndividualT>,
     ProbeT: Probe<IndividualT>,
 {
     config: GAConfigOpt<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
@@ -36,7 +36,7 @@ impl<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, ProbeT>
         SelOpT,
         ReplOpT,
         PopGenT,
-        FnBasedFitness<IndividualT::ChromosomeT>,
+        FnBasedFitness<IndividualT>,
         ProbeT,
     >
 where
@@ -62,7 +62,7 @@ where
     SelOpT: SelectionOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
-    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    FitnessT: Fitness<IndividualT>,
     ProbeT: Probe<IndividualT>,
 {
     /// Returns new instance of [GenericBuilder]
@@ -240,7 +240,7 @@ where
     SelOpT: SelectionOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
-    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    FitnessT: Fitness<IndividualT>,
     ProbeT: Probe<IndividualT>,
 {
 }

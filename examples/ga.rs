@@ -26,7 +26,7 @@ fn main() {
         Boltzmann,
         WeakParent,
         RandomPoints,
-        FnBasedFitness<Vec<f64>>,
+        FnBasedFitness<RealValueIndividual>,
         AggregatedProbe<RealValueIndividual>,
     >()
     .set_max_generation_count(50_000)

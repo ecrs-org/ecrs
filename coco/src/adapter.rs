@@ -1,5 +1,8 @@
 use coco_rs::Problem;
-use ecrs::ga::operators::fitness::Fitness;
+use ecrs::ga::{
+    individual::{IndividualTrait, RealValueIndividual},
+    operators::fitness::Fitness,
+};
 
 type RealVector = Vec<f64>;
 
@@ -17,10 +20,10 @@ impl<'a, 'suite> CocoFitness<'a, 'suite> {
     }
 }
 
-impl<'a, 'suite> Fitness<RealVector> for CocoFitness<'a, 'suite> {
-    fn apply(&mut self, chromosome: &RealVector) -> f64 {
+impl<'a, 'suite> Fitness<RealValueIndividual> for CocoFitness<'a, 'suite> {
+    fn apply(&mut self, individual: &RealValueIndividual) -> f64 {
         self.coco_problem
-            .evaluate_function(chromosome, &mut self.output_cell);
+            .evaluate_function(individual.chromosome(), &mut self.output_cell);
         self.output_cell[0]
     }
 }

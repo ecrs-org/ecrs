@@ -68,7 +68,7 @@
 //!     selection::Boltzmann,
 //!     replacement::WeakParent,
 //!     population::RandomPoints,
-//!     fitness::FnBasedFitness<Vec<f64>>,
+//!     fitness::FnBasedFitness<ga::individual::RealValueIndividual>,
 //!     ga::probe::AggregatedProbe<ga::individual::RealValueIndividual>
 //! >()
 //!   .set_max_generation_count(50_000)
@@ -156,7 +156,7 @@ where
     SelOpT: SelectionOperator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT>,
-    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    FitnessT: Fitness<IndividualT>,
     ProbeT: Probe<IndividualT>,
 {
     pub params: GAParams,
@@ -199,7 +199,7 @@ where
     SelOpT: SelectionOperator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT>,
-    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    FitnessT: Fitness<IndividualT>,
     ProbeT: Probe<IndividualT>,
 {
     config: GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
@@ -215,7 +215,7 @@ where
     SelOpT: SelectionOperator<IndividualT>,
     ReplOpT: ReplacementOperator<IndividualT>,
     PopGenT: PopulationGenerator<IndividualT>,
-    FitnessT: Fitness<IndividualT::ChromosomeT>,
+    FitnessT: Fitness<IndividualT>,
     ProbeT: Probe<IndividualT>,
 {
     pub fn new(
@@ -241,7 +241,7 @@ where
     fn eval_pop(&mut self, population: &mut [IndividualT]) {
         population
             .iter_mut()
-            .for_each(|idv| *idv.fitness_mut() = (self.config.fitness_fn).apply(idv.chromosome()));
+            .for_each(|idv| *idv.fitness_mut() = (self.config.fitness_fn).apply(idv));
     }
 
     #[inline(always)]
