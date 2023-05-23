@@ -2,8 +2,6 @@ use std::collections::HashSet;
 
 use ecrs::ga::individual::IndividualTrait;
 
-use crate::util::{print_hash_set, print_slice};
-
 use super::{Machine, Operation};
 
 #[derive(Debug, Clone)]
@@ -37,7 +35,6 @@ impl JsspIndividual {
         // empty before inserting anything.
         feasibles.clear();
 
-        println!("Updating e_set");
         self.operations
             .iter()
             .filter(|op| finish_times[op.id] == usize::MAX)
@@ -74,32 +71,11 @@ impl JsspIndividual {
         for el in to_remove {
             active_schedule.remove(&el);
         }
-
-        print!("active_shedule: ");
-        print_hash_set(active_schedule);
     }
 
-    // fn local_search(&mut self, curr_fitness: usize) -> usize {
-    //     // I can't just use simple bfs algorithm as the nodes are weighted.
-    //     // First I
-    //     let n: usize = self.chromosome.len() / 2;
-    //     let _visited = vec![false; n + 2];
-    //     let mut queue = VecDeque::<usize>::new();
-    //
-    //     queue.push_back(n + 1);
-    //
-    //     while !queue.is_empty() {}
-    //
-    //     curr_fitness
-    // }
-
     pub fn eval(&mut self) -> usize {
-        println!("++++++++++++++++++++++++++++++++++");
         // We deduce the problem size from the chromosome size
         let n: usize = self.chromosome.len() / 2;
-        println!("Deduced problem size n = {n}");
-        print!("chromosome: ");
-        print_slice(&self.chromosome);
 
         let mut active_schedule = std::collections::HashSet::new();
         let mut finish_times = vec![usize::MAX; n + 2];
@@ -116,40 +92,14 @@ impl JsspIndividual {
 
         let max_dur = self.operations.iter().map(|op| op.duration).max().unwrap();
 
-        println!("Entering main loop with g = 1, t_g = 0, max_dur = {max_dur}");
-
-        print!("active_shedule ");
-        print_hash_set(&active_schedule);
-
         let mut last_finish_time = 0;
         while scheduled.len() < n + 1 {
-            println!("==================================");
-            println!("g = {g}, t_g = {t_g}");
-
             // Update e_set
             let mut delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
-            println!("delay = {delay}");
-
-            print!("finish_times: ");
-            print_slice(&finish_times);
-
             self.update_delay_feasible_set(&mut e_set, &finish_times, delay, t_g);
 
-            print!("e_set: ");
-            print_hash_set(&e_set);
-
             while !e_set.is_empty() {
-                println!("---------------------------------");
-                println!("Inner loop for g = {g}");
-                print!("e_set: ");
-                print_hash_set(&e_set);
-                print!("finish_times: ");
-                print_slice(&finish_times);
-
                 delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
-                println!("delay = {delay}");
-
-                // self.update_delay_feasible_set(&mut e_set, &finish_times, delay, t_g);
 
                 // Select operation with highest priority
                 let j = *e_set
@@ -163,8 +113,6 @@ impl JsspIndividual {
 
                 let op_j = &self.operations[j];
 
-                println!("Operation with highest priority: {j}");
-
                 // Calculate earliset finish time (in terms of precedence only)
                 let pred_j_finish = op_j
                     .preds
@@ -175,8 +123,6 @@ impl JsspIndividual {
                     .unwrap_or(0);
 
                 // Calculate the earliest finish time (in terms of precedence and capacity)
-                println!("pred finish_time = {pred_j_finish}");
-
                 let finish_time_j = finish_times
                     .iter()
                     .filter(|&&t| t != usize::MAX && t >= pred_j_finish)
@@ -188,13 +134,6 @@ impl JsspIndividual {
                 // Update state
                 scheduled.insert(op_j.id);
                 finish_times[op_j.id] = finish_time_j;
-                println!(
-                    "Scheduled op {} with for time = {}..{}, machine = {}",
-                    j,
-                    finish_time_j - op_j.duration,
-                    finish_time_j,
-                    op_j.machine
-                );
                 g += 1;
 
                 last_finish_time = usize::max(last_finish_time, finish_time_j);
@@ -203,32 +142,17 @@ impl JsspIndividual {
                     break;
                 }
 
-                // delay = self.chromosome[usize::min(n + g - 1, self.chromosome.len() - 1)] * 1.5 * (max_dur as f64);
                 delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
-                println!("delay = {delay}");
 
-                // Update active schedule
                 self.update_active_schedule(&mut active_schedule, &finish_times, t_g);
 
-                // Update e_set
-                // e_set.remove(&j);
                 self.update_delay_feasible_set(&mut e_set, &finish_times, delay, t_g);
 
-                // println!("Removed op {j} from e_set");
-                print!("e_set: ");
-                print_hash_set(&e_set);
-
-                // Update RMC
                 self.machines[op_j.machine].reserve(finish_time_j - op_j.duration..finish_time_j);
-                println!("---------------------------------");
             }
             // Update the scheduling time t_g associated with g
             t_g = *finish_times.iter().filter(|&&t| t > t_g).min().unwrap();
-            println!("==================================");
         }
-        println!("++++++++++++++++++++++++++++++++++");
-
-        // println!("Performing local search");
         // self.local_search(last_finish_time);
 
         self.fitness = last_finish_time;
