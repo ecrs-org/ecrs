@@ -22,7 +22,7 @@ pub use realvalued::RealValuedBuilder;
 
 /// The trait for fitness was already added. Moreover it rather
 /// should not be defined in builder module.
-type FitnessFn<S> = fn(&S) -> f64;
+type FitnessFn<S, R> = fn(&S) -> R;
 
 /// Error type for internal use
 #[derive(Debug, Clone)]

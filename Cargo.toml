@@ -22,7 +22,7 @@ path = "src/lib.rs"
 
 [features]
 default = ["ga"]
-ga = ["test_functions"]
+ga = ["test_functions", "dep:push-trait", "dep:len-trait", "dep:num-traits"]
 aco = ["dep:nalgebra", "dep:num"]
 ff = ["dep:rayon"]
 pso = ["dep:rayon", "dep:num", "test_functions"]
@@ -39,8 +39,10 @@ log = "0.4.17"
 num = { version = "0.4.0", optional = true }
 itertools = "0.10.2"
 serde_json = "1.0.79"
-push-trait = "0.6.0"
-len-trait = "0.6.1"
+push-trait = { version = "0.6.0", optional = true }
+len-trait = { version = "0.6.1", optional = true }
+num-traits = { version = "0.2.15", optional = true }
+
 
 [dev-dependencies]
 log4rs = "1.2.0"

@@ -48,7 +48,10 @@ where
     PopGenT: PopulationGenerator<IndividualT>,
     ProbeT: Probe<IndividualT>,
 {
-    pub fn set_fitness_fn(self, fitness_fn: FitnessFn<IndividualT::ChromosomeT>) -> Self {
+    pub fn set_fitness_fn(
+        self,
+        fitness_fn: FitnessFn<IndividualT::ChromosomeT, IndividualT::FitnessValueT>,
+    ) -> Self {
         self.set_fitness(FnBasedFitness::new(fitness_fn))
     }
 }

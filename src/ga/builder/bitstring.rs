@@ -1,7 +1,7 @@
 //! Builder implementation with defualt values for problems with bit string chromosome
 
 use crate::ga::builder::FitnessFn;
-use crate::ga::individual::BitStringIndividual;
+use crate::ga::individual::{BitStringIndividual, IndividualTrait};
 use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
 use crate::ga::operators::replacement::BothParents;
 use crate::ga::Individual;
@@ -40,7 +40,10 @@ impl BitStringBuilder<FnBasedFitness<BitStringIndividual>> {
     /// ## Arguments
     ///
     /// * `fitness_fn` - pointer to function with appropriate signature for fitness function
-    pub fn fitness_fn(self, fitness_fn: FitnessFn<Bsc>) -> Self {
+    pub fn fitness_fn(
+        self,
+        fitness_fn: FitnessFn<Bsc, <BitStringIndividual as IndividualTrait>::FitnessValueT>,
+    ) -> Self {
         self.set_fitness(FnBasedFitness::new(fitness_fn))
     }
 }

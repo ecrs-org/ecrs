@@ -1,7 +1,11 @@
 //! Tratis, structs & methods for representing individual in genetic algorithm
 
+use num_traits::Num;
 use serde::Serialize;
-use std::{fmt::Debug, ops::Deref};
+use std::{
+    fmt::{Debug, Display},
+    ops::Deref,
+};
 
 /// Purpose of this trait is to aggregate minimal trait bounds that are requried
 /// for the chromosome representation to work with genetic algorithm.
@@ -17,6 +21,7 @@ impl<T: Sized + Sync + Send + Clone + Default + Debug> Chromosome for T {}
 /// provided with the crate.
 pub trait IndividualTrait: Clone + From<Self::ChromosomeT> + Ord {
     type ChromosomeT: Chromosome;
+    type FitnessValueT: Num + Display;
 
     // Unfortunately associated type defaults are not stable yet & we can not write following:
     // type FitnessValueT = f64;
@@ -32,13 +37,13 @@ pub trait IndividualTrait: Clone + From<Self::ChromosomeT> + Ord {
     /// evaluation please check [`requires_evaluation`][req_eval] method.
     ///
     /// [req_eval]: IndividualTrait::requires_evaluation
-    fn fitness(&self) -> f64;
+    fn fitness(&self) -> Self::FitnessValueT;
 
     /// Returns mutable reference to fitness value of a individual. This allows various operators
     /// to modify fitness value of the individual.
     ///
     /// TODO(kkafar): Consider creation of `set_fitness` method.
-    fn fitness_mut(&mut self) -> &mut f64;
+    fn fitness_mut(&mut self) -> &mut Self::FitnessValueT;
 
     /// Should return `true` iff the cached fitness value is not up to date, e.g. chromosome
     /// was modified. Default implementation always returns `true`.
@@ -87,6 +92,7 @@ impl<T: Chromosome> Individual<T> {
 
 impl<T: Chromosome> IndividualTrait for Individual<T> {
     type ChromosomeT = T;
+    type FitnessValueT = f64;
 
     #[inline]
     fn chromosome(&self) -> &Self::ChromosomeT {
@@ -99,12 +105,12 @@ impl<T: Chromosome> IndividualTrait for Individual<T> {
     }
 
     #[inline]
-    fn fitness(&self) -> f64 {
+    fn fitness(&self) -> Self::FitnessValueT {
         self.fitness
     }
 
     #[inline]
-    fn fitness_mut(&mut self) -> &mut f64 {
+    fn fitness_mut(&mut self) -> &mut Self::FitnessValueT {
         &mut self.fitness
     }
 }
