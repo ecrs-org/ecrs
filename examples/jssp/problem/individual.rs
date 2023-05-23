@@ -77,12 +77,10 @@ impl JsspIndividual {
         // We deduce the problem size from the chromosome size
         let n: usize = self.chromosome.len() / 2;
 
-        let mut active_schedule = std::collections::HashSet::new();
         let mut finish_times = vec![usize::MAX; n + 2];
         let mut scheduled = std::collections::HashSet::new();
         let mut e_set = std::collections::HashSet::<usize>::new();
 
-        active_schedule.insert(0);
         scheduled.insert(0);
         finish_times[0] = 0;
         self.operations[0].finish_time = 0;
@@ -143,8 +141,6 @@ impl JsspIndividual {
                 }
 
                 delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
-
-                self.update_active_schedule(&mut active_schedule, &finish_times, t_g);
 
                 self.update_delay_feasible_set(&mut e_set, &finish_times, delay, t_g);
 
