@@ -1,6 +1,7 @@
-use std::ops::Index;
+use std::{iter::Sum, ops::Index};
 
-use rand::{rngs::ThreadRng, Rng};
+use num_traits::{identities::Zero, NumAssignOps};
+use rand::{distributions::Standard, prelude::Distribution, rngs::ThreadRng, Rng};
 
 use crate::ga::{individual::IndividualTrait, GAMetadata};
 
@@ -69,7 +70,11 @@ impl<R: Rng> RouletteWheel<R> {
 // FIXME: It will return empty vector if total_fitness == 0
 // WORKING CHANGE: crt >= threshold instead of crt_sum > threshold
 // But this should be resolved some other way
-impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for RouletteWheel<R> {
+impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for RouletteWheel<R>
+where
+    IndividualT::FitnessValueT: NumAssignOps + Sum<IndividualT::FitnessValueT> + PartialOrd + Copy,
+    Standard: Distribution<IndividualT::FitnessValueT>,
+{
     /// Returns a vector of references to individuals selected to mating pool
     ///
     /// **Note 1**: This selection operator requires positive fitness function. No runtime checks are performed
@@ -92,14 +97,14 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Ro
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
-        let total_fitness: f64 = population.iter().map(|indiv| indiv.fitness()).sum();
+        let total_fitness: IndividualT::FitnessValueT = population.iter().map(|indiv| indiv.fitness()).sum();
 
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
 
         for _ in 0..count {
-            let threshold = total_fitness * self.rng.gen::<f64>();
+            let threshold = total_fitness * self.rng.gen::<IndividualT::FitnessValueT>();
 
-            let mut crt_sum = 0.0;
+            let mut crt_sum: IndividualT::FitnessValueT = IndividualT::FitnessValueT::zero();
             for indiv in population {
                 crt_sum += indiv.fitness();
 
@@ -193,7 +198,10 @@ impl<R: Rng> Rank<R> {
     }
 }
 
-impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Rank<R> {
+impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Rank<R>
+where
+    IndividualT::FitnessValueT: PartialOrd,
+{
     /// Returns a vector of references to individuals selected to mating pool.
     ///
     /// Individuals are selected by randomly (uniform distribution) choosing pairs of individuals - better
@@ -437,7 +445,9 @@ impl<R: Rng> StochasticUniversalSampling<R> {
 
 // FIXME: Panics then total_fitness == 0
 // Should this be expected or do we want to handle this?
-impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for StochasticUniversalSampling<R> {
+impl<IndividualT: IndividualTrait<FitnessValueT = f64>, R: Rng> SelectionOperator<IndividualT>
+    for StochasticUniversalSampling<R>
+{
     /// Returns a vector of references to individuals selected to mating pool
     ///
     /// **Note**: This selection operator requires positive fitenss function. No runtime checks
@@ -553,8 +563,8 @@ impl<R: Rng> Boltzmann<R> {
 
 impl<IndividualT, R> SelectionOperator<IndividualT> for Boltzmann<R>
 where
-    IndividualT: IndividualTrait,
-    IndividualT::ChromosomeT: Index<usize, Output = f64>,
+    IndividualT: IndividualTrait<FitnessValueT = f64>,
+    IndividualT::ChromosomeT: Index<usize, Output = IndividualT::FitnessValueT>,
     R: Rng,
 {
     fn apply<'a>(

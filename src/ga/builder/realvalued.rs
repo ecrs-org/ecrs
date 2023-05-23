@@ -1,7 +1,7 @@
 //! Builder implementation with default values for problems with real valued chromosome
 
 use crate::ga::builder::FitnessFn;
-use crate::ga::individual::RealValueIndividual;
+use crate::ga::individual::{IndividualTrait, RealValueIndividual};
 use crate::ga::operators::fitness::{Fitness, FnBasedFitness};
 use crate::ga::operators::replacement::BothParents;
 use crate::ga::{
@@ -39,7 +39,10 @@ impl RealValuedBuilder<FnBasedFitness<RealValueIndividual>> {
     /// ## Arguments
     ///
     /// * `fitness_fn` - pointer to function with appropriate signature for fitness function
-    pub fn fitness_fn(self, fitness_fn: FitnessFn<Rvc>) -> Self {
+    pub fn fitness_fn(
+        self,
+        fitness_fn: FitnessFn<Rvc, <RealValueIndividual as IndividualTrait>::FitnessValueT>,
+    ) -> Self {
         self.set_fitness(FnBasedFitness::new(fitness_fn))
     }
 }
