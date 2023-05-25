@@ -19,7 +19,7 @@ pub trait PopulationGenerator<IndividualT: IndividualTrait> {
 /// Generates vector of random points from R^(dim) space within passed domain constraints.
 pub struct RandomPoints<R: Rng = ThreadRng> {
     dim: usize,
-    constraints: Vec<(f64, f64)>,
+    constraints: Vec<Range<f64>>,
     rng: R,
 }
 
@@ -48,7 +48,7 @@ impl RandomPoints<ThreadRng> {
     pub fn with_constraints_inclusive(dim: usize, constraints: Vec<RangeInclusive<f64>>) -> Self {
         let noninclusive = constraints
             .into_iter()
-            .map(|r| (*r.start()..*r.end()))
+            .map(|r| *r.start()..*r.end())
             .collect_vec();
         Self::with_constraints_and_rng(dim, noninclusive, thread_rng())
     }
@@ -61,8 +61,7 @@ impl RandomPoints<ThreadRng> {
     /// * `dim` -- Dimension of the sampling space
     /// * `constraint` -- Range for coordinates
     pub fn with_single_constraint(dim: usize, constraint: Range<f64>) -> Self {
-        let constraints = (1..=dim).map(|_| constraint.clone()).collect();
-        Self::with_constraints(dim, constraints)
+        Self::with_constraints(dim, std::iter::repeat(constraint).collect())
     }
 
     /// Returns [RandomPoints] population generator with no explicit constraints and default RNG.
@@ -94,10 +93,7 @@ impl<R: Rng> RandomPoints<R> {
 
         RandomPoints {
             dim,
-            constraints: constraints
-                .into_iter()
-                .map(|range| (range.end - range.start, range.start))
-                .collect_vec(),
+            constraints,
             rng,
         }
     }
@@ -113,7 +109,7 @@ impl<R: Rng> RandomPoints<R> {
         assert!(dim > 0, "Space dimension must be > 0");
         RandomPoints {
             dim,
-            constraints: Vec::<(f64, f64)>::with_capacity(0),
+            constraints: Vec::from_iter(std::iter::repeat(0.0..1.0)),
             rng,
         }
     }
@@ -133,10 +129,7 @@ impl<IndividualT: IndividualTrait<ChromosomeT = Vec<f64>>, R: Rng + Clone> Popul
             .generate_with_constraints(
                 self.dim,
                 count,
-                self.constraints
-                    .iter()
-                    .map(|(start, end)| *start..*end)
-                    .collect_vec(),
+                &self.constraints
             )
             .into_iter()
             .map(|chromosome| IndividualT::from(chromosome))

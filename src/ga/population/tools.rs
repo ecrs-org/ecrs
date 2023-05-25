@@ -28,14 +28,14 @@ impl<R: Rng + Clone> PointGenerator<R> {
         n: usize,
         constraint: Range<f64>,
     ) -> Vec<Vec<f64>> {
-        self.generate_with_constraints(dim, n, Vec::from_iter(std::iter::repeat(constraint)))
+        self.generate_with_constraints(dim, n, &Vec::from_iter(std::iter::repeat(constraint)))
     }
 
     pub fn generate_with_constraints(
         &self,
         dim: usize,
         n: usize,
-        constraints: Vec<Range<f64>>,
+        constraints: &Vec<Range<f64>>,
     ) -> Vec<Vec<f64>> {
         assert_eq!(n, constraints.len());
         Vec::from_iter(constraints.iter().map(|constr| {
