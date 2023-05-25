@@ -11,7 +11,7 @@ impl JsspFitness {
 }
 
 impl Fitness<JsspIndividual> for JsspFitness {
-    fn apply(&mut self, individual: &mut JsspIndividual) -> f64 {
-        individual.eval() as f64
+    fn apply(&mut self, individual: &mut JsspIndividual) -> usize {
+        individual.eval()
     }
 }

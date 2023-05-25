@@ -1,7 +1,7 @@
 use crate::ga::individual::IndividualTrait;
 
 pub trait Fitness<IndividualT: IndividualTrait> {
-    fn apply(&mut self, individual: &IndividualT) -> IndividualT::FitnessValueT;
+    fn apply(&mut self, individual: &mut IndividualT) -> IndividualT::FitnessValueT;
 }
 
 pub struct FnBasedFitness<IndividualT: IndividualTrait> {
@@ -15,7 +15,7 @@ impl<IndividualT: IndividualTrait> FnBasedFitness<IndividualT> {
 }
 
 impl<IndividualT: IndividualTrait> Fitness<IndividualT> for FnBasedFitness<IndividualT> {
-    fn apply(&mut self, individual: &IndividualT) -> IndividualT::FitnessValueT {
+    fn apply(&mut self, individual: &mut IndividualT) -> IndividualT::FitnessValueT {
         (self.fn_ptr)(individual.chromosome())
     }
 }
