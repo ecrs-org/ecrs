@@ -18,7 +18,10 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for StdoutProbe {
     fn on_new_best(&mut self, metadata: &GAMetadata, individual: &IndividualT) {
         info!(
             "[NEW_BEST] {},{},{:?},{}",
-            metadata.duration.unwrap().as_millis(),
+            metadata
+                .duration
+                .unwrap_or(std::time::Duration::from_millis(0))
+                .as_millis(),
             metadata.generation,
             individual.chromosome(),
             individual.fitness()
