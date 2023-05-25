@@ -53,6 +53,12 @@ pub struct Machine {
 }
 
 impl Machine {
+    pub fn new(id: usize, rmc_capacity: usize) -> Self {
+        Self {
+            id,
+            rmc: vec![1; rmc_capacity],
+        }
+    }
     pub fn is_idle(&self, range: std::ops::RangeInclusive<usize>) -> bool {
         for i in range {
             if self.rmc[i] == 0 {
