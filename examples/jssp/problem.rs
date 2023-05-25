@@ -44,6 +44,7 @@ impl Operation {
 }
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct Machine {
     id: usize,
     // dummy structure
@@ -61,7 +62,7 @@ impl Machine {
     }
 
     pub fn reserve(&mut self, range: std::ops::Range<usize>) {
-        for i in range.clone() {
+        for i in range {
             self.rmc[i] = 0;
         }
     }

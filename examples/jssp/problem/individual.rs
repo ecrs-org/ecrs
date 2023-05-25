@@ -84,7 +84,7 @@ impl JsspIndividual {
 
         stack.push(op_id);
         while !stack.is_empty() {
-            let crt_op_id = stack.last().unwrap().clone();
+            let crt_op_id = *stack.last().unwrap();
 
             // In current implementation it is possible (highly likely) that a vertex might be pushed
             // multiple times on the stack, before being processed, so we process the vertex iff it
@@ -102,16 +102,19 @@ impl JsspIndividual {
                     visited[crt_op_id] = true;
                     stack.pop();
 
-                    let cp_edge = self.operations[crt_op_id]
-                        .edges_out
-                        .iter()
-                        .max_by_key(|edge| self.operations[edge.neigh_id].critical_distance)
-                        .unwrap()
-                        .clone();
+                    if !self.operations[crt_op_id].edges_out.is_empty() {
+                        let cp_edge = *self.operations[crt_op_id]
+                            .edges_out
+                            .iter()
+                            .max_by_key(|edge| self.operations[edge.neigh_id].critical_distance)
+                            .unwrap();
 
-                    self.operations[crt_op_id].critical_distance = self.operations[crt_op_id].duration
-                        + self.operations[cp_edge.neigh_id].critical_distance;
-                    self.operations[crt_op_id].critical_path_edge = Some(cp_edge);
+                        self.operations[crt_op_id].critical_distance = self.operations[crt_op_id].duration
+                            + self.operations[cp_edge.neigh_id].critical_distance;
+                        self.operations[crt_op_id].critical_path_edge = Some(cp_edge);
+                    } else {
+                        self.operations[crt_op_id].critical_distance = self.operations[crt_op_id].duration;
+                    }
                 }
             }
         }
@@ -130,7 +133,7 @@ impl JsspIndividual {
             crt_op = &self.operations[edge.neigh_id];
         }
         // there should be empty block at the end
-        assert!(blocks.last().unwrap().len() == 0);
+        assert!(blocks.last().unwrap().is_empty());
         blocks.pop();
     }
 
@@ -278,7 +281,7 @@ impl JsspIndividual {
             self.update_delay_feasible_set(&mut delay_feasibles, &finish_times, delay, t_g);
 
             while !delay_feasibles.is_empty() {
-                delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
+                // delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
 
                 // Select operation with highest priority
                 let j = *delay_feasibles
@@ -377,12 +380,18 @@ impl IndividualTrait for JsspIndividual {
     }
 
     fn requires_evaluation(&self) -> bool {
-        self.is_fitness_valid
+        !self.is_fitness_valid
     }
 }
 
 impl From<Vec<f64>> for JsspIndividual {
-    fn from(value: Vec<f64>) -> Self {
-        todo!()
+    fn from(chromosome: Vec<f64>) -> Self {
+        Self {
+            chromosome,
+            operations: Vec::new(),
+            machines: Vec::new(),
+            fitness: usize::MAX,
+            is_fitness_valid: false,
+        }
     }
 }

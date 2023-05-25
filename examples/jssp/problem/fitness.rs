@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use ecrs::prelude::fitness::Fitness;
 
 use super::individual::JsspIndividual;

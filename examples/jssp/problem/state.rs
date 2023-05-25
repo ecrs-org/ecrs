@@ -92,7 +92,7 @@ impl JsspState {
 }
 
 impl From<JsspInstance> for JsspState {
-    fn from(instance: JsspInstance) -> Self {
+    fn from(_instance: JsspInstance) -> Self {
         todo!()
     }
 }

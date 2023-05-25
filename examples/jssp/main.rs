@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 mod cli;
 mod logging;
 mod parse;
