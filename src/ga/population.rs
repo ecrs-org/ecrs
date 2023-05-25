@@ -1,3 +1,4 @@
+mod tools;
 use itertools::Itertools;
 use rand::prelude::ThreadRng;
 use rand::seq::SliceRandom;
@@ -118,7 +119,7 @@ impl<R: Rng> RandomPoints<R> {
     }
 }
 
-impl<IndividualT: IndividualTrait<ChromosomeT = Vec<f64>>, R: Rng> PopulationGenerator<IndividualT>
+impl<IndividualT: IndividualTrait<ChromosomeT = Vec<f64>>, R: Rng + Clone> PopulationGenerator<IndividualT>
     for RandomPoints<R>
 {
     /// Generates vector of `count` random points from R^(dim) space within passed domain constraints.
@@ -128,31 +129,18 @@ impl<IndividualT: IndividualTrait<ChromosomeT = Vec<f64>>, R: Rng> PopulationGen
     ///
     /// * `count` -- Number of points to generate
     fn generate(&mut self, count: usize) -> Vec<IndividualT> {
-        // FIXME: Sampling from such short interval may cause some f64 values to be more unlikely...
-        let distribution = rand::distributions::Uniform::from(0.0..1.0);
-
-        let mut population: Vec<IndividualT> = Vec::with_capacity(count);
-
-        // We do not use Option to designate whether there are constraints or not
-        // because using unwrap moves!
-        if self.constraints.is_empty() {
-            for _ in 0..count {
-                let mut point = Vec::<f64>::with_capacity(self.dim);
-                for _ in 0..self.dim {
-                    point.push(self.rng.sample(distribution));
-                }
-                population.push(IndividualT::from(point));
-            }
-        } else {
-            for _ in 0..count {
-                let mut point: Vec<f64> = Vec::with_capacity(self.dim);
-                for restriction in &self.constraints {
-                    point.push(restriction.0 * self.rng.sample(distribution) + restriction.1);
-                }
-                population.push(IndividualT::from(point));
-            }
-        }
-        population
+        tools::PointGenerator::with_rng(self.rng.clone())
+            .generate_with_constraints(
+                self.dim,
+                count,
+                self.constraints
+                    .iter()
+                    .map(|(start, end)| *start..*end)
+                    .collect_vec(),
+            )
+            .into_iter()
+            .map(|chromosome| IndividualT::from(chromosome))
+            .collect_vec()
     }
 }
 
