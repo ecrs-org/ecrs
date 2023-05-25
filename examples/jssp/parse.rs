@@ -55,18 +55,20 @@ impl TryFrom<PathBuf> for JsspInstance {
             n_machines: first_line[1],
         };
 
-        let mut operations: Vec<Operation> = Vec::new();
+        let mut jobs: Vec<Vec<Operation>> = Vec::new();
 
         let mut op_id: usize = 0;
+        let mut job_id: usize = 0;
 
         line_buffer.lines().skip(1).for_each(|job_def| {
             let first_job_in_batch = op_id;
+            jobs.push(Vec::new());
             job_def
                 .split_whitespace()
                 .collect_vec()
                 .chunks(2)
                 .for_each(|op_def| {
-                    operations.push(Operation::new(
+                    jobs.last_mut().unwrap().push(Operation::new(
                         op_id,
                         usize::MAX,
                         op_def[1].parse().unwrap(),
@@ -74,11 +76,12 @@ impl TryFrom<PathBuf> for JsspInstance {
                         Vec::from_iter(first_job_in_batch..op_id),
                     ));
                     op_id += 1;
-                })
+                });
+            job_id += 1;
         });
 
         Ok(JsspInstance {
-            ops: operations,
+            jobs,
             cfg,
             metadata: JsspInstanceMetadata {
                 name: name.to_owned(),
