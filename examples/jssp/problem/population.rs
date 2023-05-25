@@ -11,7 +11,7 @@ pub struct JsspPopProvider {
 }
 
 impl JsspPopProvider {
-    fn new(path: PathBuf) -> Self {
+    pub fn new(path: PathBuf) -> Self {
         assert!(path.is_file());
         Self { path }
     }
@@ -36,6 +36,7 @@ impl PopulationGenerator<JsspIndividual> for JsspPopProvider {
             job.iter_mut().for_each(|op| {
                 op.id += 1;
                 op.preds.iter_mut().for_each(|pred_id| *pred_id += 1);
+                op.preds.push(0);
                 op.edges_out.push(Edge {
                     neigh_id: op.id + 1,
                     kind: EdgeKind::JobSucc,
