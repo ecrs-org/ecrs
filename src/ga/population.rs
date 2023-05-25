@@ -1,4 +1,4 @@
-mod tools;
+pub mod tools;
 use itertools::Itertools;
 use rand::prelude::ThreadRng;
 use rand::seq::SliceRandom;

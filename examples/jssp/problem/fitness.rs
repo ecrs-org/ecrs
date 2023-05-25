@@ -6,7 +6,7 @@ use super::individual::JsspIndividual;
 pub struct JsspFitness {}
 
 impl JsspFitness {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {}
     }
 }
