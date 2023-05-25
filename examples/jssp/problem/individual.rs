@@ -125,71 +125,120 @@ impl JsspIndividual {
         self.determine_critical_path();
         self.operations[0].critical_distance.unwrap()
     }
-          
-
 
     fn local_search(&mut self) -> usize {
         // let mut vertices_in_topo_order: VecDeque<usize> = VecDeque::with_capacity(self.operations.len());
         let mut crt_sol_updated = true;
         let mut all_blocks_processed = false;
         let mut blocks: Vec<Vec<usize>> = Vec::new();
+        let mut crt_makespan = usize::MAX;
 
         while crt_sol_updated {
             crt_sol_updated = false;
-            let mut crt_makespan = self.determine_makespan();
+            crt_makespan = self.determine_makespan();
             self.determine_critical_blocks(&mut blocks);
 
             // Traverse along critical path
             let mut crt_block = 0;
+            let block = &blocks[crt_block];
 
             while crt_block < blocks.len() && !crt_sol_updated {
                 // Not first block
-                if crt_block > 0 {
+                if crt_block > 0 && block.len() >= 2 {
                     // Swap first two operations of current block in the current solution
                     // Move to the block beginning
-                    let block = &blocks[crt_block];
-                    if block.len() >= 2 {
-                        let mut first_op = &mut self.operations[block[0]];
-                        let mut sec_op = &mut self.operations[block[1]];
+                    let mut first_op = &mut self.operations[block[0]];
+                    let mut sec_op = &mut self.operations[block[1]];
 
-                        let index_1 = first_op.edges_out.iter().find_position(|edge| edge.kind == EdgeKind::MachineSucc).unwrap().0;
-                        let edge_rm_1 = first_op.edges_out.swap_remove(index_1);
-                        sec_op.edges_out.push(Edge { neigh_id: first_op.id, kind: EdgeKind::MachineSucc });
+                    let index_1 = first_op
+                        .edges_out
+                        .iter()
+                        .find_position(|edge| edge.kind == EdgeKind::MachineSucc)
+                        .unwrap()
+                        .0;
+                    let edge_rm_1 = first_op.edges_out.swap_remove(index_1);
+                    sec_op.edges_out.push(Edge {
+                        neigh_id: first_op.id,
+                        kind: EdgeKind::MachineSucc,
+                    });
 
-                        let edge_rm_2_opt = sec_op.edges_out.iter().find_position(|edge| edge.kind == EdgeKind::MachineSucc);
-                        if let Some((index, edge)) = edge_rm_2_opt {
-                            first_op.edges_out.push(edge.clone());
-                            sec_op.edges_out.swap_remove(index);
-                        }
+                    let edge_rm_2_opt = sec_op
+                        .edges_out
+                        .iter()
+                        .find_position(|edge| edge.kind == EdgeKind::MachineSucc);
+                    if let Some((index, edge)) = edge_rm_2_opt {
+                        first_op.edges_out.push(edge.clone());
+                        sec_op.edges_out.swap_remove(index);
+                    }
 
-                        let new_makespan = self.determine_makespan();
-                        if new_makespan < crt_makespan {
-                            // I should remeber here what was the solution, but it is done in the
-                            // background by modyfing the edges of the solution
-                            crt_sol_updated = true;
-                            crt_makespan = new_makespan;
-                        } else {
-                            // Restore solution
-                            // New edges are always last (push implementation)
-                            first_op.edges_out.pop();
-                            sec_op.edges_out.pop();
-                            first_op.edges_out.push(edge_rm_1);
-                            if let Some((_, edge)) = edge_rm_2_opt {
-                                sec_op.edges_out.push(*edge);
-                            }
+                    let new_makespan = self.determine_makespan();
+                    if new_makespan < crt_makespan {
+                        // I should remeber here what was the solution, but it is done in the
+                        // background by modyfing the edges of the solution
+                        crt_sol_updated = true;
+                        crt_makespan = new_makespan;
+                    } else {
+                        // Restore solution
+                        // New edges are always last (push implementation)
+                        first_op.edges_out.pop();
+                        sec_op.edges_out.pop();
+                        first_op.edges_out.push(edge_rm_1);
+                        if let Some((_, edge)) = edge_rm_2_opt {
+                            sec_op.edges_out.push(*edge);
                         }
                     }
                 }
 
                 // Not last block
-                if crt_block != blocks.len() - 1 && !crt_sol_updated {
-                     
+                if crt_block != blocks.len() - 1 && !crt_sol_updated && block.len() >= 2 {
+                    let mut sec_last_op = &mut self.operations[block[block.len() - 2]];
+                    let mut last_op = &mut self.operations[block[block.len() - 1]];
+
+                    let edge_rm_sec_last = sec_last_op
+                        .edges_out
+                        .iter()
+                        .find_position(|edge| edge.kind == EdgeKind::MachineSucc)
+                        .unwrap();
+                    sec_last_op.edges_out.swap_remove(edge_rm_sec_last.0);
+                    last_op.edges_out.push(Edge {
+                        neigh_id: sec_last_op.id,
+                        kind: EdgeKind::MachineSucc,
+                    });
+
+                    if let Some(mut third_last_op) = self.operations.get(block.len() - 3) {
+                        third_last_op
+                            .edges_out
+                            .iter_mut()
+                            .find(|edge| edge.kind == EdgeKind::MachineSucc)
+                            .unwrap()
+                            .neigh_id = last_op.id;
+                    }
+
+                    let new_makespan = self.determine_makespan();
+                    if new_makespan < crt_makespan {
+                        crt_sol_updated = true;
+                        crt_makespan = new_makespan;
+                    } else {
+                        last_op.edges_out.pop();
+                        sec_last_op.edges_out.push(Edge {
+                            neigh_id: last_op.id,
+                            kind: EdgeKind::MachineSucc,
+                        });
+
+                        if let Some(mut third_last_op) = self.operations.get(block.len() - 3) {
+                            third_last_op
+                                .edges_out
+                                .iter_mut()
+                                .find(|edge| edge.kind == EdgeKind::MachineSucc)
+                                .unwrap()
+                                .neigh_id = sec_last_op.id;
+                        }
+                    }
                 }
                 crt_block += 1;
             }
         }
-
-        usize::MAX
+        crt_makespan
     }
 
     pub fn eval(&mut self) -> usize {
@@ -268,10 +317,9 @@ impl JsspIndividual {
             // Update the scheduling time t_g associated with g
             t_g = *finish_times.iter().filter(|&&t| t > t_g).min().unwrap();
         }
-        // self.local_search(last_finish_time);
-
-        self.fitness = last_finish_time;
-        last_finish_time
+        let makespan = usize::max(last_finish_time, self.local_search());
+        self.fitness = makespan;
+        makespan
     }
 }
 
