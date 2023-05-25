@@ -61,7 +61,7 @@ impl RandomPoints<ThreadRng> {
     /// * `dim` -- Dimension of the sampling space
     /// * `constraint` -- Range for coordinates
     pub fn with_single_constraint(dim: usize, constraint: Range<f64>) -> Self {
-        Self::with_constraints(dim, std::iter::repeat(constraint).collect())
+        Self::with_constraints(dim, std::iter::repeat(constraint).take(dim).collect())
     }
 
     /// Returns [RandomPoints] population generator with no explicit constraints and default RNG.
@@ -109,7 +109,7 @@ impl<R: Rng> RandomPoints<R> {
         assert!(dim > 0, "Space dimension must be > 0");
         RandomPoints {
             dim,
-            constraints: Vec::from_iter(std::iter::repeat(0.0..1.0)),
+            constraints: Vec::from_iter(std::iter::repeat(0.0..1.0).take(dim)),
             rng,
         }
     }
