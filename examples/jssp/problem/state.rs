@@ -17,59 +17,17 @@ impl JsspState {
         assert!(self.cfg.n_jobs == 4 && self.cfg.n_machines == 2);
 
         let mut operations = Vec::with_capacity(self.cfg.n_jobs + 2);
-        operations.push(Operation {
-            id: 0,
-            finish_time: usize::MAX,
-            duration: 0,
-            machine: 0,
-            preds: Vec::new(),
-            // direct_machine_pred: None,
-            // direct_job_succ: None,
-            // direct_job_pred: None,
-            // direct_job_succ:
-        });
+        operations.push(Operation::new(0, usize::MAX, 0, 0, Vec::new()));
 
-        operations.push(Operation {
-            id: 1,
-            finish_time: usize::MAX,
-            duration: 4,
-            machine: 1,
-            // preds: Vec::new(), // or maybe should I put Operation 0 here?
-            preds: vec![0],
-        });
+        operations.push(Operation::new(1, usize::MAX, 4, 1, vec![0]));
 
-        operations.push(Operation {
-            id: 2,
-            finish_time: usize::MAX,
-            duration: 2,
-            machine: 0,
-            preds: vec![0, 1],
-        });
+        operations.push(Operation::new(2, usize::MAX, 2, 0, vec![0, 1]));
 
-        operations.push(Operation {
-            id: 3,
-            finish_time: usize::MAX,
-            duration: 1,
-            machine: 0,
-            // preds: Vec::new(),
-            preds: vec![0],
-        });
+        operations.push(Operation::new(3, usize::MAX, 1, 0, vec![0]));
 
-        operations.push(Operation {
-            id: 4,
-            finish_time: usize::MAX,
-            duration: 3,
-            machine: 1,
-            preds: vec![0, 3],
-        });
+        operations.push(Operation::new(4, usize::MAX, 3, 1, vec![0, 3]));
 
-        operations.push(Operation {
-            id: 5,
-            finish_time: usize::MAX,
-            duration: 0,
-            machine: 0,
-            preds: vec![0, 1, 2, 3, 4],
-        });
+        operations.push(Operation::new(5, usize::MAX, 0, 0, vec![0, 1, 2, 3, 4]));
 
         operations
     }
