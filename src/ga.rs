@@ -263,6 +263,7 @@ where
 
         let mut best_individual_all_time = Self::find_best_individual(&population).clone();
 
+        self.metadata.duration = Some(self.metadata.start_time.unwrap().elapsed());
         self.config
             .probe
             .on_new_best(&self.metadata, &best_individual_all_time);
