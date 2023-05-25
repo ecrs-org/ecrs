@@ -1,7 +1,6 @@
 pub mod fitness;
 pub mod individual;
 pub mod population;
-pub mod state;
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum EdgeKind {

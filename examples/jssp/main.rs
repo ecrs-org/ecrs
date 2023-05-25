@@ -22,7 +22,7 @@ use problem::fitness::JsspFitness;
 use problem::individual::JsspIndividual;
 use problem::population::JsspPopProvider;
 
-use crate::problem::{state::JsspState, JsspConfig, JsspInstance};
+use crate::problem::{JsspConfig, JsspInstance};
 
 fn run_with_ecrs(path: PathBuf) {
     let mut solver = ga::Builder::new::<
