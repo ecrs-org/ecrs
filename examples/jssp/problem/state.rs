@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use ecrs::{
     ga::{self, individual::RealValueIndividual, Individual},
     prelude::population::PopulationGenerator,
