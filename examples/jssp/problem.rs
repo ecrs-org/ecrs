@@ -2,13 +2,13 @@ pub mod fitness;
 pub mod individual;
 pub mod state;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum EdgeKind {
     JobSucc,
     MachineSucc,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct Edge {
     pub neigh_id: usize,
     pub kind: EdgeKind,
@@ -25,7 +25,7 @@ pub struct Operation {
     preds: Vec<usize>,
     edges_out: Vec<Edge>,
     critical_path_edge: Option<Edge>,
-    critical_distance: Option<usize>,
+    critical_distance: usize,
 }
 
 impl Operation {
@@ -38,7 +38,7 @@ impl Operation {
             preds,
             edges_out: Vec::new(),
             critical_path_edge: None,
-            critical_distance: None,
+            critical_distance: usize::MIN,
         }
     }
 }

@@ -8,6 +8,13 @@ use itertools::Itertools;
 
 use super::{Edge, EdgeKind, Machine, Operation};
 
+#[derive(Clone, PartialEq, Eq)]
+enum VertexStatus {
+    NotVisited,
+    Discovered,
+    Visited,
+}
+
 #[derive(Debug, Clone)]
 pub struct JsspIndividual {
     pub chromosome: Vec<f64>,
@@ -79,29 +86,44 @@ impl JsspIndividual {
 
     fn determine_critical_path(&mut self) {
         let mut visited = vec![false; self.operations.len()];
-        self.dfs(0, &mut visited)
+        self.calculate_critical_distance(0, &mut visited)
     }
 
-    fn dfs(&mut self, op_id: usize, visited: &mut Vec<bool>) {
-        visited[op_id] = true;
+    fn calculate_critical_distance(&mut self, op_id: usize, visited: &mut Vec<bool>) {
+        let mut stack: Vec<usize> = Vec::with_capacity(visited.len() * 2);
 
-        let mut crt_op = &mut self.operations[op_id];
+        stack.push(op_id);
+        while !stack.is_empty() {
+            let crt_op_id = stack.last().unwrap().clone();
 
-        for neigh in crt_op.edges_out {
-            if !visited[neigh.neigh_id] {
-                self.dfs(neigh.neigh_id, visited)
+            // In current implementation it is possible (highly likely) that a vertex might be pushed
+            // multiple times on the stack, before being processed, so we process the vertex iff it
+            // has not been visited already.
+            if !visited[crt_op_id] {
+                let mut has_not_visited_neigh = false;
+                for edge in self.operations[crt_op_id].edges_out.iter() {
+                    if !visited[edge.neigh_id] {
+                        stack.push(edge.neigh_id);
+                        has_not_visited_neigh = true;
+                    }
+                }
+
+                if !has_not_visited_neigh {
+                    visited[crt_op_id] = true;
+                    stack.pop();
+
+                    let cp_edge = self.operations[crt_op_id]
+                        .edges_out
+                        .iter()
+                        .max_by_key(|edge| self.operations[edge.neigh_id].critical_distance)
+                        .unwrap()
+                        .clone();
+
+                    self.operations[crt_op_id].critical_distance = self.operations[crt_op_id].duration + self.operations[cp_edge.neigh_id].critical_distance;
+                    self.operations[crt_op_id].critical_path_edge = Some(cp_edge);
+                }
             }
         }
-
-        let cp_edge = crt_op
-            .edges_out
-            .iter()
-            .max_by_key(|edge| self.operations[edge.neigh_id].critical_distance.unwrap())
-            .unwrap();
-
-        crt_op.critical_distance =
-            Some(self.operations[cp_edge.neigh_id].critical_distance.unwrap() + crt_op.duration);
-        crt_op.critical_path_edge = Some(*cp_edge);
     }
 
     fn determine_critical_blocks(&mut self, blocks: &mut Vec<Vec<usize>>) {
@@ -123,7 +145,7 @@ impl JsspIndividual {
 
     fn determine_makespan(&mut self) -> usize {
         self.determine_critical_path();
-        self.operations[0].critical_distance.unwrap()
+        self.operations[0].critical_distance
     }
 
     fn local_search(&mut self) -> usize {
