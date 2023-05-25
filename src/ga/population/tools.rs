@@ -1,26 +1,35 @@
+//! Tools for primitive chromosomes generation. These are meant mainly for internal usage
+//! by [population generators][PopulationGenerators] but they also might be of some help for you.
+//!
+//! [PopulationGenerators]: super::PopulationGenerator
 use std::ops::Range;
 
 use rand::{rngs::ThreadRng, thread_rng, Rng};
 
+/// Random point generator. Just that.
 pub struct PointGenerator<R: Rng = ThreadRng> {
     rng: R,
 }
 
 impl PointGenerator<ThreadRng> {
+    /// Returns instance of [PointGenerator] with ThreadRng as default RNG.
     pub fn new() -> Self {
         Self::with_rng(thread_rng())
     }
 }
 
 impl<R: Rng + Clone> PointGenerator<R> {
+    /// Returns new instance of [PointGenerator with given RNG.
     pub fn with_rng(rng: R) -> Self {
         Self { rng }
     }
 
+    /// Generates `n` random points, each with `dim` coordinates from range [0.0, 1.0).
     pub fn generate(&mut self, dim: usize, n: usize) -> Vec<Vec<f64>> {
         self.generate_with_single_constraint(dim, n, 0.0..1.0)
     }
 
+    /// Generates `n` random points, each with `dim` coordinates from given range.
     pub fn generate_with_single_constraint(
         &mut self,
         dim: usize,
@@ -30,6 +39,8 @@ impl<R: Rng + Clone> PointGenerator<R> {
         self.generate_with_constraints(dim, n, &Vec::from_iter(std::iter::repeat(constraint).take(dim)))
     }
 
+    /// Generates `n` random points, each with `dim` coordinates. Each coordinate respects given
+    /// constraint.
     pub fn generate_with_constraints(
         &mut self,
         dim: usize,
