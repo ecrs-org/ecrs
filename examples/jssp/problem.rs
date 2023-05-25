@@ -2,7 +2,17 @@ pub mod fitness;
 pub mod individual;
 pub mod state;
 
-use crate::util::print_slice;
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum EdgeKind {
+    JobSucc,
+    MachineSucc,
+}
+
+#[derive(Debug, Clone)]
+pub struct Edge {
+    pub neigh_id: usize,
+    pub kind: EdgeKind,
+}
 
 #[derive(Debug, Clone)]
 pub struct Operation {
@@ -13,10 +23,9 @@ pub struct Operation {
 
     // Should I hold references to other operations or just their ids
     preds: Vec<usize>,
-    // direct_machine_pred: Option<usize>,
-    // direct_machine_succ: Option<usize>,
-    // direct_job_pred: Option<usize>,
-    // direct_job_succ: Option<usize>,
+    edges_out: Vec<Edge>,
+    critical_path_edge: Option<Edge>,
+    critical_distance: Option<usize>,
 }
 
 impl Operation {
@@ -27,15 +36,12 @@ impl Operation {
             duration,
             machine,
             preds,
+            edges_out: Vec::new(),
+            critical_path_edge: None,
+            critical_distance: None,
         }
     }
 }
-
-// impl std::fmt::Display for Operation {
-//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         todo!()
-//     }
-// }
 
 #[derive(Debug, Clone)]
 pub struct Machine {
@@ -46,8 +52,6 @@ pub struct Machine {
 
 impl Machine {
     pub fn is_idle(&self, range: std::ops::RangeInclusive<usize>) -> bool {
-        assert!(*range.end() < 40);
-
         for i in range {
             if self.rmc[i] == 0 {
                 return false;
@@ -60,8 +64,6 @@ impl Machine {
         for i in range.clone() {
             self.rmc[i] = 0;
         }
-        println!("Reserved {}..{} in machine {}: ", range.start, range.end, self.id);
-        print_slice(&self.rmc);
     }
 }
 

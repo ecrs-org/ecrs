@@ -4,7 +4,6 @@ mod parse;
 mod problem;
 mod util;
 
-#[allow(unused_imports)]
 use ecrs::prelude::{crossover, ga, ops, replacement, selection};
 use ecrs::{
     ga::{GAMetadata, Individual, StdoutProbe},

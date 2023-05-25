@@ -1,8 +1,12 @@
-use std::collections::HashSet;
+use std::{
+    collections::{HashSet, VecDeque},
+    process,
+};
 
 use ecrs::ga::individual::IndividualTrait;
+use itertools::Itertools;
 
-use super::{Machine, Operation};
+use super::{Edge, EdgeKind, Machine, Operation};
 
 #[derive(Debug, Clone)]
 pub struct JsspIndividual {
@@ -73,13 +77,128 @@ impl JsspIndividual {
         }
     }
 
+    fn determine_critical_path(&mut self) {
+        let mut visited = vec![false; self.operations.len()];
+        self.dfs(0, &mut visited)
+    }
+
+    fn dfs(&mut self, op_id: usize, visited: &mut Vec<bool>) {
+        visited[op_id] = true;
+
+        let mut crt_op = &mut self.operations[op_id];
+
+        for neigh in crt_op.edges_out {
+            if !visited[neigh.neigh_id] {
+                self.dfs(neigh.neigh_id, visited)
+            }
+        }
+
+        let cp_edge = crt_op
+            .edges_out
+            .iter()
+            .max_by_key(|edge| self.operations[edge.neigh_id].critical_distance.unwrap())
+            .unwrap();
+
+        crt_op.critical_distance =
+            Some(self.operations[cp_edge.neigh_id].critical_distance.unwrap() + crt_op.duration);
+        crt_op.critical_path_edge = Some(*cp_edge);
+    }
+
+    fn determine_critical_blocks(&mut self, blocks: &mut Vec<Vec<usize>>) {
+        let mut crt_op = &self.operations[self.operations[0].critical_path_edge.unwrap().neigh_id];
+
+        blocks.clear();
+        blocks.push(Vec::new());
+        while let Some(edge) = crt_op.critical_path_edge {
+            blocks.last_mut().unwrap().push(crt_op.id);
+            if edge.kind == EdgeKind::JobSucc {
+                blocks.push(Vec::new());
+            }
+            crt_op = &self.operations[edge.neigh_id];
+        }
+        // there should be empty block at the end
+        assert!(blocks.last().unwrap().len() == 0);
+        blocks.pop();
+    }
+
+    fn determine_makespan(&mut self) -> usize {
+        self.determine_critical_path();
+        self.operations[0].critical_distance.unwrap()
+    }
+          
+
+
+    fn local_search(&mut self) -> usize {
+        // let mut vertices_in_topo_order: VecDeque<usize> = VecDeque::with_capacity(self.operations.len());
+        let mut crt_sol_updated = true;
+        let mut all_blocks_processed = false;
+        let mut blocks: Vec<Vec<usize>> = Vec::new();
+
+        while crt_sol_updated {
+            crt_sol_updated = false;
+            let mut crt_makespan = self.determine_makespan();
+            self.determine_critical_blocks(&mut blocks);
+
+            // Traverse along critical path
+            let mut crt_block = 0;
+
+            while crt_block < blocks.len() && !crt_sol_updated {
+                // Not first block
+                if crt_block > 0 {
+                    // Swap first two operations of current block in the current solution
+                    // Move to the block beginning
+                    let block = &blocks[crt_block];
+                    if block.len() >= 2 {
+                        let mut first_op = &mut self.operations[block[0]];
+                        let mut sec_op = &mut self.operations[block[1]];
+
+                        let index_1 = first_op.edges_out.iter().find_position(|edge| edge.kind == EdgeKind::MachineSucc).unwrap().0;
+                        let edge_rm_1 = first_op.edges_out.swap_remove(index_1);
+                        sec_op.edges_out.push(Edge { neigh_id: first_op.id, kind: EdgeKind::MachineSucc });
+
+                        let edge_rm_2_opt = sec_op.edges_out.iter().find_position(|edge| edge.kind == EdgeKind::MachineSucc);
+                        if let Some((index, edge)) = edge_rm_2_opt {
+                            first_op.edges_out.push(edge.clone());
+                            sec_op.edges_out.swap_remove(index);
+                        }
+
+                        let new_makespan = self.determine_makespan();
+                        if new_makespan < crt_makespan {
+                            // I should remeber here what was the solution, but it is done in the
+                            // background by modyfing the edges of the solution
+                            crt_sol_updated = true;
+                            crt_makespan = new_makespan;
+                        } else {
+                            // Restore solution
+                            // New edges are always last (push implementation)
+                            first_op.edges_out.pop();
+                            sec_op.edges_out.pop();
+                            first_op.edges_out.push(edge_rm_1);
+                            if let Some((_, edge)) = edge_rm_2_opt {
+                                sec_op.edges_out.push(*edge);
+                            }
+                        }
+                    }
+                }
+
+                // Not last block
+                if crt_block != blocks.len() - 1 && !crt_sol_updated {
+                     
+                }
+                crt_block += 1;
+            }
+        }
+
+        usize::MAX
+    }
+
     pub fn eval(&mut self) -> usize {
         // We deduce the problem size from the chromosome size
         let n: usize = self.chromosome.len() / 2;
 
         let mut finish_times = vec![usize::MAX; n + 2];
         let mut scheduled = std::collections::HashSet::new();
-        let mut e_set = std::collections::HashSet::<usize>::new();
+        let mut delay_feasibles = std::collections::HashSet::<usize>::new();
 
         scheduled.insert(0);
         finish_times[0] = 0;
@@ -94,13 +213,13 @@ impl JsspIndividual {
         while scheduled.len() < n + 1 {
             // Update e_set
             let mut delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
-            self.update_delay_feasible_set(&mut e_set, &finish_times, delay, t_g);
+            self.update_delay_feasible_set(&mut delay_feasibles, &finish_times, delay, t_g);
 
-            while !e_set.is_empty() {
+            while !delay_feasibles.is_empty() {
                 delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
 
                 // Select operation with highest priority
-                let j = *e_set
+                let j = *delay_feasibles
                     .iter()
                     .max_by(|&&a, &&b| {
                         self.chromosome[a - 1]
@@ -142,7 +261,7 @@ impl JsspIndividual {
 
                 delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
 
-                self.update_delay_feasible_set(&mut e_set, &finish_times, delay, t_g);
+                self.update_delay_feasible_set(&mut delay_feasibles, &finish_times, delay, t_g);
 
                 self.machines[op_j.machine].reserve(finish_time_j - op_j.duration..finish_time_j);
             }
