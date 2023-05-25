@@ -129,7 +129,6 @@ impl JsspIndividual {
     fn local_search(&mut self) -> usize {
         // let mut vertices_in_topo_order: VecDeque<usize> = VecDeque::with_capacity(self.operations.len());
         let mut crt_sol_updated = true;
-        let mut all_blocks_processed = false;
         let mut blocks: Vec<Vec<usize>> = Vec::new();
         let mut crt_makespan = usize::MAX;
 
