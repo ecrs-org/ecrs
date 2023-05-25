@@ -364,7 +364,7 @@ where
 /// parent, 0 means that gene should be take from second parent. This is inverted when creating second child.
 ///
 /// Bias is a probability of drawing a 1 in the bit-mask.
-pub struct UniformParameterized<R: Rng> {
+pub struct UniformParameterized<R: Rng = ThreadRng> {
     rng: R,
     distr: rand::distributions::Uniform<f64>,
     bias: f64,
