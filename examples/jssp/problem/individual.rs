@@ -1,19 +1,9 @@
-use std::{
-    collections::{HashSet, VecDeque},
-    process,
-};
+use std::collections::HashSet;
 
 use ecrs::ga::individual::IndividualTrait;
 use itertools::Itertools;
 
 use super::{Edge, EdgeKind, Machine, Operation};
-
-#[derive(Clone, PartialEq, Eq)]
-enum VertexStatus {
-    NotVisited,
-    Discovered,
-    Visited,
-}
 
 #[derive(Debug, Clone)]
 pub struct JsspIndividual {
@@ -67,22 +57,22 @@ impl JsspIndividual {
             })
     }
 
-    fn update_active_schedule(
-        &self,
-        active_schedule: &mut HashSet<usize>,
-        finish_times: &[usize],
-        time: usize,
-    ) {
-        let mut to_remove: Vec<usize> = vec![];
-        for el in active_schedule.iter() {
-            if finish_times[*el] <= time {
-                to_remove.push(*el);
-            }
-        }
-        for el in to_remove {
-            active_schedule.remove(&el);
-        }
-    }
+    // fn update_active_schedule(
+    //     &self,
+    //     active_schedule: &mut HashSet<usize>,
+    //     finish_times: &[usize],
+    //     time: usize,
+    // ) {
+    //     let mut to_remove: Vec<usize> = vec![];
+    //     for el in active_schedule.iter() {
+    //         if finish_times[*el] <= time {
+    //             to_remove.push(*el);
+    //         }
+    //     }
+    //     for el in to_remove {
+    //         active_schedule.remove(&el);
+    //     }
+    // }
 
     fn determine_critical_path(&mut self) {
         let mut visited = vec![false; self.operations.len()];
@@ -119,7 +109,8 @@ impl JsspIndividual {
                         .unwrap()
                         .clone();
 
-                    self.operations[crt_op_id].critical_distance = self.operations[crt_op_id].duration + self.operations[cp_edge.neigh_id].critical_distance;
+                    self.operations[crt_op_id].critical_distance = self.operations[crt_op_id].duration
+                        + self.operations[cp_edge.neigh_id].critical_distance;
                     self.operations[crt_op_id].critical_path_edge = Some(cp_edge);
                 }
             }
@@ -164,32 +155,33 @@ impl JsspIndividual {
             let block = &blocks[crt_block];
 
             while crt_block < blocks.len() && !crt_sol_updated {
-                // Not first block
+                // // Not first block
                 if crt_block > 0 && block.len() >= 2 {
                     // Swap first two operations of current block in the current solution
                     // Move to the block beginning
-                    let mut first_op = &mut self.operations[block[0]];
-                    let mut sec_op = &mut self.operations[block[1]];
 
-                    let index_1 = first_op
+                    let index_1 = self.operations[block[0]]
                         .edges_out
                         .iter()
                         .find_position(|edge| edge.kind == EdgeKind::MachineSucc)
                         .unwrap()
                         .0;
-                    let edge_rm_1 = first_op.edges_out.swap_remove(index_1);
-                    sec_op.edges_out.push(Edge {
-                        neigh_id: first_op.id,
+
+                    let edge_rm_1 = self.operations[block[0]].edges_out.swap_remove(index_1);
+                    self.operations[block[1]].edges_out.push(Edge {
+                        neigh_id: block[0],
                         kind: EdgeKind::MachineSucc,
                     });
 
-                    let edge_rm_2_opt = sec_op
-                        .edges_out
-                        .iter()
-                        .find_position(|edge| edge.kind == EdgeKind::MachineSucc);
-                    if let Some((index, edge)) = edge_rm_2_opt {
-                        first_op.edges_out.push(edge.clone());
-                        sec_op.edges_out.swap_remove(index);
+                    if block.len() >= 3 {
+                        let index_rm_2 = self.operations[block[1]]
+                            .edges_out
+                            .iter()
+                            .find_position(|edge| edge.kind == EdgeKind::MachineSucc)
+                            .unwrap()
+                            .0;
+                        let edge = self.operations[block[1]].edges_out.swap_remove(index_rm_2);
+                        self.operations[block[0]].edges_out.push(edge);
                     }
 
                     let new_makespan = self.determine_makespan();
@@ -201,38 +193,41 @@ impl JsspIndividual {
                     } else {
                         // Restore solution
                         // New edges are always last (push implementation)
-                        first_op.edges_out.pop();
-                        sec_op.edges_out.pop();
-                        first_op.edges_out.push(edge_rm_1);
-                        if let Some((_, edge)) = edge_rm_2_opt {
-                            sec_op.edges_out.push(*edge);
+                        if block.len() >= 3 {
+                            self.operations[block[0]].edges_out.pop();
                         }
+                        self.operations[block[1]].edges_out.pop();
+                        self.operations[block[0]].edges_out.push(edge_rm_1);
                     }
                 }
 
                 // Not last block
                 if crt_block != blocks.len() - 1 && !crt_sol_updated && block.len() >= 2 {
-                    let mut sec_last_op = &mut self.operations[block[block.len() - 2]];
-                    let mut last_op = &mut self.operations[block[block.len() - 1]];
+                    let sec_last_op_i = block.len() - 2;
+                    let last_op_i = block.len() - 1;
 
-                    let edge_rm_sec_last = sec_last_op
+                    let sec_last_rm_i = self.operations[sec_last_op_i]
                         .edges_out
                         .iter()
                         .find_position(|edge| edge.kind == EdgeKind::MachineSucc)
-                        .unwrap();
-                    sec_last_op.edges_out.swap_remove(edge_rm_sec_last.0);
-                    last_op.edges_out.push(Edge {
-                        neigh_id: sec_last_op.id,
+                        .unwrap()
+                        .0;
+
+                    let sec_last_rm_edge = self.operations[sec_last_op_i]
+                        .edges_out
+                        .swap_remove(sec_last_rm_i);
+                    self.operations[last_op_i].edges_out.push(Edge {
+                        neigh_id: sec_last_op_i,
                         kind: EdgeKind::MachineSucc,
                     });
 
-                    if let Some(mut third_last_op) = self.operations.get(block.len() - 3) {
-                        third_last_op
+                    if let Some(&third_last_i) = block.get(block.len() - 3) {
+                        self.operations[third_last_i]
                             .edges_out
                             .iter_mut()
                             .find(|edge| edge.kind == EdgeKind::MachineSucc)
                             .unwrap()
-                            .neigh_id = last_op.id;
+                            .neigh_id = last_op_i;
                     }
 
                     let new_makespan = self.determine_makespan();
@@ -240,19 +235,16 @@ impl JsspIndividual {
                         crt_sol_updated = true;
                         crt_makespan = new_makespan;
                     } else {
-                        last_op.edges_out.pop();
-                        sec_last_op.edges_out.push(Edge {
-                            neigh_id: last_op.id,
-                            kind: EdgeKind::MachineSucc,
-                        });
+                        self.operations[last_op_i].edges_out.pop();
+                        self.operations[sec_last_op_i].edges_out.push(sec_last_rm_edge);
 
-                        if let Some(mut third_last_op) = self.operations.get(block.len() - 3) {
-                            third_last_op
+                        if let Some(&third_last_i) = block.get(block.len() - 3) {
+                            self.operations[third_last_i]
                                 .edges_out
                                 .iter_mut()
                                 .find(|edge| edge.kind == EdgeKind::MachineSucc)
                                 .unwrap()
-                                .neigh_id = sec_last_op.id;
+                                .neigh_id = sec_last_op_i;
                         }
                     }
                 }
