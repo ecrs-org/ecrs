@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use ecrs::prelude::population::{PopulationGenerator, self};
+use ecrs::prelude::population::{self, PopulationGenerator};
 
 use super::{individual::JsspIndividual, JsspInstance};
 

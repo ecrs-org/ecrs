@@ -15,27 +15,32 @@ use ecrs::{
         selection::{Rank, SelectionOperator},
     },
 };
+use problem::fitness::JsspFitness;
 use problem::individual::JsspIndividual;
+use problem::population::JsspPopProvider;
 
 use crate::problem::{state::JsspState, JsspConfig, JsspInstance};
 
-// fn run_with_ecrs() {
-//     let mut solver = ga::Builder::new::<
-//         JsspIndividual,
-//         Identity,
-//         UniformParameterized,
-//         Rank,
-//         BothParents,
-//         JsspPopProvider,
-//         JsspFitness,
-//         StdoutProbe,
-//     >()
-//     .set_selection_operator(selection::Rank::new())
-//     .set_crossover_operator(crossover::UniformParameterized::new(0.7))
-//     .set_mutation_operator(mutation::Identity::new())
-//     .set_replacement_operator(replacement::BothParents::new())
-//     .set_probe(ga::probe::StdoutProbe::new());
-// }
+fn run_with_ecrs() {
+    let mut solver = ga::Builder::new::<
+        JsspIndividual,
+        Identity,
+        UniformParameterized,
+        Rank,
+        BothParents,
+        JsspPopProvider,
+        JsspFitness,
+        StdoutProbe,
+    >()
+    .set_selection_operator(selection::Rank::new())
+    .set_crossover_operator(crossover::UniformParameterized::new(0.7))
+    .set_mutation_operator(mutation::Identity::new())
+    .set_replacement_operator(replacement::BothParents::new())
+    .set_probe(ga::probe::StdoutProbe::new())
+    .build();
+
+    solver.run();
+}
 
 fn run() {
     if let Err(err) = logging::init_logging() {
@@ -48,7 +53,7 @@ fn run() {
 
     if let Some(file) = args.file {
         let instance = JsspInstance::try_from(file).unwrap();
-        for op in instance.ops.iter() {
+        for op in instance.jobs.iter() {
             println!("{op:?}");
         }
     }

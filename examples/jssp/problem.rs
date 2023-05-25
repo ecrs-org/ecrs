@@ -1,5 +1,6 @@
 pub mod fitness;
 pub mod individual;
+pub mod population;
 pub mod state;
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
@@ -81,7 +82,7 @@ pub struct JsspInstanceMetadata {
 
 #[derive(Debug)]
 pub struct JsspInstance {
-    pub ops: Vec<Operation>,
+    pub jobs: Vec<Vec<Operation>>,
     pub cfg: JsspConfig,
     pub metadata: JsspInstanceMetadata,
 }
