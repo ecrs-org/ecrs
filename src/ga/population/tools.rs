@@ -1,6 +1,5 @@
 use std::ops::Range;
 
-use itertools::Itertools;
 use rand::{rngs::ThreadRng, thread_rng, Rng};
 
 pub struct PointGenerator<R: Rng = ThreadRng> {
@@ -106,19 +105,17 @@ mod tests {
         let dim: usize = 20;
         let n: usize = 100;
 
-        let count = PointGenerator::new().generate(dim, n).iter().count();
+        let count = PointGenerator::new().generate(dim, n).len();
         assert_eq!(count, n);
 
         let count = PointGenerator::new()
             .generate_with_constraints(dim, n, &std::iter::repeat(-1.0..1.0).take(dim).collect())
-            .iter()
-            .count();
+            .len();
         assert_eq!(count, n);
 
         let count = PointGenerator::new()
             .generate_with_single_constraint(dim, n, -2.0..2.0)
-            .iter()
-            .count();
+            .len();
         assert_eq!(count, n);
     }
 }
