@@ -126,11 +126,7 @@ impl<IndividualT: IndividualTrait<ChromosomeT = Vec<f64>>, R: Rng + Clone> Popul
     /// * `count` -- Number of points to generate
     fn generate(&mut self, count: usize) -> Vec<IndividualT> {
         tools::PointGenerator::with_rng(self.rng.clone())
-            .generate_with_constraints(
-                self.dim,
-                count,
-                &self.constraints
-            )
+            .generate_with_constraints(self.dim, count, &self.constraints)
             .into_iter()
             .map(|chromosome| IndividualT::from(chromosome))
             .collect_vec()
