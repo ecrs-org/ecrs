@@ -59,24 +59,39 @@ impl Machine {
             rmc: vec![1; rmc_capacity],
         }
     }
+}
+
+// Naive implementation
+// impl Machine {
+//     pub fn is_idle(&self, range: std::ops::RangeInclusive<usize>) -> bool {
+//         for i in range {
+//             if self.rmc[i] == 0 {
+//                 return false;
+//             }
+//         }
+//         true
+//     }
+//
+//     pub fn reserve(&mut self, range: std::ops::Range<usize>) {
+//         for i in range {
+//             self.rmc[i] = 0;
+//         }
+//     }
+//
+//     pub fn reset(&mut self) {
+//         self.rmc.fill(1);
+//     }
+// }
+
+// Possibly better implementation
+impl Machine {
     pub fn is_idle(&self, range: std::ops::RangeInclusive<usize>) -> bool {
-        for i in range {
-            if self.rmc[i] == 0 {
-                return false;
-            }
-        }
         true
     }
 
-    pub fn reserve(&mut self, range: std::ops::Range<usize>) {
-        for i in range {
-            self.rmc[i] = 0;
-        }
-    }
+    pub fn reserve(&mut self, range: std::ops::Range<usize>) {}
 
-    pub fn reset(&mut self) {
-        self.rmc.fill(1);
-    }
+    pub fn reset(&mut self) {}
 }
 
 #[derive(Debug)]
