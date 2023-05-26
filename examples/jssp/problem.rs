@@ -103,15 +103,10 @@ impl Machine {
 // does not require so much memory.
 impl Machine {
     pub fn is_idle(&self, range: std::ops::RangeInclusive<usize>) -> bool {
-        if let Some(_) = self
+        !self
             .rmc
             .iter()
-            .find(|busy_range| busy_range.start < *range.end() && busy_range.end > *range.start())
-        {
-            false
-        } else {
-            true
-        }
+            .any(|busy_range| busy_range.start < *range.end() && busy_range.end > *range.start())
     }
 
     /// DOES NOT PERFORM VALIDATION!
