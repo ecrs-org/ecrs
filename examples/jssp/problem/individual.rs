@@ -11,7 +11,7 @@ pub struct JsspIndividual {
     pub operations: Vec<Operation>,
     pub machines: Vec<Machine>,
     pub fitness: usize,
-    is_fitness_valid: bool,
+    pub is_fitness_valid: bool,
 }
 
 impl JsspIndividual {
@@ -335,6 +335,7 @@ impl JsspIndividual {
         }
         let makespan = usize::max(last_finish_time, self.local_search());
         self.fitness = makespan;
+        self.is_fitness_valid = true;
 
         self.machines.iter_mut().for_each(|machine| machine.reset());
         makespan

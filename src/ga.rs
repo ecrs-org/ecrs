@@ -241,6 +241,7 @@ where
     fn eval_pop(&mut self, population: &mut [IndividualT]) {
         population
             .iter_mut()
+            .filter(|idv| idv.requires_evaluation())
             .for_each(|idv| *idv.fitness_mut() = (self.config.fitness_fn).apply(idv));
     }
 
