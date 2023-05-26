@@ -55,6 +55,12 @@ impl PopulationGenerator<JsspIndividual> for JsspPopProvider {
             .chain([sink_op])
             .collect_vec();
 
+        for idv in operations.iter() {
+            println!("{idv:?}");
+        }
+
+        assert_eq!(operations.len(), dim + 2);
+
         point_gen
             .generate_with_single_constraint(2 * dim, count, 0.0..1.0)
             .into_iter()

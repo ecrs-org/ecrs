@@ -1,3 +1,4 @@
+pub mod crossover;
 pub mod fitness;
 pub mod individual;
 pub mod population;
@@ -71,6 +72,10 @@ impl Machine {
         for i in range {
             self.rmc[i] = 0;
         }
+    }
+
+    pub fn reset(&mut self) {
+        self.rmc.fill(1);
     }
 }
 
