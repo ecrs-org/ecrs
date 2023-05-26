@@ -40,6 +40,8 @@ impl CrossoverOperator<JsspIndividual> for JsspCrossover {
 
         let mut child_1 = parent_1.clone();
         let mut child_2 = parent_2.clone();
+        child_1.is_fitness_valid = false;
+        child_2.is_fitness_valid = false;
         child_1.chromosome = child_1_ch;
         child_2.chromosome = child_2_ch;
 
