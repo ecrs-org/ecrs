@@ -18,6 +18,7 @@ use ecrs::{
     },
 };
 use log::info;
+use problem::crossover::JsspCrossover;
 use problem::fitness::JsspFitness;
 use problem::individual::JsspIndividual;
 use problem::population::JsspPopProvider;
@@ -27,14 +28,14 @@ use crate::problem::{JsspConfig, JsspInstance};
 fn run_with_ecrs(path: PathBuf) {
     let mut solver = ga::Builder::new()
         .set_selection_operator(selection::Rank::new())
-        .set_crossover_operator(crossover::UniformParameterized::new(0.7))
+        .set_crossover_operator(JsspCrossover::new())
         .set_mutation_operator(mutation::Identity::new())
         .set_replacement_operator(replacement::BothParents::new())
         .set_population_generator(JsspPopProvider::new(path))
         .set_fitness(JsspFitness::new())
         .set_probe(ga::probe::StdoutProbe::new())
         .set_max_generation_count(10)
-        .set_population_size(2)
+        .set_population_size(4)
         .build();
 
     solver.run();

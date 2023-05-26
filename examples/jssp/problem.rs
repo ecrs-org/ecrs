@@ -1,3 +1,4 @@
+pub mod crossover;
 pub mod fitness;
 pub mod individual;
 pub mod population;
