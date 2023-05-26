@@ -72,6 +72,10 @@ impl Machine {
             self.rmc[i] = 0;
         }
     }
+
+    pub fn reset(&mut self) {
+        self.rmc.fill(1);
+    }
 }
 
 #[derive(Debug)]

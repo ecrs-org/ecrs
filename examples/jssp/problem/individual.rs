@@ -335,6 +335,8 @@ impl JsspIndividual {
         }
         let makespan = usize::max(last_finish_time, self.local_search());
         self.fitness = makespan;
+
+        self.machines.iter_mut().for_each(|machine| machine.reset());
         makespan
     }
 }
