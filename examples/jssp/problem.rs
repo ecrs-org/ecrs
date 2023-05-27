@@ -19,6 +19,12 @@ pub struct Edge {
     pub kind: EdgeKind,
 }
 
+impl Edge {
+    pub fn new(neigh_id: usize, kind: EdgeKind) -> Self {
+        Self { neigh_id, kind }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Operation {
     id: usize,
@@ -58,6 +64,7 @@ pub struct Machine {
 
     // For "possibly better implementation"
     rmc: Vec<Range<usize>>,
+    pub last_scheduled_op: Option<usize>,
 }
 
 impl Machine {
@@ -66,31 +73,10 @@ impl Machine {
             id,
             // rmc: vec![1; rmc_capacity],
             rmc: Vec::new(),
+            last_scheduled_op: None,
         }
     }
 }
-
-// Naive implementation
-// impl Machine {
-//     pub fn is_idle(&self, range: std::ops::RangeInclusive<usize>) -> bool {
-//         for i in range {
-//             if self.rmc[i] == 0 {
-//                 return false;
-//             }
-//         }
-//         true
-//     }
-//
-//     pub fn reserve(&mut self, range: std::ops::Range<usize>) {
-//         for i in range {
-//             self.rmc[i] = 0;
-//         }
-//     }
-//
-//     pub fn reset(&mut self) {
-//         self.rmc.fill(1);
-//     }
-// }
 
 // Possibly better implementation
 // Best one should be balanced interval BST (e.g. BTreeMap) with simple interval intersection
@@ -110,12 +96,14 @@ impl Machine {
     }
 
     /// DOES NOT PERFORM VALIDATION!
-    pub fn reserve(&mut self, range: std::ops::Range<usize>) {
+    pub fn reserve(&mut self, range: std::ops::Range<usize>, op: usize) {
         self.rmc.push(range);
+        self.last_scheduled_op = Some(op);
     }
 
     pub fn reset(&mut self) {
         self.rmc.clear();
+        self.last_scheduled_op = None;
     }
 }
 
