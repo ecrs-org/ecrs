@@ -221,23 +221,20 @@ where
     pub fn new(
         config: GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
     ) -> Self {
+        assert_eq!(config.params.population_size % 2, 0); // Required for most of operators right
+                                                          // now
         GeneticSolver {
             config,
             metadata: GAMetadata::new(None, None, 0),
         }
     }
 
+    #[inline]
     fn find_best_individual(population: &[IndividualT]) -> &IndividualT {
-        let mut best_individual = &population[0];
-        for idv in population.iter().skip(1) {
-            if *idv > *best_individual {
-                best_individual = idv;
-            }
-        }
-        best_individual
+        population.iter().min().unwrap()
     }
 
-    #[inline(always)]
+    #[inline]
     fn eval_pop(&mut self, population: &mut [IndividualT]) {
         population
             .iter_mut()
@@ -318,7 +315,7 @@ where
                 .probe
                 .on_best_fit_in_generation(&self.metadata, best_individual);
 
-            if *best_individual > best_individual_all_time {
+            if *best_individual < best_individual_all_time {
                 best_individual_all_time = best_individual.clone();
                 self.config
                     .probe

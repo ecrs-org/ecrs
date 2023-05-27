@@ -333,7 +333,7 @@ impl JsspIndividual {
             // Update the scheduling time t_g associated with g
             t_g = *finish_times.iter().filter(|&&t| t > t_g).min().unwrap();
         }
-        let makespan = usize::max(last_finish_time, self.local_search());
+        let makespan = usize::min(last_finish_time, self.local_search());
         self.fitness = makespan;
         self.is_fitness_valid = true;
 
