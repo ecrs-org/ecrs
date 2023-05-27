@@ -1,6 +1,7 @@
 use std::ops::{Range, RangeInclusive};
 
-use log::info;
+use itertools::Itertools;
+use log::{debug, info};
 
 pub mod crossover;
 pub mod fitness;
@@ -19,6 +20,12 @@ pub struct Edge {
     pub kind: EdgeKind,
 }
 
+impl Edge {
+    pub fn new(neigh_id: usize, kind: EdgeKind) -> Self {
+        Self { neigh_id, kind }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Operation {
     id: usize,
@@ -26,9 +33,9 @@ pub struct Operation {
     duration: usize,
     machine: usize,
 
-    // Should I hold references to other operations or just their ids
     preds: Vec<usize>,
     edges_out: Vec<Edge>,
+    machine_pred: Option<usize>,
     critical_path_edge: Option<Edge>,
     critical_distance: usize,
 }
@@ -42,9 +49,29 @@ impl Operation {
             machine,
             preds,
             edges_out: Vec::new(),
+            machine_pred: None,
             critical_path_edge: None,
             critical_distance: usize::MIN,
         }
+    }
+
+    pub fn reset(&mut self) {
+        self.finish_time = usize::MAX;
+        self.machine_pred = None;
+        if let Some(edge_to_rm) = self
+            .edges_out
+            .iter()
+            .find_position(|edge| edge.kind == EdgeKind::MachineSucc)
+        {
+            self.edges_out.swap_remove(edge_to_rm.0);
+        }
+        debug_assert_eq!(
+            self.edges_out
+                .iter()
+                .filter(|e| e.kind == EdgeKind::MachineSucc)
+                .count(),
+            0
+        );
     }
 }
 
@@ -58,6 +85,7 @@ pub struct Machine {
 
     // For "possibly better implementation"
     rmc: Vec<Range<usize>>,
+    pub last_scheduled_op: Option<usize>,
 }
 
 impl Machine {
@@ -66,31 +94,10 @@ impl Machine {
             id,
             // rmc: vec![1; rmc_capacity],
             rmc: Vec::new(),
+            last_scheduled_op: None,
         }
     }
 }
-
-// Naive implementation
-// impl Machine {
-//     pub fn is_idle(&self, range: std::ops::RangeInclusive<usize>) -> bool {
-//         for i in range {
-//             if self.rmc[i] == 0 {
-//                 return false;
-//             }
-//         }
-//         true
-//     }
-//
-//     pub fn reserve(&mut self, range: std::ops::Range<usize>) {
-//         for i in range {
-//             self.rmc[i] = 0;
-//         }
-//     }
-//
-//     pub fn reset(&mut self) {
-//         self.rmc.fill(1);
-//     }
-// }
 
 // Possibly better implementation
 // Best one should be balanced interval BST (e.g. BTreeMap) with simple interval intersection
@@ -110,12 +117,14 @@ impl Machine {
     }
 
     /// DOES NOT PERFORM VALIDATION!
-    pub fn reserve(&mut self, range: std::ops::Range<usize>) {
+    pub fn reserve(&mut self, range: std::ops::Range<usize>, op: usize) {
         self.rmc.push(range);
+        self.last_scheduled_op = Some(op);
     }
 
     pub fn reset(&mut self) {
         self.rmc.clear();
+        self.last_scheduled_op = None;
     }
 }
 
