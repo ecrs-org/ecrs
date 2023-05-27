@@ -221,6 +221,8 @@ where
     pub fn new(
         config: GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
     ) -> Self {
+        assert_eq!(config.params.population_size % 2, 0); // Required for most of operators right
+                                                          // now
         GeneticSolver {
             config,
             metadata: GAMetadata::new(None, None, 0),
@@ -230,7 +232,7 @@ where
     fn find_best_individual(population: &[IndividualT]) -> &IndividualT {
         let mut best_individual = &population[0];
         for idv in population.iter().skip(1) {
-            if *idv > *best_individual {
+            if *idv < *best_individual {
                 best_individual = idv;
             }
         }
