@@ -22,7 +22,7 @@ pub fn init_logging() -> Result<log4rs::Handle, log::SetLoggerError> {
         .build(
             log4rs::config::Root::builder()
                 .appender("main")
-                .build(log::LevelFilter::Info),
+                .build(log::LevelFilter::Trace),
         )
         .unwrap();
 
