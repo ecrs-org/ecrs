@@ -55,10 +55,6 @@ impl PopulationGenerator<JsspIndividual> for JsspPopProvider {
             .chain([sink_op])
             .collect_vec();
 
-        for idv in operations.iter() {
-            println!("{idv:?}");
-        }
-
         assert_eq!(operations.len(), dim + 2);
 
         point_gen
@@ -68,7 +64,7 @@ impl PopulationGenerator<JsspIndividual> for JsspPopProvider {
                 JsspIndividual::new(
                     chromosome,
                     operations.clone(),
-                    Vec::from_iter((0..instance.cfg.n_machines).map(|i| Machine::new(i, 50))),
+                    Vec::from_iter((0..instance.cfg.n_machines).map(|i| Machine::new(i, 5000))),
                     usize::MAX,
                 )
             })

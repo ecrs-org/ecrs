@@ -1,3 +1,7 @@
+use std::ops::{Range, RangeInclusive};
+
+use log::info;
+
 pub mod crossover;
 pub mod fitness;
 pub mod individual;
@@ -48,34 +52,70 @@ impl Operation {
 #[allow(dead_code)]
 pub struct Machine {
     id: usize,
-    // dummy structure
-    rmc: Vec<usize>,
+
+    // For naive implementation
+    // rmc: Vec<usize>,
+
+    // For "possibly better implementation"
+    rmc: Vec<Range<usize>>,
 }
 
 impl Machine {
-    pub fn new(id: usize, rmc_capacity: usize) -> Self {
+    pub fn new(id: usize, _rmc_capacity: usize) -> Self {
         Self {
             id,
-            rmc: vec![1; rmc_capacity],
+            // rmc: vec![1; rmc_capacity],
+            rmc: Vec::new(),
         }
     }
+}
+
+// Naive implementation
+// impl Machine {
+//     pub fn is_idle(&self, range: std::ops::RangeInclusive<usize>) -> bool {
+//         for i in range {
+//             if self.rmc[i] == 0 {
+//                 return false;
+//             }
+//         }
+//         true
+//     }
+//
+//     pub fn reserve(&mut self, range: std::ops::Range<usize>) {
+//         for i in range {
+//             self.rmc[i] = 0;
+//         }
+//     }
+//
+//     pub fn reset(&mut self) {
+//         self.rmc.fill(1);
+//     }
+// }
+
+// Possibly better implementation
+// Best one should be balanced interval BST (e.g. BTreeMap) with simple interval intersection
+// finding algorithm.
+// Unfortunately the API that would allow implementation of such algorithm is not stabilized yet:
+// https://github.com/rust-lang/libs-team/issues/141
+// Example implementation: https://github.com/Amanieu/rangetree
+//
+// Here we use just a vector of intervals. This is most likely slower that naive solution, but it
+// does not require so much memory.
+impl Machine {
     pub fn is_idle(&self, range: std::ops::RangeInclusive<usize>) -> bool {
-        for i in range {
-            if self.rmc[i] == 0 {
-                return false;
-            }
-        }
-        true
+        !self
+            .rmc
+            .iter()
+            .any(|busy_range| busy_range.start < *range.end() && busy_range.end > *range.start())
     }
 
+    /// DOES NOT PERFORM VALIDATION!
     pub fn reserve(&mut self, range: std::ops::Range<usize>) {
-        for i in range {
-            self.rmc[i] = 0;
-        }
+        self.rmc.push(range);
     }
 
     pub fn reset(&mut self) {
-        self.rmc.fill(1);
+        self.rmc.clear();
     }
 }
 

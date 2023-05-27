@@ -34,8 +34,8 @@ fn run_with_ecrs(path: PathBuf) {
         .set_population_generator(JsspPopProvider::new(path))
         .set_fitness(JsspFitness::new())
         .set_probe(ga::probe::StdoutProbe::new())
-        .set_max_generation_count(10)
-        .set_population_size(4)
+        .set_max_duration(std::time::Duration::from_secs(30))
+        .set_population_size(200)
         .build();
 
     solver.run();
