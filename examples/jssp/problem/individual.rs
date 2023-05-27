@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 use ecrs::ga::individual::IndividualTrait;
 use itertools::Itertools;
+use log::{debug, info, trace, warn};
 
 use super::{Edge, EdgeKind, Machine, Operation};
 
@@ -12,6 +13,7 @@ pub struct JsspIndividual {
     pub machines: Vec<Machine>,
     pub fitness: usize,
     pub is_fitness_valid: bool,
+    is_dirty: bool,
 }
 
 impl JsspIndividual {
@@ -22,6 +24,7 @@ impl JsspIndividual {
             machines,
             fitness,
             is_fitness_valid: false,
+            is_dirty: false,
         }
     }
 
@@ -85,7 +88,6 @@ impl JsspIndividual {
         stack.push(op_id);
         while !stack.is_empty() {
             let crt_op_id = *stack.last().unwrap();
-
             // In current implementation it is possible (highly likely) that a vertex might be pushed
             // multiple times on the stack, before being processed, so we process the vertex iff it
             // has not been visited already.
@@ -116,6 +118,8 @@ impl JsspIndividual {
                         self.operations[crt_op_id].critical_distance = self.operations[crt_op_id].duration;
                     }
                 }
+            } else {
+                stack.pop();
             }
         }
     }
@@ -125,7 +129,7 @@ impl JsspIndividual {
 
         blocks.clear();
         blocks.push(Vec::new());
-        while let Some(edge) = crt_op.critical_path_edge {
+        while let Some(ref edge) = crt_op.critical_path_edge {
             blocks.last_mut().unwrap().push(crt_op.id);
             if edge.kind == EdgeKind::JobSucc {
                 blocks.push(Vec::new());
@@ -133,13 +137,50 @@ impl JsspIndividual {
             crt_op = &self.operations[edge.neigh_id];
         }
         // there should be empty block at the end
-        assert!(blocks.last().unwrap().is_empty());
+        debug_assert!(blocks.last().unwrap().is_empty());
         blocks.pop();
     }
 
     fn determine_makespan(&mut self) -> usize {
         self.determine_critical_path();
         self.operations[0].critical_distance
+    }
+
+    fn swap_ops(&mut self, first_op_id: usize, sec_op_id: usize) {
+        // We assume few things here:
+        debug_assert!(first_op_id != 0 && sec_op_id != 0);
+
+        // Check wheter there is follow up machine element
+        let block_mach_succ_opt = if let Some(Edge {
+            neigh_id: block_mach_succ,
+            kind: _,
+        }) = self.operations[sec_op_id].edges_out.get(1)
+        {
+            Some(*block_mach_succ)
+        } else {
+            None
+        };
+
+        if let Some(block_mach_succ) = block_mach_succ_opt {
+            self.operations[first_op_id].edges_out[1].neigh_id = block_mach_succ;
+            self.operations[block_mach_succ].machine_pred = Some(first_op_id);
+            self.operations[sec_op_id].edges_out[1].neigh_id = first_op_id;
+        } else {
+            self.operations[first_op_id].edges_out.pop();
+            self.operations[sec_op_id]
+                .edges_out
+                .push(Edge::new(first_op_id, EdgeKind::MachineSucc));
+        }
+
+        // Check whether there is predecessor machine element
+        if let Some(block_mach_pred) = self.operations[first_op_id].machine_pred {
+            self.operations[block_mach_pred].edges_out[1].neigh_id = sec_op_id;
+            self.operations[sec_op_id].machine_pred = Some(block_mach_pred);
+        } else {
+            self.operations[sec_op_id].machine_pred = None;
+        }
+
+        self.operations[first_op_id].machine_pred = Some(sec_op_id);
     }
 
     fn local_search(&mut self) -> usize {
@@ -155,100 +196,35 @@ impl JsspIndividual {
 
             // Traverse along critical path
             let mut crt_block = 0;
-            let block = &blocks[crt_block];
 
             while crt_block < blocks.len() && !crt_sol_updated {
-                // // Not first block
+                let block = &blocks[crt_block];
+
+                // Not first block
                 if crt_block > 0 && block.len() >= 2 {
-                    // Swap first two operations of current block in the current solution
-                    // Move to the block beginning
-
-                    let index_1 = self.operations[block[0]]
-                        .edges_out
-                        .iter()
-                        .find_position(|edge| edge.kind == EdgeKind::MachineSucc)
-                        .unwrap()
-                        .0;
-
-                    let edge_rm_1 = self.operations[block[0]].edges_out.swap_remove(index_1);
-                    self.operations[block[1]].edges_out.push(Edge {
-                        neigh_id: block[0],
-                        kind: EdgeKind::MachineSucc,
-                    });
-
-                    if block.len() >= 3 {
-                        let index_rm_2 = self.operations[block[1]]
-                            .edges_out
-                            .iter()
-                            .find_position(|edge| edge.kind == EdgeKind::MachineSucc)
-                            .unwrap()
-                            .0;
-                        let edge = self.operations[block[1]].edges_out.swap_remove(index_rm_2);
-                        self.operations[block[0]].edges_out.push(edge);
-                    }
+                    self.swap_ops(block[0], block[1]);
 
                     let new_makespan = self.determine_makespan();
                     if new_makespan < crt_makespan {
-                        // I should remeber here what was the solution, but it is done in the
-                        // background by modyfing the edges of the solution
-                        crt_sol_updated = true;
                         crt_makespan = new_makespan;
+                        crt_sol_updated = true;
                     } else {
-                        // Restore solution
-                        // New edges are always last (push implementation)
-                        if block.len() >= 3 {
-                            self.operations[block[0]].edges_out.pop();
-                        }
-                        self.operations[block[1]].edges_out.pop();
-                        self.operations[block[0]].edges_out.push(edge_rm_1);
+                        self.swap_ops(block[1], block[0]);
                     }
                 }
 
                 // Not last block
                 if crt_block != blocks.len() - 1 && !crt_sol_updated && block.len() >= 2 {
-                    let sec_last_op_i = block.len() - 2;
-                    let last_op_i = block.len() - 1;
-
-                    let sec_last_rm_i = self.operations[sec_last_op_i]
-                        .edges_out
-                        .iter()
-                        .find_position(|edge| edge.kind == EdgeKind::MachineSucc)
-                        .unwrap()
-                        .0;
-
-                    let sec_last_rm_edge = self.operations[sec_last_op_i]
-                        .edges_out
-                        .swap_remove(sec_last_rm_i);
-                    self.operations[last_op_i].edges_out.push(Edge {
-                        neigh_id: sec_last_op_i,
-                        kind: EdgeKind::MachineSucc,
-                    });
-
-                    if let Some(&third_last_i) = block.get(block.len() - 3) {
-                        self.operations[third_last_i]
-                            .edges_out
-                            .iter_mut()
-                            .find(|edge| edge.kind == EdgeKind::MachineSucc)
-                            .unwrap()
-                            .neigh_id = last_op_i;
-                    }
+                    let last_op_id = block[block.len() - 1];
+                    let sec_last_op_id = block[block.len() - 2];
+                    self.swap_ops(sec_last_op_id, last_op_id);
 
                     let new_makespan = self.determine_makespan();
                     if new_makespan < crt_makespan {
-                        crt_sol_updated = true;
                         crt_makespan = new_makespan;
+                        crt_sol_updated = true;
                     } else {
-                        self.operations[last_op_i].edges_out.pop();
-                        self.operations[sec_last_op_i].edges_out.push(sec_last_rm_edge);
-
-                        if let Some(&third_last_i) = block.get(block.len() - 3) {
-                            self.operations[third_last_i]
-                                .edges_out
-                                .iter_mut()
-                                .find(|edge| edge.kind == EdgeKind::MachineSucc)
-                                .unwrap()
-                                .neigh_id = sec_last_op_i;
-                        }
+                        self.swap_ops(last_op_id, sec_last_op_id);
                     }
                 }
                 crt_block += 1;
@@ -258,6 +234,10 @@ impl JsspIndividual {
     }
 
     pub fn eval(&mut self) -> usize {
+        if self.is_dirty {
+            self.reset();
+        }
+
         // We deduce the problem size from the chromosome size
         let n: usize = self.chromosome.len() / 2;
 
@@ -293,6 +273,8 @@ impl JsspIndividual {
                     })
                     .unwrap();
 
+                let op_j_duration = self.operations[j].duration;
+                let op_j_machine = self.operations[j].machine;
                 let op_j = &self.operations[j];
 
                 // Calculate earliset finish time (in terms of precedence only)
@@ -308,10 +290,10 @@ impl JsspIndividual {
                 let finish_time_j = finish_times
                     .iter()
                     .filter(|&&t| t != usize::MAX && t >= pred_j_finish)
-                    .filter(|&&t| self.machines[op_j.machine].is_idle(t..=t + op_j.duration))
+                    .filter(|&&t| self.machines[op_j.machine].is_idle(t..=t + op_j_duration))
                     .min()
                     .unwrap()
-                    + op_j.duration;
+                    + op_j_duration;
 
                 // Update state
                 scheduled.insert(op_j.id);
@@ -320,6 +302,15 @@ impl JsspIndividual {
 
                 last_finish_time = usize::max(last_finish_time, finish_time_j);
 
+                if let Some(last_sch_op) = self.machines[op_j_machine].last_scheduled_op {
+                    self.operations[last_sch_op]
+                        .edges_out
+                        .push(Edge::new(j, EdgeKind::MachineSucc));
+                    self.operations[j].machine_pred = Some(last_sch_op);
+                }
+
+                self.machines[op_j_machine].reserve(finish_time_j - op_j_duration..finish_time_j, j);
+
                 if g > n {
                     break;
                 }
@@ -327,18 +318,22 @@ impl JsspIndividual {
                 delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
 
                 self.update_delay_feasible_set(&mut delay_feasibles, &finish_times, delay, t_g);
-
-                self.machines[op_j.machine].reserve(finish_time_j - op_j.duration..finish_time_j);
             }
             // Update the scheduling time t_g associated with g
             t_g = *finish_times.iter().filter(|&&t| t > t_g).min().unwrap();
         }
         let makespan = usize::min(last_finish_time, self.local_search());
+
         self.fitness = makespan;
         self.is_fitness_valid = true;
+        self.is_dirty = true;
 
-        self.machines.iter_mut().for_each(|machine| machine.reset());
         makespan
+    }
+
+    fn reset(&mut self) {
+        self.machines.iter_mut().for_each(|machine| machine.reset());
+        self.operations.iter_mut().for_each(|op| op.reset());
     }
 }
 
@@ -395,6 +390,7 @@ impl From<Vec<f64>> for JsspIndividual {
             machines: Vec::new(),
             fitness: usize::MAX,
             is_fitness_valid: false,
+            is_dirty: false,
         }
     }
 }
