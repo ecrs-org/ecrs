@@ -229,17 +229,12 @@ where
         }
     }
 
+    #[inline]
     fn find_best_individual(population: &[IndividualT]) -> &IndividualT {
-        let mut best_individual = &population[0];
-        for idv in population.iter().skip(1) {
-            if *idv < *best_individual {
-                best_individual = idv;
-            }
-        }
-        best_individual
+        population.iter().min().unwrap()
     }
 
-    #[inline(always)]
+    #[inline]
     fn eval_pop(&mut self, population: &mut [IndividualT]) {
         population
             .iter_mut()
