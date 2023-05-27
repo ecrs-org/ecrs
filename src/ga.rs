@@ -315,7 +315,7 @@ where
                 .probe
                 .on_best_fit_in_generation(&self.metadata, best_individual);
 
-            if *best_individual > best_individual_all_time {
+            if *best_individual < best_individual_all_time {
                 best_individual_all_time = best_individual.clone();
                 self.config
                     .probe
