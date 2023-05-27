@@ -59,3 +59,7 @@ required-features = ["aco"]
 name = "ff_bench"
 harness = false
 required-features = ["ff"]
+
+[profile.dev]
+opt-level = 0
+debug = true
