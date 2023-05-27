@@ -1,6 +1,7 @@
 use std::ops::{Range, RangeInclusive};
 
-use log::info;
+use itertools::Itertools;
+use log::{debug, info};
 
 pub mod crossover;
 pub mod fitness;
@@ -32,9 +33,9 @@ pub struct Operation {
     duration: usize,
     machine: usize,
 
-    // Should I hold references to other operations or just their ids
     preds: Vec<usize>,
     edges_out: Vec<Edge>,
+    machine_pred: Option<usize>,
     critical_path_edge: Option<Edge>,
     critical_distance: usize,
 }
@@ -48,9 +49,29 @@ impl Operation {
             machine,
             preds,
             edges_out: Vec::new(),
+            machine_pred: None,
             critical_path_edge: None,
             critical_distance: usize::MIN,
         }
+    }
+
+    pub fn reset(&mut self) {
+        self.finish_time = usize::MAX;
+        self.machine_pred = None;
+        if let Some(edge_to_rm) = self
+            .edges_out
+            .iter()
+            .find_position(|edge| edge.kind == EdgeKind::MachineSucc)
+        {
+            self.edges_out.swap_remove(edge_to_rm.0);
+        }
+        debug_assert_eq!(
+            self.edges_out
+                .iter()
+                .filter(|e| e.kind == EdgeKind::MachineSucc)
+                .count(),
+            0
+        );
     }
 }
 
