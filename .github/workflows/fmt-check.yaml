@@ -17,7 +17,9 @@ env:
 jobs:
   fmt_check:
     runs-on: ubuntu-latest
-
+    concurrency:
+      group: fmt-check-${{ github.ref }}
+      cancel-in-progress: true
     steps:
     - uses: actions/checkout@v3
     - name: Update toolchain
