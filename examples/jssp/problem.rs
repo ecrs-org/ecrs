@@ -89,7 +89,7 @@ pub struct Machine {
 }
 
 impl Machine {
-    pub fn new(id: usize, _rmc_capacity: usize) -> Self {
+    pub fn new(id: usize) -> Self {
         Self {
             id,
             // rmc: vec![1; rmc_capacity],

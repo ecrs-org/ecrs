@@ -64,7 +64,7 @@ impl PopulationGenerator<JsspIndividual> for JsspPopProvider {
                 JsspIndividual::new(
                     chromosome,
                     operations.clone(),
-                    Vec::from_iter((0..instance.cfg.n_machines).map(|i| Machine::new(i, 5000))),
+                    Vec::from_iter((0..instance.cfg.n_machines).map(Machine::new)),
                     usize::MAX,
                 )
             })
