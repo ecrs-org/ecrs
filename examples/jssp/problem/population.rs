@@ -4,29 +4,18 @@ use ecrs::prelude::population::{self, PopulationGenerator};
 use itertools::Itertools;
 use push_trait::PushFront;
 
+use crate::parse::JsspInstanceLoadingError;
+
 use super::{individual::JsspIndividual, Edge, EdgeKind, JsspInstance, Machine, Operation};
 
 pub struct JsspPopProvider {
-    path: PathBuf,
+    instance: JsspInstance,
+    operations: Vec<Operation>,
 }
 
 impl JsspPopProvider {
-    pub fn new(path: PathBuf) -> Self {
-        assert!(path.is_file());
-        Self { path }
-    }
-}
-
-impl PopulationGenerator<JsspIndividual> for JsspPopProvider {
-    fn generate(&mut self, count: usize) -> Vec<JsspIndividual> {
-        let instance = JsspInstance::try_from(self.path.clone());
-
-        let Ok(mut instance) = instance else {
-            panic!("Failed to load problem instance from file {:?}", self.path);
-        };
-
+    pub fn new(instance: JsspInstance) -> Self {
         // Finding dimension of the chromosome
-        let mut point_gen = population::tools::PointGenerator::new();
         let dim: usize = instance.jobs.iter().map(|job| job.len()).sum();
 
         // Shift all ids by 1 && and job 0 & n + 1
@@ -57,17 +46,33 @@ impl PopulationGenerator<JsspIndividual> for JsspPopProvider {
 
         assert_eq!(operations.len(), dim + 2);
 
-        point_gen
-            .generate_with_single_constraint(2 * dim, count, 0.0..1.0)
+        Self { instance, operations }
+    }
+}
+
+impl PopulationGenerator<JsspIndividual> for JsspPopProvider {
+    fn generate(&mut self, count: usize) -> Vec<JsspIndividual> {
+        population::tools::PointGenerator::new()
+            .generate_with_single_constraint(2 * (self.operations.len() - 2), count, 0.0..1.0)
             .into_iter()
             .map(|chromosome| {
                 JsspIndividual::new(
                     chromosome,
-                    operations.clone(),
-                    Vec::from_iter((0..instance.cfg.n_machines).map(Machine::new)),
+                    self.operations.clone(),
+                    Vec::from_iter((0..self.instance.cfg.n_machines).map(Machine::new)),
                     usize::MAX,
                 )
             })
             .collect()
+    }
+}
+
+impl TryFrom<PathBuf> for JsspPopProvider {
+    type Error = JsspInstanceLoadingError;
+
+    fn try_from(file: PathBuf) -> Result<Self, Self::Error> {
+        assert!(file.is_file(), "Received path does not point to a file!");
+        let instance = JsspInstance::try_from(file)?;
+        Ok(JsspPopProvider::new(instance))
     }
 }
