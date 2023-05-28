@@ -16,4 +16,5 @@ jobs:
           project-url: https://github.com/orgs/ecrs-org/projects/1
           labeled: bug, feature
           label-operator: OR
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
