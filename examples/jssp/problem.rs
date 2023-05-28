@@ -132,6 +132,7 @@ impl Machine {
 pub struct JsspConfig {
     pub n_jobs: usize,
     pub n_machines: usize,
+    pub n_ops: usize,
 }
 
 #[derive(Debug)]
