@@ -14,7 +14,7 @@ pub struct JsspPopProvider {
 }
 
 impl JsspPopProvider {
-    pub fn new(instance: JsspInstance) -> Self {
+    pub fn new(mut instance: JsspInstance) -> Self {
         // Finding dimension of the chromosome
         let dim: usize = instance.jobs.iter().map(|job| job.len()).sum();
 
