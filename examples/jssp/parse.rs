@@ -50,13 +50,7 @@ impl TryFrom<PathBuf> for JsspInstance {
             .collect_vec();
         assert!(first_line.len() == 2);
 
-        let cfg = JsspConfig {
-            n_jobs: first_line[0],
-            n_machines: first_line[1],
-        };
-
         let mut jobs: Vec<Vec<Operation>> = Vec::new();
-
         let mut op_id: usize = 0;
         let mut job_id: usize = 0;
 
@@ -79,6 +73,12 @@ impl TryFrom<PathBuf> for JsspInstance {
                 });
             job_id += 1;
         });
+
+        let cfg = JsspConfig {
+            n_jobs: first_line[0],
+            n_machines: first_line[1],
+            n_ops: op_id,
+        };
 
         Ok(JsspInstance {
             jobs,

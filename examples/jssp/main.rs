@@ -25,17 +25,20 @@ use problem::population::JsspPopProvider;
 
 use crate::problem::{JsspConfig, JsspInstance};
 
-fn run_with_ecrs(path: PathBuf) {
+fn run_with_ecrs(instance: JsspInstance) {
+    let pop_size = instance.cfg.n_ops * 2;
+
     let mut solver = ga::Builder::new()
         .set_selection_operator(selection::Rank::new())
         .set_crossover_operator(JsspCrossover::new())
         .set_mutation_operator(mutation::Identity::new())
         .set_replacement_operator(replacement::BothParents::new())
-        .set_population_generator(JsspPopProvider::new(path))
+        .set_population_generator(JsspPopProvider::new(instance))
         .set_fitness(JsspFitness::new())
         .set_probe(ga::probe::StdoutProbe::new())
         .set_max_duration(std::time::Duration::from_secs(30))
-        .set_population_size(200)
+        .set_max_generation_count(400)
+        .set_population_size(pop_size)
         .build();
 
     solver.run();
@@ -51,11 +54,11 @@ fn run() {
     let args = cli::parse_args();
 
     if let Some(file) = args.file {
-        let instance = JsspInstance::try_from(file.clone()).unwrap();
+        let instance = JsspInstance::try_from(file).unwrap();
         for op in instance.jobs.iter() {
             info!("{op:?}");
         }
-        run_with_ecrs(file);
+        run_with_ecrs(instance);
     }
 }
 
