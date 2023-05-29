@@ -7,6 +7,7 @@ pub mod crossover;
 pub mod fitness;
 pub mod individual;
 pub mod population;
+pub mod replacement;
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum EdgeKind {
@@ -128,19 +129,19 @@ impl Machine {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct JsspConfig {
     pub n_jobs: usize,
     pub n_machines: usize,
     pub n_ops: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct JsspInstanceMetadata {
     pub name: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct JsspInstance {
     pub jobs: Vec<Vec<Operation>>,
     pub cfg: JsspConfig,
