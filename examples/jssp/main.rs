@@ -22,6 +22,7 @@ use problem::crossover::JsspCrossover;
 use problem::fitness::JsspFitness;
 use problem::individual::JsspIndividual;
 use problem::population::JsspPopProvider;
+use problem::replacement::JsspReplacement;
 
 use crate::problem::{JsspConfig, JsspInstance};
 
@@ -32,8 +33,8 @@ fn run_with_ecrs(instance: JsspInstance) {
         .set_selection_operator(selection::Rank::new())
         .set_crossover_operator(JsspCrossover::new())
         .set_mutation_operator(mutation::Identity::new())
-        .set_replacement_operator(replacement::BothParents::new())
-        .set_population_generator(JsspPopProvider::new(instance))
+        .set_population_generator(JsspPopProvider::new(instance.clone()))
+        .set_replacement_operator(JsspReplacement::new(JsspPopProvider::new(instance), 0.1, 0.2))
         .set_fitness(JsspFitness::new())
         .set_probe(ga::probe::StdoutProbe::new())
         .set_max_duration(std::time::Duration::from_secs(30))

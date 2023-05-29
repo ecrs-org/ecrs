@@ -16,7 +16,7 @@ fn noop_does_nothing() {
 
     let population_clone = population.clone();
 
-    let noop = Noop::new();
+    let mut noop = Noop::new();
 
     let result = noop.apply(population, children);
 
@@ -34,7 +34,7 @@ fn both_parents_returns_children() {
 
     let children_clone = children.clone();
 
-    let both_parents = BothParents::new();
+    let mut both_parents = BothParents::new();
 
     let result = both_parents.apply(population, children);
 
