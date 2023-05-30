@@ -5,6 +5,7 @@ use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 use std::fmt::Debug;
 use std::ops::{Range, RangeInclusive};
+use std::vec::IntoIter;
 
 use super::individual::IndividualTrait;
 
@@ -12,6 +13,10 @@ use super::individual::IndividualTrait;
 /// and feed it to an solver.
 pub trait PopulationGenerator<IndividualT: IndividualTrait> {
     fn generate(&mut self, count: usize) -> Vec<IndividualT>;
+
+    fn generate_iter(&mut self, count: usize) -> IntoIter<IndividualT> {
+        self.generate(count).into_iter()
+    }
 }
 
 /// Implements [PopulationGenerator] trait. Can be used with genetic algorithm.
