@@ -12,6 +12,10 @@ use super::individual::IndividualTrait;
 /// and feed it to an solver.
 pub trait PopulationGenerator<IndividualT: IndividualTrait> {
     fn generate(&mut self, count: usize) -> Vec<IndividualT>;
+
+    fn generate_iter(&mut self, count: usize) -> impl Iterator<Item = IndividualT> {
+        self.generate().into_iter()
+    }
 }
 
 /// Implements [PopulationGenerator] trait. Can be used with genetic algorithm.
