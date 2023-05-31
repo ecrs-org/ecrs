@@ -5,8 +5,10 @@ mod parse;
 mod problem;
 mod util;
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::time::Duration;
 
+use ecrs::ga::probe::{AggregatedProbe, ElapsedTime, PolicyDrivenProbe, ProbingPolicy};
 use ecrs::prelude::{crossover, ga, ops, replacement, selection};
 use ecrs::{
     ga::{GAMetadata, Individual, StdoutProbe},
@@ -22,12 +24,20 @@ use problem::crossover::JsspCrossover;
 use problem::fitness::JsspFitness;
 use problem::individual::JsspIndividual;
 use problem::population::JsspPopProvider;
+use problem::probe::JsspProbe;
 use problem::replacement::JsspReplacement;
 
 use crate::problem::{JsspConfig, JsspInstance};
 
 fn run_with_ecrs(instance: JsspInstance) {
     let pop_size = instance.cfg.n_ops * 2;
+
+    let probe = AggregatedProbe::new()
+        .add_probe(JsspProbe::new())
+        .add_probe(PolicyDrivenProbe::new(
+            ElapsedTime::new(Duration::from_millis(1000), Duration::from_millis(0)),
+            StdoutProbe::new(),
+        ));
 
     let mut solver = ga::Builder::new()
         .set_selection_operator(selection::Rank::new())
@@ -36,7 +46,7 @@ fn run_with_ecrs(instance: JsspInstance) {
         .set_population_generator(JsspPopProvider::new(instance.clone()))
         .set_replacement_operator(JsspReplacement::new(JsspPopProvider::new(instance), 0.1, 0.2))
         .set_fitness(JsspFitness::new())
-        .set_probe(ga::probe::StdoutProbe::new())
+        .set_probe(probe)
         .set_max_duration(std::time::Duration::from_secs(30))
         .set_max_generation_count(400)
         .set_population_size(pop_size)
@@ -46,7 +56,7 @@ fn run_with_ecrs(instance: JsspInstance) {
 }
 
 fn run() {
-    if let Err(err) = logging::init_logging() {
+    if let Err(err) = logging::init_logging(Some(PathBuf::from("log.txt").as_path())) {
         println!("Logger initialization returned following error");
         println!("{err}");
         return;
