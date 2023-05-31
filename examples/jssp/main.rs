@@ -56,7 +56,7 @@ fn run_with_ecrs(instance: JsspInstance) {
 }
 
 fn run() {
-    if let Err(err) = logging::init_logging(Some(PathBuf::from("log.txt").as_path())) {
+    if let Err(err) = logging::init_logging(Some(PathBuf::from("test.log").as_path())) {
         println!("Logger initialization returned following error");
         println!("{err}");
         return;
