@@ -141,7 +141,7 @@ fn sus_returns_demanded_size_when_fitness_positive() {
     let mut population: Vec<BitStringIndividual> = BitStrings::new(21).generate(expected_population_size);
 
     // SUS requires positive fitness
-    for mut individual in &mut population {
+    for individual in &mut population {
         individual.fitness = 1.0;
     }
 

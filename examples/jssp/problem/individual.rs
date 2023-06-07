@@ -1,8 +1,10 @@
 use std::collections::HashSet;
 
-use crate::util::{print_hash_set, print_slice};
+use ecrs::ga::individual::IndividualTrait;
+use itertools::Itertools;
+use log::{debug, info, trace, warn};
 
-use super::{Machine, Operation};
+use super::{Edge, EdgeKind, Machine, Operation};
 
 #[derive(Debug, Clone)]
 pub struct JsspIndividual {
@@ -10,9 +12,22 @@ pub struct JsspIndividual {
     pub operations: Vec<Operation>,
     pub machines: Vec<Machine>,
     pub fitness: usize,
+    pub is_fitness_valid: bool,
+    is_dirty: bool,
 }
 
 impl JsspIndividual {
+    pub fn new(chromosome: Vec<f64>, ops: Vec<Operation>, machines: Vec<Machine>, fitness: usize) -> Self {
+        Self {
+            chromosome,
+            operations: ops,
+            machines,
+            fitness,
+            is_fitness_valid: false,
+            is_dirty: false,
+        }
+    }
+
     fn update_delay_feasible_set(
         &self,
         feasibles: &mut HashSet<usize>,
@@ -24,7 +39,6 @@ impl JsspIndividual {
         // empty before inserting anything.
         feasibles.clear();
 
-        println!("Updating e_set");
         self.operations
             .iter()
             .filter(|op| finish_times[op.id] == usize::MAX)
@@ -46,54 +60,191 @@ impl JsspIndividual {
             })
     }
 
-    fn update_active_schedule(
-        &self,
-        active_schedule: &mut HashSet<usize>,
-        finish_times: &[usize],
-        time: usize,
-    ) {
-        let mut to_remove: Vec<usize> = vec![];
-        for el in active_schedule.iter() {
-            if finish_times[*el] <= time {
-                to_remove.push(*el);
-            }
-        }
-        for el in to_remove {
-            active_schedule.remove(&el);
-        }
-
-        print!("active_shedule: ");
-        print_hash_set(active_schedule);
-    }
-
-    // fn local_search(&mut self, curr_fitness: usize) -> usize {
-    //     // I can't just use simple bfs algorithm as the nodes are weighted.
-    //     // First I
-    //     let n: usize = self.chromosome.len() / 2;
-    //     let _visited = vec![false; n + 2];
-    //     let mut queue = VecDeque::<usize>::new();
-    //
-    //     queue.push_back(n + 1);
-    //
-    //     while !queue.is_empty() {}
-    //
-    //     curr_fitness
+    // fn update_active_schedule(
+    //     &self,
+    //     active_schedule: &mut HashSet<usize>,
+    //     finish_times: &[usize],
+    //     time: usize,
+    // ) {
+    //     let mut to_remove: Vec<usize> = vec![];
+    //     for el in active_schedule.iter() {
+    //         if finish_times[*el] <= time {
+    //             to_remove.push(*el);
+    //         }
+    //     }
+    //     for el in to_remove {
+    //         active_schedule.remove(&el);
+    //     }
     // }
 
+    fn determine_critical_path(&mut self) {
+        let mut visited = vec![false; self.operations.len()];
+        self.calculate_critical_distance(0, &mut visited)
+    }
+
+    fn calculate_critical_distance(&mut self, op_id: usize, visited: &mut Vec<bool>) {
+        let mut stack: Vec<usize> = Vec::with_capacity(visited.len() * 2);
+
+        stack.push(op_id);
+        while !stack.is_empty() {
+            let crt_op_id = *stack.last().unwrap();
+            // In current implementation it is possible (highly likely) that a vertex might be pushed
+            // multiple times on the stack, before being processed, so we process the vertex iff it
+            // has not been visited already.
+            if !visited[crt_op_id] {
+                let mut has_not_visited_neigh = false;
+                for edge in self.operations[crt_op_id].edges_out.iter() {
+                    if !visited[edge.neigh_id] {
+                        stack.push(edge.neigh_id);
+                        has_not_visited_neigh = true;
+                    }
+                }
+
+                if !has_not_visited_neigh {
+                    visited[crt_op_id] = true;
+                    stack.pop();
+
+                    if !self.operations[crt_op_id].edges_out.is_empty() {
+                        let cp_edge = *self.operations[crt_op_id]
+                            .edges_out
+                            .iter()
+                            .max_by_key(|edge| self.operations[edge.neigh_id].critical_distance)
+                            .unwrap();
+
+                        self.operations[crt_op_id].critical_distance = self.operations[crt_op_id].duration
+                            + self.operations[cp_edge.neigh_id].critical_distance;
+                        self.operations[crt_op_id].critical_path_edge = Some(cp_edge);
+                    } else {
+                        self.operations[crt_op_id].critical_distance = self.operations[crt_op_id].duration;
+                    }
+                }
+            } else {
+                stack.pop();
+            }
+        }
+    }
+
+    fn determine_critical_blocks(&mut self, blocks: &mut Vec<Vec<usize>>) {
+        let mut crt_op = &self.operations[self.operations[0].critical_path_edge.unwrap().neigh_id];
+
+        blocks.clear();
+        blocks.push(Vec::new());
+        while let Some(ref edge) = crt_op.critical_path_edge {
+            blocks.last_mut().unwrap().push(crt_op.id);
+            if edge.kind == EdgeKind::JobSucc {
+                blocks.push(Vec::new());
+            }
+            crt_op = &self.operations[edge.neigh_id];
+        }
+        // there should be empty block at the end
+        debug_assert!(blocks.last().unwrap().is_empty());
+        blocks.pop();
+    }
+
+    fn determine_makespan(&mut self) -> usize {
+        self.determine_critical_path();
+        self.operations[0].critical_distance
+    }
+
+    fn swap_ops(&mut self, first_op_id: usize, sec_op_id: usize) {
+        // We assume few things here:
+        debug_assert!(first_op_id != 0 && sec_op_id != 0);
+
+        // Check wheter there is follow up machine element
+        let block_mach_succ_opt = if let Some(Edge {
+            neigh_id: block_mach_succ,
+            kind: _,
+        }) = self.operations[sec_op_id].edges_out.get(1)
+        {
+            Some(*block_mach_succ)
+        } else {
+            None
+        };
+
+        if let Some(block_mach_succ) = block_mach_succ_opt {
+            self.operations[first_op_id].edges_out[1].neigh_id = block_mach_succ;
+            self.operations[block_mach_succ].machine_pred = Some(first_op_id);
+            self.operations[sec_op_id].edges_out[1].neigh_id = first_op_id;
+        } else {
+            self.operations[first_op_id].edges_out.pop();
+            self.operations[sec_op_id]
+                .edges_out
+                .push(Edge::new(first_op_id, EdgeKind::MachineSucc));
+        }
+
+        // Check whether there is predecessor machine element
+        if let Some(block_mach_pred) = self.operations[first_op_id].machine_pred {
+            self.operations[block_mach_pred].edges_out[1].neigh_id = sec_op_id;
+            self.operations[sec_op_id].machine_pred = Some(block_mach_pred);
+        } else {
+            self.operations[sec_op_id].machine_pred = None;
+        }
+
+        self.operations[first_op_id].machine_pred = Some(sec_op_id);
+    }
+
+    fn local_search(&mut self) -> usize {
+        // let mut vertices_in_topo_order: VecDeque<usize> = VecDeque::with_capacity(self.operations.len());
+        let mut crt_sol_updated = true;
+        let mut blocks: Vec<Vec<usize>> = Vec::new();
+        let mut crt_makespan = usize::MAX;
+
+        while crt_sol_updated {
+            crt_sol_updated = false;
+            crt_makespan = self.determine_makespan();
+            self.determine_critical_blocks(&mut blocks);
+
+            // Traverse along critical path
+            let mut crt_block = 0;
+
+            while crt_block < blocks.len() && !crt_sol_updated {
+                let block = &blocks[crt_block];
+
+                // Not first block
+                if crt_block > 0 && block.len() >= 2 {
+                    self.swap_ops(block[0], block[1]);
+
+                    let new_makespan = self.determine_makespan();
+                    if new_makespan < crt_makespan {
+                        crt_makespan = new_makespan;
+                        crt_sol_updated = true;
+                    } else {
+                        self.swap_ops(block[1], block[0]);
+                    }
+                }
+
+                // Not last block
+                if crt_block != blocks.len() - 1 && !crt_sol_updated && block.len() >= 2 {
+                    let last_op_id = block[block.len() - 1];
+                    let sec_last_op_id = block[block.len() - 2];
+                    self.swap_ops(sec_last_op_id, last_op_id);
+
+                    let new_makespan = self.determine_makespan();
+                    if new_makespan < crt_makespan {
+                        crt_makespan = new_makespan;
+                        crt_sol_updated = true;
+                    } else {
+                        self.swap_ops(last_op_id, sec_last_op_id);
+                    }
+                }
+                crt_block += 1;
+            }
+        }
+        crt_makespan
+    }
+
     pub fn eval(&mut self) -> usize {
-        println!("++++++++++++++++++++++++++++++++++");
+        if self.is_dirty {
+            self.reset();
+        }
+
         // We deduce the problem size from the chromosome size
         let n: usize = self.chromosome.len() / 2;
-        println!("Deduced problem size n = {n}");
-        print!("chromosome: ");
-        print_slice(&self.chromosome);
 
-        let mut active_schedule = std::collections::HashSet::new();
         let mut finish_times = vec![usize::MAX; n + 2];
         let mut scheduled = std::collections::HashSet::new();
-        let mut e_set = std::collections::HashSet::<usize>::new();
+        let mut delay_feasibles = std::collections::HashSet::<usize>::new();
 
-        active_schedule.insert(0);
         scheduled.insert(0);
         finish_times[0] = 0;
         self.operations[0].finish_time = 0;
@@ -103,43 +254,17 @@ impl JsspIndividual {
 
         let max_dur = self.operations.iter().map(|op| op.duration).max().unwrap();
 
-        println!("Entering main loop with g = 1, t_g = 0, max_dur = {max_dur}");
-
-        print!("active_shedule ");
-        print_hash_set(&active_schedule);
-
         let mut last_finish_time = 0;
         while scheduled.len() < n + 1 {
-            println!("==================================");
-            println!("g = {g}, t_g = {t_g}");
-
             // Update e_set
             let mut delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
-            println!("delay = {delay}");
+            self.update_delay_feasible_set(&mut delay_feasibles, &finish_times, delay, t_g);
 
-            print!("finish_times: ");
-            print_slice(&finish_times);
-
-            self.update_delay_feasible_set(&mut e_set, &finish_times, delay, t_g);
-
-            print!("e_set: ");
-            print_hash_set(&e_set);
-
-            while !e_set.is_empty() {
-                println!("---------------------------------");
-                println!("Inner loop for g = {g}");
-                print!("e_set: ");
-                print_hash_set(&e_set);
-                print!("finish_times: ");
-                print_slice(&finish_times);
-
-                delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
-                println!("delay = {delay}");
-
-                // self.update_delay_feasible_set(&mut e_set, &finish_times, delay, t_g);
+            while !delay_feasibles.is_empty() {
+                // delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
 
                 // Select operation with highest priority
-                let j = *e_set
+                let j = *delay_feasibles
                     .iter()
                     .max_by(|&&a, &&b| {
                         self.chromosome[a - 1]
@@ -148,9 +273,9 @@ impl JsspIndividual {
                     })
                     .unwrap();
 
+                let op_j_duration = self.operations[j].duration;
+                let op_j_machine = self.operations[j].machine;
                 let op_j = &self.operations[j];
-
-                println!("Operation with highest priority: {j}");
 
                 // Calculate earliset finish time (in terms of precedence only)
                 let pred_j_finish = op_j
@@ -162,63 +287,110 @@ impl JsspIndividual {
                     .unwrap_or(0);
 
                 // Calculate the earliest finish time (in terms of precedence and capacity)
-                println!("pred finish_time = {pred_j_finish}");
-
                 let finish_time_j = finish_times
                     .iter()
                     .filter(|&&t| t != usize::MAX && t >= pred_j_finish)
-                    .filter(|&&t| self.machines[op_j.machine].is_idle(t..=t + op_j.duration))
+                    .filter(|&&t| self.machines[op_j.machine].is_idle(t..=t + op_j_duration))
                     .min()
                     .unwrap()
-                    + op_j.duration;
+                    + op_j_duration;
 
                 // Update state
                 scheduled.insert(op_j.id);
                 finish_times[op_j.id] = finish_time_j;
-                println!(
-                    "Scheduled op {} with for time = {}..{}, machine = {}",
-                    j,
-                    finish_time_j - op_j.duration,
-                    finish_time_j,
-                    op_j.machine
-                );
                 g += 1;
 
                 last_finish_time = usize::max(last_finish_time, finish_time_j);
+
+                if let Some(last_sch_op) = self.machines[op_j_machine].last_scheduled_op {
+                    self.operations[last_sch_op]
+                        .edges_out
+                        .push(Edge::new(j, EdgeKind::MachineSucc));
+                    self.operations[j].machine_pred = Some(last_sch_op);
+                }
+
+                self.machines[op_j_machine].reserve(finish_time_j - op_j_duration..finish_time_j, j);
 
                 if g > n {
                     break;
                 }
 
-                // delay = self.chromosome[usize::min(n + g - 1, self.chromosome.len() - 1)] * 1.5 * (max_dur as f64);
                 delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
-                println!("delay = {delay}");
 
-                // Update active schedule
-                self.update_active_schedule(&mut active_schedule, &finish_times, t_g);
-
-                // Update e_set
-                // e_set.remove(&j);
-                self.update_delay_feasible_set(&mut e_set, &finish_times, delay, t_g);
-
-                // println!("Removed op {j} from e_set");
-                print!("e_set: ");
-                print_hash_set(&e_set);
-
-                // Update RMC
-                self.machines[op_j.machine].reserve(finish_time_j - op_j.duration..finish_time_j);
-                println!("---------------------------------");
+                self.update_delay_feasible_set(&mut delay_feasibles, &finish_times, delay, t_g);
             }
             // Update the scheduling time t_g associated with g
             t_g = *finish_times.iter().filter(|&&t| t > t_g).min().unwrap();
-            println!("==================================");
         }
-        println!("++++++++++++++++++++++++++++++++++");
+        let makespan = usize::min(last_finish_time, self.local_search());
 
-        // println!("Performing local search");
-        // self.local_search(last_finish_time);
+        self.fitness = makespan;
+        self.is_fitness_valid = true;
+        self.is_dirty = true;
 
-        self.fitness = last_finish_time;
-        last_finish_time
+        makespan
+    }
+
+    fn reset(&mut self) {
+        self.machines.iter_mut().for_each(|machine| machine.reset());
+        self.operations.iter_mut().for_each(|op| op.reset());
+    }
+}
+
+impl PartialEq for JsspIndividual {
+    fn eq(&self, other: &Self) -> bool {
+        self.fitness == other.fitness
+    }
+}
+
+impl Eq for JsspIndividual {}
+
+impl PartialOrd for JsspIndividual {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.fitness.partial_cmp(&other.fitness)
+    }
+}
+
+impl Ord for JsspIndividual {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.fitness.cmp(&other.fitness)
+    }
+}
+
+impl IndividualTrait for JsspIndividual {
+    type ChromosomeT = Vec<f64>;
+    type FitnessValueT = usize;
+
+    fn chromosome(&self) -> &Self::ChromosomeT {
+        &self.chromosome
+    }
+
+    fn chromosome_mut(&mut self) -> &mut Self::ChromosomeT {
+        &mut self.chromosome
+    }
+
+    fn fitness(&self) -> Self::FitnessValueT {
+        self.fitness
+    }
+
+    fn fitness_mut(&mut self) -> &mut Self::FitnessValueT {
+        &mut self.fitness
+    }
+
+    fn requires_evaluation(&self) -> bool {
+        !self.is_fitness_valid
+    }
+}
+
+impl From<Vec<f64>> for JsspIndividual {
+    fn from(chromosome: Vec<f64>) -> Self {
+        Self {
+            chromosome,
+            operations: Vec::new(),
+            machines: Vec::new(),
+            fitness: usize::MAX,
+            is_fitness_valid: false,
+            is_dirty: false,
+        }
     }
 }

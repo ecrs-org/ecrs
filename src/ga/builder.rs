@@ -228,7 +228,7 @@ where
             replacement_operator,
             population_factory,
             probe,
-            _phantom: PhantomData::default(),
+            _phantom: PhantomData,
         })
     }
 }

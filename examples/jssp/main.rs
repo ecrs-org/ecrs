@@ -1,20 +1,62 @@
+#![allow(unused_imports)]
 mod cli;
 mod logging;
 mod parse;
 mod problem;
 mod util;
 
-#[allow(unused_imports)]
+use std::path::{Path, PathBuf};
+use std::time::Duration;
+
+use ecrs::ga::probe::{AggregatedProbe, ElapsedTime, PolicyDrivenProbe, ProbingPolicy};
 use ecrs::prelude::{crossover, ga, ops, replacement, selection};
 use ecrs::{
-    ga::{GAMetadata, Individual},
-    prelude::{crossover::CrossoverOperator, replacement::ReplacementOperator, selection::SelectionOperator},
+    ga::{GAMetadata, Individual, StdoutProbe},
+    prelude::{
+        crossover::{CrossoverOperator, UniformParameterized},
+        mutation::{self, Identity},
+        replacement::{BothParents, ReplacementOperator},
+        selection::{Rank, SelectionOperator},
+    },
 };
+use log::info;
+use problem::crossover::JsspCrossover;
+use problem::fitness::JsspFitness;
+use problem::individual::JsspIndividual;
+use problem::population::JsspPopProvider;
+use problem::probe::JsspProbe;
+use problem::replacement::JsspReplacement;
 
-use crate::problem::{state::JsspState, JsspConfig, JsspInstance};
+use crate::problem::{JsspConfig, JsspInstance};
+
+fn run_with_ecrs(instance: JsspInstance) {
+    let pop_size = instance.cfg.n_ops * 2;
+
+    let probe = AggregatedProbe::new()
+        .add_probe(JsspProbe::new())
+        .add_probe(PolicyDrivenProbe::new(
+            ElapsedTime::new(Duration::from_millis(1000), Duration::from_millis(0)),
+            StdoutProbe::new(),
+        ));
+
+    let mut solver = ga::Builder::new()
+        .set_selection_operator(selection::Rank::new())
+        .set_crossover_operator(JsspCrossover::new())
+        .set_mutation_operator(mutation::Identity::new())
+        .set_population_generator(JsspPopProvider::new(instance.clone()))
+        .set_replacement_operator(JsspReplacement::new(JsspPopProvider::new(instance), 0.1, 0.2))
+        .set_fitness(JsspFitness::new())
+        .set_probe(probe)
+        .set_max_duration(std::time::Duration::from_secs(30))
+        .set_max_generation_count(400)
+        .set_population_size(pop_size)
+        .build();
+
+    solver.run();
+}
 
 fn run() {
-    if let Err(err) = logging::init_logging() {
+    if let Err(err) = logging::init_logging(Some(PathBuf::from("test.log").as_path())) {
         println!("Logger initialization returned following error");
         println!("{err}");
         return;
@@ -24,79 +66,10 @@ fn run() {
 
     if let Some(file) = args.file {
         let instance = JsspInstance::try_from(file).unwrap();
-        for op in instance.ops.iter() {
-            println!("{op:?}");
+        for op in instance.jobs.iter() {
+            info!("{op:?}");
         }
-    }
-
-    const POPULATION_SIZE: usize = 4;
-    const SELECTION_SIZE: usize = 2;
-    const GENERATION_COUNT: usize = 15;
-    const ELITE_SIZE: usize = POPULATION_SIZE - SELECTION_SIZE;
-
-    let mut state = JsspState {
-        cfg: JsspConfig {
-            n_jobs: 4,
-            n_machines: 2,
-        },
-        population: Vec::new(),
-    };
-
-    // Generate initial population
-    state.init_pop(POPULATION_SIZE);
-
-    // Evaluate population
-    let mut best_fitness = state.eval_pop();
-    println!("Best fitness: {best_fitness}");
-
-    // For bounded number of iterations run evolution:
-    // 1. Select with elitism
-    // 2. Uniform crossover or chromosomes (not decoded solutions)
-    // 3. Instead of mutation
-
-    let mut selection_op = selection::Rank::new();
-    // let mut crossover_op = crossover::Uniform::new();
-    let mut crossover_op = crossover::UniformParameterized::new(0.7);
-    let replacement_op = replacement::BothParents::new();
-
-    let stub_metadata = GAMetadata::new(None, None, 0);
-
-    for _ in 0..GENERATION_COUNT {
-        let mut ecrs_individuals: Vec<Individual<Vec<f64>>> = state
-            .population
-            .iter()
-            .map(|jssp_idv| Individual {
-                chromosome: jssp_idv.chromosome.clone(),
-                fitness: jssp_idv.fitness as f64,
-            })
-            .collect();
-
-        let selected_pop = selection_op.apply(&stub_metadata, &ecrs_individuals, SELECTION_SIZE);
-
-        let mut children: Vec<Individual<Vec<f64>>> = Vec::with_capacity(POPULATION_SIZE);
-
-        for parents in selected_pop.chunks(2) {
-            let crt_children = crossover_op.apply(parents[0], parents[1]);
-            children.push(crt_children.0);
-            children.push(crt_children.1);
-        }
-
-        if ELITE_SIZE > 0 {
-            // ecrs_individuals.sort_by(|a , b| b.cmp(a));
-            ecrs_individuals.sort();
-            ecrs_individuals
-                .iter()
-                .take(ELITE_SIZE)
-                .for_each(|idv| children.push(idv.clone()));
-        }
-
-        // TODO: Sample new individuals from the initial distribution
-        assert!(children.len() == ecrs_individuals.len());
-
-        ecrs_individuals = replacement_op.apply(ecrs_individuals, children);
-        state.inject_ecrs_pop(ecrs_individuals);
-        best_fitness = state.eval_pop();
-        println!("Best fitness: {best_fitness}");
+        run_with_ecrs(instance);
     }
 }
 

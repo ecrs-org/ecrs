@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::{collections::HashSet, fmt::Display};
 
 pub fn print_hash_set<T: Display>(set: &HashSet<T>) {

@@ -29,7 +29,7 @@ pub trait ReplacementOperator<IndividualT: IndividualTrait> {
     /// * `population` - Original population, input to the crossover phase.
     /// This collection should be modified in place by the operator.
     /// * `children` - Result of the crossover phase.
-    fn apply(&self, population: Vec<IndividualT>, children: Vec<IndividualT>) -> Vec<IndividualT>;
+    fn apply(&mut self, population: Vec<IndividualT>, children: Vec<IndividualT>) -> Vec<IndividualT>;
 
     /// Returns `true` when the operator requires children to possess valid fitness values.
     ///
@@ -73,7 +73,7 @@ impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for BothPare
     /// This collection should be modified in place by the operator.
     /// * `children` - Result of the crossover phase
     #[inline(always)]
-    fn apply(&self, _population: Vec<IndividualT>, children: Vec<IndividualT>) -> Vec<IndividualT> {
+    fn apply(&mut self, _population: Vec<IndividualT>, children: Vec<IndividualT>) -> Vec<IndividualT> {
         children
     }
 
@@ -103,7 +103,7 @@ impl Noop {
 impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for Noop {
     /// Returns input `population`.
     #[inline(always)]
-    fn apply(&self, population: Vec<IndividualT>, _children: Vec<IndividualT>) -> Vec<IndividualT> {
+    fn apply(&mut self, population: Vec<IndividualT>, _children: Vec<IndividualT>) -> Vec<IndividualT> {
         population
     }
 
@@ -166,7 +166,11 @@ impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for WeakPare
     /// * `population` - Original population, input to the crossover phase.
     /// This collection should be modified in place by the operator.
     /// * `children` - Result of the crossover phase
-    fn apply(&self, mut population: Vec<IndividualT>, mut children: Vec<IndividualT>) -> Vec<IndividualT> {
+    fn apply(
+        &mut self,
+        mut population: Vec<IndividualT>,
+        mut children: Vec<IndividualT>,
+    ) -> Vec<IndividualT> {
         debug_assert_eq!(
             population.len(),
             children.len(),

@@ -14,6 +14,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    concurrency:
+      group: build-test-coco-${{ github.ref }}
+      cancel-in-progress: true
     steps:
     - uses: actions/checkout@v3
     - name: Update toolchain

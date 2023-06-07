@@ -1,6 +1,7 @@
 # output files
 #
 target/
+test.log
 
 # IDE configuration
 #

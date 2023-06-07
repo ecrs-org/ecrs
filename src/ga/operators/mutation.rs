@@ -221,7 +221,7 @@ impl<R: Rng, GeneT: Copy> Inversion<R, GeneT> {
     pub fn with_rng(rng: R) -> Self {
         Self {
             rng,
-            _marker: PhantomData::default(),
+            _marker: PhantomData,
         }
     }
 }
@@ -240,7 +240,7 @@ where
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
     fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
-        let _marker: PhantomData<GeneT> = PhantomData::default();
+        let _marker: PhantomData<GeneT> = PhantomData;
 
         let r: f64 = self.rng.gen();
 

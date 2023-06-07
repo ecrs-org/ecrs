@@ -1,6 +1,6 @@
 [package]
 name = "ecrs"
-version = "0.1.0-beta.3"
+version = "0.1.0-beta.4"
 edition = "2021"
 readme = "README.md"
 repository = "https://github.com/ecrs-org/ecrs"
@@ -59,3 +59,7 @@ required-features = ["aco"]
 name = "ff_bench"
 harness = false
 required-features = ["ff"]
+
+[profile.dev]
+opt-level = 0
+debug = true
