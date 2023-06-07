@@ -61,7 +61,7 @@ impl CsvProbe {
 }
 
 impl Probe<FMatrix> for CsvProbe {
-    fn on_pheromone_update(&mut self, _old_pheromone: &FMatrix, new_pheromone: &FMatrix) {
+    fn on_pheromone_update(&mut self, new_pheromone: &FMatrix) {
         for (i, row) in new_pheromone.row_iter().enumerate() {
             for (j, val) in row.iter().enumerate() {
                 self.pher.push(FMatrixRecord {

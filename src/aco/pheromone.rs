@@ -25,7 +25,7 @@ pub trait PheromoneUpdate<P: Pheromone> {
     /// * `old_pheromone` - Pheromone used to generate current solutions
     /// * `solutions` - Current generated solution.
     /// * `evaporation_rate` - rate of old pheromone evaporation
-    fn apply(&mut self, old_pheromone: &P, solutions: &[Solution], evaporation_rate: f64) -> P;
+    fn apply(&mut self, old_pheromone: &mut P, solutions: &[Solution], evaporation_rate: f64);
 }
 
 /// # Ant System Pheromone Update

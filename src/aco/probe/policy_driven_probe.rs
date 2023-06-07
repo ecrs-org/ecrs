@@ -31,9 +31,9 @@ impl<Ph: Pheromone> Probe<Ph> for PolicyDrivenProbe<Ph> {
     ///
     /// * `old_pheromone` - Matrix containing pheromone values before update
     /// * `new_pheromone` - Matrix containing pheromone values after update
-    fn on_pheromone_update(&mut self, old_pheromone: &Ph, new_pheromone: &Ph) {
+    fn on_pheromone_update(&mut self, new_pheromone: &Ph) {
         if self.policy.on_pheromone_update() {
-            self.probe.on_pheromone_update(old_pheromone, new_pheromone);
+            self.probe.on_pheromone_update(new_pheromone);
         }
     }
 
