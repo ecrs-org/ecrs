@@ -201,16 +201,7 @@ impl PheromoneUpdate<Vec<FMatrix>> for PartFromEvalPU {
         evaporation_rate: f64,
     ) -> Vec<FMatrix> {
         let parts_num = pheromone.len() as f64;
-        let mut min = solutions[0].fitness;
-        let mut max = min;
-        for sol in solutions {
-            if sol.fitness < min {
-                min = sol.fitness
-            }
-            if sol.fitness > max {
-                max = sol.fitness
-            }
-        }
+        let (min, max) = find_bounds(solutions);
         let increment = (max - min) / parts_num;
 
         let mut sol_groups = pheromone.iter().map(|_| Vec::<Solution>::new()).collect_vec();
@@ -229,6 +220,20 @@ impl PheromoneUpdate<Vec<FMatrix>> for PartFromEvalPU {
         .map(|(pu, p, sg)| pu.apply(p, sg, evaporation_rate))
         .collect_vec()
     }
+}
+
+fn find_bounds(solutions: &[Solution]) -> (f64, f64) {
+    let mut min = solutions[0].fitness;
+    let mut max = min;
+    for sol in solutions {
+        if sol.fitness < min {
+            min = sol.fitness
+        }
+        if sol.fitness > max {
+            max = sol.fitness
+        }
+    }
+    (min, max)
 }
 
 #[inline]
