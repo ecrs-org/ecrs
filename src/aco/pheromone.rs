@@ -270,7 +270,7 @@ mod tests {
     use crate::aco::{FMatrix, Solution};
 
     fn get_test_data() -> (FMatrix, [Solution; 2]) {
-        let mut pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
+        let pheromone = FMatrix::from_column_slice(3, 3, &[0.0, 1.0, 2.0, 1.0, 0.0, 4.0, 2.0, 4.0, 0.0]);
 
         let sols = [
             Solution {
@@ -316,7 +316,7 @@ mod tests {
 
     #[test]
     fn check_max_min_ant_system_pu_with_example() {
-        let pher_expt = vec![1.5, 1.5, 1.75, 1.5, 1.5, 3.0, 1.75, 3.0, 1.5];
+        let pher_expt = vec![0.0, 1.5, 1.75, 1.5, 0.0, 3.0, 1.75, 3.0, 0.0];
         let (mut pher, sols) = get_test_data();
 
         let mut pu = MMAntSystemPU::new(1.5, 3.0);
