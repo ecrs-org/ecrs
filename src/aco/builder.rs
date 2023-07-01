@@ -53,6 +53,11 @@ where
         }
     }
 
+    pub fn set_evaporation_rate(mut self, evaporation_rate: f64) -> Self {
+        self.evaporation_rate = evaporation_rate;
+        self
+    }
+
     /// Sets the used [Probe].
     ///
     ///

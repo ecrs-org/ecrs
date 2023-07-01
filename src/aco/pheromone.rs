@@ -3,7 +3,6 @@
 use crate::aco::pheromone::best_policy::{BestPolicy, OverallBest};
 use crate::aco::{FMatrix, Solution};
 use itertools::{izip, Itertools};
-use std::ops::Add;
 use nalgebra::clamp;
 
 pub mod best_policy;
@@ -77,7 +76,6 @@ impl PheromoneUpdate<FMatrix> for ElitistAntSystemPU {
         pheromone.scale_mut(1.0 - evaporation_rate);
         leave_trail(solutions, pheromone);
         leave_single_trail(self.overall_best.get_best(), pheromone);
-
     }
 }
 
@@ -133,10 +131,13 @@ impl<B: BestPolicy> PheromoneUpdate<FMatrix> for MMAntSystemPU<B> {
         pheromone.scale_mut(1.0 - evaporation_rate);
         let s = self.best_policy.get_best();
         for (i, j) in s.path.iter().circular_tuple_windows::<(&usize, &usize)>() {
-            pheromone[(*i, *j)] = clamp(pheromone[(*i, *j)] + s.fitness, self.lower_bound, self.upper_bound);
+            pheromone[(*i, *j)] = clamp(
+                pheromone[(*i, *j)] + s.fitness,
+                self.lower_bound,
+                self.upper_bound,
+            );
             pheromone[(*j, *i)] = pheromone[(*i, *j)];
         }
-
     }
 }
 
@@ -177,7 +178,7 @@ impl<B: BestPolicy> PheromoneUpdate<FMatrix> for AntColonySystemPU<B> {
         pheromone.scale_mut(1.0 - evaporation_rate);
 
         let s = self.best_policy.get_best();
-        let change =  s.fitness * evaporation_rate;
+        let change = s.fitness * evaporation_rate;
         for (i, j) in s.path.iter().circular_tuple_windows::<(&usize, &usize)>() {
             pheromone[(*i, *j)] += change;
             pheromone[(*j, *i)] += change;
@@ -192,23 +193,24 @@ impl<B: BestPolicy> PheromoneUpdate<FMatrix> for AntColonySystemPU<B> {
 /// First pheromone in vec is updated by worst solutions.
 pub struct PartFromEvalPU {
     pheromone_updates: Vec<Box<dyn PheromoneUpdate<FMatrix>>>,
-    groups: Vec<Vec<Solution>>
+    groups: Vec<Vec<Solution>>,
 }
 
 impl PartFromEvalPU {
     pub fn new(pheromone_updates: Vec<Box<dyn PheromoneUpdate<FMatrix>>>) -> Self {
-        let groups = pheromone_updates.iter().map(|_| Vec::<Solution>::new()).collect_vec();
-        Self { pheromone_updates, groups}
+        let groups = pheromone_updates
+            .iter()
+            .map(|_| Vec::<Solution>::new())
+            .collect_vec();
+        Self {
+            pheromone_updates,
+            groups,
+        }
     }
 }
 
 impl PheromoneUpdate<Vec<FMatrix>> for PartFromEvalPU {
-    fn apply(
-        &mut self,
-        pheromone: &mut Vec<FMatrix>,
-        solutions: &[Solution],
-        evaporation_rate: f64,
-    ){
+    fn apply(&mut self, pheromone: &mut Vec<FMatrix>, solutions: &[Solution], evaporation_rate: f64) {
         let parts_num = pheromone.len() as f64;
         let (min, max) = find_bounds(solutions);
         let increment = (max - min) / parts_num;
@@ -227,7 +229,6 @@ impl PheromoneUpdate<Vec<FMatrix>> for PartFromEvalPU {
             self.groups.iter()
         )
         .for_each(|(pu, p, sg)| pu.apply(p, sg, evaporation_rate));
-
     }
 }
 
@@ -321,7 +322,6 @@ mod tests {
         let mut pu = MMAntSystemPU::new(1.5, 3.0);
         pu.apply(&mut pher, &sols, 0.25);
         are_same(pher, &pher_expt);
-
     }
 
     #[test]
@@ -332,6 +332,5 @@ mod tests {
         let mut pu = AntColonySystemPU::new();
         pu.apply(&mut pher, &sols, 0.25);
         are_same(pher, &pher_expt);
-
     }
 }

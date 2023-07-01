@@ -87,12 +87,10 @@ where
         let best = self.find_best(&sols);
         self.probe.on_current_best(best);
 
-        self
-            .pheromone_update
+        self.pheromone_update
             .apply(&mut self.pheromone, &sols, self.evaporation_rate);
 
         self.probe.on_pheromone_update(&self.pheromone);
-
     }
 
     fn find_best<'a>(&mut self, sols: &'a [Solution]) -> &'a Solution {
