@@ -23,7 +23,7 @@ pub use stdout_probe::StdoutProbe;
 #[allow(unused_variables)]
 pub trait Probe<P: Pheromone> {
     /// Called when new pheromone has been calculated.
-    fn on_pheromone_update(&mut self, old_pheromone: &P, new_pheromone: &P) {}
+    fn on_pheromone_update(&mut self, new_pheromone: &P) {}
     /// Called every iteration with best solution in current iteration.
     fn on_current_best(&mut self, best: &Solution) {}
     /// Called on iteration begin when no process has started yet.

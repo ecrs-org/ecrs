@@ -69,8 +69,8 @@ impl JsonProbe {
 }
 
 impl Probe<FMatrix> for JsonProbe {
-    fn on_pheromone_update(&mut self, old_pheromone: &FMatrix, _new_pheromone: &FMatrix) {
-        self.iterations.last_mut().unwrap().pheromone = old_pheromone.clone()
+    fn on_pheromone_update(&mut self, new_pheromone: &FMatrix) {
+        self.iterations.last_mut().unwrap().pheromone = new_pheromone.clone()
     }
 
     fn on_current_best(&mut self, best: &Solution) {

@@ -25,10 +25,10 @@ impl<P: Pheromone> AggregatedProbe<P> {
 }
 
 impl<P: Pheromone> Probe<P> for AggregatedProbe<P> {
-    fn on_pheromone_update(&mut self, old_pheromone: &P, new_pheromone: &P) {
+    fn on_pheromone_update(&mut self, new_pheromone: &P) {
         self.probes
             .iter_mut()
-            .for_each(|p| p.on_pheromone_update(old_pheromone, new_pheromone))
+            .for_each(|p| p.on_pheromone_update(new_pheromone))
     }
 
     fn on_current_best(&mut self, best: &Solution) {
