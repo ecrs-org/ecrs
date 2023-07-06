@@ -35,9 +35,10 @@ fn validate_args(args: &Args) -> Result<(), String> {
     if args.output_dir.is_some() && !cloned_args.output_dir.unwrap().is_dir() {
         return Err("Specified data output directory does not exist or is not a directory".to_owned());
     }
-    if !args.output_file.is_file() {
-        return Err("Specified data output file does not exist or is not a directory".to_owned());
-    }
+    // It does not have to exist -- it will be created
+    // if !args.output_file.is_file() {
+    //     return Err("Specified data output file does not exist or is not a directory".to_owned());
+    // }
     Ok(())
 }
 
