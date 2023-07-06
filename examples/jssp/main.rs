@@ -8,6 +8,7 @@ mod util;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
+use cli::Args;
 use ecrs::ga::probe::{AggregatedProbe, ElapsedTime, PolicyDrivenProbe, ProbingPolicy};
 use ecrs::prelude::{crossover, ga, ops, replacement, selection};
 use ecrs::{
@@ -29,7 +30,7 @@ use problem::replacement::JsspReplacement;
 
 use crate::problem::{JsspConfig, JsspInstance};
 
-fn run_with_ecrs(instance: JsspInstance) {
+fn run_with_ecrs(instance: JsspInstance, _args: Args) {
     let pop_size = instance.cfg.n_ops * 2;
 
     let probe = AggregatedProbe::new()
@@ -56,21 +57,18 @@ fn run_with_ecrs(instance: JsspInstance) {
 }
 
 fn run() {
-    if let Err(err) = logging::init_logging(Some(PathBuf::from("test.log").as_path())) {
-        println!("Logger initialization returned following error");
-        println!("{err}");
-        return;
-    }
-
     let args = cli::parse_args();
 
-    if let Some(file) = args.file {
-        let instance = JsspInstance::try_from(file).unwrap();
-        for op in instance.jobs.iter() {
-            info!("{op:?}");
-        }
-        run_with_ecrs(instance);
+    if let Err(err) = logging::init_logging(Some(args.output_file.as_path())) {
+        panic!("Logger initialization failed with error: {err}");
     }
+
+    // Existance of input file is asserted during cli args parsing
+    let instance = JsspInstance::try_from(&args.input_file).unwrap();
+    for op in instance.jobs.iter() {
+        info!("{op:?}");
+    }
+    run_with_ecrs(instance, args)
 }
 
 fn main() -> Result<(), ()> {
