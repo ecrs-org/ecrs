@@ -26,13 +26,13 @@ impl fmt::Display for JsspInstanceLoadingError {
     }
 }
 
-impl TryFrom<PathBuf> for JsspInstance {
+impl TryFrom<&PathBuf> for JsspInstance {
     type Error = JsspInstanceLoadingError;
 
-    fn try_from(path: PathBuf) -> Result<Self> {
+    fn try_from(path: &PathBuf) -> Result<Self> {
         let name = path.file_stem().unwrap().to_str().unwrap();
 
-        let Ok(file) = std::fs::OpenOptions::new().read(true).open(&path) else {
+        let Ok(file) = std::fs::OpenOptions::new().read(true).open(path) else {
             return Err(Error::FileDoesNotExist(path.to_str().unwrap().to_owned()));
         };
 

@@ -72,7 +72,7 @@ impl TryFrom<PathBuf> for JsspPopProvider {
 
     fn try_from(file: PathBuf) -> Result<Self, Self::Error> {
         assert!(file.is_file(), "Received path does not point to a file!");
-        let instance = JsspInstance::try_from(file)?;
+        let instance = JsspInstance::try_from(&file)?;
         Ok(JsspPopProvider::new(instance))
     }
 }
