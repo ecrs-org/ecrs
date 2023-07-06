@@ -64,7 +64,7 @@ fn run() {
 
     let args = cli::parse_args();
 
-    if let Some(file) = args.file {
+    if let Some(file) = args.input_file {
         let instance = JsspInstance::try_from(file).unwrap();
         for op in instance.jobs.iter() {
             info!("{op:?}");
