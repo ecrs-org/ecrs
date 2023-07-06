@@ -30,7 +30,7 @@ use problem::replacement::JsspReplacement;
 
 use crate::problem::{JsspConfig, JsspInstance};
 
-fn run_with_ecrs(instance: JsspInstance, args: Args) {
+fn run_with_ecrs(instance: JsspInstance, _args: Args) {
     let pop_size = instance.cfg.n_ops * 2;
 
     let probe = AggregatedProbe::new()
