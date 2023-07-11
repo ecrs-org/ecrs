@@ -150,7 +150,7 @@ pub trait Probe<IndividualT: IndividualTrait> {
 ///     true
 ///   }
 ///
-///   fn on_initial_population_created(&mut self, _population: &[IndividualT]) -> bool {
+///   fn on_initial_population_created(&mut self, _metadata: &GAMetadata,  _population: &[IndividualT]) -> bool {
 ///     // We want to log initial population
 ///     true
 ///   }
