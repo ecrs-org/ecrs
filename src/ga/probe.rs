@@ -41,7 +41,7 @@ pub trait Probe<IndividualT: IndividualTrait> {
     /// ### Arguments
     ///
     /// * `population` - Freshly generated population
-    fn on_initial_population_created(&mut self, _population: &[IndividualT]) {
+    fn on_initial_population_created(&mut self, _metadata: &GAMetadata, _population: &[IndividualT]) {
         /* defaults to noop */
     }
 
@@ -150,7 +150,7 @@ pub trait Probe<IndividualT: IndividualTrait> {
 ///     true
 ///   }
 ///
-///   fn on_initial_population_created(&mut self, _population: &[IndividualT]) -> bool {
+///   fn on_initial_population_created(&mut self, _metadata: &GAMetadata,  _population: &[IndividualT]) -> bool {
 ///     // We want to log initial population
 ///     true
 ///   }
@@ -193,7 +193,7 @@ pub trait Probe<IndividualT: IndividualTrait> {
 /// Later you can use it with [PolicyDrivenProbe]
 pub trait ProbingPolicy<IndividualT: IndividualTrait> {
     fn on_start(&mut self, _metadata: &GAMetadata) -> bool;
-    fn on_initial_population_created(&mut self, _population: &[IndividualT]) -> bool;
+    fn on_initial_population_created(&mut self, _metadata: &GAMetadata, _population: &[IndividualT]) -> bool;
     fn on_new_best(&mut self, _metadata: &GAMetadata, _individual: &IndividualT) -> bool;
     fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[IndividualT]) -> bool;
     fn on_best_fit_in_generation(&mut self, _metadata: &GAMetadata, _individual: &IndividualT) -> bool;

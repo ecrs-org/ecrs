@@ -48,9 +48,9 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     /// ### Arguments
     ///
     /// * `population` - Freshly generated population
-    fn on_initial_population_created(&mut self, population: &[IndividualT]) {
+    fn on_initial_population_created(&mut self, metadata: &GAMetadata, population: &[IndividualT]) {
         for probe in &mut self.probes {
-            probe.on_initial_population_created(population);
+            probe.on_initial_population_created(metadata, population);
         }
     }
 

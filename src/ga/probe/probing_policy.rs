@@ -33,7 +33,7 @@ impl<IndividualT: IndividualTrait> ProbingPolicy<IndividualT> for GenerationInte
     }
 
     #[inline(always)]
-    fn on_initial_population_created(&mut self, _population: &[IndividualT]) -> bool {
+    fn on_initial_population_created(&mut self, _metadata: &GAMetadata, _population: &[IndividualT]) -> bool {
         true
     }
 
@@ -114,7 +114,7 @@ impl<IndividualT: IndividualTrait> ProbingPolicy<IndividualT> for ElapsedTime {
     }
 
     #[inline(always)]
-    fn on_initial_population_created(&mut self, _population: &[IndividualT]) -> bool {
+    fn on_initial_population_created(&mut self, _metadata: &GAMetadata, _population: &[IndividualT]) -> bool {
         true
     }
 

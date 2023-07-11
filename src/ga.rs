@@ -121,6 +121,7 @@ pub mod individual;
 pub mod operators;
 pub mod population;
 pub mod probe;
+pub(crate) mod timer;
 
 use crate::ga::operators::fitness::Fitness;
 pub use builder::*;
@@ -132,6 +133,7 @@ pub use probe::StdoutProbe;
 use std::marker::PhantomData;
 
 use self::individual::IndividualTrait;
+use self::timer::Timer;
 use self::{
     operators::{
         crossover::CrossoverOperator, mutation::MutationOperator, replacement::ReplacementOperator,
@@ -172,9 +174,16 @@ where
 
 #[derive(Default)]
 pub struct GAMetadata {
+    pub generation: usize,
     pub start_time: Option<std::time::Instant>,
     pub duration: Option<std::time::Duration>,
-    pub generation: usize,
+    pub pop_gen_duration: Option<std::time::Duration>,
+    pub pop_eval_duration: Option<std::time::Duration>,
+    pub selection_duration: Option<std::time::Duration>,
+    pub crossover_duration: Option<std::time::Duration>,
+    pub mutation_duration: Option<std::time::Duration>,
+    pub replacement_duration: Option<std::time::Duration>,
+    pub iteration_duration: Option<std::time::Duration>,
 }
 
 impl GAMetadata {
@@ -184,9 +193,16 @@ impl GAMetadata {
         generation: usize,
     ) -> Self {
         GAMetadata {
+            generation,
             start_time,
             duration,
-            generation,
+            pop_gen_duration: None,
+            pop_eval_duration: None,
+            selection_duration: None,
+            crossover_duration: None,
+            mutation_duration: None,
+            replacement_duration: None,
+            iteration_duration: None,
         }
     }
 }
@@ -204,6 +220,7 @@ where
 {
     config: GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
     metadata: GAMetadata,
+    timer: Timer,
 }
 
 impl<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
@@ -226,6 +243,7 @@ where
         GeneticSolver {
             config,
             metadata: GAMetadata::new(None, None, 0),
+            timer: Timer::new(),
         }
     }
 
@@ -253,11 +271,17 @@ where
         self.metadata.start_time = Some(std::time::Instant::now());
         self.config.probe.on_start(&self.metadata);
 
+        self.timer.start();
         let mut population = self.gen_pop();
+        self.metadata.pop_gen_duration = Some(self.timer.elapsed());
 
+        self.timer.start();
         self.eval_pop(&mut population);
+        self.metadata.pop_eval_duration = Some(self.timer.elapsed());
 
-        self.config.probe.on_initial_population_created(&population);
+        self.config
+            .probe
+            .on_initial_population_created(&self.metadata, &population);
 
         let mut best_individual_all_time = Self::find_best_individual(&population).clone();
 
@@ -266,47 +290,61 @@ where
             .probe
             .on_new_best(&self.metadata, &best_individual_all_time);
 
+        let mut iteration_timer = Timer::new();
         for generation_no in 1..=self.config.params.generation_limit {
             self.metadata.generation = generation_no;
             self.metadata.duration = Some(self.metadata.start_time.unwrap().elapsed());
+            iteration_timer.start();
 
             self.config.probe.on_iteration_start(&self.metadata);
 
             // 2. Evaluate fitness for each individual.
+            self.timer.start();
             self.eval_pop(&mut population);
+            self.metadata.pop_eval_duration = Some(self.timer.elapsed());
 
             // 4. Create mating pool by applying selection operator.
+            self.timer.start();
             let mating_pool: Vec<&IndividualT> =
                 self.config
                     .selection_operator
                     .apply(&self.metadata, &population, population.len());
+            self.metadata.selection_duration = Some(self.timer.elapsed());
 
             // 5. From mating pool create new generation (apply crossover & mutation).
             let mut children: Vec<IndividualT> = Vec::with_capacity(self.config.params.population_size);
 
             // FIXME: Do not assume that population size is an even number.
+            self.timer.start();
             for parents in mating_pool.chunks(2) {
                 let crt_children = self.config.crossover_operator.apply(parents[0], parents[1]);
 
                 children.push(crt_children.0);
                 children.push(crt_children.1);
             }
+            self.metadata.crossover_duration = Some(self.timer.elapsed());
 
+            self.timer.start();
             children.iter_mut().for_each(|child| {
                 self.config
                     .mutation_operator
                     .apply(child, self.config.params.mutation_rate)
             });
+            self.metadata.mutation_duration = Some(self.timer.elapsed());
 
             if self.config.replacement_operator.requires_children_fitness() {
                 self.eval_pop(&mut children);
             }
 
             // 6. Replacement - merge new generation with old one
+            self.timer.start();
             population = self.config.replacement_operator.apply(population, children);
+            self.metadata.replacement_duration = Some(self.timer.elapsed());
 
             // 7. Check for stop condition (Is good enough individual found)? If not goto 2.
+            self.timer.start();
             self.eval_pop(&mut population);
+            self.metadata.pop_eval_duration = Some(self.timer.elapsed());
 
             self.config.probe.on_new_generation(&self.metadata, &population);
 
@@ -322,6 +360,7 @@ where
                     .on_new_best(&self.metadata, &best_individual_all_time);
             }
 
+            self.metadata.iteration_duration = Some(iteration_timer.elapsed());
             self.config.probe.on_iteration_end(&self.metadata);
 
             if self.metadata.start_time.unwrap().elapsed() >= self.config.params.max_duration {
