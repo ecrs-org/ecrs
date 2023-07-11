@@ -22,12 +22,23 @@ impl JsspProbe {
 }
 
 impl Probe<JsspIndividual> for JsspProbe {
+    // CSV OUTLINE:
+    // diversity,<generation>,<total_duration>,<population_size>,<diversity>
+    // newbest,<generation>,<total_duration>,<fitness>
+    // bestingen,<generation>,<total_duration>,<fitness>
+    // popgentime,<time>
+    // iterinfo,<generation>,<eval_time>,<sel_time>,<cross_time>,<mut_time>,<repl_time>,<iter_time>
+
     #[inline]
     fn on_start(&mut self, _metadata: &ecrs::ga::GAMetadata) {}
 
-    fn on_initial_population_created(&mut self, population: &[JsspIndividual]) {
+    fn on_initial_population_created(
+        &mut self,
+        metadata: &ecrs::ga::GAMetadata,
+        population: &[JsspIndividual],
+    ) {
         let diversity = JsspProbe::estimate_pop_diversity(population);
-        info!(target: "csv", "diversity,0,0,{},{diversity}", population.len());
+        info!(target: "csv", "diversity,0,0,{},{diversity}\npopgentime,{}", population.len(), metadata.pop_gen_duration.unwrap().as_millis());
     }
 
     fn on_new_best(&mut self, metadata: &ecrs::ga::GAMetadata, individual: &JsspIndividual) {
@@ -66,7 +77,16 @@ impl Probe<JsspIndividual> for JsspProbe {
     }
 
     #[inline]
-    fn on_iteration_end(&mut self, _metadata: &ecrs::ga::GAMetadata) { /* defaults to noop */
+    fn on_iteration_end(&mut self, metadata: &ecrs::ga::GAMetadata) {
+        info!(target: "csv", "iterinfo,{},{},{},{},{},{},{}",
+            metadata.generation,
+            metadata.pop_eval_duration.unwrap().as_millis(),
+            metadata.selection_duration.unwrap().as_millis(),
+            metadata.crossover_duration.unwrap().as_millis(),
+            metadata.mutation_duration.unwrap().as_millis(),
+            metadata.replacement_duration.unwrap().as_millis(),
+            metadata.iteration_duration.unwrap().as_millis()
+        );
     }
 
     #[inline]

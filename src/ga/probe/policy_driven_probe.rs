@@ -62,9 +62,9 @@ impl<IndividualT: IndividualTrait, Pc: ProbingPolicy<IndividualT>, Pr: Probe<Ind
     /// ### Arguments
     ///
     /// * `population` - Freshly generated population
-    fn on_initial_population_created(&mut self, population: &[IndividualT]) {
-        if self.policy.on_initial_population_created(population) {
-            self.probe.on_initial_population_created(population);
+    fn on_initial_population_created(&mut self, metadata: &GAMetadata, population: &[IndividualT]) {
+        if self.policy.on_initial_population_created(metadata, population) {
+            self.probe.on_initial_population_created(metadata, population);
         }
     }
 
