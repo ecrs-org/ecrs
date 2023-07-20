@@ -138,7 +138,7 @@ impl<IndividualT: IndividualTrait> ProbingPolicy<IndividualT> for ElapsedTime {
     }
 
     fn on_iteration_start(&mut self, metadata: &GAMetadata) -> bool {
-        if metadata.duration.unwrap() >= self.threshold {
+        if metadata.total_dur.unwrap() >= self.threshold {
             self.should_log = true;
             self.threshold += self.interval;
             true
