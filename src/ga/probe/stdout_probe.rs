@@ -19,7 +19,7 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for StdoutProbe {
         info!(
             "[NEW_BEST] {},{},{:?},{}",
             metadata
-                .duration
+                .total_dur
                 .unwrap_or(std::time::Duration::from_millis(0))
                 .as_millis(),
             metadata.generation,
@@ -37,7 +37,7 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for StdoutProbe {
         // TODO: Take reference to the best chromosome & display it here!
         info!(
             "[BEST_IN_GEN] {},{},{:?},{}",
-            metadata.duration.unwrap().as_millis(),
+            metadata.total_dur.unwrap().as_millis(),
             metadata.generation,
             individual.chromosome(),
             individual.fitness()
@@ -47,7 +47,7 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for StdoutProbe {
     fn on_end(&mut self, metadata: &GAMetadata, _population: &[IndividualT], best_individual: &IndividualT) {
         info!(
             "[END] {},{},{:?},{}",
-            metadata.duration.unwrap().as_millis(),
+            metadata.total_dur.unwrap().as_millis(),
             metadata.generation,
             best_individual.chromosome(),
             best_individual.fitness()

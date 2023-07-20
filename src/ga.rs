@@ -176,14 +176,14 @@ where
 pub struct GAMetadata {
     pub generation: usize,
     pub start_time: Option<std::time::Instant>,
-    pub duration: Option<std::time::Duration>,
-    pub pop_gen_duration: Option<std::time::Duration>,
-    pub pop_eval_duration: Option<std::time::Duration>,
-    pub selection_duration: Option<std::time::Duration>,
-    pub crossover_duration: Option<std::time::Duration>,
-    pub mutation_duration: Option<std::time::Duration>,
-    pub replacement_duration: Option<std::time::Duration>,
-    pub iteration_duration: Option<std::time::Duration>,
+    pub total_dur: Option<std::time::Duration>,
+    pub pop_gen_dur: Option<std::time::Duration>,
+    pub pop_eval_dur: Option<std::time::Duration>,
+    pub selection_dur: Option<std::time::Duration>,
+    pub crossover_dur: Option<std::time::Duration>,
+    pub mutation_dur: Option<std::time::Duration>,
+    pub replacement_dur: Option<std::time::Duration>,
+    pub iteration_dur: Option<std::time::Duration>,
 }
 
 impl GAMetadata {
@@ -195,14 +195,14 @@ impl GAMetadata {
         GAMetadata {
             generation,
             start_time,
-            duration,
-            pop_gen_duration: None,
-            pop_eval_duration: None,
-            selection_duration: None,
-            crossover_duration: None,
-            mutation_duration: None,
-            replacement_duration: None,
-            iteration_duration: None,
+            total_dur: duration,
+            pop_gen_dur: None,
+            pop_eval_dur: None,
+            selection_dur: None,
+            crossover_dur: None,
+            mutation_dur: None,
+            replacement_dur: None,
+            iteration_dur: None,
         }
     }
 }
@@ -273,11 +273,11 @@ where
 
         self.timer.start();
         let mut population = self.gen_pop();
-        self.metadata.pop_gen_duration = Some(self.timer.elapsed());
+        self.metadata.pop_gen_dur = Some(self.timer.elapsed());
 
         self.timer.start();
         self.eval_pop(&mut population);
-        self.metadata.pop_eval_duration = Some(self.timer.elapsed());
+        self.metadata.pop_eval_dur = Some(self.timer.elapsed());
 
         self.config
             .probe
@@ -285,7 +285,7 @@ where
 
         let mut best_individual_all_time = Self::find_best_individual(&population).clone();
 
-        self.metadata.duration = Some(self.metadata.start_time.unwrap().elapsed());
+        self.metadata.total_dur = Some(self.metadata.start_time.unwrap().elapsed());
         self.config
             .probe
             .on_new_best(&self.metadata, &best_individual_all_time);
@@ -293,7 +293,7 @@ where
         let mut iteration_timer = Timer::new();
         for generation_no in 1..=self.config.params.generation_limit {
             self.metadata.generation = generation_no;
-            self.metadata.duration = Some(self.metadata.start_time.unwrap().elapsed());
+            self.metadata.total_dur = Some(self.metadata.start_time.unwrap().elapsed());
             iteration_timer.start();
 
             self.config.probe.on_iteration_start(&self.metadata);
@@ -301,7 +301,7 @@ where
             // 2. Evaluate fitness for each individual.
             self.timer.start();
             self.eval_pop(&mut population);
-            self.metadata.pop_eval_duration = Some(self.timer.elapsed());
+            self.metadata.pop_eval_dur = Some(self.timer.elapsed());
 
             // 4. Create mating pool by applying selection operator.
             self.timer.start();
@@ -309,7 +309,7 @@ where
                 self.config
                     .selection_operator
                     .apply(&self.metadata, &population, population.len());
-            self.metadata.selection_duration = Some(self.timer.elapsed());
+            self.metadata.selection_dur = Some(self.timer.elapsed());
 
             // 5. From mating pool create new generation (apply crossover & mutation).
             let mut children: Vec<IndividualT> = Vec::with_capacity(self.config.params.population_size);
@@ -322,7 +322,7 @@ where
                 children.push(crt_children.0);
                 children.push(crt_children.1);
             }
-            self.metadata.crossover_duration = Some(self.timer.elapsed());
+            self.metadata.crossover_dur = Some(self.timer.elapsed());
 
             self.timer.start();
             children.iter_mut().for_each(|child| {
@@ -330,7 +330,7 @@ where
                     .mutation_operator
                     .apply(child, self.config.params.mutation_rate)
             });
-            self.metadata.mutation_duration = Some(self.timer.elapsed());
+            self.metadata.mutation_dur = Some(self.timer.elapsed());
 
             if self.config.replacement_operator.requires_children_fitness() {
                 self.eval_pop(&mut children);
@@ -339,12 +339,12 @@ where
             // 6. Replacement - merge new generation with old one
             self.timer.start();
             population = self.config.replacement_operator.apply(population, children);
-            self.metadata.replacement_duration = Some(self.timer.elapsed());
+            self.metadata.replacement_dur = Some(self.timer.elapsed());
 
             // 7. Check for stop condition (Is good enough individual found)? If not goto 2.
             self.timer.start();
             self.eval_pop(&mut population);
-            self.metadata.pop_eval_duration = Some(self.timer.elapsed());
+            self.metadata.pop_eval_dur = Some(self.timer.elapsed());
 
             self.config.probe.on_new_generation(&self.metadata, &population);
 
@@ -360,7 +360,7 @@ where
                     .on_new_best(&self.metadata, &best_individual_all_time);
             }
 
-            self.metadata.iteration_duration = Some(iteration_timer.elapsed());
+            self.metadata.iteration_dur = Some(iteration_timer.elapsed());
             self.config.probe.on_iteration_end(&self.metadata);
 
             if self.metadata.start_time.unwrap().elapsed() >= self.config.params.max_duration {

@@ -38,7 +38,7 @@ impl Probe<JsspIndividual> for JsspProbe {
         population: &[JsspIndividual],
     ) {
         let diversity = JsspProbe::estimate_pop_diversity(population);
-        info!(target: "csv", "diversity,0,0,{},{diversity}\npopgentime,{}", population.len(), metadata.pop_gen_duration.unwrap().as_millis());
+        info!(target: "csv", "diversity,0,0,{},{diversity}\npopgentime,{}", population.len(), metadata.pop_gen_dur.unwrap().as_millis());
     }
 
     fn on_new_best(&mut self, metadata: &ecrs::ga::GAMetadata, individual: &JsspIndividual) {
@@ -46,7 +46,7 @@ impl Probe<JsspIndividual> for JsspProbe {
             target: "csv",
             "newbest,{},{},{}",
             metadata.generation,
-            metadata.duration.unwrap().as_millis(),
+            metadata.total_dur.unwrap().as_millis(),
             individual.fitness
         );
     }
@@ -57,7 +57,7 @@ impl Probe<JsspIndividual> for JsspProbe {
             target: "csv",
             "diversity,{},{},{},{diversity}",
             metadata.generation,
-            metadata.duration.unwrap().as_millis(),
+            metadata.total_dur.unwrap().as_millis(),
             generation.len()
         );
     }
@@ -67,7 +67,7 @@ impl Probe<JsspIndividual> for JsspProbe {
             target: "csv",
             "bestingen,{},{},{}",
             metadata.generation,
-            metadata.duration.unwrap().as_millis(),
+            metadata.total_dur.unwrap().as_millis(),
             individual.fitness
         );
     }
@@ -80,12 +80,12 @@ impl Probe<JsspIndividual> for JsspProbe {
     fn on_iteration_end(&mut self, metadata: &ecrs::ga::GAMetadata) {
         info!(target: "csv", "iterinfo,{},{},{},{},{},{},{}",
             metadata.generation,
-            metadata.pop_eval_duration.unwrap().as_millis(),
-            metadata.selection_duration.unwrap().as_millis(),
-            metadata.crossover_duration.unwrap().as_millis(),
-            metadata.mutation_duration.unwrap().as_millis(),
-            metadata.replacement_duration.unwrap().as_millis(),
-            metadata.iteration_duration.unwrap().as_millis()
+            metadata.pop_eval_dur.unwrap().as_millis(),
+            metadata.selection_dur.unwrap().as_millis(),
+            metadata.crossover_dur.unwrap().as_millis(),
+            metadata.mutation_dur.unwrap().as_millis(),
+            metadata.replacement_dur.unwrap().as_millis(),
+            metadata.iteration_dur.unwrap().as_millis()
         );
     }
 
