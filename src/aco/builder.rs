@@ -163,6 +163,24 @@ where
             _phantom: PhantomData,
         }
     }
+
+    pub fn set_additional_args<Args: AdditionalArgs>(
+        self,
+        args: Args,
+    ) -> Builder<P, C, F, T, Pr, Ph, Args, Yes> {
+        Builder {
+            solution_size: self.solution_size,
+            pheromone_update: self.pheromone_update,
+            fitness: self.fitness,
+            colony: self.colony,
+            termination_cond: self.termination_cond,
+            start_pheromone: self.start_pheromone,
+            probe: self.probe,
+            additional_args: Some(args),
+            _phantom: Default::default(),
+        }
+    }
+
     /// Builds [AntColonyOptimization] with provided building blocks.
     ///
     /// * `pheromone_update` needs to be specified, if not program will panic
