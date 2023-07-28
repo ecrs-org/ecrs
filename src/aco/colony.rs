@@ -2,10 +2,11 @@ use crate::aco::ant::Ant;
 use crate::aco::ants_behaviour::AntsBehaviour;
 use crate::aco::goodness::Goodness;
 use crate::aco::pheromone::Pheromone;
+use crate::aco::AdditionalArgs;
 use std::marker::PhantomData;
 
-pub trait Colony<P: Pheromone> {
-    fn build_solutions(&mut self, pheromone: &mut P) -> Vec<Vec<usize>>;
+pub trait Colony<P: Pheromone, Args: AdditionalArgs = ()> {
+    fn build_solutions(&mut self, pheromone: &mut P, args: &Args) -> Vec<Vec<usize>>;
 }
 
 pub struct LegacyColony<P: Pheromone, AB: AntsBehaviour<A, G, P>, A: Ant, G: Goodness<P>> {
@@ -26,10 +27,15 @@ impl<P: Pheromone, AB: AntsBehaviour<A, G, P>, A: Ant, G: Goodness<P>> LegacyCol
     }
 }
 
-impl<P: Pheromone, AB: AntsBehaviour<A, G, P>, A: Ant, G: Goodness<P>> Colony<P>
-    for LegacyColony<P, AB, A, G>
+impl<P, AB, A, G, Args> Colony<P, Args> for LegacyColony<P, AB, A, G>
+where
+    P: Pheromone,
+    AB: AntsBehaviour<A, G, P>,
+    A: Ant,
+    G: Goodness<P>,
+    Args: AdditionalArgs,
 {
-    fn build_solutions(&mut self, pheromone: &mut P) -> Vec<Vec<usize>> {
+    fn build_solutions(&mut self, pheromone: &mut P, _: &Args) -> Vec<Vec<usize>> {
         self.ants_behaviour
             .simulate_ants(&mut self.ants, pheromone, &mut self.goodness)
     }

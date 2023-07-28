@@ -47,9 +47,9 @@ impl AdditionalArgs for () {}
 /// To extract data use a [probe](probe)
 pub struct AntColonyOptimization<P, C, F, T, Pr, Ph, Args = ()>
 where
-    P: PheromoneUpdate<Ph>,
-    C: Colony<Ph>,
-    F: Fitness,
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
+    F: Fitness<Args>,
     T: TerminationCondition<Ph>,
     Pr: Probe<Ph>,
     Ph: Pheromone,
@@ -66,9 +66,9 @@ where
 
 impl<P, C, F, T, Pr, Ph, Args> AntColonyOptimization<P, C, F, T, Pr, Ph, Args>
 where
-    P: PheromoneUpdate<Ph>,
-    C: Colony<Ph>,
-    F: Fitness,
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
+    F: Fitness<Args>,
     T: TerminationCondition<Ph>,
     Pr: Probe<Ph>,
     Ph: Pheromone,
@@ -87,13 +87,16 @@ where
     }
 
     fn iterate(&mut self) {
-        let paths = self.colony.build_solutions(&mut self.pheromone);
+        let paths = self
+            .colony
+            .build_solutions(&mut self.pheromone, &self.additional_args);
         let sols = self.grade(paths);
 
         let best = self.find_best(&sols);
         self.probe.on_current_best(best);
 
-        self.pheromone_update.apply(&mut self.pheromone, &sols);
+        self.pheromone_update
+            .apply(&mut self.pheromone, &sols, &self.additional_args);
 
         self.probe.on_pheromone_update(&self.pheromone);
     }
@@ -110,7 +113,7 @@ where
         let mut sols: Vec<Solution> = Vec::with_capacity(paths.len());
 
         for path in paths {
-            let fitness = self.fitness.apply(&path);
+            let fitness = self.fitness.apply(&path, &self.additional_args);
 
             let mut solution = Solution::from_path(path);
             solution.fitness = fitness;

@@ -3,18 +3,19 @@
 //! Contains trait [Fitness] that should be implemented for grading structure.
 //! Higher fitness means beater path.
 //! <b> Fitness must be grater or equal 0 </b>
-use crate::aco::FMatrix;
+use crate::aco::{AdditionalArgs, FMatrix};
 use itertools::Itertools;
 
 /// # Fitness
 ///
 /// Trait defining method needed for grading.
-pub trait Fitness {
+pub trait Fitness<Args: AdditionalArgs = ()> {
     /// Calculates fitness of given path.
     ///
     ///  ## Arguments
     /// * `path` - path in sequence of vertices form.
-    fn apply(&mut self, path: &[usize]) -> f64;
+    /// * ``
+    fn apply(&mut self, path: &[usize], args: &Args) -> f64;
 }
 
 /// # Canonical Fitness
@@ -31,8 +32,8 @@ impl CanonicalFitness {
     }
 }
 
-impl Fitness for CanonicalFitness {
-    fn apply(&mut self, path: &[usize]) -> f64 {
+impl<Args: AdditionalArgs> Fitness<Args> for CanonicalFitness {
+    fn apply(&mut self, path: &[usize], _: &Args) -> f64 {
         let mut cost = 0.0f64;
         for (i, j) in path.iter().circular_tuple_windows::<(&usize, &usize)>() {
             cost += self.weights[(*i, *j)];
@@ -52,8 +53,8 @@ mod tests {
         let weights = FMatrix::from_vec(2, 2, vec![0.0, 2.0, 4.0, 0.0]);
         let mut fittness = CanonicalFitness::new(weights);
         let path = [0usize, 1];
-        assert_eq!(fittness.apply(&path), 1.0 / 6.0);
+        assert_eq!(fittness.apply(&path, &()), 1.0 / 6.0);
         let path = [1usize, 0];
-        assert_eq!(fittness.apply(&path), 1.0 / 6.0);
+        assert_eq!(fittness.apply(&path, &()), 1.0 / 6.0);
     }
 }

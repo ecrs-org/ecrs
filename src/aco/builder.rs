@@ -16,9 +16,9 @@ impl HasAdditionalArgs for No {}
 ///
 pub struct Builder<P, C, F, T, Pr, Ph, Args = (), HasArgs = No>
 where
-    P: PheromoneUpdate<Ph>,
-    C: Colony<Ph>,
-    F: Fitness,
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
+    F: Fitness<Args>,
     T: TerminationCondition<Ph>,
     Pr: Probe<Ph>,
     Ph: Pheromone,
@@ -38,9 +38,9 @@ where
 
 impl<P, C, F, T, Pr, Ph, Args, HasArgs> Builder<P, C, F, T, Pr, Ph, Args, HasArgs>
 where
-    P: PheromoneUpdate<Ph>,
-    C: Colony<Ph>,
-    F: Fitness,
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
+    F: Fitness<Args>,
     T: TerminationCondition<Ph>,
     Pr: Probe<Ph>,
     Ph: Pheromone,
@@ -109,9 +109,9 @@ where
 
 impl<P, C, F, T, Pr, Ph, Args> Builder<P, C, F, T, Pr, Ph, Args, Yes>
 where
-    P: PheromoneUpdate<Ph>,
-    C: Colony<Ph>,
-    F: Fitness,
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
+    F: Fitness<Args>,
     T: TerminationCondition<Ph>,
     Pr: Probe<Ph>,
     Ph: Pheromone,
@@ -140,11 +140,11 @@ where
     }
 }
 
-impl<P, C, F, T, Pr, Ph> Builder<P, C, F, T, Pr, Ph, (), No>
+impl<P, C, F, T, Pr, Ph, Args: AdditionalArgs> Builder<P, C, F, T, Pr, Ph, Args, No>
 where
-    P: PheromoneUpdate<Ph>,
-    C: Colony<Ph>,
-    F: Fitness,
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
+    F: Fitness<Args>,
     T: TerminationCondition<Ph>,
     Pr: Probe<Ph>,
     Ph: Pheromone,
@@ -164,10 +164,7 @@ where
         }
     }
 
-    pub fn set_additional_args<Args: AdditionalArgs>(
-        self,
-        args: Args,
-    ) -> Builder<P, C, F, T, Pr, Ph, Args, Yes> {
+    pub fn set_additional_args(self, args: Args) -> Builder<P, C, F, T, Pr, Ph, Args, Yes> {
         Builder {
             solution_size: self.solution_size,
             pheromone_update: self.pheromone_update,
@@ -180,7 +177,17 @@ where
             _phantom: Default::default(),
         }
     }
+}
 
+impl<P, C, F, T, Pr, Ph> Builder<P, C, F, T, Pr, Ph, (), No>
+where
+    P: PheromoneUpdate<Ph>,
+    C: Colony<Ph>,
+    F: Fitness,
+    T: TerminationCondition<Ph>,
+    Pr: Probe<Ph>,
+    Ph: Pheromone,
+{
     /// Builds [AntColonyOptimization] with provided building blocks.
     ///
     /// * `pheromone_update` needs to be specified, if not program will panic
@@ -189,7 +196,7 @@ where
     /// * `fitness` needs to be specified, if not program will panic
     /// * `goodness` needs to be specified, if not program will panic
     /// * `ants` need to be specified, if not program will panic
-    pub fn build(self) -> AntColonyOptimization<P, C, F, T, Pr, Ph, ()> {
+    pub fn build(self) -> AntColonyOptimization<P, C, F, T, Pr, Ph> {
         AntColonyOptimization {
             colony: self.colony.expect("Colony wasn't set"),
             pheromone: self.start_pheromone.expect("Start pheromone wasn't set"),
@@ -204,8 +211,8 @@ where
 
 impl<P, C, T, Pr, Ph, Args, HasArgs> Builder<P, C, CanonicalFitness, T, Pr, Ph, Args, HasArgs>
 where
-    P: PheromoneUpdate<Ph>,
-    C: Colony<Ph>,
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
     T: TerminationCondition<Ph>,
     Pr: Probe<Ph>,
     Ph: Pheromone,
@@ -239,9 +246,9 @@ where
 
 impl<P, C, F, Pr, Ph, Args, HasArgs> Builder<P, C, F, IterationCond, Pr, Ph, Args, HasArgs>
 where
-    P: PheromoneUpdate<Ph>,
-    C: Colony<Ph>,
-    F: Fitness,
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
+    F: Fitness<Args>,
     Pr: Probe<Ph>,
     Ph: Pheromone,
     Args: AdditionalArgs,
@@ -259,9 +266,9 @@ where
 
 impl<P, C, F, T, Args, HasArgs> Builder<P, C, F, T, StdoutProbe, FMatrix, Args, HasArgs>
 where
-    P: PheromoneUpdate<FMatrix>,
-    C: Colony<FMatrix>,
-    F: Fitness,
+    P: PheromoneUpdate<FMatrix, Args>,
+    C: Colony<FMatrix, Args>,
+    F: Fitness<Args>,
     T: TerminationCondition<FMatrix>,
     Args: AdditionalArgs,
     HasArgs: HasAdditionalArgs,
