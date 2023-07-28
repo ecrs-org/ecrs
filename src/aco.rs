@@ -86,8 +86,7 @@ where
         let best = self.find_best(&sols);
         self.probe.on_current_best(best);
 
-        self.pheromone_update
-            .apply(&mut self.pheromone, &sols);
+        self.pheromone_update.apply(&mut self.pheromone, &sols);
 
         self.probe.on_pheromone_update(&self.pheromone);
     }

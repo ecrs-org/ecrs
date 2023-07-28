@@ -34,7 +34,7 @@ pub trait PheromoneUpdate<P: Pheromone> {
 /// to the way fitness. New pheromone is a sum of old pheromone scaled by (1 - evaporation rate) and sum
 /// of pheromone trails left by ants.
 pub struct AntSystemPU {
-    evaporation_rate: f64
+    evaporation_rate: f64,
 }
 
 impl AntSystemPU {
@@ -43,7 +43,7 @@ impl AntSystemPU {
     /// ## Arguments
     /// * `evaporation_rate` - rate of old pheromone evaporation
     pub fn new(evaporation_rate: f64) -> Self {
-        AntSystemPU {evaporation_rate}
+        AntSystemPU { evaporation_rate }
     }
 }
 
@@ -73,7 +73,7 @@ impl ElitistAntSystemPU {
     pub fn new(evaporation_rate: f64) -> Self {
         ElitistAntSystemPU {
             overall_best: OverallBest::new(),
-            evaporation_rate
+            evaporation_rate,
         }
     }
 }
@@ -98,7 +98,7 @@ pub struct MMAntSystemPU<B: BestPolicy> {
     best_policy: B,
     lower_bound: f64,
     upper_bound: f64,
-    evaporation_rate: f64
+    evaporation_rate: f64,
 }
 
 impl<B: BestPolicy> MMAntSystemPU<B> {
@@ -109,7 +109,12 @@ impl<B: BestPolicy> MMAntSystemPU<B> {
     /// * `lower_bound` - Minimal possible pheromone value.
     /// * `upper_bound` - Maximal possible pheromone value.
     /// * `best_policy` - Implementation of [BestPolicy]
-    pub fn with_best_policy(evaporation_rate: f64,lower_bound: f64, upper_bound: f64, best_policy: B) -> Self {
+    pub fn with_best_policy(
+        evaporation_rate: f64,
+        lower_bound: f64,
+        upper_bound: f64,
+        best_policy: B,
+    ) -> Self {
         assert!(lower_bound >= 0.0, "Lower bound must be grater or equal 0");
         assert!(
             upper_bound > lower_bound,
@@ -120,7 +125,7 @@ impl<B: BestPolicy> MMAntSystemPU<B> {
             lower_bound,
             upper_bound,
             best_policy,
-            evaporation_rate
+            evaporation_rate,
         }
     }
 }
@@ -132,7 +137,7 @@ impl MMAntSystemPU<OverallBest> {
     /// * `evaporation_rate` - rate of old pheromone evaporation
     /// * `lower_bound` - Minimal possible pheromone value.
     /// * `upper_bound` - Maximal possible pheromone value.
-    pub fn new(evaporation_rate: f64,lower_bound: f64, upper_bound: f64) -> Self {
+    pub fn new(evaporation_rate: f64, lower_bound: f64, upper_bound: f64) -> Self {
         Self::with_best_policy(evaporation_rate, lower_bound, upper_bound, OverallBest::new())
     }
 }
@@ -168,7 +173,10 @@ pub struct AntColonySystemPU<B: BestPolicy> {
 
 impl<B: BestPolicy> AntColonySystemPU<B> {
     pub fn with_best_policy(evaporation_rate: f64, best_policy: B) -> Self {
-        Self { evaporation_rate, best_policy }
+        Self {
+            evaporation_rate,
+            best_policy,
+        }
     }
 }
 
