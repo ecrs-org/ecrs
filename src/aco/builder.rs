@@ -16,7 +16,6 @@ where
     Pr: Probe<Ph>,
     Ph: Pheromone,
 {
-    evaporation_rate: f64,
     solution_size: usize,
     pheromone_update: Option<P>,
     fitness: Option<F>,
@@ -36,13 +35,8 @@ where
     Ph: Pheromone,
 {
     /// Creates a new instance of Builder.
-    ///
-    /// ### Defaults
-    /// * `evaporation_rate` - 0.1
-    /// * `start_pheromone` - matrix of 1.0
     pub fn new(solution_size: usize) -> Self {
         Builder {
-            evaporation_rate: 0.1,
             solution_size,
             pheromone_update: None,
             fitness: None,
@@ -51,11 +45,6 @@ where
             start_pheromone: None,
             probe: None,
         }
-    }
-
-    pub fn set_evaporation_rate(mut self, evaporation_rate: f64) -> Self {
-        self.evaporation_rate = evaporation_rate;
-        self
     }
 
     /// Sets the used [Probe].
@@ -127,7 +116,6 @@ where
     /// * `ants` need to be specified, if not program will panic
     pub fn build(self) -> AntColonyOptimization<P, C, F, T, Pr, Ph> {
         AntColonyOptimization {
-            evaporation_rate: self.evaporation_rate,
             colony: self.colony.expect("Colony wasn't set"),
             pheromone: self.start_pheromone.expect("Start pheromone wasn't set"),
             pheromone_update: self.pheromone_update.expect("Pheromone update rule wasn't set"),

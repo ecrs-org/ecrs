@@ -52,7 +52,6 @@ where
 {
     colony: C,
     pheromone_update: P,
-    evaporation_rate: f64,
     pheromone: Ph,
     fitness: F,
     termination_cond: T,
@@ -88,7 +87,7 @@ where
         self.probe.on_current_best(best);
 
         self.pheromone_update
-            .apply(&mut self.pheromone, &sols, self.evaporation_rate);
+            .apply(&mut self.pheromone, &sols);
 
         self.probe.on_pheromone_update(&self.pheromone);
     }
