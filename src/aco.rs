@@ -36,12 +36,16 @@ use nalgebra::{Dyn, OMatrix};
 
 pub type FMatrix = OMatrix<f64, Dyn, Dyn>;
 
+pub trait AdditionalArgs {}
+
+impl AdditionalArgs for () {}
+
 /// # Ant Colony Optimization
 ///
 /// Encapsulates common ACO algorithm patterns.
 ///
 /// To extract data use a [probe](probe)
-pub struct AntColonyOptimization<P, C, F, T, Pr, Ph>
+pub struct AntColonyOptimization<P, C, F, T, Pr, Ph, Args = ()>
 where
     P: PheromoneUpdate<Ph>,
     C: Colony<Ph>,
@@ -49,6 +53,7 @@ where
     T: TerminationCondition<Ph>,
     Pr: Probe<Ph>,
     Ph: Pheromone,
+    Args: AdditionalArgs,
 {
     colony: C,
     pheromone_update: P,
@@ -56,9 +61,10 @@ where
     fitness: F,
     termination_cond: T,
     probe: Pr,
+    additional_args: Args,
 }
 
-impl<P, C, F, T, Pr, Ph> AntColonyOptimization<P, C, F, T, Pr, Ph>
+impl<P, C, F, T, Pr, Ph, Args> AntColonyOptimization<P, C, F, T, Pr, Ph, Args>
 where
     P: PheromoneUpdate<Ph>,
     C: Colony<Ph>,
@@ -66,6 +72,7 @@ where
     T: TerminationCondition<Ph>,
     Pr: Probe<Ph>,
     Ph: Pheromone,
+    Args: AdditionalArgs,
 {
     /// Executes the algorithm
     pub fn run(mut self) {
