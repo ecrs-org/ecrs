@@ -25,7 +25,6 @@ where
     Args: AdditionalArgs,
     HasArgs: HasAdditionalArgs,
 {
-    solution_size: usize,
     pheromone_update: Option<P>,
     grader: Option<G>,
     colony: Option<C>,
@@ -150,9 +149,8 @@ where
     Ph: Pheromone,
 {
     /// Creates a new instance of Builder.
-    pub fn new(solution_size: usize) -> Self {
+    pub fn new() -> Self {
         Builder {
-            solution_size,
             pheromone_update: None,
             grader: None,
             colony: None,
@@ -166,7 +164,6 @@ where
 
     pub fn set_additional_args(self, args: Args) -> Builder<P, C, G, T, Pr, Ph, Args, Yes> {
         Builder {
-            solution_size: self.solution_size,
             pheromone_update: self.pheromone_update,
             grader: self.grader,
             colony: self.colony,

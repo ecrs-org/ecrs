@@ -94,7 +94,7 @@ fn find_best(solutions: &[Solution]) -> &Solution {
 
 #[cfg(test)]
 mod tests {
-    use crate::aco::pheromone::best_policy::{BestPolicy, IterationBest, OverallBest};
+    use crate::aco::tsp::pheromone::best_policy::{BestPolicy, IterationBest, OverallBest};
     use crate::aco::Solution;
 
     #[test]

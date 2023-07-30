@@ -2,13 +2,13 @@
 //!
 //! Data is flushed only after algorithm ends.
 
+use itertools::Itertools;
 use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 use std::fs::File;
 use std::io::Write;
 
 use crate::aco::probe::Probe;
-use crate::aco::util::into_vec;
 use crate::aco::Solution;
 use crate::aco::{AdditionalArgs, FMatrix};
 
@@ -86,4 +86,13 @@ impl<Args: AdditionalArgs> Probe<FMatrix, Args> for JsonProbe {
     fn on_end(&mut self, _: &Args) {
         self.flush();
     }
+}
+
+pub fn into_vec(m: &FMatrix) -> Vec<Vec<f64>> {
+    let mut m_vec: Vec<Vec<f64>> = Vec::new();
+
+    for row in m.row_iter() {
+        m_vec.push(row.iter().copied().collect_vec());
+    }
+    m_vec
 }

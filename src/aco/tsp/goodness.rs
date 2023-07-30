@@ -68,7 +68,7 @@ impl Goodness<FMatrix> for CanonicalGoodness {
 
 #[cfg(test)]
 mod tests {
-    use crate::aco::goodness::{CanonicalGoodness, Goodness};
+    use crate::aco::tsp::goodness::{CanonicalGoodness, Goodness};
     use crate::aco::FMatrix;
 
     #[test]
