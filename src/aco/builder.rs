@@ -1,5 +1,5 @@
 use crate::aco::colony::Colony;
-use crate::aco::fitness::{CanonicalFitness, Fitness};
+use crate::aco::grader::Grader;
 use crate::aco::pheromone::{Pheromone, PheromoneUpdate};
 use crate::aco::probe::{Probe, StdoutProbe};
 use crate::aco::termination_condition::{IterationCond, TerminationCondition};
@@ -14,11 +14,11 @@ impl HasAdditionalArgs for No {}
 
 /// Builder for [AntColonyOptimization]
 ///
-pub struct Builder<P, C, F, T, Pr, Ph, Args = (), HasArgs = No>
+pub struct Builder<P, C, G, T, Pr, Ph, Args = (), HasArgs = No>
 where
     P: PheromoneUpdate<Ph, Args>,
     C: Colony<Ph, Args>,
-    F: Fitness<Args>,
+    G: Grader<Args>,
     T: TerminationCondition<Ph, Args>,
     Pr: Probe<Ph, Args>,
     Ph: Pheromone,
@@ -27,7 +27,7 @@ where
 {
     solution_size: usize,
     pheromone_update: Option<P>,
-    fitness: Option<F>,
+    grader: Option<G>,
     colony: Option<C>,
     termination_cond: Option<T>,
     start_pheromone: Option<Ph>,
@@ -36,11 +36,11 @@ where
     _phantom: PhantomData<HasArgs>,
 }
 
-impl<P, C, F, T, Pr, Ph, Args, HasArgs> Builder<P, C, F, T, Pr, Ph, Args, HasArgs>
+impl<P, C, G, T, Pr, Ph, Args, HasArgs> Builder<P, C, G, T, Pr, Ph, Args, HasArgs>
 where
     P: PheromoneUpdate<Ph, Args>,
     C: Colony<Ph, Args>,
-    F: Fitness<Args>,
+    G: Grader<Args>,
     T: TerminationCondition<Ph, Args>,
     Pr: Probe<Ph, Args>,
     Ph: Pheromone,
@@ -70,12 +70,12 @@ where
 
     /// Sets the the way to calculate fitness.
     ///
-    /// For more info see [aco::fitness] module.
+    /// For more info see [aco::grader] module.
     ///
     /// ## Arguments
-    /// * `fitness` - Implementation of [Fitness] trait.
-    pub fn set_fitness(mut self, fitness: F) -> Self {
-        self.fitness = Some(fitness);
+    /// * `grader` - Implementation of [Grader] trait.
+    pub fn set_grader(mut self, grader: G) -> Self {
+        self.grader = Some(grader);
         self
     }
 
@@ -107,11 +107,11 @@ where
     }
 }
 
-impl<P, C, F, T, Pr, Ph, Args> Builder<P, C, F, T, Pr, Ph, Args, Yes>
+impl<P, C, G, T, Pr, Ph, Args> Builder<P, C, G, T, Pr, Ph, Args, Yes>
 where
     P: PheromoneUpdate<Ph, Args>,
     C: Colony<Ph, Args>,
-    F: Fitness<Args>,
+    G: Grader<Args>,
     T: TerminationCondition<Ph, Args>,
     Pr: Probe<Ph, Args>,
     Ph: Pheromone,
@@ -125,12 +125,12 @@ where
     /// * `fitness` needs to be specified, if not program will panic
     /// * `goodness` needs to be specified, if not program will panic
     /// * `ants` need to be specified, if not program will panic
-    pub fn build(self) -> AntColonyOptimization<P, C, F, T, Pr, Ph, Args> {
+    pub fn build(self) -> AntColonyOptimization<P, C, G, T, Pr, Ph, Args> {
         AntColonyOptimization {
             colony: self.colony.expect("Colony wasn't set"),
             pheromone: self.start_pheromone.expect("Start pheromone wasn't set"),
             pheromone_update: self.pheromone_update.expect("Pheromone update rule wasn't set"),
-            fitness: self.fitness.expect("Fitness operator wasn't set"),
+            grader: self.grader.expect("Grader operator wasn't set"),
             termination_cond: self.termination_cond.expect("Termination condition wasn't set"),
             probe: self.probe.expect("Probe wasn't set"),
             additional_args: self
@@ -140,11 +140,11 @@ where
     }
 }
 
-impl<P, C, F, T, Pr, Ph, Args: AdditionalArgs> Builder<P, C, F, T, Pr, Ph, Args, No>
+impl<P, C, G, T, Pr, Ph, Args: AdditionalArgs> Builder<P, C, G, T, Pr, Ph, Args, No>
 where
     P: PheromoneUpdate<Ph, Args>,
     C: Colony<Ph, Args>,
-    F: Fitness<Args>,
+    G: Grader<Args>,
     T: TerminationCondition<Ph, Args>,
     Pr: Probe<Ph, Args>,
     Ph: Pheromone,
@@ -154,7 +154,7 @@ where
         Builder {
             solution_size,
             pheromone_update: None,
-            fitness: None,
+            grader: None,
             colony: None,
             termination_cond: None,
             start_pheromone: None,
@@ -164,11 +164,11 @@ where
         }
     }
 
-    pub fn set_additional_args(self, args: Args) -> Builder<P, C, F, T, Pr, Ph, Args, Yes> {
+    pub fn set_additional_args(self, args: Args) -> Builder<P, C, G, T, Pr, Ph, Args, Yes> {
         Builder {
             solution_size: self.solution_size,
             pheromone_update: self.pheromone_update,
-            fitness: self.fitness,
+            grader: self.grader,
             colony: self.colony,
             termination_cond: self.termination_cond,
             start_pheromone: self.start_pheromone,
@@ -179,11 +179,11 @@ where
     }
 }
 
-impl<P, C, F, T, Pr, Ph> Builder<P, C, F, T, Pr, Ph, (), No>
+impl<P, C, G, T, Pr, Ph> Builder<P, C, G, T, Pr, Ph, (), No>
 where
     P: PheromoneUpdate<Ph>,
     C: Colony<Ph>,
-    F: Fitness,
+    G: Grader<()>,
     T: TerminationCondition<Ph, ()>,
     Pr: Probe<Ph, ()>,
     Ph: Pheromone,
@@ -196,12 +196,12 @@ where
     /// * `fitness` needs to be specified, if not program will panic
     /// * `goodness` needs to be specified, if not program will panic
     /// * `ants` need to be specified, if not program will panic
-    pub fn build(self) -> AntColonyOptimization<P, C, F, T, Pr, Ph> {
+    pub fn build(self) -> AntColonyOptimization<P, C, G, T, Pr, Ph> {
         AntColonyOptimization {
             colony: self.colony.expect("Colony wasn't set"),
             pheromone: self.start_pheromone.expect("Start pheromone wasn't set"),
             pheromone_update: self.pheromone_update.expect("Pheromone update rule wasn't set"),
-            fitness: self.fitness.expect("Fitness operator wasn't set"),
+            grader: self.grader.expect("Grader operator wasn't set"),
             termination_cond: self.termination_cond.expect("Termination condition wasn't set"),
             probe: self.probe.expect("Probe wasn't set"),
             additional_args: (),
@@ -209,46 +209,11 @@ where
     }
 }
 
-impl<P, C, T, Pr, Ph, Args, HasArgs> Builder<P, C, CanonicalFitness, T, Pr, Ph, Args, HasArgs>
+impl<P, C, G, Pr, Ph, Args, HasArgs> Builder<P, C, G, IterationCond, Pr, Ph, Args, HasArgs>
 where
     P: PheromoneUpdate<Ph, Args>,
     C: Colony<Ph, Args>,
-    T: TerminationCondition<Ph, Args>,
-    Pr: Probe<Ph, Args>,
-    Ph: Pheromone,
-    Args: AdditionalArgs,
-    HasArgs: HasAdditionalArgs,
-{
-    /// Sets the weighted graph to be searched.
-    ///
-    /// ## Arguments
-    /// * `weights` - Weighted graph in matrix representation.
-    pub fn set_weights(mut self, weights: FMatrix) -> Self {
-        assert_eq!(
-            weights.nrows(),
-            weights.nrows(),
-            "Weights should be a square matrix"
-        );
-        assert_eq!(
-            weights.nrows(),
-            self.solution_size,
-            "Weights should be of length equal to solution size"
-        );
-        if let Some(mut f) = self.fitness {
-            f.weights = weights;
-            self.fitness = Some(f)
-        } else {
-            self.fitness = Some(CanonicalFitness::new(weights))
-        }
-        self
-    }
-}
-
-impl<P, C, F, Pr, Ph, Args, HasArgs> Builder<P, C, F, IterationCond, Pr, Ph, Args, HasArgs>
-where
-    P: PheromoneUpdate<Ph, Args>,
-    C: Colony<Ph, Args>,
-    F: Fitness<Args>,
+    G: Grader<Args>,
     Pr: Probe<Ph, Args>,
     Ph: Pheromone,
     Args: AdditionalArgs,
@@ -264,11 +229,11 @@ where
     }
 }
 
-impl<P, C, F, T, Args, HasArgs> Builder<P, C, F, T, StdoutProbe, FMatrix, Args, HasArgs>
+impl<P, C, G, T, Args, HasArgs> Builder<P, C, G, T, StdoutProbe, FMatrix, Args, HasArgs>
 where
     P: PheromoneUpdate<FMatrix, Args>,
     C: Colony<FMatrix, Args>,
-    F: Fitness<Args>,
+    G: Grader<Args>,
     T: TerminationCondition<FMatrix, Args>,
     Args: AdditionalArgs,
     HasArgs: HasAdditionalArgs,
