@@ -1,7 +1,7 @@
 //! Implementation of pheromone calculations strategies.
 //!
 use crate::aco::pheromone::best_policy::{BestPolicy, OverallBest};
-use crate::aco::{FMatrix, Solution};
+use crate::aco::{AdditionalArgs, FMatrix, Solution};
 use itertools::{izip, Itertools};
 use nalgebra::clamp;
 
@@ -17,14 +17,14 @@ impl Pheromone for Vec<FMatrix> {}
 ///
 /// This trait defines common behaviour for pheromone update calculations.
 /// You can implement this trait to provide your custom way of calculating new pheromone to the ACO.
-pub trait PheromoneUpdate<P: Pheromone> {
+pub trait PheromoneUpdate<P: Pheromone, Args: AdditionalArgs = ()> {
     /// Returns the new pheromone
     ///
     /// ## Arguments
     ///
     /// * `old_pheromone` - Pheromone used to generate current solutions
     /// * `solutions` - Current generated solution.
-    fn apply(&mut self, pheromone: &mut P, solutions: &[Solution]);
+    fn apply(&mut self, pheromone: &mut P, solutions: &[Solution], args: &Args);
 }
 
 /// # Ant System Pheromone Update
@@ -47,8 +47,8 @@ impl AntSystemPU {
     }
 }
 
-impl PheromoneUpdate<FMatrix> for AntSystemPU {
-    fn apply(&mut self, pheromone: &mut FMatrix, solutions: &[Solution]) {
+impl<Args: AdditionalArgs> PheromoneUpdate<FMatrix, Args> for AntSystemPU {
+    fn apply(&mut self, pheromone: &mut FMatrix, solutions: &[Solution], _: &Args) {
         pheromone.scale_mut(1.0 - self.evaporation_rate);
         leave_trail(solutions, pheromone);
     }
@@ -78,8 +78,8 @@ impl ElitistAntSystemPU {
     }
 }
 
-impl PheromoneUpdate<FMatrix> for ElitistAntSystemPU {
-    fn apply(&mut self, pheromone: &mut FMatrix, solutions: &[Solution]) {
+impl<Args: AdditionalArgs> PheromoneUpdate<FMatrix, Args> for ElitistAntSystemPU {
+    fn apply(&mut self, pheromone: &mut FMatrix, solutions: &[Solution], _: &Args) {
         self.overall_best.update_best(solutions);
 
         pheromone.scale_mut(1.0 - self.evaporation_rate);
@@ -142,8 +142,8 @@ impl MMAntSystemPU<OverallBest> {
     }
 }
 
-impl<B: BestPolicy> PheromoneUpdate<FMatrix> for MMAntSystemPU<B> {
-    fn apply(&mut self, pheromone: &mut FMatrix, solutions: &[Solution]) {
+impl<B: BestPolicy, Args: AdditionalArgs> PheromoneUpdate<FMatrix, Args> for MMAntSystemPU<B> {
+    fn apply(&mut self, pheromone: &mut FMatrix, solutions: &[Solution], _: &Args) {
         self.best_policy.update_best(solutions);
 
         pheromone.scale_mut(1.0 - self.evaporation_rate);
@@ -193,8 +193,8 @@ impl AntColonySystemPU<OverallBest> {
     }
 }
 
-impl<B: BestPolicy> PheromoneUpdate<FMatrix> for AntColonySystemPU<B> {
-    fn apply(&mut self, pheromone: &mut FMatrix, solutions: &[Solution]) {
+impl<B: BestPolicy, Args: AdditionalArgs> PheromoneUpdate<FMatrix, Args> for AntColonySystemPU<B> {
+    fn apply(&mut self, pheromone: &mut FMatrix, solutions: &[Solution], _: &Args) {
         self.best_policy.update_best(solutions);
 
         pheromone.scale_mut(1.0 - self.evaporation_rate);
@@ -213,13 +213,13 @@ impl<B: BestPolicy> PheromoneUpdate<FMatrix> for AntColonySystemPU<B> {
 /// Implements [PheromoneUpdate].
 /// The solution are split into the number of pheromone traits by value range
 /// First pheromone in vec is updated by worst solutions.
-pub struct PartFromEvalPU {
-    pheromone_updates: Vec<Box<dyn PheromoneUpdate<FMatrix>>>,
+pub struct PartFromEvalPU<Args: AdditionalArgs = ()> {
+    pheromone_updates: Vec<Box<dyn PheromoneUpdate<FMatrix, Args>>>,
     groups: Vec<Vec<Solution>>,
 }
 
-impl PartFromEvalPU {
-    pub fn new(pheromone_updates: Vec<Box<dyn PheromoneUpdate<FMatrix>>>) -> Self {
+impl<Args: AdditionalArgs> PartFromEvalPU<Args> {
+    pub fn new(pheromone_updates: Vec<Box<dyn PheromoneUpdate<FMatrix, Args>>>) -> Self {
         let groups = pheromone_updates
             .iter()
             .map(|_| Vec::<Solution>::new())
@@ -231,8 +231,8 @@ impl PartFromEvalPU {
     }
 }
 
-impl PheromoneUpdate<Vec<FMatrix>> for PartFromEvalPU {
-    fn apply(&mut self, pheromone: &mut Vec<FMatrix>, solutions: &[Solution]) {
+impl<Args: AdditionalArgs> PheromoneUpdate<Vec<FMatrix>, Args> for PartFromEvalPU<Args> {
+    fn apply(&mut self, pheromone: &mut Vec<FMatrix>, solutions: &[Solution], args: &Args) {
         let parts_num = pheromone.len() as f64;
         let (min, max) = find_bounds(solutions);
         let increment = (max - min) / parts_num;
@@ -250,7 +250,7 @@ impl PheromoneUpdate<Vec<FMatrix>> for PartFromEvalPU {
             pheromone.iter_mut(),
             self.groups.iter()
         )
-        .for_each(|(pu, p, sg)| pu.apply(p, sg));
+        .for_each(|(pu, p, sg)| pu.apply(p, sg, args));
     }
 }
 
@@ -319,7 +319,7 @@ mod tests {
         let (mut pher, sols) = get_test_data();
 
         let mut pu = AntSystemPU::new(0.25);
-        pu.apply(&mut pher, &sols);
+        pu.apply(&mut pher, &sols, &());
         let pher_expt = vec![0.0, 1.125, 1.875, 1.125, 0.0, 3.375, 1.875, 3.375, 0.0];
 
         are_same(pher, &pher_expt);
@@ -332,7 +332,7 @@ mod tests {
 
         let mut pu = ElitistAntSystemPU::new(0.25);
 
-        pu.apply(&mut pher, &sols);
+        pu.apply(&mut pher, &sols, &());
         are_same(pher, &pher_expt);
     }
 
@@ -342,7 +342,7 @@ mod tests {
         let (mut pher, sols) = get_test_data();
 
         let mut pu = MMAntSystemPU::new(0.25, 1.5, 3.0);
-        pu.apply(&mut pher, &sols);
+        pu.apply(&mut pher, &sols, &());
         are_same(pher, &pher_expt);
     }
 
@@ -352,7 +352,7 @@ mod tests {
         let (mut pher, sols) = get_test_data();
 
         let mut pu = AntColonySystemPU::new(0.25);
-        pu.apply(&mut pher, &sols);
+        pu.apply(&mut pher, &sols, &());
         are_same(pher, &pher_expt);
     }
 }

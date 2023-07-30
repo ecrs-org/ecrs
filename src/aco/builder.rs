@@ -3,18 +3,27 @@ use crate::aco::fitness::{CanonicalFitness, Fitness};
 use crate::aco::pheromone::{Pheromone, PheromoneUpdate};
 use crate::aco::probe::{Probe, StdoutProbe};
 use crate::aco::termination_condition::{IterationCond, TerminationCondition};
-use crate::aco::{AntColonyOptimization, FMatrix};
+use crate::aco::{AdditionalArgs, AntColonyOptimization, FMatrix};
+use std::marker::PhantomData;
+
+pub trait HasAdditionalArgs {}
+pub struct Yes;
+impl HasAdditionalArgs for Yes {}
+pub struct No;
+impl HasAdditionalArgs for No {}
 
 /// Builder for [AntColonyOptimization]
 ///
-pub struct Builder<P, C, F, T, Pr, Ph>
+pub struct Builder<P, C, F, T, Pr, Ph, Args = (), HasArgs = No>
 where
-    P: PheromoneUpdate<Ph>,
-    C: Colony<Ph>,
-    F: Fitness,
-    T: TerminationCondition<Ph>,
-    Pr: Probe<Ph>,
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
+    F: Fitness<Args>,
+    T: TerminationCondition<Ph, Args>,
+    Pr: Probe<Ph, Args>,
     Ph: Pheromone,
+    Args: AdditionalArgs,
+    HasArgs: HasAdditionalArgs,
 {
     solution_size: usize,
     pheromone_update: Option<P>,
@@ -23,30 +32,21 @@ where
     termination_cond: Option<T>,
     start_pheromone: Option<Ph>,
     probe: Option<Pr>,
+    additional_args: Option<Args>,
+    _phantom: PhantomData<HasArgs>,
 }
 
-impl<P, C, F, T, Pr, Ph> Builder<P, C, F, T, Pr, Ph>
+impl<P, C, F, T, Pr, Ph, Args, HasArgs> Builder<P, C, F, T, Pr, Ph, Args, HasArgs>
 where
-    P: PheromoneUpdate<Ph>,
-    C: Colony<Ph>,
-    F: Fitness,
-    T: TerminationCondition<Ph>,
-    Pr: Probe<Ph>,
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
+    F: Fitness<Args>,
+    T: TerminationCondition<Ph, Args>,
+    Pr: Probe<Ph, Args>,
     Ph: Pheromone,
+    Args: AdditionalArgs,
+    HasArgs: HasAdditionalArgs,
 {
-    /// Creates a new instance of Builder.
-    pub fn new(solution_size: usize) -> Self {
-        Builder {
-            solution_size,
-            pheromone_update: None,
-            fitness: None,
-            colony: None,
-            termination_cond: None,
-            start_pheromone: None,
-            probe: None,
-        }
-    }
-
     /// Sets the used [Probe].
     ///
     ///
@@ -105,7 +105,89 @@ where
         self.colony = Some(colony);
         self
     }
+}
 
+impl<P, C, F, T, Pr, Ph, Args> Builder<P, C, F, T, Pr, Ph, Args, Yes>
+where
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
+    F: Fitness<Args>,
+    T: TerminationCondition<Ph, Args>,
+    Pr: Probe<Ph, Args>,
+    Ph: Pheromone,
+    Args: AdditionalArgs,
+{
+    /// Builds [AntColonyOptimization] with provided building blocks.
+    ///
+    /// * `pheromone_update` needs to be specified, if not program will panic
+    /// * `start_pheromone` needs to be specified, if not program will panic
+    /// * `ants_behaviour` needs to be specified, if not program will panic
+    /// * `fitness` needs to be specified, if not program will panic
+    /// * `goodness` needs to be specified, if not program will panic
+    /// * `ants` need to be specified, if not program will panic
+    pub fn build(self) -> AntColonyOptimization<P, C, F, T, Pr, Ph, Args> {
+        AntColonyOptimization {
+            colony: self.colony.expect("Colony wasn't set"),
+            pheromone: self.start_pheromone.expect("Start pheromone wasn't set"),
+            pheromone_update: self.pheromone_update.expect("Pheromone update rule wasn't set"),
+            fitness: self.fitness.expect("Fitness operator wasn't set"),
+            termination_cond: self.termination_cond.expect("Termination condition wasn't set"),
+            probe: self.probe.expect("Probe wasn't set"),
+            additional_args: self
+                .additional_args
+                .expect("AdditionalArgs type has been specified, but no struct was provided"),
+        }
+    }
+}
+
+impl<P, C, F, T, Pr, Ph, Args: AdditionalArgs> Builder<P, C, F, T, Pr, Ph, Args, No>
+where
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
+    F: Fitness<Args>,
+    T: TerminationCondition<Ph, Args>,
+    Pr: Probe<Ph, Args>,
+    Ph: Pheromone,
+{
+    /// Creates a new instance of Builder.
+    pub fn new(solution_size: usize) -> Self {
+        Builder {
+            solution_size,
+            pheromone_update: None,
+            fitness: None,
+            colony: None,
+            termination_cond: None,
+            start_pheromone: None,
+            probe: None,
+            additional_args: None,
+            _phantom: PhantomData,
+        }
+    }
+
+    pub fn set_additional_args(self, args: Args) -> Builder<P, C, F, T, Pr, Ph, Args, Yes> {
+        Builder {
+            solution_size: self.solution_size,
+            pheromone_update: self.pheromone_update,
+            fitness: self.fitness,
+            colony: self.colony,
+            termination_cond: self.termination_cond,
+            start_pheromone: self.start_pheromone,
+            probe: self.probe,
+            additional_args: Some(args),
+            _phantom: Default::default(),
+        }
+    }
+}
+
+impl<P, C, F, T, Pr, Ph> Builder<P, C, F, T, Pr, Ph, (), No>
+where
+    P: PheromoneUpdate<Ph>,
+    C: Colony<Ph>,
+    F: Fitness,
+    T: TerminationCondition<Ph, ()>,
+    Pr: Probe<Ph, ()>,
+    Ph: Pheromone,
+{
     /// Builds [AntColonyOptimization] with provided building blocks.
     ///
     /// * `pheromone_update` needs to be specified, if not program will panic
@@ -122,17 +204,20 @@ where
             fitness: self.fitness.expect("Fitness operator wasn't set"),
             termination_cond: self.termination_cond.expect("Termination condition wasn't set"),
             probe: self.probe.expect("Probe wasn't set"),
+            additional_args: (),
         }
     }
 }
 
-impl<P, C, T, Pr, Ph> Builder<P, C, CanonicalFitness, T, Pr, Ph>
+impl<P, C, T, Pr, Ph, Args, HasArgs> Builder<P, C, CanonicalFitness, T, Pr, Ph, Args, HasArgs>
 where
-    P: PheromoneUpdate<Ph>,
-    C: Colony<Ph>,
-    T: TerminationCondition<Ph>,
-    Pr: Probe<Ph>,
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
+    T: TerminationCondition<Ph, Args>,
+    Pr: Probe<Ph, Args>,
     Ph: Pheromone,
+    Args: AdditionalArgs,
+    HasArgs: HasAdditionalArgs,
 {
     /// Sets the weighted graph to be searched.
     ///
@@ -159,13 +244,15 @@ where
     }
 }
 
-impl<P, C, F, Pr, Ph> Builder<P, C, F, IterationCond, Pr, Ph>
+impl<P, C, F, Pr, Ph, Args, HasArgs> Builder<P, C, F, IterationCond, Pr, Ph, Args, HasArgs>
 where
-    P: PheromoneUpdate<Ph>,
-    C: Colony<Ph>,
-    F: Fitness,
-    Pr: Probe<Ph>,
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
+    F: Fitness<Args>,
+    Pr: Probe<Ph, Args>,
     Ph: Pheromone,
+    Args: AdditionalArgs,
+    HasArgs: HasAdditionalArgs,
 {
     /// Sets iteration termination condition.
     ///
@@ -177,12 +264,14 @@ where
     }
 }
 
-impl<P, C, F, T> Builder<P, C, F, T, StdoutProbe, FMatrix>
+impl<P, C, F, T, Args, HasArgs> Builder<P, C, F, T, StdoutProbe, FMatrix, Args, HasArgs>
 where
-    P: PheromoneUpdate<FMatrix>,
-    C: Colony<FMatrix>,
-    F: Fitness,
-    T: TerminationCondition<FMatrix>,
+    P: PheromoneUpdate<FMatrix, Args>,
+    C: Colony<FMatrix, Args>,
+    F: Fitness<Args>,
+    T: TerminationCondition<FMatrix, Args>,
+    Args: AdditionalArgs,
+    HasArgs: HasAdditionalArgs,
 {
     /// Sets probe to [StdoutProbe].
     pub fn with_stdout_probe(mut self) -> Self {

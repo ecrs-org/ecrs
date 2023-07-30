@@ -36,19 +36,24 @@ use nalgebra::{Dyn, OMatrix};
 
 pub type FMatrix = OMatrix<f64, Dyn, Dyn>;
 
+pub trait AdditionalArgs {}
+
+impl AdditionalArgs for () {}
+
 /// # Ant Colony Optimization
 ///
 /// Encapsulates common ACO algorithm patterns.
 ///
 /// To extract data use a [probe](probe)
-pub struct AntColonyOptimization<P, C, F, T, Pr, Ph>
+pub struct AntColonyOptimization<P, C, F, T, Pr, Ph, Args = ()>
 where
-    P: PheromoneUpdate<Ph>,
-    C: Colony<Ph>,
-    F: Fitness,
-    T: TerminationCondition<Ph>,
-    Pr: Probe<Ph>,
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
+    F: Fitness<Args>,
+    T: TerminationCondition<Ph, Args>,
+    Pr: Probe<Ph, Args>,
     Ph: Pheromone,
+    Args: AdditionalArgs,
 {
     colony: C,
     pheromone_update: P,
@@ -56,39 +61,48 @@ where
     fitness: F,
     termination_cond: T,
     probe: Pr,
+    additional_args: Args,
 }
 
-impl<P, C, F, T, Pr, Ph> AntColonyOptimization<P, C, F, T, Pr, Ph>
+impl<P, C, F, T, Pr, Ph, Args> AntColonyOptimization<P, C, F, T, Pr, Ph, Args>
 where
-    P: PheromoneUpdate<Ph>,
-    C: Colony<Ph>,
-    F: Fitness,
-    T: TerminationCondition<Ph>,
-    Pr: Probe<Ph>,
+    P: PheromoneUpdate<Ph, Args>,
+    C: Colony<Ph, Args>,
+    F: Fitness<Args>,
+    T: TerminationCondition<Ph, Args>,
+    Pr: Probe<Ph, Args>,
     Ph: Pheromone,
+    Args: AdditionalArgs,
 {
     /// Executes the algorithm
     pub fn run(mut self) {
-        self.termination_cond.init(&self.pheromone);
-        while !self.termination_cond.update_and_check(&self.pheromone) {
-            self.probe.on_iteration_start();
+        self.termination_cond.init(&self.pheromone, &self.additional_args);
+        while !self
+            .termination_cond
+            .update_and_check(&self.pheromone, &self.additional_args)
+        {
+            self.probe.on_iteration_start(&self.additional_args);
             self.iterate();
-            self.probe.on_iteration_end();
+            self.probe.on_iteration_end(&self.additional_args);
         }
 
         self.end()
     }
 
     fn iterate(&mut self) {
-        let paths = self.colony.build_solutions(&mut self.pheromone);
+        let paths = self
+            .colony
+            .build_solutions(&mut self.pheromone, &self.additional_args);
         let sols = self.grade(paths);
 
         let best = self.find_best(&sols);
-        self.probe.on_current_best(best);
+        self.probe.on_current_best(best, &self.additional_args);
 
-        self.pheromone_update.apply(&mut self.pheromone, &sols);
+        self.pheromone_update
+            .apply(&mut self.pheromone, &sols, &self.additional_args);
 
-        self.probe.on_pheromone_update(&self.pheromone);
+        self.probe
+            .on_pheromone_update(&self.pheromone, &self.additional_args);
     }
 
     fn find_best<'a>(&mut self, sols: &'a [Solution]) -> &'a Solution {
@@ -103,7 +117,7 @@ where
         let mut sols: Vec<Solution> = Vec::with_capacity(paths.len());
 
         for path in paths {
-            let fitness = self.fitness.apply(&path);
+            let fitness = self.fitness.apply(&path, &self.additional_args);
 
             let mut solution = Solution::from_path(path);
             solution.fitness = fitness;
@@ -114,6 +128,6 @@ where
     }
 
     fn end(mut self) {
-        self.probe.on_end();
+        self.probe.on_end(&self.additional_args);
     }
 }
