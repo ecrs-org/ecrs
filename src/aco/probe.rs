@@ -8,16 +8,12 @@ use crate::aco::Solution;
 mod aggregated_probe;
 mod csv_probe;
 mod json_probe;
-mod policy_driven_probe;
-mod probing_policy;
 mod stdout_probe;
 
 use crate::aco::pheromone::Pheromone;
 pub use aggregated_probe::AggregatedProbe;
 pub use csv_probe::CsvProbe;
 pub use json_probe::JsonProbe;
-pub use policy_driven_probe::PolicyDrivenProbe;
-pub use probing_policy::{ElapsedTime, GenerationInterval};
 pub use stdout_probe::StdoutProbe;
 
 #[allow(unused_variables)]
@@ -32,12 +28,4 @@ pub trait Probe<P: Pheromone> {
     fn on_iteration_end(&mut self) {}
     /// Called when algorithm has ended
     fn on_end(&mut self) {}
-}
-
-pub trait ProbingPolicy {
-    fn on_pheromone_update(&mut self) -> bool;
-    fn on_current_best(&mut self) -> bool;
-    fn on_iteration_start(&mut self) -> bool;
-    fn on_iteration_end(&mut self) -> bool;
-    fn on_end(&mut self) -> bool;
 }
