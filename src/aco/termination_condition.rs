@@ -1,23 +1,24 @@
 //! Contains stuff related to algorithm termination
 use crate::aco::pheromone::Pheromone;
+use crate::aco::AdditionalArgs;
 use std::time::{Duration, Instant};
 
 /// # Termination Condition
 ///
 /// Represents common interface between termination conditions
-pub trait TerminationCondition<P: Pheromone> {
+pub trait TerminationCondition<P: Pheromone, Args: AdditionalArgs> {
     /// Initialises condition internal state.
     ///
     /// ## Arguments
     /// * `pheromone` - start_pheromone.
-    fn init(&mut self, pheromone: &P);
+    fn init(&mut self, pheromone: &P, args: &Args);
 
     /// Updates internal state and then checks if condition is met.
     ///
     /// ## Arguments
     /// * `pheromone` - current pheromone.
     /// * `ants` - Ants containing solutions.
-    fn update_and_check(&mut self, pheromone: &P) -> bool;
+    fn update_and_check(&mut self, pheromone: &P, args: &Args) -> bool;
 }
 
 /// # Iteration Condition
@@ -43,12 +44,12 @@ impl IterationCond {
     }
 }
 
-impl<P: Pheromone> TerminationCondition<P> for IterationCond {
-    fn init(&mut self, _pheromone: &P) {
+impl<P: Pheromone, Args: AdditionalArgs> TerminationCondition<P, Args> for IterationCond {
+    fn init(&mut self, _pheromone: &P, _: &Args) {
         self.curr_iteration = 0;
     }
 
-    fn update_and_check(&mut self, _pheromone: &P) -> bool {
+    fn update_and_check(&mut self, _pheromone: &P, _: &Args) -> bool {
         self.curr_iteration += 1;
 
         self.curr_iteration > self.iterations_limit
@@ -78,12 +79,12 @@ impl TimeCond {
     }
 }
 
-impl<P: Pheromone> TerminationCondition<P> for TimeCond {
-    fn init(&mut self, _pheromone: &P) {
+impl<P: Pheromone, Args: AdditionalArgs> TerminationCondition<P, Args> for TimeCond {
+    fn init(&mut self, _pheromone: &P, _: &Args) {
         self.start_time = Instant::now()
     }
 
-    fn update_and_check(&mut self, _pheromone: &P) -> bool {
+    fn update_and_check(&mut self, _pheromone: &P, _: &Args) -> bool {
         let curr_duration = Instant::now() - self.start_time;
 
         curr_duration > self.duration

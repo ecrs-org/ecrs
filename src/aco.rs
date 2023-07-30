@@ -50,7 +50,7 @@ where
     P: PheromoneUpdate<Ph, Args>,
     C: Colony<Ph, Args>,
     F: Fitness<Args>,
-    T: TerminationCondition<Ph>,
+    T: TerminationCondition<Ph, Args>,
     Pr: Probe<Ph>,
     Ph: Pheromone,
     Args: AdditionalArgs,
@@ -69,15 +69,18 @@ where
     P: PheromoneUpdate<Ph, Args>,
     C: Colony<Ph, Args>,
     F: Fitness<Args>,
-    T: TerminationCondition<Ph>,
+    T: TerminationCondition<Ph, Args>,
     Pr: Probe<Ph>,
     Ph: Pheromone,
     Args: AdditionalArgs,
 {
     /// Executes the algorithm
     pub fn run(mut self) {
-        self.termination_cond.init(&self.pheromone);
-        while !self.termination_cond.update_and_check(&self.pheromone) {
+        self.termination_cond.init(&self.pheromone, &self.additional_args);
+        while !self
+            .termination_cond
+            .update_and_check(&self.pheromone, &self.additional_args)
+        {
             self.probe.on_iteration_start();
             self.iterate();
             self.probe.on_iteration_end();
