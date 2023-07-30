@@ -5,13 +5,11 @@
 
 use crate::aco::Solution;
 
-mod aggregated_probe;
 mod csv_probe;
 mod json_probe;
 mod stdout_probe;
 
 use crate::aco::pheromone::Pheromone;
-pub use aggregated_probe::AggregatedProbe;
 pub use csv_probe::CsvProbe;
 pub use json_probe::JsonProbe;
 pub use stdout_probe::StdoutProbe;
