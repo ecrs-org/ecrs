@@ -6,7 +6,7 @@ use std::time::{Duration, Instant};
 /// # Termination Condition
 ///
 /// Represents common interface between termination conditions
-pub trait TerminationCondition<P: Pheromone, Args: AdditionalArgs> {
+pub trait TerminationCondition<P: Pheromone, Args: AdditionalArgs = ()> {
     /// Initialises condition internal state.
     ///
     /// ## Arguments

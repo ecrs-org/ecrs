@@ -2,8 +2,8 @@ use itertools::Itertools;
 use serde::Serialize;
 
 use crate::aco::probe::Probe;
-use crate::aco::FMatrix;
 use crate::aco::Solution;
+use crate::aco::{AdditionalArgs, FMatrix};
 
 #[derive(Serialize)]
 #[doc(hidden)]
@@ -60,8 +60,8 @@ impl CsvProbe {
     }
 }
 
-impl Probe<FMatrix> for CsvProbe {
-    fn on_pheromone_update(&mut self, new_pheromone: &FMatrix) {
+impl<Args: AdditionalArgs> Probe<FMatrix, Args> for CsvProbe {
+    fn on_pheromone_update(&mut self, new_pheromone: &FMatrix, _: &Args) {
         for (i, row) in new_pheromone.row_iter().enumerate() {
             for (j, val) in row.iter().enumerate() {
                 self.pher.push(FMatrixRecord {
@@ -74,15 +74,15 @@ impl Probe<FMatrix> for CsvProbe {
         }
     }
 
-    fn on_current_best(&mut self, best: &Solution) {
+    fn on_current_best(&mut self, best: &Solution, _: &Args) {
         self.best_sol = best.clone();
     }
 
-    fn on_iteration_start(&mut self) {
+    fn on_iteration_start(&mut self, _: &Args) {
         self.iteration += 1;
     }
 
-    fn on_iteration_end(&mut self) {
+    fn on_iteration_end(&mut self, _: &Args) {
         for (i, j) in self
             .best_sol
             .path
@@ -97,7 +97,7 @@ impl Probe<FMatrix> for CsvProbe {
         }
     }
 
-    fn on_end(&mut self) {
+    fn on_end(&mut self, _: &Args) {
         self.flush();
     }
 }

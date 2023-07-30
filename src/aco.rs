@@ -51,7 +51,7 @@ where
     C: Colony<Ph, Args>,
     F: Fitness<Args>,
     T: TerminationCondition<Ph, Args>,
-    Pr: Probe<Ph>,
+    Pr: Probe<Ph, Args>,
     Ph: Pheromone,
     Args: AdditionalArgs,
 {
@@ -70,7 +70,7 @@ where
     C: Colony<Ph, Args>,
     F: Fitness<Args>,
     T: TerminationCondition<Ph, Args>,
-    Pr: Probe<Ph>,
+    Pr: Probe<Ph, Args>,
     Ph: Pheromone,
     Args: AdditionalArgs,
 {
@@ -81,9 +81,9 @@ where
             .termination_cond
             .update_and_check(&self.pheromone, &self.additional_args)
         {
-            self.probe.on_iteration_start();
+            self.probe.on_iteration_start(&self.additional_args);
             self.iterate();
-            self.probe.on_iteration_end();
+            self.probe.on_iteration_end(&self.additional_args);
         }
 
         self.end()
@@ -96,12 +96,13 @@ where
         let sols = self.grade(paths);
 
         let best = self.find_best(&sols);
-        self.probe.on_current_best(best);
+        self.probe.on_current_best(best, &self.additional_args);
 
         self.pheromone_update
             .apply(&mut self.pheromone, &sols, &self.additional_args);
 
-        self.probe.on_pheromone_update(&self.pheromone);
+        self.probe
+            .on_pheromone_update(&self.pheromone, &self.additional_args);
     }
 
     fn find_best<'a>(&mut self, sols: &'a [Solution]) -> &'a Solution {
@@ -127,6 +128,6 @@ where
     }
 
     fn end(mut self) {
-        self.probe.on_end();
+        self.probe.on_end(&self.additional_args);
     }
 }

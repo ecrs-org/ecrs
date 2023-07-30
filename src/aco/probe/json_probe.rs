@@ -9,8 +9,8 @@ use std::io::Write;
 
 use crate::aco::probe::Probe;
 use crate::aco::util::into_vec;
-use crate::aco::FMatrix;
 use crate::aco::Solution;
+use crate::aco::{AdditionalArgs, FMatrix};
 
 struct IterationData {
     pheromone: FMatrix,
@@ -68,22 +68,22 @@ impl JsonProbe {
     }
 }
 
-impl Probe<FMatrix> for JsonProbe {
-    fn on_pheromone_update(&mut self, new_pheromone: &FMatrix) {
+impl<Args: AdditionalArgs> Probe<FMatrix, Args> for JsonProbe {
+    fn on_pheromone_update(&mut self, new_pheromone: &FMatrix, _: &Args) {
         self.iterations.last_mut().unwrap().pheromone = new_pheromone.clone()
     }
 
-    fn on_current_best(&mut self, best: &Solution) {
+    fn on_current_best(&mut self, best: &Solution, _: &Args) {
         self.iterations.last_mut().unwrap().best_solution = best.clone()
     }
 
-    fn on_iteration_start(&mut self) {
+    fn on_iteration_start(&mut self, _: &Args) {
         self.iterations.push(IterationData::default())
     }
 
-    fn on_iteration_end(&mut self) {}
+    fn on_iteration_end(&mut self, _: &Args) {}
 
-    fn on_end(&mut self) {
+    fn on_end(&mut self, _: &Args) {
         self.flush();
     }
 }

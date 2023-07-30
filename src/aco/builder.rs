@@ -20,7 +20,7 @@ where
     C: Colony<Ph, Args>,
     F: Fitness<Args>,
     T: TerminationCondition<Ph, Args>,
-    Pr: Probe<Ph>,
+    Pr: Probe<Ph, Args>,
     Ph: Pheromone,
     Args: AdditionalArgs,
     HasArgs: HasAdditionalArgs,
@@ -42,7 +42,7 @@ where
     C: Colony<Ph, Args>,
     F: Fitness<Args>,
     T: TerminationCondition<Ph, Args>,
-    Pr: Probe<Ph>,
+    Pr: Probe<Ph, Args>,
     Ph: Pheromone,
     Args: AdditionalArgs,
     HasArgs: HasAdditionalArgs,
@@ -113,7 +113,7 @@ where
     C: Colony<Ph, Args>,
     F: Fitness<Args>,
     T: TerminationCondition<Ph, Args>,
-    Pr: Probe<Ph>,
+    Pr: Probe<Ph, Args>,
     Ph: Pheromone,
     Args: AdditionalArgs,
 {
@@ -146,7 +146,7 @@ where
     C: Colony<Ph, Args>,
     F: Fitness<Args>,
     T: TerminationCondition<Ph, Args>,
-    Pr: Probe<Ph>,
+    Pr: Probe<Ph, Args>,
     Ph: Pheromone,
 {
     /// Creates a new instance of Builder.
@@ -185,7 +185,7 @@ where
     C: Colony<Ph>,
     F: Fitness,
     T: TerminationCondition<Ph, ()>,
-    Pr: Probe<Ph>,
+    Pr: Probe<Ph, ()>,
     Ph: Pheromone,
 {
     /// Builds [AntColonyOptimization] with provided building blocks.
@@ -214,7 +214,7 @@ where
     P: PheromoneUpdate<Ph, Args>,
     C: Colony<Ph, Args>,
     T: TerminationCondition<Ph, Args>,
-    Pr: Probe<Ph>,
+    Pr: Probe<Ph, Args>,
     Ph: Pheromone,
     Args: AdditionalArgs,
     HasArgs: HasAdditionalArgs,
@@ -249,7 +249,7 @@ where
     P: PheromoneUpdate<Ph, Args>,
     C: Colony<Ph, Args>,
     F: Fitness<Args>,
-    Pr: Probe<Ph>,
+    Pr: Probe<Ph, Args>,
     Ph: Pheromone,
     Args: AdditionalArgs,
     HasArgs: HasAdditionalArgs,
