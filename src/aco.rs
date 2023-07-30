@@ -15,7 +15,6 @@ pub mod ant;
 pub mod ants_behaviour;
 pub mod builder;
 pub mod colony;
-pub mod fitness;
 pub mod goodness;
 pub mod grader;
 pub mod local_update;
