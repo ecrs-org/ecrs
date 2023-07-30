@@ -3,6 +3,7 @@ use ecrs::aco;
 use ecrs::aco::ants_behaviour::AntSystemAB;
 use ecrs::aco::colony::LegacyColony;
 use ecrs::aco::goodness::CanonicalGoodness;
+use ecrs::aco::grader::PathLengthInverse;
 use ecrs::aco::pheromone::AntSystemPU;
 use ecrs::aco::{util, FMatrix};
 use itertools::Itertools;
@@ -26,7 +27,7 @@ pub fn bench_aco_small(c: &mut Criterion) {
 
             aco::Builder::new(5)
                 .set_colony(colony)
-                .set_weights(black_box(dist.clone()))
+                .set_grader(PathLengthInverse::new(black_box(dist.clone())))
                 .set_pheromone_update(AntSystemPU::new(0.1))
                 .set_probe(EmptyProbe)
                 .with_iteration_termination(black_box(20))
@@ -54,7 +55,7 @@ pub fn bench_aco_medium(c: &mut Criterion) {
             );
 
             aco::Builder::new(15)
-                .set_weights(black_box(dist.clone()))
+                .set_grader(PathLengthInverse::new(black_box(dist.clone())))
                 .set_colony(colony)
                 .set_pheromone_update(AntSystemPU::new(0.1))
                 .set_probe(EmptyProbe)

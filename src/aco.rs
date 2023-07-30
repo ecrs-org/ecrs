@@ -15,8 +15,8 @@ pub mod ant;
 pub mod ants_behaviour;
 pub mod builder;
 pub mod colony;
-pub mod fitness;
 pub mod goodness;
+pub mod grader;
 pub mod local_update;
 pub mod pheromone;
 pub mod probe;
@@ -25,10 +25,11 @@ pub mod termination_condition;
 pub mod util;
 
 pub use builder::Builder;
+use itertools::Itertools;
 pub use solution::Solution;
 
 use crate::aco::colony::Colony;
-use crate::aco::fitness::Fitness;
+use crate::aco::grader::Grader;
 use crate::aco::pheromone::{Pheromone, PheromoneUpdate};
 use crate::aco::probe::Probe;
 use crate::aco::termination_condition::TerminationCondition;
@@ -45,11 +46,11 @@ impl AdditionalArgs for () {}
 /// Encapsulates common ACO algorithm patterns.
 ///
 /// To extract data use a [probe](probe)
-pub struct AntColonyOptimization<P, C, F, T, Pr, Ph, Args = ()>
+pub struct AntColonyOptimization<P, C, G, T, Pr, Ph, Args = ()>
 where
     P: PheromoneUpdate<Ph, Args>,
     C: Colony<Ph, Args>,
-    F: Fitness<Args>,
+    G: Grader<Args>,
     T: TerminationCondition<Ph, Args>,
     Pr: Probe<Ph, Args>,
     Ph: Pheromone,
@@ -58,17 +59,17 @@ where
     colony: C,
     pheromone_update: P,
     pheromone: Ph,
-    fitness: F,
+    grader: G,
     termination_cond: T,
     probe: Pr,
     additional_args: Args,
 }
 
-impl<P, C, F, T, Pr, Ph, Args> AntColonyOptimization<P, C, F, T, Pr, Ph, Args>
+impl<P, C, G, T, Pr, Ph, Args> AntColonyOptimization<P, C, G, T, Pr, Ph, Args>
 where
     P: PheromoneUpdate<Ph, Args>,
     C: Colony<Ph, Args>,
-    F: Fitness<Args>,
+    G: Grader<Args>,
     T: TerminationCondition<Ph, Args>,
     Pr: Probe<Ph, Args>,
     Ph: Pheromone,
@@ -109,21 +110,12 @@ where
         let best = sols
             .iter()
             .reduce(|a, b| if a.fitness > b.fitness { a } else { b });
-
         best.unwrap()
     }
 
     fn grade(&mut self, paths: Vec<Vec<usize>>) -> Vec<Solution> {
-        let mut sols: Vec<Solution> = Vec::with_capacity(paths.len());
-
-        for path in paths {
-            let fitness = self.fitness.apply(&path, &self.additional_args);
-
-            let mut solution = Solution::from_path(path);
-            solution.fitness = fitness;
-            sols.push(solution);
-        }
-
+        let mut sols = paths.into_iter().map(Solution::from_path).collect_vec();
+        self.grader.apply(&mut sols, &self.additional_args);
         sols
     }
 
