@@ -1,10 +1,11 @@
 //! Ants simulation strategies
 //!
-//! Contains strategies on how should an ant behave, and when to update edge [crate::aco::goodness].
-use crate::aco::ant::Ant;
-use crate::aco::goodness::Goodness;
-use crate::aco::local_update::LocalUpdate;
+//! Contains strategies on how should an ant behave, and when to update edge [crate::aco::tsp::goodness].
+
 use crate::aco::pheromone::Pheromone;
+use crate::aco::tsp::ant::Ant;
+use crate::aco::tsp::goodness::Goodness;
+use crate::aco::tsp::local_update::LocalUpdate;
 use crate::aco::FMatrix;
 
 /// # Ants Behaviour
@@ -22,7 +23,7 @@ pub trait AntsBehaviour<A: Ant, G: Goodness<P>, P: Pheromone> {
 /// # Ant System ants behaviour
 ///
 /// Implements [AntsBehaviour]. Ants are simulated as described in Ant System algorithm with the
-/// exception of goodness calculation. By providing [crate::aco::goodness::CanonicalGoodness] simulations
+/// exception of goodness calculation. By providing [crate::aco::tsp::goodness::CanonicalGoodness] simulations
 /// will be fully equivalent to Ant System.
 pub struct AntSystemAB;
 

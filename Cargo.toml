@@ -26,6 +26,7 @@ ga = ["test_functions", "dep:push-trait", "dep:len-trait", "dep:num-traits"]
 aco = ["dep:nalgebra", "dep:num"]
 ff = ["dep:rayon"]
 pso = ["dep:rayon", "dep:num", "test_functions"]
+aco_tsp = ["aco"]
 test_functions = []
 
 
@@ -53,7 +54,7 @@ clap = { version = "4.2.7", features = ["derive"] }
 [[bench]]
 name = "aco_bench"
 harness = false
-required-features = ["aco"]
+required-features = ["aco", "aco_tsp"]
 
 [[bench]]
 name = "ff_bench"

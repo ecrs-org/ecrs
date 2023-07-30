@@ -1,16 +1,6 @@
 use crate::aco::FMatrix;
-use itertools::Itertools;
 use rand::Rng;
 use std::error::Error;
-
-pub fn into_vec(m: &FMatrix) -> Vec<Vec<f64>> {
-    let mut m_vec: Vec<Vec<f64>> = Vec::new();
-
-    for row in m.row_iter() {
-        m_vec.push(row.iter().copied().collect_vec());
-    }
-    m_vec
-}
 
 /// Utility function for generating heuristic from cost(weights)
 pub fn create_heuristic_from_weights(weights: &FMatrix) -> FMatrix {

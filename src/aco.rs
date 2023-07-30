@@ -11,18 +11,16 @@
 //! Logging system details can be found [here](probe)
 //!
 //! ```
-pub mod ant;
-pub mod ants_behaviour;
 pub mod builder;
 pub mod colony;
-pub mod goodness;
 pub mod grader;
-pub mod local_update;
 pub mod pheromone;
 pub mod probe;
 mod solution;
 pub mod termination_condition;
-pub mod util;
+
+#[cfg(feature = "aco_tsp")]
+pub mod tsp;
 
 pub use builder::Builder;
 use itertools::Itertools;
