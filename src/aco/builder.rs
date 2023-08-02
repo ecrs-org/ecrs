@@ -189,7 +189,7 @@ where
     ///
     /// * `pheromone_update` needs to be specified, if not program will panic
     /// * `start_pheromone` needs to be specified, if not program will panic
-    /// * `ants_behaviour` needs to be specified, if not program will panic
+    /// * `colony` needs to be specified, if not program will panic
     /// * `fitness` needs to be specified, if not program will panic
     /// * `goodness` needs to be specified, if not program will panic
     /// * `ants` need to be specified, if not program will panic
