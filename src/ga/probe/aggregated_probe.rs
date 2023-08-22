@@ -14,6 +14,21 @@ impl<IndividualT: IndividualTrait> AggregatedProbe<IndividualT> {
         Self { probes: Vec::new() }
     }
 
+    /// Returns new instance of [AggregatedProbe] initialized
+    /// with given probes.
+    ///
+    /// ### Arguments
+    ///
+    /// * `probes` - Iterable with probes
+    pub fn with_probes<ProbeList>(probes: ProbeList) -> Self
+    where
+        ProbeList: IntoIterator<Item = Box<dyn Probe<IndividualT>>>,
+    {
+        Self {
+            probes: Vec::from_iter(probes),
+        }
+    }
+
     /// Add probe to list
     ///
     /// **Note**: Probes will be called in order they were added
