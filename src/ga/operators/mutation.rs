@@ -44,7 +44,7 @@ impl<IndividualT: IndividualTrait> MutationOperator<IndividualT> for Identity {
 /// This struct implements [MutationOperator] trait and can be used with GA
 ///
 /// Genes are muatated by flipping the value - `1` becomes `0` and vice versa
-pub struct FlipBit<R: Rng> {
+pub struct FlipBit<R: Rng = ThreadRng> {
     rng: R,
 }
 
@@ -94,7 +94,7 @@ where
 /// This struct implements [MutationOperator] trait and can be used with GA
 ///
 /// If a gene is to be muatated, a new locus is randomly choosen and gene values are interchanged
-pub struct Interchange<R: Rng> {
+pub struct Interchange<R: Rng = ThreadRng> {
     rng: R,
 }
 
@@ -204,19 +204,19 @@ where
 ///
 /// Two random locations are chosen marking out a segment of chromosome.
 /// Genes from this segment are then rotated around the segment's middle point.
-pub struct Inversion<R: Rng, GeneT: Copy> {
+pub struct Inversion<GeneT: Copy, R: Rng = ThreadRng> {
     rng: R,
     _marker: PhantomData<GeneT>,
 }
 
-impl<GeneT: Copy> Inversion<ThreadRng, GeneT> {
+impl<GeneT: Copy> Inversion<GeneT, ThreadRng> {
     /// Returns new instance of [Inversion] mutation operator with default RNG
     pub fn new() -> Self {
         Self::with_rng(rand::thread_rng())
     }
 }
 
-impl<R: Rng, GeneT: Copy> Inversion<R, GeneT> {
+impl<R: Rng, GeneT: Copy> Inversion<GeneT, R> {
     /// Returns new instance of [Inversion] mutation operator with custom RNG
     pub fn with_rng(rng: R) -> Self {
         Self {
@@ -226,7 +226,7 @@ impl<R: Rng, GeneT: Copy> Inversion<R, GeneT> {
     }
 }
 
-impl<IndividualT: IndividualTrait, GeneT: Copy, R: Rng> MutationOperator<IndividualT> for Inversion<R, GeneT>
+impl<IndividualT: IndividualTrait, GeneT: Copy, R: Rng> MutationOperator<IndividualT> for Inversion<GeneT, R>
 where
     IndividualT::ChromosomeT: Len + AsMut<[GeneT]>,
 {
