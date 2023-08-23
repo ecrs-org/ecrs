@@ -99,7 +99,7 @@ where
 /// Its mechanism is analoguous to [SinglePoint].
 ///
 /// Degenerate case when both cutpoints are in the same place or at position 0 or last can occur.
-pub struct TwoPoint<R: Rng> {
+pub struct TwoPoint<R: Rng = ThreadRng> {
     rng: R,
 }
 
@@ -185,7 +185,7 @@ where
 /// It works analogously to [SinglePoint] or [TwoPoint]. One important difference is that
 /// all cutpoints are distinct, thus single or two point crossover with guarantee of distinct cutpoints
 /// can be achieved.
-pub struct MultiPoint<R: Rng> {
+pub struct MultiPoint<R: Rng = ThreadRng> {
     cut_points_no: usize,
     rng: R,
 }
@@ -442,7 +442,7 @@ where
 /// Ch : 5 <b>4 1 3</b> 2
 ///
 /// Degenerated case when substring has length equal to genome length can occur.
-pub struct OrderedCrossover<R: Rng> {
+pub struct OrderedCrossover<R: Rng = ThreadRng> {
     rng: R,
 }
 
@@ -567,7 +567,7 @@ where
 /// Ch         : <i> 2 4 </i> <b> 5 </b> <i> 1<i/> <b> 3</b>
 ///
 /// Degenerated case when all genes are taken from the same parent.
-pub struct Ppx<R: Rng> {
+pub struct Ppx<R: Rng = ThreadRng> {
     rng: R,
     distribution: rand::distributions::Standard,
 }
@@ -699,7 +699,7 @@ where
 ///
 /// Degenerated case when substring has length equal to genome length can occur.
 ///
-pub struct Pmx<R: Rng> {
+pub struct Pmx<R: Rng = ThreadRng> {
     rng: R,
 }
 
@@ -849,7 +849,7 @@ where
 /// Lastly childs chromosomes are de-shuffled.
 ///
 /// Degenerated case when cutpoint is selected at index 0 or last can occur.
-pub struct Shuffle<R: Rng> {
+pub struct Shuffle<R: Rng = ThreadRng> {
     rng: R,
 }
 
