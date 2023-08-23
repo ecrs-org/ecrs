@@ -49,7 +49,7 @@ pub trait SelectionOperator<IndividualT: IndividualTrait> {
 ///
 /// Individuals are selected with probability proportional to their fitness value. More specifically:
 /// probability of selecting chromosome `C` from population `P` is `fitness(C)` / `sum_of_fitness_in_whole_population`.
-pub struct RouletteWheel<R: Rng> {
+pub struct RouletteWheel<R: Rng = ThreadRng> {
     rng: R,
 }
 
@@ -125,7 +125,7 @@ where
 /// Individuals are selected with uniform probability.
 ///
 /// **Note**: The same individual *can not* be selected mutiple times.
-pub struct Random<R: Rng> {
+pub struct Random<R: Rng = ThreadRng> {
     rng: R,
 }
 
@@ -248,7 +248,7 @@ where
 /// 4. Repeat 1-3 necessary number of times to create mating pool of demanded size
 ///
 /// **Note**: The same individual can be selected multiple times
-pub struct RankR<R: Rng> {
+pub struct RankR<R: Rng = ThreadRng> {
     r: f64,
     rng: R,
 }
@@ -425,7 +425,7 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for To
 /// 3. Iterate over the pointers and select the individuals they point to
 ///
 /// See the source code for implemenation details
-pub struct StochasticUniversalSampling<R: Rng> {
+pub struct StochasticUniversalSampling<R: Rng = ThreadRng> {
     rng: R,
 }
 
