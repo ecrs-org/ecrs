@@ -20,6 +20,7 @@ pub fn init_logging(log_file: Option<&Path>) -> Result<log4rs::Handle, log::SetL
     let config = if let Some(log_file) = log_file {
         let csv_appender = FileAppender::builder()
             .encoder(Box::new(PatternEncoder::new(&csv_log_pattern)))
+            .append(false)
             .build(log_file)
             .unwrap();
         config
