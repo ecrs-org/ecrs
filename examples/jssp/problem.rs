@@ -10,15 +10,21 @@ pub mod population;
 pub mod probe;
 pub mod replacement;
 
+/// Describes relation between two operations
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum EdgeKind {
+    /// Operation that the edge points to is from the same job (ops are on different machines)
     JobSucc,
+    /// Operation that the edge points to is on the same machine (ops are from different jobs)
     MachineSucc,
 }
 
+/// Models the edge in neighbourhood graph where operations are nodes
 #[derive(Debug, Clone, Copy)]
 pub struct Edge {
+    /// Unique id of the neighbour operation
     pub neigh_id: usize,
+    /// Describes the relation between the operations
     pub kind: EdgeKind,
 }
 
@@ -28,16 +34,40 @@ impl Edge {
     }
 }
 
+/// Models Operation that is a part of some job
+///
+/// TODO: Cleanup this struct. Move all data non-intrinsic to the Operation model
+/// to separate structs
 #[derive(Debug, Clone)]
 pub struct Operation {
+    /// Unique id of this operation
     id: usize,
+    /// Duration of the operation
     duration: usize,
+    /// Machine this operation is assigned to
     machine: usize,
+    /// Finish time tick of this operation as determined by the solver. The value of this field
+    /// is modified during the algorithm run
     finish_time: Option<usize>,
+    /// Ids of all ops that this op depends on. TODO: Was the order guaranteed?
     preds: Vec<usize>,
+    /// Edges describing relations to other ops in neighbourhood graph. It contains *at most* two elements
+    /// as each op might have at most two successors: next operation in the job or next operation on the same machine
+    /// this op is executed on. The value of this field is modified as the algorithm runs
     edges_out: Vec<Edge>,
+    /// Operation id of direct machine predecessor of this op. This might be `None` in following scenarios:
+    /// 1. Op is the first op on particular machine TODO: I'm not sure now, whether I set op no. 0 as machine predecessor
+    /// of every first op on given machine or not, so please verify it before using this fact.
+    /// 2. This is op with id 0
+    ///
+    /// The value of this field is modified as the algorithm runs.
     machine_pred: Option<usize>,
+    /// If this operation lies on critical path in neighbourhood graph (as defined in paper by Nowicki & Smutnicki)
+    /// this is the edge pointing to next op on critical path, if there is one - this might be the last operation
+    /// or simply not on the path. The value of this field is modified as the algorithm runs.
     critical_path_edge: Option<Edge>,
+    /// If this operation lies on critical path this field is used by the local search algorithm to store
+    /// distance from this op to the sink node. The value of this field is modified as the algorithm runs.
     critical_distance: usize,
 }
 
