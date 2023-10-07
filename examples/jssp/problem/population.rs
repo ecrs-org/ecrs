@@ -15,12 +15,15 @@ pub struct JsspPopProvider {
 
 impl JsspPopProvider {
     pub fn new(mut instance: JsspInstance) -> Self {
-        // Finding dimension of the chromosome
+        // Finding dimension of the chromosome -- total number of operations (later multiplied)
         let dim: usize = instance.jobs.iter().map(|job| job.len()).sum();
 
-        // Shift all ids by 1 && and job 0 & n + 1
+        // Prepare mock operations
+        // TODO: Shouldn't the duration be set to 0?
         let mut zero_op = Operation::new(0, usize::MAX, 0, None, Vec::new());
         let sink_op = Operation::new(dim + 1, usize::MAX, 0, None, Vec::from_iter(0..=dim));
+
+        // Shift all ids by 1 && and job 0 & n + 1
         instance.jobs.iter_mut().for_each(|job| {
             job.iter_mut().for_each(|op| {
                 op.id += 1;
