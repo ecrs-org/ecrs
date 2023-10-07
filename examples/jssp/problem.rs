@@ -93,9 +93,12 @@ impl Operation {
         }
     }
 
+    /// Resets the state of the operation so that this object can be reused to find new solution
     pub fn reset(&mut self) {
         self.finish_time = None;
         self.machine_pred = None;
+        // Job edges are determined by the problem instance we consider, while machine edges
+        // are determined by the scheduling process
         if let Some(edge_to_rm) = self
             .edges_out
             .iter()
@@ -113,14 +116,16 @@ impl Operation {
     }
 }
 
+/// Models the machine -- when it is occupied
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub struct Machine {
+    /// Unique id of the machine
     id: usize,
 
     // For naive implementation
     // rmc: Vec<usize>,
-
+    /// Remaining machine capacity. If a range is added -> this means that the machine is occupied in that range
     // For "possibly better implementation"
     rmc: Vec<Range<usize>>,
     pub last_scheduled_op: Option<usize>,
@@ -160,7 +165,7 @@ impl Machine {
         self.last_scheduled_op = Some(op);
     }
 
-    /// Removes all ranges from the machine state
+    /// Removes all ranges from the machine state allowing instance of this type to be reused
     pub fn reset(&mut self) {
         self.rmc.clear();
         self.last_scheduled_op = None;
@@ -170,9 +175,13 @@ impl Machine {
 /// Basic information (metadata) about the jssp instance.
 #[derive(Debug, Clone)]
 pub struct JsspConfig {
-    /// Number of
+    /// Total number of jobs. Note that the job/operation naming/meaning is not consistent.
+    /// TODO: Unify this so that job is a ordered set of operations.
     pub n_jobs: usize,
+    /// Total number of machines in this problem instance
     pub n_machines: usize,
+    /// Total number of operations. Note that the job/operation naming/meaning is not consistent across
+    /// the codebase (but also in article...)
     pub n_ops: usize,
 }
 
@@ -192,5 +201,6 @@ pub struct JsspInstanceMetadata {
 pub struct JsspInstance {
     pub jobs: Vec<Vec<Operation>>,
     pub cfg: JsspConfig,
+    // TODO: I should merge Instance metadata with config
     pub metadata: JsspInstanceMetadata,
 }
