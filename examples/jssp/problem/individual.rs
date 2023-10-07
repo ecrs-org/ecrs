@@ -331,6 +331,7 @@ impl JsspIndividual {
         makespan
     }
 
+    /// Resets all machines & operations associated with this individual
     fn reset(&mut self) {
         self.machines.iter_mut().for_each(|machine| machine.reset());
         self.operations.iter_mut().for_each(|op| op.reset());

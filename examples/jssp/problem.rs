@@ -124,6 +124,7 @@ impl Machine {
         self.last_scheduled_op = Some(op);
     }
 
+    /// Removes all ranges from the machine state
     pub fn reset(&mut self) {
         self.rmc.clear();
         self.last_scheduled_op = None;
