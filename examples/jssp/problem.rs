@@ -31,10 +31,9 @@ impl Edge {
 #[derive(Debug, Clone)]
 pub struct Operation {
     id: usize,
-    finish_time: usize,
     duration: usize,
     machine: usize,
-
+    finish_time: Option<usize>,
     preds: Vec<usize>,
     edges_out: Vec<Edge>,
     machine_pred: Option<usize>,
@@ -43,12 +42,18 @@ pub struct Operation {
 }
 
 impl Operation {
-    pub fn new(id: usize, finish_time: usize, duration: usize, machine: usize, preds: Vec<usize>) -> Self {
+    pub fn new(
+        id: usize,
+        duration: usize,
+        machine: usize,
+        finish_time: Option<usize>,
+        preds: Vec<usize>,
+    ) -> Self {
         Self {
             id,
-            finish_time,
             duration,
             machine,
+            finish_time,
             preds,
             edges_out: Vec::new(),
             machine_pred: None,
@@ -58,7 +63,7 @@ impl Operation {
     }
 
     pub fn reset(&mut self) {
-        self.finish_time = usize::MAX;
+        self.finish_time = None;
         self.machine_pred = None;
         if let Some(edge_to_rm) = self
             .edges_out

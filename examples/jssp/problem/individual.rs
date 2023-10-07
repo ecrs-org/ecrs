@@ -247,7 +247,7 @@ impl JsspIndividual {
 
         scheduled.insert(0);
         finish_times[0] = 0;
-        self.operations[0].finish_time = 0;
+        self.operations[0].finish_time = Some(0);
 
         let mut g = 1;
         let mut t_g = 0;
@@ -277,7 +277,7 @@ impl JsspIndividual {
                 let op_j_machine = self.operations[j].machine;
                 let op_j = &self.operations[j];
 
-                // Calculate earliset finish time (in terms of precedence only)
+                // Calculate the earliest finish time (in terms of precedence only)
                 let pred_j_finish = op_j
                     .preds
                     .iter()
