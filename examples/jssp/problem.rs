@@ -130,8 +130,10 @@ impl Machine {
     }
 }
 
+/// Basic information (metadata) about the jssp instance.
 #[derive(Debug, Clone)]
 pub struct JsspConfig {
+    /// Number of
     pub n_jobs: usize,
     pub n_machines: usize,
     pub n_ops: usize,
@@ -139,9 +141,16 @@ pub struct JsspConfig {
 
 #[derive(Debug, Clone)]
 pub struct JsspInstanceMetadata {
+    /// Name of the instance. In case the instance was loaded from the disk,
+    /// the `name` should be related to the data file name.
     pub name: String,
 }
 
+/// Describes single JSSP problem instance.
+/// Instance is modeled as a set of jobs.
+/// Each job is modeled as a set of operations.
+/// Operations have precedency relation estabilished
+/// and each operation is assigned to a particular machine.
 #[derive(Debug, Clone)]
 pub struct JsspInstance {
     pub jobs: Vec<Vec<Operation>>,

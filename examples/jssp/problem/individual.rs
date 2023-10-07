@@ -361,22 +361,27 @@ impl IndividualTrait for JsspIndividual {
     type ChromosomeT = Vec<f64>;
     type FitnessValueT = usize;
 
+    #[inline]
     fn chromosome(&self) -> &Self::ChromosomeT {
         &self.chromosome
     }
 
+    #[inline]
     fn chromosome_mut(&mut self) -> &mut Self::ChromosomeT {
         &mut self.chromosome
     }
 
+    #[inline]
     fn fitness(&self) -> Self::FitnessValueT {
         self.fitness
     }
 
+    #[inline]
     fn fitness_mut(&mut self) -> &mut Self::FitnessValueT {
         &mut self.fitness
     }
 
+    #[inline]
     fn requires_evaluation(&self) -> bool {
         !self.is_fitness_valid
     }
