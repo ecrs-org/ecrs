@@ -36,8 +36,9 @@ impl Edge {
 
 /// Models Operation that is a part of some job
 ///
-/// TODO: Cleanup this struct. Move all data non-intrinsic to the Operation model
-/// to separate structs
+/// TODO: Cleanup this struct.
+/// 1. Move all data non-intrinsic to the Operation model to separate structs
+/// 2. `critical_distance` should be an Option
 #[derive(Debug, Clone)]
 pub struct Operation {
     /// Unique id of this operation
