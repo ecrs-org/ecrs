@@ -6,13 +6,24 @@ use log::{debug, info, trace, warn};
 
 use super::{Edge, EdgeKind, Machine, Operation};
 
+/// Models single solution to the JSSP problem instance
 #[derive(Debug, Clone)]
 pub struct JsspIndividual {
+    /// Encoding of the solution. This can be decoded to the proper solution
     pub chromosome: Vec<f64>,
+    /// Clone of all operations from the problem instance
     pub operations: Vec<Operation>,
+    /// Clone of all machines from the problem instance
     pub machines: Vec<Machine>,
+    /// If computed - fitness value of this solution. Check `is_fitness_valid`
+    /// property to determine whether this value is up to date
+    /// This is not an Option for some practical reasons
+    /// TODO: But this should be an Option or some enum with additional information
     pub fitness: usize,
+    /// If `true` the `fitness` field holds the value for the current `chromosome`
+    /// and does need to be recomputed. This must be kept in sync!
     pub is_fitness_valid: bool,
+    /// TODO: Determine what I've used it for
     is_dirty: bool,
 }
 
