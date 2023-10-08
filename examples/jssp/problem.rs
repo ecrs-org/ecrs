@@ -10,15 +10,21 @@ pub mod population;
 pub mod probe;
 pub mod replacement;
 
+/// Describes relation between two operations
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum EdgeKind {
+    /// Operation that the edge points to is from the same job (ops are on different machines)
     JobSucc,
+    /// Operation that the edge points to is on the same machine (ops are from different jobs)
     MachineSucc,
 }
 
+/// Models the edge in neighbourhood graph where operations are nodes
 #[derive(Debug, Clone, Copy)]
 pub struct Edge {
+    /// Unique id of the neighbour operation
     pub neigh_id: usize,
+    /// Describes the relation between the operations
     pub kind: EdgeKind,
 }
 
@@ -28,27 +34,57 @@ impl Edge {
     }
 }
 
+/// Models Operation that is a part of some job
+///
+/// TODO: Cleanup this struct.
+/// 1. Move all data non-intrinsic to the Operation model to separate structs
+/// 2. `critical_distance` should be an Option
 #[derive(Debug, Clone)]
 pub struct Operation {
+    /// Unique id of this operation
     id: usize,
-    finish_time: usize,
+    /// Duration of the operation
     duration: usize,
+    /// Machine this operation is assigned to
     machine: usize,
-
+    /// Finish time tick of this operation as determined by the solver. The value of this field
+    /// is modified during the algorithm run
+    finish_time: Option<usize>,
+    /// Ids of all ops that this op depends on. TODO: Was the order guaranteed?
     preds: Vec<usize>,
+    /// Edges describing relations to other ops in neighbourhood graph. It contains *at most* two elements
+    /// as each op might have at most two successors: next operation in the job or next operation on the same machine
+    /// this op is executed on. The value of this field is modified as the algorithm runs
     edges_out: Vec<Edge>,
+    /// Operation id of direct machine predecessor of this op. This might be `None` in following scenarios:
+    /// 1. Op is the first op on particular machine TODO: I'm not sure now, whether I set op no. 0 as machine predecessor
+    /// of every first op on given machine or not, so please verify it before using this fact.
+    /// 2. This is op with id 0
+    ///
+    /// The value of this field is modified as the algorithm runs.
     machine_pred: Option<usize>,
+    /// If this operation lies on critical path in neighbourhood graph (as defined in paper by Nowicki & Smutnicki)
+    /// this is the edge pointing to next op on critical path, if there is one - this might be the last operation
+    /// or simply not on the path. The value of this field is modified as the algorithm runs.
     critical_path_edge: Option<Edge>,
+    /// If this operation lies on critical path this field is used by the local search algorithm to store
+    /// distance from this op to the sink node. The value of this field is modified as the algorithm runs.
     critical_distance: usize,
 }
 
 impl Operation {
-    pub fn new(id: usize, finish_time: usize, duration: usize, machine: usize, preds: Vec<usize>) -> Self {
+    pub fn new(
+        id: usize,
+        duration: usize,
+        machine: usize,
+        finish_time: Option<usize>,
+        preds: Vec<usize>,
+    ) -> Self {
         Self {
             id,
-            finish_time,
             duration,
             machine,
+            finish_time,
             preds,
             edges_out: Vec::new(),
             machine_pred: None,
@@ -57,9 +93,12 @@ impl Operation {
         }
     }
 
+    /// Resets the state of the operation so that this object can be reused to find new solution
     pub fn reset(&mut self) {
-        self.finish_time = usize::MAX;
+        self.finish_time = None;
         self.machine_pred = None;
+        // Job edges are determined by the problem instance we consider, while machine edges
+        // are determined by the scheduling process
         if let Some(edge_to_rm) = self
             .edges_out
             .iter()
@@ -77,14 +116,16 @@ impl Operation {
     }
 }
 
+/// Models the machine -- when it is occupied
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub struct Machine {
+    /// Unique id of the machine
     id: usize,
 
     // For naive implementation
     // rmc: Vec<usize>,
-
+    /// Remaining machine capacity. If a range is added -> this means that the machine is occupied in that range
     // For "possibly better implementation"
     rmc: Vec<Range<usize>>,
     pub last_scheduled_op: Option<usize>,
@@ -124,27 +165,42 @@ impl Machine {
         self.last_scheduled_op = Some(op);
     }
 
+    /// Removes all ranges from the machine state allowing instance of this type to be reused
     pub fn reset(&mut self) {
         self.rmc.clear();
         self.last_scheduled_op = None;
     }
 }
 
+/// Basic information (metadata) about the jssp instance.
 #[derive(Debug, Clone)]
 pub struct JsspConfig {
+    /// Total number of jobs. Note that the job/operation naming/meaning is not consistent.
+    /// TODO: Unify this so that job is a ordered set of operations.
     pub n_jobs: usize,
+    /// Total number of machines in this problem instance
     pub n_machines: usize,
+    /// Total number of operations. Note that the job/operation naming/meaning is not consistent across
+    /// the codebase (but also in article...)
     pub n_ops: usize,
 }
 
 #[derive(Debug, Clone)]
 pub struct JsspInstanceMetadata {
+    /// Name of the instance. In case the instance was loaded from the disk,
+    /// the `name` should be related to the data file name.
     pub name: String,
 }
 
+/// Describes single JSSP problem instance.
+/// Instance is modeled as a set of jobs.
+/// Each job is modeled as a set of operations.
+/// Operations have precedency relation estabilished
+/// and each operation is assigned to a particular machine.
 #[derive(Debug, Clone)]
 pub struct JsspInstance {
     pub jobs: Vec<Vec<Operation>>,
     pub cfg: JsspConfig,
+    // TODO: I should merge Instance metadata with config
     pub metadata: JsspInstanceMetadata,
 }

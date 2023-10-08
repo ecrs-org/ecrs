@@ -64,9 +64,9 @@ impl TryFrom<&PathBuf> for JsspInstance {
                 .for_each(|op_def| {
                     jobs.last_mut().unwrap().push(Operation::new(
                         op_id,
-                        usize::MAX,
                         op_def[1].parse().unwrap(),
                         op_def[0].parse().unwrap(),
+                        None,
                         Vec::from_iter(first_job_in_batch..op_id),
                     ));
                     op_id += 1;

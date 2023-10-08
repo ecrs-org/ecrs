@@ -6,13 +6,24 @@ use log::{debug, info, trace, warn};
 
 use super::{Edge, EdgeKind, Machine, Operation};
 
+/// Models single solution to the JSSP problem instance
 #[derive(Debug, Clone)]
 pub struct JsspIndividual {
+    /// Encoding of the solution. This can be decoded to the proper solution
     pub chromosome: Vec<f64>,
+    /// Clone of all operations from the problem instance
     pub operations: Vec<Operation>,
+    /// Clone of all machines from the problem instance
     pub machines: Vec<Machine>,
+    /// If computed - fitness value of this solution. Check `is_fitness_valid`
+    /// property to determine whether this value is up to date
+    /// This is not an Option for some practical reasons
+    /// TODO: But this should be an Option or some enum with additional information
     pub fitness: usize,
+    /// If `true` the `fitness` field holds the value for the current `chromosome`
+    /// and does need to be recomputed. This must be kept in sync!
     pub is_fitness_valid: bool,
+    /// TODO: Determine what I've used it for
     is_dirty: bool,
 }
 
@@ -247,7 +258,7 @@ impl JsspIndividual {
 
         scheduled.insert(0);
         finish_times[0] = 0;
-        self.operations[0].finish_time = 0;
+        self.operations[0].finish_time = Some(0);
 
         let mut g = 1;
         let mut t_g = 0;
@@ -277,7 +288,7 @@ impl JsspIndividual {
                 let op_j_machine = self.operations[j].machine;
                 let op_j = &self.operations[j];
 
-                // Calculate earliset finish time (in terms of precedence only)
+                // Calculate the earliest finish time (in terms of precedence only)
                 let pred_j_finish = op_j
                     .preds
                     .iter()
@@ -331,6 +342,7 @@ impl JsspIndividual {
         makespan
     }
 
+    /// Resets all machines & operations associated with this individual
     fn reset(&mut self) {
         self.machines.iter_mut().for_each(|machine| machine.reset());
         self.operations.iter_mut().for_each(|op| op.reset());
@@ -361,22 +373,27 @@ impl IndividualTrait for JsspIndividual {
     type ChromosomeT = Vec<f64>;
     type FitnessValueT = usize;
 
+    #[inline]
     fn chromosome(&self) -> &Self::ChromosomeT {
         &self.chromosome
     }
 
+    #[inline]
     fn chromosome_mut(&mut self) -> &mut Self::ChromosomeT {
         &mut self.chromosome
     }
 
+    #[inline]
     fn fitness(&self) -> Self::FitnessValueT {
         self.fitness
     }
 
+    #[inline]
     fn fitness_mut(&mut self) -> &mut Self::FitnessValueT {
         &mut self.fitness
     }
 
+    #[inline]
     fn requires_evaluation(&self) -> bool {
         !self.is_fitness_valid
     }
