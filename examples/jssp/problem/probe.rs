@@ -1,6 +1,11 @@
+use std::cmp::Ordering;
+
 use ecrs::ga::{individual::IndividualTrait, Probe};
 use itertools::Itertools;
 use log::info;
+use md5;
+
+use crate::logging::OutputData;
 
 use super::individual::JsspIndividual;
 
@@ -107,10 +112,43 @@ impl Probe<JsspIndividual> for JsspProbe {
     #[inline]
     fn on_end(
         &mut self,
-        _metadata: &ecrs::ga::GAMetadata,
+        metadata: &ecrs::ga::GAMetadata,
         _population: &[JsspIndividual],
-        _best_individual: &JsspIndividual,
+        best_individual: &JsspIndividual,
     ) { 
+        let mut ops = best_individual.operations.clone();
+        ops.sort_unstable_by(|a, b| {
+            if a.finish_time == b.finish_time {
+                if a.duration == 0 && b.duration != 0 {
+                    return Ordering::Greater;
+                } else if a.duration != 0 && b.duration == 0 {
+                    return Ordering::Less;
+                } else if a.machine < b.machine {
+                    return Ordering::Less;
+                } else {
+                    return Ordering::Greater;
+                }
+            } else if a.finish_time < b.finish_time {
+                return Ordering::Less;
+            } else {
+                return Ordering::Greater;
+            }
+        });
+        let n = ops.len();
+        let solution_string = ops.into_iter()
+            .filter(|op| op.id != 0 && op.id != n + 1)
+            .map(|op| op.id.to_string())
+            .join("_");
 
+        let hash = md5::compute(solution_string.clone());
+        let outdata = OutputData {
+            solution_string,
+            hash: format!("{:x}", hash),
+            fitness: best_individual.fitness,
+            generation_count: metadata.generation,
+            total_time: metadata.total_dur.unwrap().as_millis(),
+        };
+        let serialized_object = serde_json::to_string(&outdata).unwrap();
+        info!(target: "metadata", "{serialized_object}");
     }
 }

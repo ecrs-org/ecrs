@@ -12,8 +12,11 @@ use log4rs::{
 
 #[derive(serde::Serialize, Clone, Debug)]
 pub struct OutputData {
-    solution_string: String,
-    hash: String,
+    pub solution_string: String,
+    pub hash: String,
+    pub fitness: usize,
+    pub generation_count: usize,
+    pub total_time: u128,
 }
 
 pub fn init_logging(event_log_files: &HashMap<String, PathBuf>, metadata_log_file: &PathBuf) -> Result<log4rs::Handle, log::SetLoggerError> {
