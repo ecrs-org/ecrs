@@ -26,7 +26,7 @@ type FitnessFn<S, R> = fn(&S) -> R;
 
 /// Error type for internal use
 #[derive(Debug, Clone)]
-enum ConfigError {
+pub enum ConfigError {
     MissingParam(String),
     MissingOperator(String),
     MissingPopulationFactory,
@@ -53,7 +53,7 @@ impl Error for ConfigError {}
 // TODO: We should really consider creating a macro here, so that we
 // don't have to write it by hand...
 #[derive(Debug, Clone)]
-pub(self) struct GAParamsOpt {
+pub struct GAParamsOpt {
     pub selection_rate: Option<f64>,
     pub mutation_rate: Option<f64>,
     pub population_size: Option<usize>,
@@ -125,7 +125,7 @@ impl TryFrom<GAParamsOpt> for GAParams {
 /// inside `Option` type, so that builders can incrementally fill it up.
 // TODO: We should really consider creating a macro here, so that we
 // don't have to write it by hand...
-pub(self) struct GAConfigOpt<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
+pub struct GAConfigOpt<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
     IndividualT: IndividualTrait,
     MutOpT: MutationOperator<IndividualT>,
