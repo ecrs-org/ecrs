@@ -11,6 +11,8 @@ impl JsspProbe {
         Self {}
     }
 
+    // TODO: This has either been not working as expected or the solver runs so bad.
+    // TODO: Verify whether the diversity is better on other problems
     fn estimate_pop_diversity(population: &[JsspIndividual]) -> f64 {
         population
             .iter()
@@ -42,7 +44,9 @@ impl Probe<JsspIndividual> for JsspProbe {
         metadata: &ecrs::ga::GAMetadata,
         population: &[JsspIndividual],
     ) {
-        let diversity = JsspProbe::estimate_pop_diversity(population);
+        // TODO: As this metric is useless right now I'm disabling it temporarily
+        // let diversity = JsspProbe::estimate_pop_diversity(population);
+        let diversity = 0.0;
         info!(target: "csv", "diversity,0,0,{},{diversity}\npopgentime,{}", population.len(), metadata.pop_gen_dur.unwrap().as_millis());
     }
 
@@ -57,7 +61,9 @@ impl Probe<JsspIndividual> for JsspProbe {
     }
 
     fn on_new_generation(&mut self, metadata: &ecrs::ga::GAMetadata, generation: &[JsspIndividual]) {
-        let diversity = JsspProbe::estimate_pop_diversity(generation);
+        // TODO: As this metric is useless right now I'm disabling it temporarily
+        // let diversity = JsspProbe::estimate_pop_diversity(generation);
+        let diversity = 0.0;
         info!(
             target: "csv",
             "diversity,{},{},{},{diversity}",
