@@ -11,6 +11,7 @@ impl JsspProbe {
         Self {}
     }
 
+    #[allow(dead_code)]
     // TODO: This has either been not working as expected or the solver runs so bad.
     // TODO: Verify whether the diversity is better on other problems
     fn estimate_pop_diversity(population: &[JsspIndividual]) -> f64 {

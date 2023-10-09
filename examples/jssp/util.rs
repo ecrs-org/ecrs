@@ -1,6 +1,10 @@
 #![allow(dead_code)]
 
-use std::{collections::{HashSet, HashMap, hash_map}, fmt::Display, path::{PathBuf, Path}};
+use std::{
+    collections::{hash_map, HashMap, HashSet},
+    fmt::Display,
+    path::{Path, PathBuf},
+};
 
 pub fn print_hash_set<T: Display>(set: &HashSet<T>) {
     for elem in set {
@@ -23,7 +27,7 @@ pub fn create_event_map(base_dir: &Path) -> HashMap<String, PathBuf> {
         ("newbest".to_owned(), base_dir.join("event_newbest.csv")),
         ("bestingen".to_owned(), base_dir.join("event_bestingen.csv")),
         ("popgentime".to_owned(), base_dir.join("event_popgentime.csv")),
-        ("iterinfo".to_owned(), base_dir.join("event_iterinfo.csv"))
+        ("iterinfo".to_owned(), base_dir.join("event_iterinfo.csv")),
     ])
 }
 
@@ -33,7 +37,7 @@ pub fn assert_dir_exists(dir: &Path) {
     }
 
     match std::fs::create_dir_all(dir) {
-        Ok(()) => return,
-        Err(err) => panic!("Failed to create outuput directory with error {err}"),
+        Ok(()) => (),
+        Err(err) => panic!("Failed to create output directory with error {err}"),
     };
 }

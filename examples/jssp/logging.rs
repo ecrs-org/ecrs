@@ -1,4 +1,7 @@
-use std::{path::{Path, PathBuf}, collections::HashMap};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 use log4rs::{
     append::{console::ConsoleAppender, file::FileAppender},
@@ -35,7 +38,7 @@ pub fn init_logging(log_files: &HashMap<String, PathBuf>) -> Result<log4rs::Hand
                     Logger::builder()
                         .appender(event_name)
                         .additive(false)
-                        .build(event_name, log::LevelFilter::Info)
+                        .build(event_name, log::LevelFilter::Info),
                 );
         }
     }

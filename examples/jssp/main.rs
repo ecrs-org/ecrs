@@ -58,7 +58,7 @@ fn run_with_ecrs(instance: JsspInstance, _args: Args) {
 
 fn run() {
     let args = cli::parse_args();
-    
+
     util::assert_dir_exists(args.output_dir.as_ref());
     let event_map = util::create_event_map(args.output_dir.as_ref());
     if let Err(err) = logging::init_logging(&event_map) {
@@ -67,8 +67,10 @@ fn run() {
 
     // Existance of input file is asserted during cli args parsing
     let instance = JsspInstance::try_from(&args.input_file).unwrap();
-    for op in instance.jobs.iter() {
-        info!("{op:?}");
+    for job in instance.jobs.iter() {
+        for op in job {
+            info!("{op:?}");
+        }
     }
     run_with_ecrs(instance, args)
 }
