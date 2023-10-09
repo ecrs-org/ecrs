@@ -118,20 +118,16 @@ impl Probe<JsspIndividual> for JsspProbe {
     ) {
         let mut ops = best_individual.operations.clone();
         ops.sort_unstable_by(|a, b| {
-            if a.finish_time == b.finish_time {
-                if a.duration == 0 && b.duration != 0 {
-                    return Ordering::Greater;
-                } else if a.duration != 0 && b.duration == 0 {
-                    return Ordering::Less;
-                } else if a.machine < b.machine {
-                    return Ordering::Less;
-                } else {
-                    return Ordering::Greater;
-                }
-            } else if a.finish_time < b.finish_time {
-                return Ordering::Less;
+            if a.finish_time < b.finish_time {
+                Ordering::Less
+            } else if a.finish_time > b.finish_time {
+                Ordering::Greater
+            } else if a.duration != 0 && b.duration != 0 {
+               a.machine.cmp(&b.machine)
+            } else if a.duration != 0 && b.duration == 0 {
+                Ordering::Less
             } else {
-                return Ordering::Greater;
+                Ordering::Greater
             }
         });
         let n = ops.len();
