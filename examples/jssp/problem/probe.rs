@@ -33,10 +33,12 @@ impl Probe<JsspIndividual> for JsspProbe {
 
     #[inline]
     fn on_start(&mut self, _metadata: &ecrs::ga::GAMetadata) {
-        // This is a marker record for ECDataKit. Since it looks like
-        // polars.DataFrame.read_csv deduces number of columns from the first encoutered
-        // record it leads to crashes when longer records are encountered deeper in the file.
-        info!(target: "csv", "event,,,,,,,");
+        // Writing csv header to each file
+        info!(target: "diversity", "event_name,generation,total_duration,population_size,diversity");
+        info!(target: "popgentime", "event_name,time");
+        info!(target: "newbest", "event_name,generation,total_duration,fitness");
+        info!(target: "bestingen", "event_name,generation,total_duration,fitness");
+        info!(target: "iterinfo", "event_name,eval_time,sel_time,cross_time,mut_time,repl_time,iter_time");
     }
 
     fn on_initial_population_created(
