@@ -47,7 +47,6 @@ pub fn init_logging(log_files: &HashMap<String, PathBuf>) -> Result<log4rs::Hand
                 .build(log::LevelFilter::Trace),
         )
         .unwrap();
-    // .appender(FileAppender::builder().encoder(Box::new(PatternEncoder::new(&csv_log_pattern))).build("log.txt"))
 
     log4rs::init_config(config)
 }
