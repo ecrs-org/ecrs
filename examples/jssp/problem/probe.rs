@@ -47,12 +47,13 @@ impl Probe<JsspIndividual> for JsspProbe {
         // TODO: As this metric is useless right now I'm disabling it temporarily
         // let diversity = JsspProbe::estimate_pop_diversity(population);
         let diversity = 0.0;
-        info!(target: "csv", "diversity,0,0,{},{diversity}\npopgentime,{}", population.len(), metadata.pop_gen_dur.unwrap().as_millis());
+        info!(target: "diversity", "diversity,0,0,{},{diversity}", population.len());
+        info!(target: "popgentime", "popgentime,{}", metadata.pop_gen_dur.unwrap().as_millis());
     }
 
     fn on_new_best(&mut self, metadata: &ecrs::ga::GAMetadata, individual: &JsspIndividual) {
         info!(
-            target: "csv",
+            target: "newbest",
             "newbest,{},{},{}",
             metadata.generation,
             metadata.total_dur.unwrap().as_millis(),
@@ -65,7 +66,7 @@ impl Probe<JsspIndividual> for JsspProbe {
         // let diversity = JsspProbe::estimate_pop_diversity(generation);
         let diversity = 0.0;
         info!(
-            target: "csv",
+            target: "diversity",
             "diversity,{},{},{},{diversity}",
             metadata.generation,
             metadata.total_dur.unwrap().as_millis(),
@@ -75,7 +76,7 @@ impl Probe<JsspIndividual> for JsspProbe {
 
     fn on_best_fit_in_generation(&mut self, metadata: &ecrs::ga::GAMetadata, individual: &JsspIndividual) {
         info!(
-            target: "csv",
+            target: "bestingen",
             "bestingen,{},{},{}",
             metadata.generation,
             metadata.total_dur.unwrap().as_millis(),
@@ -89,7 +90,7 @@ impl Probe<JsspIndividual> for JsspProbe {
 
     #[inline]
     fn on_iteration_end(&mut self, metadata: &ecrs::ga::GAMetadata) {
-        info!(target: "csv", "iterinfo,{},{},{},{},{},{},{}",
+        info!(target: "iterinfo", "iterinfo,{},{},{},{},{},{},{}",
             metadata.generation,
             metadata.pop_eval_dur.unwrap().as_millis(),
             metadata.selection_dur.unwrap().as_millis(),
