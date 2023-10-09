@@ -34,6 +34,6 @@ pub fn assert_dir_exists(dir: &Path) {
 
     match std::fs::create_dir_all(dir) {
         Ok(()) => return,
-        Err(err) => panic!("Failed to create outuput directory with error {err}"),
+        Err(err) => panic!("Failed to create output directory with error {err}"),
     };
 }
