@@ -358,6 +358,7 @@ impl PartialEq for JsspIndividual {
 impl Eq for JsspIndividual {}
 
 impl PartialOrd for JsspIndividual {
+    #[allow(clippy::incorrect_partial_ord_impl_on_ord_type)]
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         self.fitness.partial_cmp(&other.fitness)
     }
