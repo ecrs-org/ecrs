@@ -123,7 +123,7 @@ impl Probe<JsspIndividual> for JsspProbe {
             } else if a.finish_time > b.finish_time {
                 Ordering::Greater
             } else if a.duration != 0 && b.duration != 0 {
-               a.machine.cmp(&b.machine)
+                a.machine.cmp(&b.machine)
             } else if a.duration != 0 && b.duration == 0 {
                 Ordering::Less
             } else {
