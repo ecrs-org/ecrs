@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{path::{Path, PathBuf}, collections::HashMap};
 
 use log4rs::{
     append::{console::ConsoleAppender, file::FileAppender},
@@ -6,7 +6,7 @@ use log4rs::{
     encode::pattern::PatternEncoder,
 };
 
-pub fn init_logging(log_file: Option<&Path>) -> Result<log4rs::Handle, log::SetLoggerError> {
+pub fn init_logging(log_files: &HashMap<String, PathBuf>) -> Result<log4rs::Handle, log::SetLoggerError> {
     let log_pattern = String::from("[{l}] {m}{n}");
     let csv_log_pattern = String::from("{m}{n}");
 
@@ -14,28 +14,33 @@ pub fn init_logging(log_file: Option<&Path>) -> Result<log4rs::Handle, log::SetL
         .encoder(Box::new(PatternEncoder::new(&log_pattern)))
         .build();
 
-    let config =
-        log4rs::Config::builder().appender(Appender::builder().build("main", Box::new(stdout_appender)));
+    let mut cfg_builder = log4rs::Config::builder();
 
-    let config = if let Some(log_file) = log_file {
-        let csv_appender = FileAppender::builder()
-            .encoder(Box::new(PatternEncoder::new(&csv_log_pattern)))
-            .append(false)
-            .build(log_file)
-            .unwrap();
-        config
-            .appender(Appender::builder().build("csv_appender", Box::new(csv_appender)))
-            .logger(
-                Logger::builder()
-                    .appender("csv_appender")
-                    .additive(false)
-                    .build("csv", log::LevelFilter::Info),
-            )
-    } else {
-        config
-    };
+    // Register console appender
+    cfg_builder = cfg_builder.appender(Appender::builder().build("main", Box::new(stdout_appender)));
 
-    let config = config
+    // Register appenders & loggers for given events
+    if !log_files.is_empty() {
+        let csv_encoder = Box::new(PatternEncoder::new(&csv_log_pattern));
+        for (event_name, log_file) in log_files.iter() {
+            let csv_appender = FileAppender::builder()
+                .encoder(csv_encoder.clone())
+                .append(false)
+                .build(log_file)
+                .unwrap();
+
+            cfg_builder = cfg_builder
+                .appender(Appender::builder().build(event_name, Box::new(csv_appender)))
+                .logger(
+                    Logger::builder()
+                        .appender(event_name)
+                        .additive(false)
+                        .build(event_name, log::LevelFilter::Info)
+                );
+        }
+    }
+
+    let config = cfg_builder
         .build(
             log4rs::config::Root::builder()
                 .appender("main")

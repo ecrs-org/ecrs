@@ -59,7 +59,8 @@ fn run_with_ecrs(instance: JsspInstance, _args: Args) {
 fn run() {
     let args = cli::parse_args();
 
-    if let Err(err) = logging::init_logging(Some(args.output_file.as_path())) {
+    let event_map = util::create_event_map(args.output_dir.as_ref());
+    if let Err(err) = logging::init_logging(&event_map) {
         panic!("Logger initialization failed with error: {err}");
     }
 
