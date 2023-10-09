@@ -9,9 +9,20 @@ use log4rs::{
     encode::pattern::PatternEncoder,
 };
 
-pub fn init_logging(log_files: &HashMap<String, PathBuf>) -> Result<log4rs::Handle, log::SetLoggerError> {
+
+#[derive(serde::Serialize, Clone, Debug)]
+pub struct OutputData {
+    pub solution_string: String,
+    pub hash: String,
+    pub fitness: usize,
+    pub generation_count: usize,
+    pub total_time: u128,
+}
+
+pub fn init_logging(event_log_files: &HashMap<String, PathBuf>, metadata_log_file: &PathBuf) -> Result<log4rs::Handle, log::SetLoggerError> {
     let log_pattern = String::from("[{l}] {m}{n}");
     let csv_log_pattern = String::from("{m}{n}");
+    let csv_encoder = Box::new(PatternEncoder::new(&csv_log_pattern));
 
     let stdout_appender = ConsoleAppender::builder()
         .encoder(Box::new(PatternEncoder::new(&log_pattern)))
@@ -22,10 +33,11 @@ pub fn init_logging(log_files: &HashMap<String, PathBuf>) -> Result<log4rs::Hand
     // Register console appender
     cfg_builder = cfg_builder.appender(Appender::builder().build("main", Box::new(stdout_appender)));
 
+
     // Register appenders & loggers for given events
-    if !log_files.is_empty() {
+    if !event_log_files.is_empty() {
         let csv_encoder = Box::new(PatternEncoder::new(&csv_log_pattern));
-        for (event_name, log_file) in log_files.iter() {
+        for (event_name, log_file) in event_log_files.iter() {
             let csv_appender = FileAppender::builder()
                 .encoder(csv_encoder.clone())
                 .append(false)
@@ -42,6 +54,22 @@ pub fn init_logging(log_files: &HashMap<String, PathBuf>) -> Result<log4rs::Hand
                 );
         }
     }
+
+    let result_appender = FileAppender::builder()
+        .encoder(csv_encoder)
+        .append(false)
+        .build(metadata_log_file)
+        .unwrap();
+
+    cfg_builder = cfg_builder
+        .appender(Appender::builder().build("metadata_appender", Box::new(result_appender)))
+        .logger(
+            Logger::builder()
+                .appender("metadata_appender")
+                .additive(false)
+                .build("metadata", log::LevelFilter::Info),
+        );
+
 
     let config = cfg_builder
         .build(
