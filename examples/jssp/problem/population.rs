@@ -20,8 +20,8 @@ impl JsspPopProvider {
 
         // Prepare mock operations
         // TODO: Shouldn't the duration be set to 0?
-        let mut zero_op = Operation::new(0, usize::MAX, 0, None, Vec::new());
-        let sink_op = Operation::new(dim + 1, usize::MAX, 0, None, Vec::from_iter(0..=dim));
+        let mut zero_op = Operation::new(0, 0, 0, None, Vec::new());
+        let sink_op = Operation::new(dim + 1, 0, 0, None, Vec::from_iter(0..=dim));
 
         // Shift all ids by 1 && and job 0 & n + 1
         instance.jobs.iter_mut().for_each(|job| {
