@@ -146,6 +146,7 @@ impl<T: Chromosome> PartialEq<Self> for Individual<T> {
 impl<T: Chromosome> Eq for Individual<T> {}
 
 impl<T: Chromosome> PartialOrd<Self> for Individual<T> {
+    #[allow(clippy::incorrect_partial_ord_impl_on_ord_type)]
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         self.fitness.partial_cmp(&other.fitness)
     }

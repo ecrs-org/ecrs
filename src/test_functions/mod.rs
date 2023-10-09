@@ -120,7 +120,7 @@ pub fn brad(x: &Vec<f64>) -> f64 {
     let x1 = x[0];
     let x2 = x[1];
     let x3 = x[2];
-    let y = vec![
+    let y = [
         0.14, 0.18, 0.22, 0.25, 0.29, 0.32, 0.35, 0.39, 0.37, 0.58, 0.73, 0.96, 1.34, 2.10, 4.39,
     ];
     let mut res = 0_f64;
@@ -1252,7 +1252,7 @@ pub fn hartmann_3d(x: &Vec<f64>) -> f64 {
         x.len(),
         "Hartmann 3-dimensional function takes only a three dimensional vector as a parameter."
     );
-    let alfa = vec![1.0, 1.2, 3.0, 3.2];
+    let alfa = [1.0, 1.2, 3.0, 3.2];
     let a = vec![
         vec![3.0, 10.0, 30.0],
         vec![0.1, 10.0, 35.0],
@@ -1285,7 +1285,7 @@ pub fn hartmann_4d(x: &Vec<f64>) -> f64 {
         x.len(),
         "Hartmann 4-dimensional function takes only a three dimensional vector as a parameter."
     );
-    let alfa = vec![1.0, 1.2, 3.0, 3.2];
+    let alfa = [1.0, 1.2, 3.0, 3.2];
     let a = vec![
         vec![10.0, 3.0, 17.0, 3.5, 1.7, 8.0],
         vec![0.05, 10.0, 17.0, 0.1, 8.0, 14.0],
@@ -1320,7 +1320,7 @@ pub fn hartmann_6d(x: &Vec<f64>) -> f64 {
         x.len(),
         "Hartmann 6-dimensional function takes only a six dimensional vector as a parameter."
     );
-    let alfa = vec![1.0, 1.2, 3.0, 3.2];
+    let alfa = [1.0, 1.2, 3.0, 3.2];
     let a = vec![
         vec![10.0, 3.0, 17.0, 3.5, 1.7, 8.0],
         vec![0.05, 10.0, 17.0, 0.1, 8.0, 14.0],

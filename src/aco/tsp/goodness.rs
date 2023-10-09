@@ -78,7 +78,7 @@ mod tests {
         let beta = 3.0;
         let pheromone = FMatrix::from_vec(2, 2, vec![4.0, 2.0, 8.0, 0.5]);
 
-        let goodness = vec![16.0, 32.0, 4096.0, 128.0];
+        let goodness = [16.0, 32.0, 4096.0, 128.0];
 
         let mut g_op = CanonicalGoodness::new(alpha, beta, heuristic);
         for (a, b) in goodness.iter().zip(g_op.apply(&pheromone).iter()) {
