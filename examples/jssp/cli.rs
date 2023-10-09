@@ -10,8 +10,8 @@ pub struct Args {
     pub input_file: PathBuf,
 
     /// Output file name
-    #[arg(short = 'o', long = "output-file")]
-    pub output_file: PathBuf,
+    #[arg(short = 'o', long = "output-dir")]
+    pub output_dir: PathBuf,
 }
 
 fn validate_args(args: &Args) -> Result<(), String> {

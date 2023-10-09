@@ -33,10 +33,12 @@ impl Probe<JsspIndividual> for JsspProbe {
 
     #[inline]
     fn on_start(&mut self, _metadata: &ecrs::ga::GAMetadata) {
-        // This is a marker record for ECDataKit. Since it looks like
-        // polars.DataFrame.read_csv deduces number of columns from the first encoutered
-        // record it leads to crashes when longer records are encountered deeper in the file.
-        info!(target: "csv", "event,,,,,,,");
+        // Writing csv header to each file
+        info!(target: "diversity", "event_name,generation,total_duration,population_size,diversity");
+        info!(target: "popgentime", "event_name,time");
+        info!(target: "newbest", "event_name,generation,total_duration,fitness");
+        info!(target: "bestingen", "event_name,generation,total_duration,fitness");
+        info!(target: "iterinfo", "event_name,eval_time,sel_time,cross_time,mut_time,repl_time,iter_time");
     }
 
     fn on_initial_population_created(
@@ -47,12 +49,13 @@ impl Probe<JsspIndividual> for JsspProbe {
         // TODO: As this metric is useless right now I'm disabling it temporarily
         // let diversity = JsspProbe::estimate_pop_diversity(population);
         let diversity = 0.0;
-        info!(target: "csv", "diversity,0,0,{},{diversity}\npopgentime,{}", population.len(), metadata.pop_gen_dur.unwrap().as_millis());
+        info!(target: "diversity", "diversity,0,0,{},{diversity}", population.len());
+        info!(target: "popgentime", "popgentime,{}", metadata.pop_gen_dur.unwrap().as_millis());
     }
 
     fn on_new_best(&mut self, metadata: &ecrs::ga::GAMetadata, individual: &JsspIndividual) {
         info!(
-            target: "csv",
+            target: "newbest",
             "newbest,{},{},{}",
             metadata.generation,
             metadata.total_dur.unwrap().as_millis(),
@@ -65,7 +68,7 @@ impl Probe<JsspIndividual> for JsspProbe {
         // let diversity = JsspProbe::estimate_pop_diversity(generation);
         let diversity = 0.0;
         info!(
-            target: "csv",
+            target: "diversity",
             "diversity,{},{},{},{diversity}",
             metadata.generation,
             metadata.total_dur.unwrap().as_millis(),
@@ -75,7 +78,7 @@ impl Probe<JsspIndividual> for JsspProbe {
 
     fn on_best_fit_in_generation(&mut self, metadata: &ecrs::ga::GAMetadata, individual: &JsspIndividual) {
         info!(
-            target: "csv",
+            target: "bestingen",
             "bestingen,{},{},{}",
             metadata.generation,
             metadata.total_dur.unwrap().as_millis(),
@@ -89,7 +92,7 @@ impl Probe<JsspIndividual> for JsspProbe {
 
     #[inline]
     fn on_iteration_end(&mut self, metadata: &ecrs::ga::GAMetadata) {
-        info!(target: "csv", "iterinfo,{},{},{},{},{},{},{}",
+        info!(target: "iterinfo", "iterinfo,{},{},{},{},{},{},{}",
             metadata.generation,
             metadata.pop_eval_dur.unwrap().as_millis(),
             metadata.selection_dur.unwrap().as_millis(),
