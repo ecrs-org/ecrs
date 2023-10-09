@@ -88,24 +88,28 @@ impl TryFrom<GAParamsOpt> for GAParams {
 
     fn try_from(params_opt: GAParamsOpt) -> Result<Self, Self::Error> {
         let Some(selection_rate) = params_opt.selection_rate else {
-			return Err(ConfigError::MissingParam("Unspecified selection rate".to_owned()));
-		};
+            return Err(ConfigError::MissingParam("Unspecified selection rate".to_owned()));
+        };
 
         let Some(mutation_rate) = params_opt.mutation_rate else {
-			return Err(ConfigError::MissingParam("Unspecified mutation rate".to_owned()));
-		};
+            return Err(ConfigError::MissingParam("Unspecified mutation rate".to_owned()));
+        };
 
         let Some(population_size) = params_opt.population_size else {
-			return Err(ConfigError::MissingParam("Unspecified population size".to_owned()));
-		};
+            return Err(ConfigError::MissingParam(
+                "Unspecified population size".to_owned(),
+            ));
+        };
 
         let Some(generation_limit) = params_opt.generation_limit else {
-			return Err(ConfigError::MissingParam("Unspecified generation_limit".to_owned()));
-		};
+            return Err(ConfigError::MissingParam(
+                "Unspecified generation_limit".to_owned(),
+            ));
+        };
 
         let Some(max_duration) = params_opt.max_duration else {
-			return Err(ConfigError::MissingParam("Unspecified max duration".to_owned()));
-		};
+            return Err(ConfigError::MissingParam("Unspecified max duration".to_owned()));
+        };
 
         Ok(GAParams {
             selection_rate,
@@ -192,32 +196,42 @@ where
         let params = GAParams::try_from(config_opt.params)?;
 
         let Some(fitness_fn) = config_opt.fitness_fn else {
-			return Err(ConfigError::MissingOperator("No fitness function specified".to_owned()));
-		};
+            return Err(ConfigError::MissingOperator(
+                "No fitness function specified".to_owned(),
+            ));
+        };
 
         let Some(mutation_operator) = config_opt.mutation_operator else {
-			return Err(ConfigError::MissingOperator("No mutation operator specified".to_owned()));
-		};
+            return Err(ConfigError::MissingOperator(
+                "No mutation operator specified".to_owned(),
+            ));
+        };
 
         let Some(crossover_operator) = config_opt.crossover_operator else {
-			return Err(ConfigError::MissingOperator("No crossover operator specified".to_owned()));
-		};
+            return Err(ConfigError::MissingOperator(
+                "No crossover operator specified".to_owned(),
+            ));
+        };
 
         let Some(selection_operator) = config_opt.selection_operator else {
-			return Err(ConfigError::MissingOperator("No selection operator specified".to_owned()));
-		};
+            return Err(ConfigError::MissingOperator(
+                "No selection operator specified".to_owned(),
+            ));
+        };
 
         let Some(replacement_operator) = config_opt.replacement_operator else {
-			return Err(ConfigError::MissingOperator("No replacement operator specified".to_owned()));
-		};
+            return Err(ConfigError::MissingOperator(
+                "No replacement operator specified".to_owned(),
+            ));
+        };
 
         let Some(population_factory) = config_opt.population_factory else {
-			return Err(ConfigError::MissingPopulationFactory);
-		};
+            return Err(ConfigError::MissingPopulationFactory);
+        };
 
         let Some(probe) = config_opt.probe else {
-			return Err(ConfigError::NoProbe);
-		};
+            return Err(ConfigError::NoProbe);
+        };
 
         Ok(GAConfig {
             params,

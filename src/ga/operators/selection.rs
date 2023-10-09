@@ -583,9 +583,11 @@ where
             weights.push((-idv.fitness() / temp).exp())
         }
 
-        let Ok(indices) = rand::seq::index::sample_weighted(&mut self.rng, population.len(), |i| weights[i], count) else {
-			panic!("Some error occured while generating indices. This is most likely an library implementation error. Please file an issue: https://github.com/kkafar/evolutionary-algorithms");
-		};
+        let Ok(indices) =
+            rand::seq::index::sample_weighted(&mut self.rng, population.len(), |i| weights[i], count)
+        else {
+            panic!("Some error occured while generating indices. This is most likely an library implementation error. Please file an issue: https://github.com/kkafar/evolutionary-algorithms");
+        };
 
         for i in indices {
             selected.push(&population[i]);

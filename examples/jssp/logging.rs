@@ -9,7 +9,6 @@ use log4rs::{
     encode::pattern::PatternEncoder,
 };
 
-
 #[derive(serde::Serialize, Clone, Debug)]
 pub struct OutputData {
     pub solution_string: String,
@@ -19,7 +18,10 @@ pub struct OutputData {
     pub total_time: u128,
 }
 
-pub fn init_logging(event_log_files: &HashMap<String, PathBuf>, metadata_log_file: &PathBuf) -> Result<log4rs::Handle, log::SetLoggerError> {
+pub fn init_logging(
+    event_log_files: &HashMap<String, PathBuf>,
+    metadata_log_file: &PathBuf,
+) -> Result<log4rs::Handle, log::SetLoggerError> {
     let log_pattern = String::from("[{l}] {m}{n}");
     let csv_log_pattern = String::from("{m}{n}");
     let csv_encoder = Box::new(PatternEncoder::new(&csv_log_pattern));
@@ -32,7 +34,6 @@ pub fn init_logging(event_log_files: &HashMap<String, PathBuf>, metadata_log_fil
 
     // Register console appender
     cfg_builder = cfg_builder.appender(Appender::builder().build("main", Box::new(stdout_appender)));
-
 
     // Register appenders & loggers for given events
     if !event_log_files.is_empty() {
@@ -69,7 +70,6 @@ pub fn init_logging(event_log_files: &HashMap<String, PathBuf>, metadata_log_fil
                 .additive(false)
                 .build("metadata", log::LevelFilter::Info),
         );
-
 
     let config = cfg_builder
         .build(

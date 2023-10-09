@@ -115,7 +115,7 @@ impl Probe<JsspIndividual> for JsspProbe {
         metadata: &ecrs::ga::GAMetadata,
         _population: &[JsspIndividual],
         best_individual: &JsspIndividual,
-    ) { 
+    ) {
         let mut ops = best_individual.operations.clone();
         ops.sort_unstable_by(|a, b| {
             if a.finish_time == b.finish_time {
@@ -135,7 +135,8 @@ impl Probe<JsspIndividual> for JsspProbe {
             }
         });
         let n = ops.len();
-        let solution_string = ops.into_iter()
+        let solution_string = ops
+            .into_iter()
             .filter(|op| op.id != 0 && op.id != n + 1)
             .map(|op| op.id.to_string())
             .join("_");
