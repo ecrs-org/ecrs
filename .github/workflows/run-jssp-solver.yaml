@@ -1,0 +1,30 @@
+name: Build & Run JSSP example on mock data
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main", "development", "@*/*" ]
+    paths:
+      - 'examples/jssp/**'
+      - '.github/workflows/run-jssp-solver.yaml'
+      - 'Cargo.toml'
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: run-jssp-solver-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update toolchain
+        run: rustup update
+      - name: Build
+        run: cargo build --example jssp --release
+      - name: Run JSSP example on mock data
+        run: cargo run --example jssp --release -- --input-file examples/jssp/instances/test-case.txt --output-dir output
+
