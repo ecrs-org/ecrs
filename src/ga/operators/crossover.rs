@@ -933,7 +933,7 @@ mod test {
         child
             .chromosome()
             .iter()
-            .zip(vec![1, 3, 2, 4, 6, 5].iter())
+            .zip([1, 3, 2, 4, 6, 5].iter())
             .for_each(|(x, x_expected)| assert_eq!(x, x_expected))
     }
 
