@@ -110,6 +110,7 @@ impl Probe<JsspIndividual> for JsspProbe {
         _metadata: &ecrs::ga::GAMetadata,
         _population: &[JsspIndividual],
         _best_individual: &JsspIndividual,
-    ) { /* defaults to noop */
+    ) { 
+
     }
 }
