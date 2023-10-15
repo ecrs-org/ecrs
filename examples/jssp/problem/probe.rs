@@ -145,7 +145,7 @@ impl Probe<JsspIndividual> for JsspProbe {
             generation_count: metadata.generation,
             total_time: metadata.total_dur.unwrap().as_millis(),
         };
-        let serialized_object = serde_json::to_string(&outdata).unwrap();
+        let serialized_object = serde_json::to_string_pretty(&outdata).unwrap();
         info!(target: "metadata", "{serialized_object}");
     }
 }
