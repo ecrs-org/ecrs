@@ -144,8 +144,9 @@ impl Probe<JsspIndividual> for JsspProbe {
             fitness: best_individual.fitness,
             generation_count: metadata.generation,
             total_time: metadata.total_dur.unwrap().as_millis(),
+            chromosome: best_individual.chromosome(),
         };
-        let serialized_object = serde_json::to_string(&outdata).unwrap();
+        let serialized_object = serde_json::to_string_pretty(&outdata).unwrap();
         info!(target: "metadata", "{serialized_object}");
     }
 }
