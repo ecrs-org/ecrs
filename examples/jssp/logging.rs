@@ -10,12 +10,13 @@ use log4rs::{
 };
 
 #[derive(serde::Serialize, Clone, Debug)]
-pub struct OutputData {
+pub struct OutputData<'a> {
     pub solution_string: String,
     pub hash: String,
     pub fitness: usize,
     pub generation_count: usize,
     pub total_time: u128,
+    pub chromosome: &'a [f64],
 }
 
 pub fn init_logging(
