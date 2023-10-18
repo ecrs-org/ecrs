@@ -44,7 +44,7 @@ impl Probe<JsspIndividual> for JsspProbe {
         info!(target: "popgentime", "event_name,time");
         info!(target: "newbest", "event_name,generation,total_duration,fitness");
         info!(target: "bestingen", "event_name,generation,total_duration,fitness");
-        info!(target: "iterinfo", "event_name,eval_time,sel_time,cross_time,mut_time,repl_time,iter_time");
+        info!(target: "iterinfo", "event_name,generation,eval_time,sel_time,cross_time,mut_time,repl_time,iter_time");
     }
 
     fn on_initial_population_created(
