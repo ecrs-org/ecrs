@@ -10,7 +10,7 @@ use crate::logging::OutputData;
 use super::individual::JsspIndividual;
 
 pub(crate) struct JsspProbe {
-    repeated: Vec<bool>
+    repeated: Vec<bool>,
 }
 
 impl JsspProbe {
