@@ -52,7 +52,7 @@ impl JsspProbe {
             }
         }
 
-        return (n_unique as f64) / (population.len() as f64);
+        (n_unique as f64) / (population.len() as f64)
     }
 
     // #[inline]
