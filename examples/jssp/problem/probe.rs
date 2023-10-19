@@ -9,24 +9,56 @@ use crate::logging::OutputData;
 
 use super::individual::JsspIndividual;
 
-pub(crate) struct JsspProbe {}
+pub(crate) struct JsspProbe {
+    repeated: Vec<bool>
+}
 
 impl JsspProbe {
     pub(crate) fn new() -> Self {
-        Self {}
+        // Deferring creation of vector as we do not know the required capacity
+        Self { repeated: Vec::new() }
     }
 
     #[allow(dead_code)]
     // TODO: This has either been not working as expected or the solver runs so bad.
     // TODO: Verify whether the diversity is better on other problems
-    fn estimate_pop_diversity(population: &[JsspIndividual]) -> f64 {
-        population
-            .iter()
-            .map(|idv| (idv.chromosome().iter().product::<f64>() * 100_000f64) as usize)
-            .unique()
-            .count() as f64
-            / population.len() as f64
+    // fn estimate_pop_diversity(&mut self, population: &[JsspIndividual]) -> f64 {
+    //     population
+    //         .iter()
+    //         .map(|idv| (idv.chromosome().iter().product::<f64>() * 100_000f64) as usize)
+    //         .unique()
+    //         .count() as f64
+    //         / population.len() as f64
+    // }
+
+    /// This is slow. O(N^2 * M) complexity. N - number of individuals, M - length of chromosome
+    /// Consider using HyperLogLog++ algorithm
+    /// See: https://en.wikipedia.org/wiki/HyperLogLog
+    /// I can not really use hash set here, as f64 does not implement neither Eq nor Hash...
+    /// (and it is used in chromosome...)
+    #[allow(dead_code)]
+    fn estimate_pop_diversity(&mut self, population: &[JsspIndividual]) -> f64 {
+        self.repeated.fill(false);
+        let mut n_unique = population.len();
+        for i in 0..population.len() - 1 {
+            if self.repeated[i] {
+                continue;
+            }
+            for j in i + 1..population.len() {
+                if !self.repeated[j] && population[i].chromosome.eq(population[j].chromosome()) {
+                    n_unique -= 1;
+                    self.repeated[j] = true;
+                }
+            }
+        }
+
+        return (n_unique as f64) / (population.len() as f64);
     }
+
+    // #[inline]
+    // fn estimate_pop_diversity(&mut self, _population: &[JsspIndividual]) -> f64 {
+    //     return 0.0;
+    // }
 }
 
 impl Probe<JsspIndividual> for JsspProbe {
@@ -52,9 +84,12 @@ impl Probe<JsspIndividual> for JsspProbe {
         metadata: &ecrs::ga::GAMetadata,
         population: &[JsspIndividual],
     ) {
+        debug_assert_eq!(self.repeated.len(), 0);
+        self.repeated.resize(population.len(), false);
+
         // TODO: As this metric is useless right now I'm disabling it temporarily
-        // let diversity = JsspProbe::estimate_pop_diversity(population);
-        let diversity = 0.0;
+        // let diversity = self.estimate_pop_diversity(population);
+        let diversity = self.estimate_pop_diversity(population);
         info!(target: "diversity", "diversity,0,0,{},{diversity}", population.len());
         info!(target: "popgentime", "popgentime,{}", metadata.pop_gen_dur.unwrap().as_millis());
     }
@@ -71,8 +106,8 @@ impl Probe<JsspIndividual> for JsspProbe {
 
     fn on_new_generation(&mut self, metadata: &ecrs::ga::GAMetadata, generation: &[JsspIndividual]) {
         // TODO: As this metric is useless right now I'm disabling it temporarily
-        // let diversity = JsspProbe::estimate_pop_diversity(generation);
-        let diversity = 0.0;
+        // let diversity = self.estimate_pop_diversity(generation);
+        let diversity = self.estimate_pop_diversity(generation);
         info!(
             target: "diversity",
             "diversity,{},{},{},{diversity}",
