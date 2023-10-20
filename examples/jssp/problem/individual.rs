@@ -288,7 +288,7 @@ impl JsspIndividual {
         let mut last_finish_time = 0;
         while scheduled.len() < n + 1 {
             // Calculate the delay. The formula is taken straight from the paper.
-            // TODO: Parameterize this it conduct experiments
+            // TODO: Parameterize this & conduct experiments
             let mut delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
             self.update_delay_feasible_set(&mut delay_feasibles, &finish_times, delay, t_g);
 
