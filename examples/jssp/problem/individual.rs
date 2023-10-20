@@ -283,6 +283,7 @@ impl JsspIndividual {
         // relax the condition.
         let mut t_g = 0;
 
+        // Longest duration of a single opration
         let max_dur = self.operations.iter().map(|op| op.duration).max().unwrap();
 
         let mut last_finish_time = 0;
@@ -293,8 +294,6 @@ impl JsspIndividual {
             self.update_delay_feasible_set(&mut delay_feasibles, &finish_times, delay, t_g);
 
             while !delay_feasibles.is_empty() {
-                // delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
-
                 // Select operation with highest priority
                 let j = *delay_feasibles
                     .iter()
