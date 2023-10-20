@@ -252,7 +252,12 @@ impl JsspIndividual {
         // We deduce the problem size from the chromosome size
         let n: usize = self.chromosome.len() / 2;
 
+        // TODO: Hoist this state to the JsspIndiviual. Do not realocate the memory on each
+        // evaluation.
+
         let mut finish_times = vec![usize::MAX; n + 2];
+
+        // All operations that have been sheduled up to iteration g (defined below)
         let mut scheduled = HashSet::<usize>::new();
 
         // Delay feasible operations are those operations that:
