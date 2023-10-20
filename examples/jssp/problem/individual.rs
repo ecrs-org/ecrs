@@ -254,6 +254,13 @@ impl JsspIndividual {
 
         let mut finish_times = vec![usize::MAX; n + 2];
         let mut scheduled = HashSet::<usize>::new();
+
+        // Delay feasible operations are those operations that:
+        // 1. have not yet been scheduled up to iteration g (counter defined below),
+        // 2. all their predecesors have finished / will have been finished in time window t_g +
+        //    delay_g (also defined below)
+        // To put this in other way: all jobs that can be scheduled in time window considered in
+        // given iteration g.
         let mut delay_feasibles = HashSet::<usize>::new();
 
         scheduled.insert(0);
@@ -268,7 +275,8 @@ impl JsspIndividual {
 
         let mut last_finish_time = 0;
         while scheduled.len() < n + 1 {
-            // Update e_set
+            // Calculate the delay. The formula is taken straight from the paper.
+            // TODO: Parameterize this it conduct experiments
             let mut delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
             self.update_delay_feasible_set(&mut delay_feasibles, &finish_times, delay, t_g);
 
