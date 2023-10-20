@@ -260,6 +260,7 @@ impl JsspIndividual {
         finish_times[0] = 0;
         self.operations[0].finish_time = Some(0);
 
+        // TODO: consider starting from 0 here to make arithemtics more gracefully
         let mut g = 1;
         let mut t_g = 0;
 
