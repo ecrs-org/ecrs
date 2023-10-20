@@ -268,12 +268,19 @@ impl JsspIndividual {
         // given iteration g.
         let mut delay_feasibles = HashSet::<usize>::new();
 
+        // Schedule the dummy zero operation
         scheduled.insert(0);
         finish_times[0] = 0;
         self.operations[0].finish_time = Some(0);
 
         // TODO: consider starting from 0 here to make arithemtics more gracefully
+        // Iteration number. Notation borrowed from the paper.
         let mut g = 1;
+
+        // Scheduling time associated with current iteration g. This is usually equal to largest
+        // schedule time form g-1 iteration + 1, so that if we do not have any operations feasible
+        // to schedule with current time restriction (see the definition of delay_feasibles) we
+        // relax the condition.
         let mut t_g = 0;
 
         let max_dur = self.operations.iter().map(|op| op.duration).max().unwrap();
