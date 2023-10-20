@@ -252,28 +252,48 @@ impl JsspIndividual {
         // We deduce the problem size from the chromosome size
         let n: usize = self.chromosome.len() / 2;
 
-        let mut finish_times = vec![usize::MAX; n + 2];
-        let mut scheduled = std::collections::HashSet::new();
-        let mut delay_feasibles = std::collections::HashSet::<usize>::new();
+        // TODO: Hoist this state to the JsspIndiviual. Do not realocate the memory on each
+        // evaluation.
 
+        let mut finish_times = vec![usize::MAX; n + 2];
+
+        // All operations that have been sheduled up to iteration g (defined below)
+        let mut scheduled = HashSet::<usize>::new();
+
+        // Delay feasible operations are those operations that:
+        // 1. have not yet been scheduled up to iteration g (counter defined below),
+        // 2. all their predecesors have finished / will have been finished in time window t_g +
+        //    delay_g (also defined below)
+        // To put this in other way: all jobs that can be scheduled in time window considered in
+        // given iteration g.
+        let mut delay_feasibles = HashSet::<usize>::new();
+
+        // Schedule the dummy zero operation
         scheduled.insert(0);
         finish_times[0] = 0;
         self.operations[0].finish_time = Some(0);
 
+        // TODO: consider starting from 0 here to make arithemtics more gracefully
+        // Iteration number. Notation borrowed from the paper.
         let mut g = 1;
+
+        // Scheduling time associated with current iteration g. This is usually equal to largest
+        // schedule time form g-1 iteration + 1, so that if we do not have any operations feasible
+        // to schedule with current time restriction (see the definition of delay_feasibles) we
+        // relax the condition.
         let mut t_g = 0;
 
+        // Longest duration of a single opration
         let max_dur = self.operations.iter().map(|op| op.duration).max().unwrap();
 
         let mut last_finish_time = 0;
         while scheduled.len() < n + 1 {
-            // Update e_set
+            // Calculate the delay. The formula is taken straight from the paper.
+            // TODO: Parameterize this & conduct experiments
             let mut delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
             self.update_delay_feasible_set(&mut delay_feasibles, &finish_times, delay, t_g);
 
             while !delay_feasibles.is_empty() {
-                // delay = self.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
-
                 // Select operation with highest priority
                 let j = *delay_feasibles
                     .iter()
