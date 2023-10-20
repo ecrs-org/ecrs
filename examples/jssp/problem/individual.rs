@@ -289,6 +289,10 @@ impl JsspIndividual {
                 let op_j = &self.operations[j];
 
                 // Calculate the earliest finish time (in terms of precedence only)
+                // TODO: We do not need to look on all predecessors. The direct one is enough, as
+                // it could not be scheduled before all his preds were finished. The question is:
+                // is the order of predecessors guaranteed? Look for places that manipulate this
+                // field!
                 let pred_j_finish = op_j
                     .preds
                     .iter()
