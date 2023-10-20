@@ -253,7 +253,7 @@ impl JsspIndividual {
         let n: usize = self.chromosome.len() / 2;
 
         let mut finish_times = vec![usize::MAX; n + 2];
-        let mut scheduled = HashSet::new();
+        let mut scheduled = HashSet::<usize>::new();
         let mut delay_feasibles = HashSet::<usize>::new();
 
         scheduled.insert(0);
