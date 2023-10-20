@@ -65,3 +65,6 @@ required-features = ["ff"]
 [profile.dev]
 opt-level = 0
 debug = true
+
+[profile.release]
+debug = 1 # For profiling, should be disabled for production builds
