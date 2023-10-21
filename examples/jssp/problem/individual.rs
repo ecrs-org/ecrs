@@ -24,7 +24,7 @@ pub struct JsspIndividual {
     /// and does need to be recomputed. This must be kept in sync!
     pub is_fitness_valid: bool,
     /// TODO: Determine what I've used it for
-    is_dirty: bool,
+    pub is_dirty: bool,
 }
 
 impl JsspIndividual {
@@ -367,7 +367,7 @@ impl JsspIndividual {
     }
 
     /// Resets all machines & operations associated with this individual
-    fn reset(&mut self) {
+    pub(super) fn reset(&mut self) {
         self.machines.iter_mut().for_each(|machine| machine.reset());
         self.operations.iter_mut().for_each(|op| op.reset());
     }

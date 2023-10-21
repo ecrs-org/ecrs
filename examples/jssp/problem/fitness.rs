@@ -1,5 +1,8 @@
 #![allow(dead_code)]
+use std::collections::HashSet;
 use ecrs::prelude::fitness::Fitness;
+
+use crate::problem::{Edge, EdgeKind};
 
 use super::individual::JsspIndividual;
 
@@ -9,10 +12,324 @@ impl JsspFitness {
     pub fn new() -> Self {
         Self {}
     }
+
+    pub fn evaluate_individual(&mut self, indv: &mut JsspIndividual) -> usize {
+        if indv.is_dirty {
+            indv.reset();
+        }
+
+        // Resolving problem size. -2 because zero & sing dummy operations
+        let n: usize = indv.operations.len() - 2;
+        debug_assert_eq!(indv.chromosome.len() / 2, indv.operations.len() - 2);
+
+        // TODO: Hoist this state to the JsspIndiviual. Do not realocate the memory on each
+        // evaluation.
+
+        let mut finish_times = vec![usize::MAX; n + 2];
+
+        // All operations that have been sheduled up to iteration g (defined below)
+        let mut scheduled = HashSet::<usize>::new();
+
+        // Delay feasible operations are those operations that:
+        // 1. have not yet been scheduled up to iteration g (counter defined below),
+        // 2. all their predecesors have finished / will have been finished in time window t_g +
+        //    delay_g (also defined below)
+        // To put this in other way: all jobs that can be scheduled in time window considered in
+        // given iteration g.
+        let mut delay_feasibles = HashSet::<usize>::new();
+
+        // Schedule the dummy zero operation
+        scheduled.insert(0);
+        finish_times[0] = 0;
+        indv.operations[0].finish_time = Some(0);
+
+        // TODO: consider starting from 0 here to make arithemtics more gracefully
+        // Iteration number. Notation borrowed from the paper.
+        let mut g = 1;
+
+        // Scheduling time associated with current iteration g. This is usually equal to largest
+        // schedule time form g-1 iteration + 1, so that if we do not have any operations feasible
+        // to schedule with current time restriction (see the definition of delay_feasibles) we
+        // relax the condition.
+        let mut t_g = 0;
+
+        // Longest duration of a single opration
+        let max_dur = indv.operations.iter().map(|op| op.duration).max().unwrap();
+
+        let mut last_finish_time = 0;
+        while scheduled.len() < n + 1 {
+            // Calculate the delay. The formula is taken straight from the paper.
+            // TODO: Parameterize this & conduct experiments
+            let mut delay = indv.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
+            self.update_delay_feasible_set(indv, &mut delay_feasibles, &finish_times, delay, t_g);
+
+            while !delay_feasibles.is_empty() {
+                // Select operation with highest priority
+                let j = *delay_feasibles
+                    .iter()
+                    .max_by(|&&a, &&b| {
+                        indv.chromosome[a - 1]
+                            .partial_cmp(&indv.chromosome[b - 1])
+                            .unwrap()
+                    })
+                    .unwrap();
+
+                let op_j_duration = indv.operations[j].duration;
+                let op_j_machine = indv.operations[j].machine;
+                let op_j = &indv.operations[j];
+
+                // Calculate the earliest finish time (in terms of precedence only)
+                // TODO: We do not need to look on all predecessors. The direct one is enough, as
+                // it could not be scheduled before all his preds were finished. The question is:
+                // is the order of predecessors guaranteed? Look for places that manipulate this
+                // field!
+                let pred_j_finish = op_j
+                    .preds
+                    .iter()
+                    .filter(|&id| finish_times[*id] != usize::MAX)
+                    .map(|&id| finish_times[id])
+                    .max()
+                    .unwrap_or(0);
+
+                // Calculate the earliest finish time (in terms of precedence and capacity)
+                let finish_time_j = finish_times
+                    .iter()
+                    .filter(|&&t| t != usize::MAX && t >= pred_j_finish)
+                    .filter(|&&t| indv.machines[op_j.machine].is_idle(t..=t + op_j_duration))
+                    .min()
+                    .unwrap()
+                    + op_j_duration;
+
+                // Update state
+                scheduled.insert(op_j.id);
+                finish_times[op_j.id] = finish_time_j;
+                g += 1;
+
+                last_finish_time = usize::max(last_finish_time, finish_time_j);
+
+                if let Some(last_sch_op) = indv.machines[op_j_machine].last_scheduled_op {
+                    indv.operations[last_sch_op]
+                        .edges_out
+                        .push(Edge::new(j, EdgeKind::MachineSucc));
+                    indv.operations[j].machine_pred = Some(last_sch_op);
+                }
+
+                indv.machines[op_j_machine].reserve(finish_time_j - op_j_duration..finish_time_j, j);
+
+                if g > n {
+                    break;
+                }
+
+                delay = indv.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
+
+                self.update_delay_feasible_set(indv, &mut delay_feasibles, &finish_times, delay, t_g);
+            }
+            // Update the scheduling time t_g associated with g
+            t_g = *finish_times.iter().filter(|&&t| t > t_g).min().unwrap();
+        }
+        let makespan = usize::min(last_finish_time, self.local_search(indv));
+
+        indv.fitness = makespan;
+        indv.is_fitness_valid = true;
+        indv.is_dirty = true;
+
+        makespan
+    }
+
+    fn update_delay_feasible_set(
+        &self,
+        indv: &JsspIndividual,
+        feasibles: &mut HashSet<usize>,
+        finish_times: &[usize],
+        delay: f64,
+        time: usize,
+    ) {
+        // As we are iterating over all operations, we want to make sure that the feasibles set is
+        // empty before inserting anything.
+        feasibles.clear();
+
+        indv.operations
+            .iter()
+            .filter(|op| finish_times[op.id] == usize::MAX)
+            .filter(|op| {
+                // It is assumed here, that dependencies are in order
+
+                // If there is a predecessor operation -- its finish time is our earliest start
+                // time ==> we want to check whether all `op` dependencies can be finished before
+                // current schedule time + delay window.
+                for &pred in op.preds.iter() {
+                    if finish_times[pred] as f64 > time as f64 + delay {
+                        return false;
+                    }
+                }
+                true
+            })
+            .for_each(|op| {
+                feasibles.insert(op.id);
+            })
+    }
+
+    fn local_search(&mut self, indv: &mut JsspIndividual) -> usize {
+        // let mut vertices_in_topo_order: VecDeque<usize> = VecDeque::with_capacity(self.operations.len());
+        let mut crt_sol_updated = true;
+        let mut blocks: Vec<Vec<usize>> = Vec::new();
+        let mut crt_makespan = usize::MAX;
+
+        while crt_sol_updated {
+            crt_sol_updated = false;
+            crt_makespan = self.determine_makespan(indv);
+            self.determine_critical_blocks(indv, &mut blocks);
+
+            // Traverse along critical path
+            let mut crt_block = 0;
+
+            while crt_block < blocks.len() && !crt_sol_updated {
+                let block = &blocks[crt_block];
+
+                // Not first block
+                if crt_block > 0 && block.len() >= 2 {
+                    self.swap_ops(indv, block[0], block[1]);
+
+                    let new_makespan = self.determine_makespan(indv);
+                    if new_makespan < crt_makespan {
+                        crt_makespan = new_makespan;
+                        crt_sol_updated = true;
+                    } else {
+                        self.swap_ops(indv, block[1], block[0]);
+                    }
+                }
+
+                // Not last block
+                if crt_block != blocks.len() - 1 && !crt_sol_updated && block.len() >= 2 {
+                    let last_op_id = block[block.len() - 1];
+                    let sec_last_op_id = block[block.len() - 2];
+                    self.swap_ops(indv, sec_last_op_id, last_op_id);
+
+                    let new_makespan = self.determine_makespan(indv);
+                    if new_makespan < crt_makespan {
+                        crt_makespan = new_makespan;
+                        crt_sol_updated = true;
+                    } else {
+                        self.swap_ops(indv, last_op_id, sec_last_op_id);
+                    }
+                }
+                crt_block += 1;
+            }
+        }
+        crt_makespan
+    }
+
+    fn determine_critical_path(&mut self, indv: &mut JsspIndividual) {
+        let mut visited = vec![false; indv.operations.len()];
+        self.calculate_critical_distance(indv, 0, &mut visited)
+    }
+
+    fn calculate_critical_distance(&mut self, indv: &mut JsspIndividual, op_id: usize, visited: &mut Vec<bool>) {
+        let mut stack: Vec<usize> = Vec::with_capacity(visited.len() * 2);
+
+        stack.push(op_id);
+        while !stack.is_empty() {
+            let crt_op_id = *stack.last().unwrap();
+            // In current implementation it is possible (highly likely) that a vertex might be pushed
+            // multiple times on the stack, before being processed, so we process the vertex iff it
+            // has not been visited already.
+            if !visited[crt_op_id] {
+                let mut has_not_visited_neigh = false;
+                for edge in indv.operations[crt_op_id].edges_out.iter() {
+                    if !visited[edge.neigh_id] {
+                        stack.push(edge.neigh_id);
+                        has_not_visited_neigh = true;
+                    }
+                }
+
+                if !has_not_visited_neigh {
+                    visited[crt_op_id] = true;
+                    stack.pop();
+
+                    if !indv.operations[crt_op_id].edges_out.is_empty() {
+                        let cp_edge = *indv.operations[crt_op_id]
+                            .edges_out
+                            .iter()
+                            .max_by_key(|edge| indv.operations[edge.neigh_id].critical_distance)
+                            .unwrap();
+
+                        indv.operations[crt_op_id].critical_distance = indv.operations[crt_op_id].duration
+                            + indv.operations[cp_edge.neigh_id].critical_distance;
+                        indv.operations[crt_op_id].critical_path_edge = Some(cp_edge);
+                    } else {
+                        indv.operations[crt_op_id].critical_distance = indv.operations[crt_op_id].duration;
+                    }
+                }
+            } else {
+                stack.pop();
+            }
+        }
+    }
+
+    fn determine_critical_blocks(&mut self, indv: &mut JsspIndividual, blocks: &mut Vec<Vec<usize>>) {
+        let mut crt_op = &indv.operations[indv.operations[0].critical_path_edge.unwrap().neigh_id];
+
+        blocks.clear();
+        blocks.push(Vec::new());
+        while let Some(ref edge) = crt_op.critical_path_edge {
+            blocks.last_mut().unwrap().push(crt_op.id);
+            if edge.kind == EdgeKind::JobSucc {
+                blocks.push(Vec::new());
+            }
+            crt_op = &indv.operations[edge.neigh_id];
+        }
+        // there should be empty block at the end
+        debug_assert!(blocks.last().unwrap().is_empty());
+        blocks.pop();
+    }
+
+    fn determine_makespan(&mut self, indv: &mut JsspIndividual) -> usize {
+        self.determine_critical_path(indv);
+        indv.operations[0].critical_distance
+    }
+
+    fn swap_ops(&mut self, indv: &mut JsspIndividual, first_op_id: usize, sec_op_id: usize) {
+        // We assume few things here:
+        debug_assert!(first_op_id != 0 && sec_op_id != 0);
+
+        // Check wheter there is follow up machine element
+        let block_mach_succ_opt = if let Some(Edge {
+            neigh_id: block_mach_succ,
+            kind: _,
+        }) = indv.operations[sec_op_id].edges_out.get(1)
+        {
+            Some(*block_mach_succ)
+        } else {
+            None
+        };
+
+        if let Some(block_mach_succ) = block_mach_succ_opt {
+            indv.operations[first_op_id].edges_out[1].neigh_id = block_mach_succ;
+            indv.operations[block_mach_succ].machine_pred = Some(first_op_id);
+            indv.operations[sec_op_id].edges_out[1].neigh_id = first_op_id;
+        } else {
+            indv.operations[first_op_id].edges_out.pop();
+            indv.operations[sec_op_id]
+                .edges_out
+                .push(Edge::new(first_op_id, EdgeKind::MachineSucc));
+        }
+
+        // Check whether there is predecessor machine element
+        if let Some(block_mach_pred) = indv.operations[first_op_id].machine_pred {
+            indv.operations[block_mach_pred].edges_out[1].neigh_id = sec_op_id;
+            indv.operations[sec_op_id].machine_pred = Some(block_mach_pred);
+        } else {
+            indv.operations[sec_op_id].machine_pred = None;
+        }
+
+        indv.operations[first_op_id].machine_pred = Some(sec_op_id);
+    }
 }
 
 impl Fitness<JsspIndividual> for JsspFitness {
+    #[inline]
     fn apply(&mut self, individual: &mut JsspIndividual) -> usize {
-        individual.eval()
+        // individual.eval();
+        return self.evaluate_individual(individual);
     }
 }
