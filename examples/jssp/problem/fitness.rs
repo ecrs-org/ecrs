@@ -84,17 +84,12 @@ impl JsspFitness {
                 let op_j = &indv.operations[j];
 
                 // Calculate the earliest finish time (in terms of precedence only)
-                // TODO: We do not need to look on all predecessors. The direct one is enough, as
+                // We do not need to look on all predecessors. The direct one is enough, as
                 // it could not be scheduled before all his preds were finished. The question is:
                 // is the order of predecessors guaranteed? Look for places that manipulate this
-                // field!
-                let pred_j_finish = op_j
-                    .preds
-                    .iter()
-                    .filter(|&id| finish_times[*id] != usize::MAX)
-                    .map(|&id| finish_times[id])
-                    .max()
-                    .unwrap_or(0);
+                // field! Answer: yes it is after #444 was merged.
+                // https://github.com/ecrs-org/ecrs/pull/444
+                let pred_j_finish = finish_times[*op_j.preds.last().unwrap()];
 
                 // Calculate the earliest finish time (in terms of precedence and capacity)
                 let finish_time_j = finish_times
