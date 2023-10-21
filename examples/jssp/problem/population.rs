@@ -10,7 +10,8 @@ use super::{individual::JsspIndividual, Edge, EdgeKind, JsspInstance, Machine, O
 
 pub struct JsspPopProvider {
     instance: JsspInstance,
-    operations: Vec<Operation>,
+    // This is public for debugging purposes
+    pub operations: Vec<Operation>,
 }
 
 impl JsspPopProvider {
@@ -28,7 +29,9 @@ impl JsspPopProvider {
             job.iter_mut().for_each(|op| {
                 op.id += 1;
                 op.preds.iter_mut().for_each(|pred_id| *pred_id += 1);
-                op.preds.push(0);
+                // We want the predecessors to be in asceding order. I rely on this behaviour in
+                // the JSSP solver later on. Do not change it w/o modyfing the algorithm.
+                op.preds.insert(0, 0);
                 op.edges_out.push(Edge {
                     neigh_id: op.id + 1,
                     kind: EdgeKind::JobSucc,

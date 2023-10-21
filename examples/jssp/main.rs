@@ -40,6 +40,12 @@ fn run_with_ecrs(instance: JsspInstance, _args: Args) {
             StdoutProbe::new(),
         ));
 
+    // Only for debugging purposes. TODO: Remove it
+    let population_provider = JsspPopProvider::new(instance.clone());
+    for op in population_provider.operations.iter() {
+        info!("{op:?}");
+    }
+
     let mut solver = ga::Builder::new()
         .set_selection_operator(selection::Rank::new())
         .set_crossover_operator(JsspCrossover::new())
@@ -67,11 +73,12 @@ fn run() {
 
     // Existance of input file is asserted during cli args parsing
     let instance = JsspInstance::try_from(&args.input_file).unwrap();
-    for job in instance.jobs.iter() {
-        for op in job {
-            info!("{op:?}");
-        }
-    }
+    // for job in instance.jobs.iter() {
+    //     for op in job {
+    //         info!("{op:?}");
+    //     }
+    //     info!("\n")
+    // }
     run_with_ecrs(instance, args)
 }
 
