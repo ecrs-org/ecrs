@@ -89,7 +89,7 @@ impl Operation {
             edges_out: Vec::new(),
             machine_pred: None,
             critical_path_edge: None,
-            critical_distance: usize::MIN,
+            critical_distance: usize::MIN, // TODO: Should MIN be used here?
         }
     }
 
