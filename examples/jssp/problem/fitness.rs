@@ -344,6 +344,6 @@ impl JsspFitness {
 impl Fitness<JsspIndividual> for JsspFitness {
     #[inline]
     fn apply(&mut self, individual: &mut JsspIndividual) -> usize {
-        return self.evaluate_individual(individual);
+        self.evaluate_individual(individual)
     }
 }
