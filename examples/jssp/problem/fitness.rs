@@ -6,40 +6,44 @@ use crate::problem::{Edge, EdgeKind};
 
 use super::individual::JsspIndividual;
 
-pub struct JsspFitness {}
+pub struct JsspFitness {
+    // All operations that have been sheduled up to iteration g
+    scheduled: HashSet<usize>,
+
+    // Delay feasible operations are those operations that:
+    // 1. have not yet been scheduled up to iteration g (counter defined below),
+    // 2. all their predecesors have finished / will have been finished in time window t_g +
+    //    delay_g (also defined below)
+    // To put this in other way: all jobs that can be scheduled in time window considered in
+    // given iteration g.
+    delay_feasibles: HashSet<usize>,
+}
 
 impl JsspFitness {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            scheduled: HashSet::new(),
+            delay_feasibles: HashSet::new(),
+        }
     }
 
     pub fn evaluate_individual(&mut self, indv: &mut JsspIndividual) -> usize {
+        // State is shered between indviduals & calls to this method, thus it must be resetted
+        self.reset();
+
         if indv.is_dirty {
             indv.reset();
         }
 
         // Resolving problem size. -2 because zero & sing dummy operations
         let n: usize = indv.operations.len() - 2;
-        debug_assert_eq!(indv.chromosome.len() / 2, indv.operations.len() - 2);
 
-        // TODO: Hoist this state to the JsspIndiviual. Do not realocate the memory on each
-        // evaluation.
-
+        // TODO: This state is not hoisted, as we do not know the number of operations
+        // before first call to this function. Think of some better solution though.
         let mut finish_times = vec![usize::MAX; n + 2];
 
-        // All operations that have been sheduled up to iteration g (defined below)
-        let mut scheduled = HashSet::<usize>::new();
-
-        // Delay feasible operations are those operations that:
-        // 1. have not yet been scheduled up to iteration g (counter defined below),
-        // 2. all their predecesors have finished / will have been finished in time window t_g +
-        //    delay_g (also defined below)
-        // To put this in other way: all jobs that can be scheduled in time window considered in
-        // given iteration g.
-        let mut delay_feasibles = HashSet::<usize>::new();
-
         // Schedule the dummy zero operation
-        scheduled.insert(0);
+        self.scheduled.insert(0);
         finish_times[0] = 0;
         indv.operations[0].finish_time = Some(0);
 
@@ -57,15 +61,15 @@ impl JsspFitness {
         let max_dur = indv.operations.iter().map(|op| op.duration).max().unwrap();
 
         let mut last_finish_time = 0;
-        while scheduled.len() < n + 1 {
+        while self.scheduled.len() < n + 1 {
             // Calculate the delay. The formula is taken straight from the paper.
             // TODO: Parameterize this & conduct experiments
             let mut delay = indv.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
-            self.update_delay_feasible_set(indv, &mut delay_feasibles, &finish_times, delay, t_g);
+            self.update_delay_feasible_set(indv, &finish_times, delay, t_g);
 
-            while !delay_feasibles.is_empty() {
+            while !self.delay_feasibles.is_empty() {
                 // Select operation with highest priority
-                let j = *delay_feasibles
+                let j = *self.delay_feasibles
                     .iter()
                     .max_by(|&&a, &&b| {
                         indv.chromosome[a - 1]
@@ -101,7 +105,7 @@ impl JsspFitness {
                     + op_j_duration;
 
                 // Update state
-                scheduled.insert(op_j.id);
+                self.scheduled.insert(op_j.id);
                 finish_times[op_j.id] = finish_time_j;
                 g += 1;
 
@@ -122,7 +126,7 @@ impl JsspFitness {
 
                 delay = indv.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
 
-                self.update_delay_feasible_set(indv, &mut delay_feasibles, &finish_times, delay, t_g);
+                self.update_delay_feasible_set(indv, &finish_times, delay, t_g);
             }
             // Update the scheduling time t_g associated with g
             t_g = *finish_times.iter().filter(|&&t| t > t_g).min().unwrap();
@@ -137,16 +141,15 @@ impl JsspFitness {
     }
 
     fn update_delay_feasible_set(
-        &self,
+        &mut self,
         indv: &JsspIndividual,
-        feasibles: &mut HashSet<usize>,
         finish_times: &[usize],
         delay: f64,
         time: usize,
     ) {
         // As we are iterating over all operations, we want to make sure that the feasibles set is
         // empty before inserting anything.
-        feasibles.clear();
+        self.delay_feasibles.clear();
 
         indv.operations
             .iter()
@@ -165,7 +168,7 @@ impl JsspFitness {
                 true
             })
             .for_each(|op| {
-                feasibles.insert(op.id);
+                self.delay_feasibles.insert(op.id);
             })
     }
 
@@ -324,12 +327,17 @@ impl JsspFitness {
 
         indv.operations[first_op_id].machine_pred = Some(sec_op_id);
     }
+
+    #[inline]
+    fn reset(&mut self) {
+        self.delay_feasibles.clear();
+        self.scheduled.clear();
+    }
 }
 
 impl Fitness<JsspIndividual> for JsspFitness {
     #[inline]
     fn apply(&mut self, individual: &mut JsspIndividual) -> usize {
-        // individual.eval();
         return self.evaluate_individual(individual);
     }
 }
