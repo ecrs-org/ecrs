@@ -1,6 +1,6 @@
 #![allow(dead_code)]
-use std::collections::HashSet;
 use ecrs::prelude::fitness::Fitness;
+use std::collections::HashSet;
 
 use crate::problem::{Edge, EdgeKind};
 
@@ -69,7 +69,8 @@ impl JsspFitness {
 
             while !self.delay_feasibles.is_empty() {
                 // Select operation with highest priority
-                let j = *self.delay_feasibles
+                let j = *self
+                    .delay_feasibles
                     .iter()
                     .max_by(|&&a, &&b| {
                         indv.chromosome[a - 1]
@@ -227,7 +228,12 @@ impl JsspFitness {
         self.calculate_critical_distance(indv, 0, &mut visited)
     }
 
-    fn calculate_critical_distance(&mut self, indv: &mut JsspIndividual, op_id: usize, visited: &mut Vec<bool>) {
+    fn calculate_critical_distance(
+        &mut self,
+        indv: &mut JsspIndividual,
+        op_id: usize,
+        visited: &mut Vec<bool>,
+    ) {
         let mut stack: Vec<usize> = Vec::with_capacity(visited.len() * 2);
 
         stack.push(op_id);
@@ -338,6 +344,6 @@ impl JsspFitness {
 impl Fitness<JsspIndividual> for JsspFitness {
     #[inline]
     fn apply(&mut self, individual: &mut JsspIndividual) -> usize {
-        return self.evaluate_individual(individual);
+        self.evaluate_individual(individual)
     }
 }

@@ -39,7 +39,6 @@ impl JsspIndividual {
         }
     }
 
-
     /// Resets all machines & operations associated with this individual
     pub(super) fn reset(&mut self) {
         self.machines.iter_mut().for_each(|machine| machine.reset());
