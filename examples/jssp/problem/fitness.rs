@@ -8,7 +8,7 @@ use super::individual::JsspIndividual;
 
 pub struct JsspFitness {
     // All operations that have been sheduled up to iteration g
-    scheduled: HashSet<usize>,
+    scheduled: Vec<usize>,
 
     // Delay feasible operations are those operations that:
     // 1. have not yet been scheduled up to iteration g (counter defined below),
@@ -22,7 +22,7 @@ pub struct JsspFitness {
 impl JsspFitness {
     pub fn new() -> Self {
         Self {
-            scheduled: HashSet::new(),
+            scheduled: Vec::new(),
             delay_feasibles: Vec::new(),
         }
     }
@@ -43,7 +43,7 @@ impl JsspFitness {
         let mut finish_times = vec![usize::MAX; n + 2];
 
         // Schedule the dummy zero operation
-        self.scheduled.insert(0);
+        self.scheduled.push(0);
         finish_times[0] = 0;
         indv.operations[0].finish_time = Some(0);
 
@@ -97,7 +97,7 @@ impl JsspFitness {
                     + op_j_duration;
 
                 // Update state
-                self.scheduled.insert(op_j.id);
+                self.scheduled.push(op_j.id);
                 finish_times[op_j.id] = finish_time_j;
                 g += 1;
 
