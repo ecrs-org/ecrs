@@ -58,13 +58,13 @@ impl JsspFitness {
         let mut t_g = 0;
 
         // Longest duration of a single opration
-        let max_dur = indv.operations.iter().map(|op| op.duration).max().unwrap();
+        let maxdur = indv.operations.iter().map(|op| op.duration).max().unwrap();
 
         let mut last_finish_time = 0;
         while self.scheduled.len() < n + 1 {
             // Calculate the delay. The formula is taken straight from the paper.
             // TODO: Parameterize this & conduct experiments
-            let mut delay = indv.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
+            let mut delay = self.delay_for_g(indv, n, g, maxdur);
             self.update_delay_feasible_set(indv, &finish_times, delay, t_g);
 
             while !self.delay_feasibles.is_empty() {
@@ -120,7 +120,7 @@ impl JsspFitness {
                     break;
                 }
 
-                delay = indv.chromosome[n + g - 1] * 1.5 * (max_dur as f64);
+                delay = self.delay_for_g(indv, n, g, maxdur);
 
                 self.update_delay_feasible_set(indv, &finish_times, delay, t_g);
             }
@@ -134,6 +134,11 @@ impl JsspFitness {
         indv.is_dirty = true;
 
         makespan
+    }
+
+    #[inline(always)]
+    fn delay_for_g(&self, indv: &JsspIndividual, n: usize, g: usize, maxdur: usize) -> f64 {
+        indv.chromosome[n + g - 1] * 1.5 * (maxdur as f64)
     }
 
     fn update_delay_feasible_set(
