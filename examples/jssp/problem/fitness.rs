@@ -174,7 +174,7 @@ impl JsspFitness {
                     highest_priority = JsspFitness::op_priority(indv, op.id);
                 }
             });
-        return op_id_with_highest_priority;
+        op_id_with_highest_priority
     }
 
     fn local_search(&mut self, indv: &mut JsspIndividual) -> usize {
