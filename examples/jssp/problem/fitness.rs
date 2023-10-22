@@ -35,7 +35,7 @@ impl JsspFitness {
             indv.reset();
         }
 
-        // Resolving problem size. -2 because zero & sing dummy operations
+        // Resolving problem size. -2 because zero & sink dummy operations
         let n: usize = indv.operations.len() - 2;
 
         // TODO: This state is not hoisted, as we do not know the number of operations
@@ -95,7 +95,7 @@ impl JsspFitness {
                 let finish_time_j = finish_times
                     .iter()
                     .filter(|&&t| t != usize::MAX && t >= pred_j_finish)
-                    .filter(|&&t| indv.machines[op_j.machine].is_idle(t..=t + op_j_duration))
+                    .filter(|&&t| indv.machines[op_j_machine].is_idle(t..=t + op_j_duration))
                     .min()
                     .unwrap()
                     + op_j_duration;
