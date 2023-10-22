@@ -153,7 +153,7 @@ impl JsspFitness {
         // empty before inserting anything.
         self.delay_feasibles.clear();
         let mut op_id_with_highest_priority = 0;
-        let mut hightest_priority = f64::MIN;
+        let mut highest_priority = f64::MIN;
 
         indv.operations
             .iter()
@@ -173,9 +173,9 @@ impl JsspFitness {
             })
             .for_each(|op| {
                 self.delay_feasibles.push(op.id);
-                if JsspFitness::op_priority(indv, op.id) > hightest_priority {
+                if JsspFitness::op_priority(indv, op.id) > highest_priority {
                     op_id_with_highest_priority = op.id;
-                    hightest_priority = JsspFitness::op_priority(indv, op.id);
+                    highest_priority = JsspFitness::op_priority(indv, op.id);
                 }
             });
         return op_id_with_highest_priority;
