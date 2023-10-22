@@ -7,9 +7,6 @@ use crate::problem::{Edge, EdgeKind};
 use super::individual::JsspIndividual;
 
 pub struct JsspFitness {
-    // All operations that have been sheduled up to iteration g
-    scheduled: HashSet<usize>,
-
     // Delay feasible operations are those operations that:
     // 1. have not yet been scheduled up to iteration g (counter defined below),
     // 2. all their predecesors have finished / will have been finished in time window t_g +
@@ -22,7 +19,6 @@ pub struct JsspFitness {
 impl JsspFitness {
     pub fn new() -> Self {
         Self {
-            scheduled: HashSet::new(),
             delay_feasibles: Vec::new(),
         }
     }
@@ -43,7 +39,7 @@ impl JsspFitness {
         let mut finish_times = vec![usize::MAX; n + 2];
 
         // Schedule the dummy zero operation
-        self.scheduled.insert(0);
+        let mut scheduled_count = 1;
         finish_times[0] = 0;
         indv.operations[0].finish_time = Some(0);
 
@@ -65,7 +61,7 @@ impl JsspFitness {
         let mut j: usize;
 
         let mut last_finish_time = 0;
-        while self.scheduled.len() < n + 1 {
+        while scheduled_count < n + 1 {
             // Calculate the delay. The formula is taken straight from the paper.
             // TODO: Parameterize this & conduct experiments
             let mut delay = self.delay_for_g(indv, n, g, maxdur);
@@ -97,7 +93,7 @@ impl JsspFitness {
                     + op_j_duration;
 
                 // Update state
-                self.scheduled.insert(op_j.id);
+                scheduled_count += 1;
                 finish_times[op_j.id] = finish_time_j;
                 g += 1;
 
@@ -345,7 +341,6 @@ impl JsspFitness {
     #[inline]
     fn reset(&mut self) {
         self.delay_feasibles.clear();
-        self.scheduled.clear();
     }
 }
 
