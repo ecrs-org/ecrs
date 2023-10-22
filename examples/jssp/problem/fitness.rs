@@ -60,25 +60,21 @@ impl JsspFitness {
         // Longest duration of a single opration
         let maxdur = indv.operations.iter().map(|op| op.duration).max().unwrap();
 
+        // Id of operation with highest priority in step g. This is updated alongside computing
+        // delay feasibles set.
+        let mut j: usize;
+
         let mut last_finish_time = 0;
         while self.scheduled.len() < n + 1 {
             // Calculate the delay. The formula is taken straight from the paper.
             // TODO: Parameterize this & conduct experiments
             let mut delay = self.delay_for_g(indv, n, g, maxdur);
-            self.update_delay_feasible_set(indv, &finish_times, delay, t_g);
+
+            // Updating delay feasibles & finding highest priority operation from this set are
+            // merged to avoid multiple iterations over whole set of operations.
+            j = self.update_delay_feasibles_and_highest_prior_op(indv, &finish_times, delay, t_g);
 
             while !self.delay_feasibles.is_empty() {
-                // Select operation with highest priority
-                let j = *self
-                    .delay_feasibles
-                    .iter()
-                    .max_by(|&&a, &&b| {
-                        indv.chromosome[a - 1]
-                            .partial_cmp(&indv.chromosome[b - 1])
-                            .unwrap()
-                    })
-                    .unwrap();
-
                 let op_j_duration = indv.operations[j].duration;
                 let op_j_machine = indv.operations[j].machine;
                 let op_j = &indv.operations[j];
@@ -121,8 +117,7 @@ impl JsspFitness {
                 }
 
                 delay = self.delay_for_g(indv, n, g, maxdur);
-
-                self.update_delay_feasible_set(indv, &finish_times, delay, t_g);
+                j = self.update_delay_feasibles_and_highest_prior_op(indv, &finish_times, delay, t_g);
             }
             // Update the scheduling time t_g associated with g
             t_g = *finish_times.iter().filter(|&&t| t > t_g).min().unwrap();
@@ -141,16 +136,24 @@ impl JsspFitness {
         indv.chromosome[n + g - 1] * 1.5 * (maxdur as f64)
     }
 
-    fn update_delay_feasible_set(
+    #[inline(always)]
+    pub fn op_priority(indv: &JsspIndividual, op_id: usize) -> f64 {
+        // We subtract 1 as operation 0 (and sink, but it is not important here) are not taken into account in the chromosome
+        indv.chromosome[op_id - 1]
+    }
+
+    fn update_delay_feasibles_and_highest_prior_op(
         &mut self,
         indv: &JsspIndividual,
         finish_times: &[usize],
         delay: f64,
         time: usize,
-    ) {
+    ) -> usize {
         // As we are iterating over all operations, we want to make sure that the feasibles set is
         // empty before inserting anything.
         self.delay_feasibles.clear();
+        let mut op_id_with_highest_priority = 0;
+        let mut highest_priority = f64::MIN;
 
         indv.operations
             .iter()
@@ -170,7 +173,12 @@ impl JsspFitness {
             })
             .for_each(|op| {
                 self.delay_feasibles.push(op.id);
-            })
+                if JsspFitness::op_priority(indv, op.id) > highest_priority {
+                    op_id_with_highest_priority = op.id;
+                    highest_priority = JsspFitness::op_priority(indv, op.id);
+                }
+            });
+        return op_id_with_highest_priority;
     }
 
     fn local_search(&mut self, indv: &mut JsspIndividual) -> usize {
