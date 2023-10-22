@@ -16,14 +16,14 @@ pub struct JsspFitness {
     //    delay_g (also defined below)
     // To put this in other way: all jobs that can be scheduled in time window considered in
     // given iteration g.
-    delay_feasibles: HashSet<usize>,
+    delay_feasibles: Vec<usize>,
 }
 
 impl JsspFitness {
     pub fn new() -> Self {
         Self {
             scheduled: HashSet::new(),
-            delay_feasibles: HashSet::new(),
+            delay_feasibles: Vec::new(),
         }
     }
 
@@ -169,7 +169,7 @@ impl JsspFitness {
                 true
             })
             .for_each(|op| {
-                self.delay_feasibles.insert(op.id);
+                self.delay_feasibles.push(op.id);
             })
     }
 
