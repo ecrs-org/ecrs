@@ -54,7 +54,7 @@ fn run_with_ecrs(instance: JsspInstance, _args: Args) {
         .set_replacement_operator(JsspReplacement::new(JsspPopProvider::new(instance), 0.1, 0.2))
         .set_fitness(JsspFitness::new())
         .set_probe(probe)
-        .set_max_duration(std::time::Duration::from_secs(30))
+        // .set_max_duration(std::time::Duration::from_secs(30))
         .set_max_generation_count(400)
         .set_population_size(pop_size)
         .build();
