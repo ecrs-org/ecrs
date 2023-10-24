@@ -171,10 +171,24 @@ impl JsspFitness {
 
                 // We do not need to iterate over all predecessors. It is sufficient to
                 // check only the direct one, because it could have been scheduled only in case its
-                // own direct predecessor had finished (and so on...).
-                if let Some(direct_pred_id) = op.preds.last() {
-                    if finish_times[*direct_pred_id] as f64 > time as f64 + delay {
-                        return false;
+                // own direct predecessor had finished (and so on...). However we need to handle
+                // special case of sink operation as it has every every operation in it's
+                // predecessor list. We do not need to handle operation zero, as it is always
+                // scheduled up front, before first call to this method ==> it is filtered out
+                // by previous predicate.
+                // TODO(perf): Find way to get rid of this distinction. Maybe use some odditional
+                // space to store only the direct predecessor (list of direct predecessors?).
+                if op.id != indv.operations.len() - 1 {
+                    if let Some(direct_pred_id) = op.preds.last() {
+                        if finish_times[*direct_pred_id] as f64 > time as f64 + delay {
+                            return false;
+                        }
+                    }
+                } else {
+                    for &pred in op.preds.iter() {
+                        if finish_times[pred] as f64 > time as f64 + delay {
+                            return false;
+                        }
                     }
                 }
                 true
