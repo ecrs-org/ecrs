@@ -54,6 +54,7 @@ impl JsspFitness {
         let mut t_g = 0;
 
         // Longest duration of a single opration
+        // TODO(perf): We could precompute this for each individual
         let maxdur = indv.operations.iter().map(|op| op.duration).max().unwrap();
 
         // Id of operation with highest priority in step g. This is updated alongside computing
