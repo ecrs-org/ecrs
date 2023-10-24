@@ -54,6 +54,8 @@ impl JsspFitness {
         let mut t_g = 0;
 
         // Longest duration of a single opration
+        // TODO(perf): We could precompute this for each individual on population loading /
+        // creation?
         let maxdur = indv.operations.iter().map(|op| op.duration).max().unwrap();
 
         // Id of operation with highest priority in step g. This is updated alongside computing
@@ -160,9 +162,33 @@ impl JsspFitness {
                 // If there is a predecessor operation -- its finish time is our earliest start
                 // time ==> we want to check whether all `op` dependencies can be finished before
                 // current schedule time + delay window.
-                for &pred in op.preds.iter() {
-                    if finish_times[pred] as f64 > time as f64 + delay {
-                        return false;
+                // for &pred in op.preds.iter() {
+                //     if finish_times[pred] as f64 > time as f64 + delay {
+                //         return false;
+                //     }
+                // }
+                // return true;
+
+                // We do not need to iterate over all predecessors. It is sufficient to
+                // check only the direct one, because it could have been scheduled only in case its
+                // own direct predecessor had finished (and so on...). However we need to handle
+                // special case of sink operation as it has every every operation in it's
+                // predecessor list. We do not need to handle operation zero, as it is always
+                // scheduled up front, before first call to this method ==> it is filtered out
+                // by previous predicate.
+                // TODO(perf): Find way to get rid of this distinction. Maybe use some odditional
+                // space to store only the direct predecessor (list of direct predecessors?).
+                if op.id != indv.operations.len() - 1 {
+                    if let Some(direct_pred_id) = op.preds.last() {
+                        if finish_times[*direct_pred_id] as f64 > time as f64 + delay {
+                            return false;
+                        }
+                    }
+                } else {
+                    for &pred in op.preds.iter() {
+                        if finish_times[pred] as f64 > time as f64 + delay {
+                            return false;
+                        }
                     }
                 }
                 true
