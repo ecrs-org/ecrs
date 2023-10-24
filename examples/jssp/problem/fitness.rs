@@ -54,7 +54,8 @@ impl JsspFitness {
         let mut t_g = 0;
 
         // Longest duration of a single opration
-        // TODO(perf): We could precompute this for each individual
+        // TODO(perf): We could precompute this for each individual on population loading /
+        // creation?
         let maxdur = indv.operations.iter().map(|op| op.duration).max().unwrap();
 
         // Id of operation with highest priority in step g. This is updated alongside computing
@@ -161,8 +162,18 @@ impl JsspFitness {
                 // If there is a predecessor operation -- its finish time is our earliest start
                 // time ==> we want to check whether all `op` dependencies can be finished before
                 // current schedule time + delay window.
-                for &pred in op.preds.iter() {
-                    if finish_times[pred] as f64 > time as f64 + delay {
+                // for &pred in op.preds.iter() {
+                //     if finish_times[pred] as f64 > time as f64 + delay {
+                //         return false;
+                //     }
+                // }
+                // return true;
+
+                // We do not need to iterate over all predecessors. It is sufficient to
+                // check only the direct one, because it could have been scheduled only in case its
+                // own direct predecessor had finished (and so on...).
+                if let Some(direct_pred_id) = op.preds.last() {
+                    if finish_times[*direct_pred_id] as f64 > time as f64 + delay {
                         return false;
                     }
                 }
