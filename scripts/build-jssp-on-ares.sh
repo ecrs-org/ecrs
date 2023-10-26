@@ -1,4 +1,9 @@
 #!/usr/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --partition=plgrid
+#SBATCH --time=00:10:00
+#SBATCH --account=plglscclass23-cpu
 
 # $1: module name
 function load_module_if_needed() {
