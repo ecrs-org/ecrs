@@ -17,11 +17,12 @@ pub struct Args {
 
     /// Optional number of generations. If not specified implementation
     /// will provide reasonable default
-    #[arg(long = "gens")]
+    #[arg(long = "gen")]
     pub n_gen: Option<usize>,
 
     /// Optional population size. If not specified implemntation
     /// will provide reasonable default
+    #[arg(long = "popsize")]
     pub pop_size: Option<usize>,
 
     /// Path to config file with solver's parameters
