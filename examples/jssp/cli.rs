@@ -5,18 +5,41 @@ use std::path::PathBuf;
 /// Jssp instance solver
 #[derive(Parser, Debug, Clone)]
 pub struct Args {
-    /// Path to the single data file
+    /// Path to the single data file. This option must be specified either as a cli param
+    /// or in config file.
     #[arg(short = 'f', long = "input-file")]
-    pub input_file: PathBuf,
+    pub input_file: Option<PathBuf>,
 
-    /// Output file name
+    /// Output file name. This option must be specified either as a cli param
+    /// or in config file.
     #[arg(short = 'o', long = "output-dir")]
-    pub output_dir: PathBuf,
+    pub output_dir: Option<PathBuf>,
+
+    /// Optional number of generations. If not specified implementation
+    /// will provide reasonable default
+    #[arg(long = "gen")]
+    pub n_gen: Option<usize>,
+
+    /// Optional population size. If not specified implemntation
+    /// will provide reasonable default
+    #[arg(long = "popsize")]
+    pub pop_size: Option<usize>,
+
+    /// Path to config file with solver's parameters
+    #[arg(short = 'c', long = "config")]
+    pub cfg_file: Option<PathBuf>,
 }
 
 fn validate_args(args: &Args) -> Result<(), String> {
-    if !args.input_file.is_file() {
-        return Err("Specified data input file does not exist or is not a file".to_owned());
+    if let Some(ref file) = args.input_file {
+        if !file.is_file() {
+            return Err("Specified data input file does not exist or is not a file".to_owned());
+        }
+    }
+    if let Some(ref file) = args.cfg_file {
+        if !file.is_file() {
+            return Err("Specified config file does not exist or is not a file".to_owned());
+        }
     }
     Ok(())
 }
