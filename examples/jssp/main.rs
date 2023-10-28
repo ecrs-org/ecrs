@@ -1,5 +1,6 @@
 #![allow(unused_imports)]
 mod cli;
+mod config;
 mod logging;
 mod parse;
 mod problem;
@@ -9,6 +10,7 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use cli::Args;
+use config::Config;
 use ecrs::ga::probe::{AggregatedProbe, ElapsedTime, PolicyDrivenProbe, ProbingPolicy};
 use ecrs::prelude::{crossover, ga, ops, replacement, selection};
 use ecrs::{
@@ -30,8 +32,22 @@ use problem::replacement::JsspReplacement;
 
 use crate::problem::{JsspConfig, JsspInstance};
 
-fn run_with_ecrs(instance: JsspInstance, _args: Args) {
-    let pop_size = instance.cfg.n_ops * 2;
+fn run_with_ecrs(instance: JsspInstance, config: Config) {
+    let pop_size = if let Some(ps) = config.pop_size {
+        // Overrided by user
+        ps
+    } else {
+        // Defined in paper
+        instance.cfg.n_ops * 2
+    };
+
+    let n_gen = if let Some(ng) = config.n_gen {
+        // Overrided by user
+        ng
+    } else {
+        // Defined in paper
+        400
+    };
 
     let probe = AggregatedProbe::new()
         .add_probe(JsspProbe::new())
@@ -55,7 +71,7 @@ fn run_with_ecrs(instance: JsspInstance, _args: Args) {
         .set_fitness(JsspFitness::new())
         .set_probe(probe)
         // .set_max_duration(std::time::Duration::from_secs(30))
-        .set_max_generation_count(400)
+        .set_max_generation_count(n_gen)
         .set_population_size(pop_size)
         .build();
 
@@ -64,22 +80,21 @@ fn run_with_ecrs(instance: JsspInstance, _args: Args) {
 
 fn run() {
     let args = cli::parse_args();
+    let config = match Config::try_from(args) {
+        Ok(config) => config,
+        Err(err) => panic!("Failed to create config from args: {err}"),
+    };
 
-    util::assert_dir_exists(args.output_dir.as_ref());
-    let event_map = util::create_event_map(args.output_dir.as_ref());
-    if let Err(err) = logging::init_logging(&event_map, &args.output_dir.join("run_metadata.json")) {
+    util::assert_dir_exists(config.output_dir.as_ref());
+    let event_map = util::create_event_map(config.output_dir.as_ref());
+
+    if let Err(err) = logging::init_logging(&event_map, &config.output_dir.join("run_metadata.json")) {
         panic!("Logger initialization failed with error: {err}");
     }
 
     // Existance of input file is asserted during cli args parsing
-    let instance = JsspInstance::try_from(&args.input_file).unwrap();
-    // for job in instance.jobs.iter() {
-    //     for op in job {
-    //         info!("{op:?}");
-    //     }
-    //     info!("\n")
-    // }
-    run_with_ecrs(instance, args)
+    let instance = JsspInstance::try_from(&config.input_file).unwrap();
+    run_with_ecrs(instance, config)
 }
 
 fn main() -> Result<(), ()> {
