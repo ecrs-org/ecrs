@@ -35,6 +35,15 @@ impl ReplacementOperator<JsspIndividual> for JsspReplacement {
             population.sort();
         }
 
+        // Divergence from the papaer here. They do sample children population randomly (or just
+        // create just right amount of children).
+        //
+        // This implementation is biased, because children parents are selected from left-to-right
+        // (thus from best to worst) and the offspring is put from left-to-right to the children
+        // arrary & I'm copying here children from left to right ==> only children of better
+        // individuals make it.
+        //
+        // Selection of parents is also done differently to the paper.
         for i in elite_size..(elite_size + crossover_size) {
             std::mem::swap(&mut population[i], &mut children[i - elite_size]);
         }
