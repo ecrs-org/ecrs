@@ -67,4 +67,8 @@ opt-level = 0
 debug = true
 
 [profile.release]
-debug = 1 # For profiling, should be disabled for production builds
+# debug = 1 # For profiling, should be disabled for production builds
+lto = "fat"
+panic = "abort"
+opt-level = 3
+
