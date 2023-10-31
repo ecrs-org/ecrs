@@ -14,12 +14,17 @@ pub struct JsspFitness {
     // To put this in other way: all jobs that can be scheduled in time window considered in
     // given iteration g.
     delay_feasibles: Vec<usize>,
+
+    /// The constant used to compute delay for given iteration g. The default value used in paper
+    /// is 1.5.
+    delay_const: f64,
 }
 
 impl JsspFitness {
-    pub fn new() -> Self {
+    pub fn new(delay_constant: f64) -> Self {
         Self {
             delay_feasibles: Vec::new(),
+            delay_const: delay_constant,
         }
     }
 
@@ -131,7 +136,7 @@ impl JsspFitness {
 
     #[inline(always)]
     fn delay_for_g(&self, indv: &JsspIndividual, n: usize, g: usize, maxdur: usize) -> f64 {
-        indv.chromosome[n + g - 1] * 1.5 * (maxdur as f64)
+        indv.chromosome[n + g - 1] * self.delay_const * (maxdur as f64)
     }
 
     #[inline(always)]

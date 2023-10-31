@@ -1,4 +1,10 @@
-use std::{fs::File, error::Error, io::{BufReader, self}, path::{PathBuf, Path}, fmt::Display};
+use std::{
+    error::Error,
+    fmt::Display,
+    fs::File,
+    io::{self, BufReader},
+    path::{Path, PathBuf},
+};
 
 use serde::Deserialize;
 
@@ -19,6 +25,10 @@ pub struct Config {
     /// Number of individuals in population. Set this if you want to
     /// override the default value computed basing on problem size
     pub pop_size: Option<usize>,
+
+    /// The constant that appears in formula for delay in given iteration g.
+    /// Delay = Gene_{n+g} * delay_const_factor * maxdur. If not specified, defaults to 1.5.
+    pub delay_const_factor: Option<f64>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -27,6 +37,7 @@ pub struct PartialConfig {
     pub output_dir: Option<PathBuf>,
     pub n_gen: Option<usize>,
     pub pop_size: Option<usize>,
+    pub delay_const_factor: Option<f64>,
 }
 
 impl PartialConfig {
@@ -36,6 +47,7 @@ impl PartialConfig {
             output_dir: None,
             n_gen: None,
             pop_size: None,
+            delay_const_factor: None,
         }
     }
 }
@@ -65,6 +77,7 @@ impl TryFrom<PartialConfig> for Config {
             output_dir: partial_cfg.output_dir.unwrap(),
             n_gen: partial_cfg.n_gen,
             pop_size: partial_cfg.pop_size,
+            delay_const_factor: partial_cfg.delay_const_factor,
         })
     }
 }
@@ -76,7 +89,7 @@ impl TryFrom<Args> for Config {
         let mut partial_cfg = if let Some(ref cfg_file) = args.cfg_file {
             match PartialConfig::try_from(cfg_file.to_owned()) {
                 Ok(cfg) => cfg,
-                Err(err) => return Err(format!("Error while loading config from file: {}", err))
+                Err(err) => return Err(format!("Error while loading config from file: {}", err)),
             }
         } else {
             PartialConfig::empty()
@@ -94,8 +107,10 @@ impl TryFrom<Args> for Config {
         if let Some(pop_size) = args.pop_size {
             partial_cfg.pop_size = Some(pop_size);
         }
+        if let Some(factor) = args.delay_const_factor {
+            partial_cfg.delay_const_factor = Some(factor)
+        }
 
         Config::try_from(partial_cfg)
     }
 }
-

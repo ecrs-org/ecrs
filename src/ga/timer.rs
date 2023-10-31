@@ -13,6 +13,8 @@ impl Timer {
     pub(crate) fn start(&mut self) {
         self.start_time = std::time::Instant::now()
     }
+
+    #[inline]
     pub(crate) fn elapsed(&self) -> std::time::Duration {
         self.start_time.elapsed()
     }
