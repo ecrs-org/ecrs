@@ -1,4 +1,10 @@
-use std::{fs::File, error::Error, io::{BufReader, self}, path::{PathBuf, Path}, fmt::Display};
+use std::{
+    error::Error,
+    fmt::Display,
+    fs::File,
+    io::{self, BufReader},
+    path::{Path, PathBuf},
+};
 
 use serde::Deserialize;
 
@@ -83,7 +89,7 @@ impl TryFrom<Args> for Config {
         let mut partial_cfg = if let Some(ref cfg_file) = args.cfg_file {
             match PartialConfig::try_from(cfg_file.to_owned()) {
                 Ok(cfg) => cfg,
-                Err(err) => return Err(format!("Error while loading config from file: {}", err))
+                Err(err) => return Err(format!("Error while loading config from file: {}", err)),
             }
         } else {
             PartialConfig::empty()
@@ -108,4 +114,3 @@ impl TryFrom<Args> for Config {
         Config::try_from(partial_cfg)
     }
 }
-
