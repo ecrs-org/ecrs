@@ -25,6 +25,10 @@ pub struct Args {
     #[arg(long = "popsize")]
     pub pop_size: Option<usize>,
 
+    /// The constant that appears in formula for delay in given iteration g.
+    /// Delay = Gene_{n+g} * delay_const_factor * maxdur. If not specified, defaults to 1.5.
+    pub delay_const_factor: Option<f64>,
+
     /// Path to config file with solver's parameters
     #[arg(short = 'c', long = "config")]
     pub cfg_file: Option<PathBuf>,

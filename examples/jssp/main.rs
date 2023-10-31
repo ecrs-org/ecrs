@@ -68,7 +68,7 @@ fn run_with_ecrs(instance: JsspInstance, config: Config) {
         .set_mutation_operator(mutation::Identity::new())
         .set_population_generator(JsspPopProvider::new(instance.clone()))
         .set_replacement_operator(JsspReplacement::new(JsspPopProvider::new(instance), 0.1, 0.2))
-        .set_fitness(JsspFitness::new())
+        .set_fitness(JsspFitness::new(1.5))
         .set_probe(probe)
         // .set_max_duration(std::time::Duration::from_secs(30))
         .set_max_generation_count(n_gen)
