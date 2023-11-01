@@ -94,7 +94,7 @@ impl JsspFitness {
                 let finish_time_j = finish_times
                     .iter()
                     .filter(|&&t| t != usize::MAX && t >= pred_j_finish)
-                    .filter(|&&t| indv.machines[op_j_machine].is_idle(t..=t + op_j_duration))
+                    .filter(|&&t| indv.machines[op_j_machine].is_idle(t..t + op_j_duration))
                     .min()
                     .unwrap()
                     + op_j_duration;

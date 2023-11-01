@@ -1,4 +1,4 @@
-use std::ops::{Range, RangeInclusive};
+use std::ops::Range;
 
 use itertools::Itertools;
 use log::{debug, info};
@@ -152,11 +152,11 @@ impl Machine {
 // Here we use just a vector of intervals. This is most likely slower that naive solution, but it
 // does not require so much memory.
 impl Machine {
-    pub fn is_idle(&self, range: std::ops::RangeInclusive<usize>) -> bool {
+    pub fn is_idle(&self, query: std::ops::Range<usize>) -> bool {
         !self
             .rmc
             .iter()
-            .any(|busy_range| busy_range.start < *range.end() && busy_range.end > *range.start())
+            .any(|range| range.start < query.end && range.end > query.start)
     }
 
     /// DOES NOT PERFORM VALIDATION!
