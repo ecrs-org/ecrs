@@ -80,7 +80,7 @@ impl JsspFitness {
             while !self.delay_feasibles.is_empty() {
                 let op_j_duration = indv.operations[j].duration;
                 let op_j_machine = indv.operations[j].machine;
-                let op_j = &indv.operations[j];
+                let op_j = &mut indv.operations[j];
 
                 // Calculate the earliest finish time (in terms of precedence only)
                 // We do not need to look on all predecessors. The direct one is enough, as
@@ -102,6 +102,7 @@ impl JsspFitness {
                 // Update state
                 scheduled_count += 1;
                 finish_times[op_j.id] = finish_time_j;
+                op_j.finish_time = Some(finish_time_j);
                 g += 1;
 
                 last_finish_time = usize::max(last_finish_time, finish_time_j);
@@ -214,7 +215,6 @@ impl JsspFitness {
     }
 
     fn local_search(&mut self, indv: &mut JsspIndividual) -> usize {
-        // let mut vertices_in_topo_order: VecDeque<usize> = VecDeque::with_capacity(self.operations.len());
         let mut crt_sol_updated = true;
         let mut blocks: Vec<Vec<usize>> = Vec::new();
         let mut crt_makespan = usize::MAX;
