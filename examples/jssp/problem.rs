@@ -54,7 +54,11 @@ pub struct Operation {
     preds: Vec<usize>,
     /// Edges describing relations to other ops in neighbourhood graph. It contains *at most* two elements
     /// as each op might have at most two successors: next operation in the job or next operation on the same machine
-    /// this op is executed on. The value of this field is modified as the algorithm runs
+    /// this op is executed on. The value of this field is modified as the algorithm runs.
+    /// NOTE: In current implementation is contains either one or two elements. The first one is
+    /// always present and is a JobSuccsor. The second one is optional and is a MachineSuccesor,
+    /// which is filled during individual evaluation. There is one expception: dummy sink
+    /// operation, which won't have any Edge in this vector.
     edges_out: Vec<Edge>,
     /// Operation id of direct machine predecessor of this op. This might be `None` in following scenarios:
     /// 1. Op is the first op on particular machine TODO: I'm not sure now, whether I set op no. 0 as machine predecessor
