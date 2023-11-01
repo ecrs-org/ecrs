@@ -61,6 +61,7 @@ pub struct Operation {
     /// operation, which won't have any Edge in this vector.
     edges_out: Vec<Edge>,
     /// Operation id of direct machine predecessor of this op. This might be `None` in following scenarios:
+    ///
     /// 1. Op is the first op on particular machine TODO: I'm not sure now, whether I set op no. 0 as machine predecessor
     /// of every first op on given machine or not, so please verify it before using this fact.
     /// 2. This is op with id 0
