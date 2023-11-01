@@ -118,6 +118,9 @@ impl Operation {
                 .count(),
             0
         );
+
+        // TODO: Should we zero `critical_path_edge` and `critical_distance` here?
+        // Why is it not done?
     }
 }
 
@@ -165,6 +168,8 @@ impl Machine {
     }
 
     /// DOES NOT PERFORM VALIDATION!
+    /// Make sure via `is_idle` method that the machine is not occupied in the span
+    /// you want to reserve.
     pub fn reserve(&mut self, range: std::ops::Range<usize>, op: usize) {
         self.rmc.push(range);
         self.last_scheduled_op = Some(op);
