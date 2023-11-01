@@ -106,6 +106,11 @@ impl JsspFitness {
 
                 last_finish_time = usize::max(last_finish_time, finish_time_j);
 
+                // ATTENTION!!!
+                // There is a possibility we have a bug here.
+                // It is possible that the most recently scheduled job is **not** the actual last on the
+                // machine. I believe there migtht be a situation where the job is scheduled
+                // before the last one. See notes on "Machine model" attached to paper.
                 if let Some(last_sch_op) = indv.machines[op_j_machine].last_scheduled_op {
                     indv.operations[last_sch_op]
                         .edges_out
