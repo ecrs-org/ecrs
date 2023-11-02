@@ -162,9 +162,9 @@ impl Probe<JsspIndividual> for JsspProbe {
                 Ordering::Greater
             } else if b.id == n + 1 {
                 Ordering::Less
-            } else if a.finish_time.unwrap() < b.finish_time.unwrap() {
+            } else if a.critical_distance > b.critical_distance {
                 Ordering::Less
-            } else if a.finish_time.unwrap() > b.finish_time.unwrap() {
+            } else if a.critical_distance < b.critical_distance {
                 Ordering::Greater
             } else if a.duration != 0 && b.duration != 0 {
                 a.machine.cmp(&b.machine)
