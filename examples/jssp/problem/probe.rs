@@ -167,6 +167,7 @@ impl Probe<JsspIndividual> for JsspProbe {
         // (It differs in case there are any gaps in the schedule). But currently I do not have
         // better solution. TODO: FIX THIS OR MAKE SOMEHOW SURE THAT THIS IS NOT BROKEN
 
+        #[allow(clippy::if_same_then_else)]
         ops.sort_unstable_by(|a, b| {
             if a.id == n + 1 {
                 Ordering::Greater
