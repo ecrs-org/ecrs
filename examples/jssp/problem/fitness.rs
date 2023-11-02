@@ -80,7 +80,7 @@ impl JsspFitness {
             while !self.delay_feasibles.is_empty() {
                 let op_j_duration = indv.operations[j].duration;
                 let op_j_machine = indv.operations[j].machine;
-                let op_j = &indv.operations[j];
+                let op_j = &mut indv.operations[j];
 
                 // Calculate the earliest finish time (in terms of precedence only)
                 // We do not need to look on all predecessors. The direct one is enough, as
@@ -102,10 +102,16 @@ impl JsspFitness {
                 // Update state
                 scheduled_count += 1;
                 finish_times[op_j.id] = finish_time_j;
+                op_j.finish_time = Some(finish_time_j);
                 g += 1;
 
                 last_finish_time = usize::max(last_finish_time, finish_time_j);
 
+                // ATTENTION!!!
+                // There is a possibility we have a bug here.
+                // It is possible that the most recently scheduled job is **not** the actual last on the
+                // machine. I believe there migtht be a situation where the job is scheduled
+                // before the last one. See notes on "Machine model" attached to paper.
                 if let Some(last_sch_op) = indv.machines[op_j_machine].last_scheduled_op {
                     indv.operations[last_sch_op]
                         .edges_out
@@ -209,7 +215,6 @@ impl JsspFitness {
     }
 
     fn local_search(&mut self, indv: &mut JsspIndividual) -> usize {
-        // let mut vertices_in_topo_order: VecDeque<usize> = VecDeque::with_capacity(self.operations.len());
         let mut crt_sol_updated = true;
         let mut blocks: Vec<Vec<usize>> = Vec::new();
         let mut crt_makespan = usize::MAX;
@@ -332,6 +337,7 @@ impl JsspFitness {
         indv.operations[0].critical_distance
     }
 
+    /// HEY, IF WE ARE SWAPPING OPERATION ORDER HERE, WE SHOULD UPDATE FINISH TIMES
     fn swap_ops(&mut self, indv: &mut JsspIndividual, first_op_id: usize, sec_op_id: usize) {
         // We assume few things here:
         debug_assert!(first_op_id != 0 && sec_op_id != 0);

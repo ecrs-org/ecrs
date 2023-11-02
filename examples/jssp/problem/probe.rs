@@ -152,10 +152,22 @@ impl Probe<JsspIndividual> for JsspProbe {
         best_individual: &JsspIndividual,
     ) {
         let mut ops = best_individual.operations.clone();
+
+        for op in ops.iter() {
+            println!("{op:?}");
+        }
+
+        // This includes zero & sink operations
+        let n = ops.len() - 2;
+
         ops.sort_unstable_by(|a, b| {
-            if a.finish_time < b.finish_time {
+            if a.id == n + 1 {
+                Ordering::Greater
+            } else if b.id == n + 1 {
                 Ordering::Less
-            } else if a.finish_time > b.finish_time {
+            } else if a.finish_time.unwrap() < b.finish_time.unwrap() {
+                Ordering::Less
+            } else if a.finish_time.unwrap() > b.finish_time.unwrap() {
                 Ordering::Greater
             } else if a.duration != 0 && b.duration != 0 {
                 a.machine.cmp(&b.machine)
@@ -165,7 +177,6 @@ impl Probe<JsspIndividual> for JsspProbe {
                 Ordering::Greater
             }
         });
-        let n = ops.len();
         let solution_string = ops
             .into_iter()
             .filter(|op| op.id != 0 && op.id != n + 1)
