@@ -337,6 +337,7 @@ impl JsspFitness {
         indv.operations[0].critical_distance
     }
 
+    /// HEY, IF WE ARE SWAPPING OPERATION ORDER HERE, WE SHOULD UPDATE FINISH TIMES
     fn swap_ops(&mut self, indv: &mut JsspIndividual, first_op_id: usize, sec_op_id: usize) {
         // We assume few things here:
         debug_assert!(first_op_id != 0 && sec_op_id != 0);
