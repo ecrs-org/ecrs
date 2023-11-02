@@ -88,7 +88,6 @@ impl Probe<JsspIndividual> for JsspProbe {
         self.repeated.resize(population.len(), false);
 
         // TODO: As this metric is useless right now I'm disabling it temporarily
-        // let diversity = self.estimate_pop_diversity(population);
         let diversity = self.estimate_pop_diversity(population);
         info!(target: "diversity", "diversity,0,0,{},{diversity}", population.len());
         info!(target: "popgentime", "popgentime,{}", metadata.pop_gen_dur.unwrap().as_millis());
@@ -105,8 +104,6 @@ impl Probe<JsspIndividual> for JsspProbe {
     }
 
     fn on_new_generation(&mut self, metadata: &ecrs::ga::GAMetadata, generation: &[JsspIndividual]) {
-        // TODO: As this metric is useless right now I'm disabling it temporarily
-        // let diversity = self.estimate_pop_diversity(generation);
         let diversity = self.estimate_pop_diversity(generation);
         info!(
             target: "diversity",
