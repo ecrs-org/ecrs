@@ -157,6 +157,16 @@ impl Probe<JsspIndividual> for JsspProbe {
         // This includes zero & sink operations
         let n = ops.len() - 2;
 
+        // I'm using ciritial distance here, instead of finish time (as described in `data-model`).
+        // This is so, because local search does not update finish times, thus solution string
+        // acquired using finish times is only accurate within local search operator improvement.
+        //
+        // Is using critical_distance here a good solution? Definitely not. Please note that
+        // critical distance is currently calculated using duration + critial_distance of succ
+        // formula, thus it is not really computing makespan, but rather a consumed machine time...
+        // (It differs in case there are any gaps in the schedule). But currently I do not have
+        // better solution. TODO: FIX THIS OR MAKE SOMEHOW SURE THAT THIS IS NOT BROKEN
+
         ops.sort_unstable_by(|a, b| {
             if a.id == n + 1 {
                 Ordering::Greater
