@@ -6,6 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+
 pub fn print_hash_set<T: Display>(set: &HashSet<T>) {
     for elem in set {
         print!("{elem}, ");
@@ -51,4 +52,5 @@ pub fn euclidean_distance(vec_1: &[f64], vec_2: &[f64]) -> f64 {
         .map(|(a, b)| (a - b) * (a - b))
         .reduce(|a, b| a + b)
         .unwrap()
+        .sqrt()
 }
