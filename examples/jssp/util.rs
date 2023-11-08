@@ -23,7 +23,7 @@ pub fn print_slice<T: Display>(slc: &[T]) {
 #[inline]
 pub fn create_event_map(base_dir: &Path) -> HashMap<String, PathBuf> {
     HashMap::from([
-        ("diversity".to_owned(), base_dir.join("event_diversity.csv")),
+        ("popmetrics".to_owned(), base_dir.join("evet_popmetrics.csv")),
         ("newbest".to_owned(), base_dir.join("event_newbest.csv")),
         ("bestingen".to_owned(), base_dir.join("event_bestingen.csv")),
         ("popgentime".to_owned(), base_dir.join("event_popgentime.csv")),
@@ -40,4 +40,10 @@ pub fn assert_dir_exists(dir: &Path) {
         Ok(()) => (),
         Err(err) => panic!("Failed to create output directory with error {err}"),
     };
+}
+
+// Hey this surely can be done better (optimise it a bit)
+#[inline]
+pub fn euclidean_distance(vec_1: &[f64], vec_2: &[f64]) -> f64 {
+    vec_1.iter().zip(vec_2.iter()).map(|(a, b)| (a - b) * (a - b)).reduce(|a, b| a + b).unwrap()
 }
