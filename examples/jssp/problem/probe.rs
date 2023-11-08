@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 
+use crate::util::euclidean_distance;
 use ecrs::ga::{individual::IndividualTrait, Probe};
 use itertools::Itertools;
 use log::info;
@@ -36,34 +37,47 @@ impl JsspProbe {
     /// See: https://en.wikipedia.org/wiki/HyperLogLog
     /// I can not really use hash set here, as f64 does not implement neither Eq nor Hash...
     /// (and it is used in chromosome...)
+    // #[allow(dead_code)]
+    // fn estimate_pop_diversity(&mut self, population: &[JsspIndividual]) -> f64 {
+    //     self.repeated.fill(false);
+    //     let mut n_unique = population.len();
+    //     for i in 0..population.len() - 1 {
+    //         if self.repeated[i] {
+    //             continue;
+    //         }
+    //         for j in i + 1..population.len() {
+    //             if !self.repeated[j] && population[i].chromosome.eq(population[j].chromosome()) {
+    //                 n_unique -= 1;
+    //                 self.repeated[j] = true;
+    //             }
+    //         }
+    //     }
+    //
+    //     (n_unique as f64) / (population.len() as f64)
+    // }
+
     #[allow(dead_code)]
-    fn estimate_pop_diversity(&mut self, population: &[JsspIndividual]) -> f64 {
-        self.repeated.fill(false);
-        let mut n_unique = population.len();
+    fn estimate_avg_distance(&mut self, population: &[JsspIndividual]) -> f64 {
+        let mut distance_sum = 0.0;
         for i in 0..population.len() - 1 {
-            if self.repeated[i] {
-                continue;
-            }
             for j in i + 1..population.len() {
-                if !self.repeated[j] && population[i].chromosome.eq(population[j].chromosome()) {
-                    n_unique -= 1;
-                    self.repeated[j] = true;
-                }
+                distance_sum += euclidean_distance(population[i].chromosome(), population[j].chromosome())
             }
         }
-
-        (n_unique as f64) / (population.len() as f64)
+        // No. of hand shakes: n * (n - 1) / 2
+        // This **should** work
+        distance_sum / (population.len() * (population.len() - 1) / 2) as f64
     }
 
-    // #[inline]
-    // fn estimate_pop_diversity(&mut self, _population: &[JsspIndividual]) -> f64 {
-    //     return 0.0;
-    // }
+    #[inline]
+    fn estimate_pop_diversity(&mut self, _population: &[JsspIndividual]) -> f64 {
+        0.0
+    }
 }
 
 impl Probe<JsspIndividual> for JsspProbe {
     // CSV OUTLINE:
-    // diversity,<generation>,<total_duration>,<population_size>,<diversity>
+    // popmetrics,<generation>,<total_duration>,<population_size>,<diversity>,<distance_avg>
     // newbest,<generation>,<total_duration>,<fitness>
     // bestingen,<generation>,<total_duration>,<fitness>
     // popgentime,<time>
@@ -72,7 +86,7 @@ impl Probe<JsspIndividual> for JsspProbe {
     #[inline]
     fn on_start(&mut self, _metadata: &ecrs::ga::GAMetadata) {
         // Writing csv header to each file
-        info!(target: "diversity", "event_name,generation,total_duration,population_size,diversity");
+        info!(target: "popmetrics", "event_name,generation,total_duration,population_size,diversity,distance_avg");
         info!(target: "popgentime", "event_name,time");
         info!(target: "newbest", "event_name,generation,total_duration,fitness");
         info!(target: "bestingen", "event_name,generation,total_duration,fitness");
@@ -90,7 +104,8 @@ impl Probe<JsspIndividual> for JsspProbe {
         // TODO: As this metric is useless right now I'm disabling it temporarily
         // let diversity = self.estimate_pop_diversity(population);
         let diversity = self.estimate_pop_diversity(population);
-        info!(target: "diversity", "diversity,0,0,{},{diversity}", population.len());
+        let distance_avg = self.estimate_avg_distance(population);
+        info!(target: "popmetrics", "diversity,0,0,{},{diversity},{distance_avg}", population.len());
         info!(target: "popgentime", "popgentime,{}", metadata.pop_gen_dur.unwrap().as_millis());
     }
 
@@ -108,9 +123,10 @@ impl Probe<JsspIndividual> for JsspProbe {
         // TODO: As this metric is useless right now I'm disabling it temporarily
         // let diversity = self.estimate_pop_diversity(generation);
         let diversity = self.estimate_pop_diversity(generation);
+        let distance_avg = self.estimate_avg_distance(generation);
         info!(
-            target: "diversity",
-            "diversity,{},{},{},{diversity}",
+            target: "popmetrics",
+            "diversity,{},{},{},{diversity},{distance_avg}",
             metadata.generation,
             metadata.total_dur.unwrap().as_millis(),
             generation.len()
@@ -160,6 +176,7 @@ impl Probe<JsspIndividual> for JsspProbe {
         // This includes zero & sink operations
         let n = ops.len() - 2;
 
+        #[allow(clippy::if_same_then_else)]
         ops.sort_unstable_by(|a, b| {
             if a.id == n + 1 {
                 Ordering::Greater
