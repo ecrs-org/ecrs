@@ -71,7 +71,7 @@ impl JsspProbe {
 
     #[inline]
     fn estimate_pop_diversity(&mut self, _population: &[JsspIndividual]) -> f64 {
-        return 0.0;
+        0.0
     }
 }
 
@@ -176,6 +176,7 @@ impl Probe<JsspIndividual> for JsspProbe {
         // This includes zero & sink operations
         let n = ops.len() - 2;
 
+        #[allow(clippy::if_same_then_else)]
         ops.sort_unstable_by(|a, b| {
             if a.id == n + 1 {
                 Ordering::Greater
