@@ -45,5 +45,10 @@ pub fn assert_dir_exists(dir: &Path) {
 // Hey this surely can be done better (optimise it a bit)
 #[inline]
 pub fn euclidean_distance(vec_1: &[f64], vec_2: &[f64]) -> f64 {
-    vec_1.iter().zip(vec_2.iter()).map(|(a, b)| (a - b) * (a - b)).reduce(|a, b| a + b).unwrap()
+    vec_1
+        .iter()
+        .zip(vec_2.iter())
+        .map(|(a, b)| (a - b) * (a - b))
+        .reduce(|a, b| a + b)
+        .unwrap()
 }

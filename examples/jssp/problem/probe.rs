@@ -1,10 +1,10 @@
 use std::cmp::Ordering;
 
+use crate::util::euclidean_distance;
 use ecrs::ga::{individual::IndividualTrait, Probe};
 use itertools::Itertools;
 use log::info;
 use md5;
-use crate::util::euclidean_distance;
 
 use crate::logging::OutputData;
 
