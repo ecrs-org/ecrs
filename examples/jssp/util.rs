@@ -23,7 +23,7 @@ pub fn print_slice<T: Display>(slc: &[T]) {
 #[inline]
 pub fn create_event_map(base_dir: &Path) -> HashMap<String, PathBuf> {
     HashMap::from([
-        ("popmetrics".to_owned(), base_dir.join("evet_popmetrics.csv")),
+        ("popmetrics".to_owned(), base_dir.join("event_popmetrics.csv")),
         ("newbest".to_owned(), base_dir.join("event_newbest.csv")),
         ("bestingen".to_owned(), base_dir.join("event_bestingen.csv")),
         ("popgentime".to_owned(), base_dir.join("event_popgentime.csv")),
