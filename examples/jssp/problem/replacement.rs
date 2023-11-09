@@ -64,19 +64,21 @@ impl ReplacementOperator<JsspIndividual> for JsspReplacement {
 }
 
 pub struct ReplaceWithRandomPopulation {
-    pop_gen: JsspPopProvider
+    pop_gen: JsspPopProvider,
 }
 
 impl ReplaceWithRandomPopulation {
     pub fn new(pop_gen: JsspPopProvider) -> Self {
-        Self {
-            pop_gen
-        }
+        Self { pop_gen }
     }
 }
 
 impl ReplacementOperator<JsspIndividual> for ReplaceWithRandomPopulation {
-    fn apply(&mut self, population: Vec<JsspIndividual>, _children: Vec<JsspIndividual>) -> Vec<JsspIndividual> {
+    fn apply(
+        &mut self,
+        population: Vec<JsspIndividual>,
+        _children: Vec<JsspIndividual>,
+    ) -> Vec<JsspIndividual> {
         self.pop_gen.generate(population.len())
     }
 

@@ -70,7 +70,9 @@ fn run_randomsearch(instance: JsspInstance, config: Config) {
         .set_selection_operator(problem::selection::EmptySelection::new())
         .set_crossover_operator(problem::crossover::NoopCrossover::new())
         .set_mutation_operator(mutation::Identity::new())
-        .set_replacement_operator(problem::replacement::ReplaceWithRandomPopulation::new(JsspPopProvider::new(instance)))
+        .set_replacement_operator(problem::replacement::ReplaceWithRandomPopulation::new(
+            JsspPopProvider::new(instance),
+        ))
         .set_probe(JsspProbe::new())
         .set_max_generation_count(n_gen)
         .set_population_size(pop_size)
@@ -110,7 +112,6 @@ fn run_jssp_solver(instance: JsspInstance, config: Config) {
     //     info!("{op:?}");
     // }
 
-
     ga::Builder::new()
         .set_selection_operator(selection::Rank::new())
         .set_crossover_operator(JsspCrossover::new())
@@ -145,7 +146,7 @@ fn run() {
 
     match config.perform_randomsearch {
         true => run_randomsearch(instance, config),
-        false => run_jssp_solver(instance, config)
+        false => run_jssp_solver(instance, config),
     }
 }
 
