@@ -83,7 +83,7 @@ impl TryFrom<PartialConfig> for Config {
             n_gen: partial_cfg.n_gen,
             pop_size: partial_cfg.pop_size,
             delay_const_factor: partial_cfg.delay_const_factor,
-            perform_randomsearch: partial_cfg.perform_randomsearch.unwrap_or(false)
+            perform_randomsearch: partial_cfg.perform_randomsearch.unwrap_or(false),
         })
     }
 }

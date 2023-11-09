@@ -58,7 +58,11 @@ impl NoopCrossover {
 }
 
 impl CrossoverOperator<JsspIndividual> for NoopCrossover {
-    fn apply(&mut self, parent_1: &JsspIndividual, parent_2: &JsspIndividual) -> (JsspIndividual, JsspIndividual) {
+    fn apply(
+        &mut self,
+        parent_1: &JsspIndividual,
+        parent_2: &JsspIndividual,
+    ) -> (JsspIndividual, JsspIndividual) {
         (parent_1.clone(), parent_2.clone())
     }
 }

@@ -6,7 +6,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-
 pub fn print_hash_set<T: Display>(set: &HashSet<T>) {
     for elem in set {
         print!("{elem}, ");
