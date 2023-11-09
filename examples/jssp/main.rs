@@ -32,7 +32,7 @@ use problem::replacement::JsspReplacement;
 
 use crate::problem::{JsspConfig, JsspInstance};
 
-fn run_with_ecrs(instance: JsspInstance, config: Config) {
+fn run_randomsearch(instance: JsspInstance, config: Config) {
     let pop_size = if let Some(ps) = config.pop_size {
         // Overrided by user
         ps
@@ -62,7 +62,52 @@ fn run_with_ecrs(instance: JsspInstance, config: Config) {
         info!("{op:?}");
     }
 
-    let mut solver = ga::Builder::new()
+    ga::Builder::new()
+        .set_population_generator(JsspPopProvider::new(instance.clone()))
+        .set_fitness(JsspFitness::new(1.5))
+        .set_selection_operator(problem::selection::EmptySelection::new())
+        .set_crossover_operator(problem::crossover::NoopCrossover::new())
+        .set_mutation_operator(mutation::Identity::new())
+        .set_replacement_operator(problem::replacement::ReplaceWithRandomPopulation::new(JsspPopProvider::new(instance.clone())))
+        .set_probe(probe)
+        .set_max_generation_count(n_gen)
+        .set_population_size(pop_size)
+        .build()
+        .run();
+}
+
+fn run_jssp_solver(instance: JsspInstance, config: Config) {
+    let pop_size = if let Some(ps) = config.pop_size {
+        // Overrided by user
+        ps
+    } else {
+        // Defined in paper
+        instance.cfg.n_ops * 2
+    };
+
+    let n_gen = if let Some(ng) = config.n_gen {
+        // Overrided by user
+        ng
+    } else {
+        // Defined in paper
+        400
+    };
+
+    let probe = AggregatedProbe::new()
+        .add_probe(JsspProbe::new())
+        .add_probe(PolicyDrivenProbe::new(
+            ElapsedTime::new(Duration::from_millis(1000), Duration::from_millis(0)),
+            StdoutProbe::new(),
+        ));
+
+    // Only for debugging purposes. TODO: Remove it
+    let population_provider = JsspPopProvider::new(instance.clone());
+    for op in population_provider.operations.iter() {
+        info!("{op:?}");
+    }
+
+
+    ga::Builder::new()
         .set_selection_operator(selection::Rank::new())
         .set_crossover_operator(JsspCrossover::new())
         .set_mutation_operator(mutation::Identity::new())
@@ -73,9 +118,8 @@ fn run_with_ecrs(instance: JsspInstance, config: Config) {
         // .set_max_duration(std::time::Duration::from_secs(30))
         .set_max_generation_count(n_gen)
         .set_population_size(pop_size)
-        .build();
-
-    solver.run();
+        .build()
+        .run();
 }
 
 fn run() {
@@ -94,7 +138,11 @@ fn run() {
 
     // Existance of input file is asserted during cli args parsing
     let instance = JsspInstance::try_from(&config.input_file).unwrap();
-    run_with_ecrs(instance, config)
+
+    match config.perform_randomsearch {
+        true => run_randomsearch(instance, config),
+        false => run_jssp_solver(instance, config)
+    }
 }
 
 fn main() -> Result<(), ()> {
