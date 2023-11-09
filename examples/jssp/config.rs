@@ -114,11 +114,11 @@ impl TryFrom<Args> for Config {
             partial_cfg.pop_size = Some(pop_size);
         }
         if let Some(factor) = args.delay_const_factor {
-            partial_cfg.delay_const_factor = Some(factor)
+            partial_cfg.delay_const_factor = Some(factor);
         }
-
-        // Overriding the config value here!
-        partial_cfg.perform_randomsearch = Some(args.perform_randomseach);
+        if let Some(randomsearch) = args.perform_randomseach {
+            partial_cfg.perform_randomsearch = Some(randomsearch);
+        }
 
         Config::try_from(partial_cfg)
     }

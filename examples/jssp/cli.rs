@@ -35,8 +35,8 @@ pub struct Args {
     pub cfg_file: Option<PathBuf>,
 
     /// Whether JSSP solver should be replaced with randomsearch
-    #[arg(long = "perform-randomsearch", default_value_t = false)]
-    pub perform_randomseach: bool,
+    #[arg(long = "perform-randomsearch")]
+    pub perform_randomseach: Option<bool>,
 }
 
 fn validate_args(args: &Args) -> Result<(), String> {
