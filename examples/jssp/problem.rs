@@ -9,6 +9,7 @@ pub mod individual;
 pub mod population;
 pub mod probe;
 pub mod replacement;
+pub mod selection;
 
 /// Describes relation between two operations
 #[derive(Debug, Clone, PartialEq, Eq, Copy)]

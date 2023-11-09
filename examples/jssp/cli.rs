@@ -27,11 +27,16 @@ pub struct Args {
 
     /// The constant that appears in formula for delay in given iteration g.
     /// Delay = Gene_{n+g} * delay_const_factor * maxdur. If not specified, defaults to 1.5.
+    #[arg(long = "delay-const-factor")]
     pub delay_const_factor: Option<f64>,
 
     /// Path to config file with solver's parameters
     #[arg(short = 'c', long = "config")]
     pub cfg_file: Option<PathBuf>,
+
+    /// Whether JSSP solver should be replaced with randomsearch
+    #[arg(long = "perform-randomsearch", default_value_t = false)]
+    pub perform_randomseach: bool,
 }
 
 fn validate_args(args: &Args) -> Result<(), String> {
