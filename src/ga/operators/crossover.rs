@@ -2,7 +2,7 @@ use itertools::{enumerate, Itertools};
 use len_trait::Len;
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
-use std::ops::Index;
+use std::ops::{Index, IndexMut};
 
 use crate::ga::individual::{Chromosome, IndividualTrait};
 use push_trait::{Nothing, Push};
@@ -913,11 +913,62 @@ where
     }
 }
 
+/// # Fixed point crossover operator
+///
+/// Works just like `SinglePoint`, however the cut point is fixed and chosen apriori instead of
+/// being random.
+struct FixedPoint {
+    pub cut_point: usize
+}
+
+impl FixedPoint {
+    /// Returns new instance of the `FixedPoint` operator.
+    ///
+    /// # Arguments
+    ///
+    /// * `cut_point` - index of first gene that will be taken from second parent to first child
+    pub fn new(cut_point: usize) -> Self {
+        Self {
+            cut_point
+        }
+    }
+}
+
+
+impl<GeneT, IndividualT> CrossoverOperator<IndividualT> for FixedPoint
+where
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: IndexMut<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    GeneT: Copy,
+{
+    /// Returns a tuple of children
+    ///
+    /// It works by cutting parent chromosomes in single, fixed point and the acting like a single
+    /// point crossover.
+    ///
+    /// # Arguments
+    ///
+    /// * `parent_1` - First parent to take part in recombination
+    /// * `parent_2` - Second parent to take part in recombination
+    fn apply(&mut self, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
+        let mut child_1 = parent_1.clone();
+        let mut child_2 = parent_2.clone();
+
+        for i in self.cut_point..parent_1.chromosome().len() {
+            child_1.chromosome_mut()[i] = parent_2.chromosome()[i];
+            child_2.chromosome_mut()[i] = parent_1.chromosome()[i];
+        }
+
+        (child_1, child_2)
+    }
+}
+
+
 #[cfg(test)]
 mod test {
     use crate::ga::individual::IndividualTrait;
     use crate::ga::operators::crossover::Ppx;
-    use crate::ga::operators::crossover::{CrossoverOperator, Pmx, Shuffle};
+    use crate::ga::operators::crossover::{CrossoverOperator, Pmx, Shuffle, FixedPoint};
     use crate::ga::Individual;
     use std::iter::zip;
 
@@ -976,4 +1027,24 @@ mod test {
             assert_eq!(g1 + g2, 1);
         }
     }
+
+    #[test]
+    fn fixed_point_works_as_expected() {
+        let mut op = FixedPoint::new(4);
+
+        let parent_1_chromosome = vec![8, 4, 7, 3, 6, 2, 5, 1, 9, 0];
+        let parent_2_chromosome = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+        let p1 = Individual::from(parent_1_chromosome.clone());
+        let p2 = Individual::from(parent_2_chromosome.clone());
+
+        let (child_1, child_2) = op.apply(&p1, &p2);
+
+        let child_1_expected_chromosome = vec![8, 4, 7, 3, 4, 5, 6, 7, 8, 9];
+        let child_2_expected_chromosome = vec![0, 1, 2, 3, 6, 2, 5, 1, 9, 0];
+
+        assert_eq!(child_1.chromosome(), &child_1_expected_chromosome);
+        assert_eq!(child_2.chromosome(), &child_2_expected_chromosome);
+    }
 }
+
