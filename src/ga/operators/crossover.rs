@@ -918,7 +918,7 @@ where
 /// Works just like `SinglePoint`, however the cut point is fixed and chosen apriori instead of
 /// being random.
 struct FixedPoint {
-    pub cut_point: usize
+    pub cut_point: usize,
 }
 
 impl FixedPoint {
@@ -928,12 +928,9 @@ impl FixedPoint {
     ///
     /// * `cut_point` - index of first gene that will be taken from second parent to first child
     pub fn new(cut_point: usize) -> Self {
-        Self {
-            cut_point
-        }
+        Self { cut_point }
     }
 }
-
 
 impl<GeneT, IndividualT> CrossoverOperator<IndividualT> for FixedPoint
 where
@@ -963,12 +960,11 @@ where
     }
 }
 
-
 #[cfg(test)]
 mod test {
     use crate::ga::individual::IndividualTrait;
     use crate::ga::operators::crossover::Ppx;
-    use crate::ga::operators::crossover::{CrossoverOperator, Pmx, Shuffle, FixedPoint};
+    use crate::ga::operators::crossover::{CrossoverOperator, FixedPoint, Pmx, Shuffle};
     use crate::ga::Individual;
     use std::iter::zip;
 
@@ -1047,4 +1043,3 @@ mod test {
         assert_eq!(child_2.chromosome(), &child_2_expected_chromosome);
     }
 }
-
