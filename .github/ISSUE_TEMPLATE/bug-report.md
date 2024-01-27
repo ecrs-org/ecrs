@@ -7,12 +7,8 @@ assignees: kkafar
 
 ---
 
-<!-- If applicable - remember to add the issue to the EA Rust project  -->
-
 ## Bug description
 
 
-## Expected behaviour
+## Expected behaviour  <!-- ## Possible solution suggestion -->
 
-<!-- This is optional section, fill only if you have some ideas -->
-<!-- ## Possible solution suggestion -->

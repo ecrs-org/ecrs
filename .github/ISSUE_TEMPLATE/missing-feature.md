@@ -7,11 +7,7 @@ assignees: kkafar
 
 ---
 
-<!-- If applicable - remember to add the issue to the EA Rust project  -->
-
 ## Feature description
 
-## Motivation
+## Motivation <!-- Optional section -->
 
-<!-- Optional section -->
-<!-- ## Usage examples -->
