@@ -130,7 +130,9 @@ pub use probe::CsvProbe;
 pub use probe::JsonProbe;
 pub use probe::Probe;
 pub use probe::StdoutProbe;
+use std::fmt::Display;
 use std::marker::PhantomData;
+use num_traits::Num;
 
 use self::individual::IndividualTrait;
 use self::timer::Timer;
@@ -142,6 +144,7 @@ use self::{
     population::PopulationGenerator,
 };
 
+#[derive(Debug, Clone, Copy)]
 pub struct GAParams {
     pub selection_rate: f64,
     pub mutation_rate: f64,
@@ -172,9 +175,10 @@ where
     _phantom: PhantomData<IndividualT::ChromosomeT>,
 }
 
-#[derive(Default)]
-pub struct GAMetadata {
+#[derive(Debug, Default, Clone, Copy)]
+pub struct GAMetadata<Fitness: Num + Display> {
     pub generation: usize,
+    pub best_fitness: Option<Fitness>,
     pub start_time: Option<std::time::Instant>,
     pub total_dur: Option<std::time::Duration>,
     pub pop_gen_dur: Option<std::time::Duration>,
@@ -186,7 +190,7 @@ pub struct GAMetadata {
     pub iteration_dur: Option<std::time::Duration>,
 }
 
-impl GAMetadata {
+impl<Fitness: Num + Display> GAMetadata<Fitness> {
     pub fn new(
         start_time: Option<std::time::Instant>,
         duration: Option<std::time::Duration>,
@@ -194,6 +198,7 @@ impl GAMetadata {
     ) -> Self {
         GAMetadata {
             generation,
+            best_fitness: None,
             start_time,
             total_dur: duration,
             pop_gen_dur: None,
@@ -207,6 +212,12 @@ impl GAMetadata {
     }
 }
 
+// #[derive(Debug, Clone)]
+// pub struct OperatorCallContext<'meta> {
+//     metadata: &'meta GAMetadata,
+//
+// }
+
 pub struct GeneticSolver<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
     IndividualT: IndividualTrait,
@@ -218,8 +229,9 @@ where
     FitnessT: Fitness<IndividualT>,
     ProbeT: Probe<IndividualT>,
 {
+
     config: GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
-    metadata: GAMetadata,
+    metadata: GAMetadata<IndividualT::FitnessValueT>,
     timer: Timer,
 }
 
@@ -381,6 +393,6 @@ mod tests {
 
     #[test]
     fn gametadata_can_be_constructed_with_new_fn() {
-        GAMetadata::new(None, None, 0);
+        GAMetadata::<f64>::new(None, None, 0);
     }
 }

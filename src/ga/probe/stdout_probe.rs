@@ -11,11 +11,11 @@ impl StdoutProbe {
 }
 
 impl<IndividualT: IndividualTrait> Probe<IndividualT> for StdoutProbe {
-    fn on_start(&mut self, _metadata: &GAMetadata) {
+    fn on_start(&mut self, _metadata: &GAMetadata<IndividualT::FitnessValueT>) {
         info!("[START] time,generation,chromosome,fitness");
     }
 
-    fn on_new_best(&mut self, metadata: &GAMetadata, individual: &IndividualT) {
+    fn on_new_best(&mut self, metadata: &GAMetadata<IndividualT::FitnessValueT>, individual: &IndividualT) {
         info!(
             "[NEW_BEST] {},{},{:?},{}",
             metadata
@@ -28,12 +28,12 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for StdoutProbe {
         );
     }
 
-    fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[IndividualT]) {
+    fn on_new_generation(&mut self, _metadata: &GAMetadata<IndividualT::FitnessValueT>, _generation: &[IndividualT]) {
         // TODO: Take reference to whole generation as a parameter and display it here!
         // We don't want to print anything on new generation right now
     }
 
-    fn on_best_fit_in_generation(&mut self, metadata: &GAMetadata, individual: &IndividualT) {
+    fn on_best_fit_in_generation(&mut self, metadata: &GAMetadata<IndividualT::FitnessValueT>, individual: &IndividualT) {
         // TODO: Take reference to the best chromosome & display it here!
         info!(
             "[BEST_IN_GEN] {},{},{:?},{}",
@@ -44,7 +44,7 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for StdoutProbe {
         );
     }
 
-    fn on_end(&mut self, metadata: &GAMetadata, _population: &[IndividualT], best_individual: &IndividualT) {
+    fn on_end(&mut self, metadata: &GAMetadata<IndividualT::FitnessValueT>, _population: &[IndividualT], best_individual: &IndividualT) {
         info!(
             "[END] {},{},{:?},{}",
             metadata.total_dur.unwrap().as_millis(),
