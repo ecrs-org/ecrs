@@ -341,7 +341,10 @@ where
 
             // 6. Replacement - merge new generation with old one
             self.timer.start();
-            population = self.config.replacement_operator.apply(&self.metadata, population, children);
+            population = self
+                .config
+                .replacement_operator
+                .apply(&self.metadata, population, children);
             self.metadata.replacement_dur = Some(self.timer.elapsed());
 
             // 7. Check for stop condition (Is good enough individual found)? If not goto 2.

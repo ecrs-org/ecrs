@@ -3,7 +3,7 @@
 use ecrs::ga::{
     operators::replacement::{BothParents, Noop, ReplacementOperator},
     population::{PopulationGenerator, RandomPoints},
-    Individual, GAMetadata,
+    GAMetadata, Individual,
 };
 
 #[test]

@@ -1,4 +1,7 @@
-use ecrs::prelude::{population::PopulationGenerator, replacement::ReplacementOperator};
+use ecrs::{
+    ga::GAMetadata,
+    prelude::{population::PopulationGenerator, replacement::ReplacementOperator},
+};
 
 use super::{individual::JsspIndividual, population::JsspPopProvider};
 
@@ -21,6 +24,7 @@ impl JsspReplacement {
 impl ReplacementOperator<JsspIndividual> for JsspReplacement {
     fn apply(
         &mut self,
+        _metadata: &GAMetadata,
         mut population: Vec<JsspIndividual>,
         mut children: Vec<JsspIndividual>,
     ) -> Vec<JsspIndividual> {
@@ -76,6 +80,7 @@ impl ReplaceWithRandomPopulation {
 impl ReplacementOperator<JsspIndividual> for ReplaceWithRandomPopulation {
     fn apply(
         &mut self,
+        _metadata: &GAMetadata,
         population: Vec<JsspIndividual>,
         _children: Vec<JsspIndividual>,
     ) -> Vec<JsspIndividual> {

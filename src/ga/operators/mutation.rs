@@ -262,7 +262,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::ga::{individual::IndividualTrait, Individual, GAMetadata};
+    use crate::ga::{individual::IndividualTrait, GAMetadata, Individual};
     use itertools::Itertools;
     use rand::{distributions::Uniform, Rng};
 
