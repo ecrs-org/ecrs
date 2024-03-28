@@ -4,7 +4,7 @@
 //! original one and the result of crossover phase to a single one,
 //! which will be the next generation
 
-use crate::ga::individual::IndividualTrait;
+use crate::ga::{individual::IndividualTrait, GAMetadata};
 
 /// # Replacement Operator
 ///
@@ -29,7 +29,7 @@ pub trait ReplacementOperator<IndividualT: IndividualTrait> {
     /// * `population` - Original population, input to the crossover phase.
     /// This collection should be modified in place by the operator.
     /// * `children` - Result of the crossover phase.
-    fn apply(&mut self, population: Vec<IndividualT>, children: Vec<IndividualT>) -> Vec<IndividualT>;
+    fn apply(&mut self, metadata: &GAMetadata, population: Vec<IndividualT>, children: Vec<IndividualT>) -> Vec<IndividualT>;
 
     /// Returns `true` when the operator requires children to possess valid fitness values.
     ///
@@ -73,7 +73,7 @@ impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for BothPare
     /// This collection should be modified in place by the operator.
     /// * `children` - Result of the crossover phase
     #[inline(always)]
-    fn apply(&mut self, _population: Vec<IndividualT>, children: Vec<IndividualT>) -> Vec<IndividualT> {
+    fn apply(&mut self, _metadata: &GAMetadata, _population: Vec<IndividualT>, children: Vec<IndividualT>) -> Vec<IndividualT> {
         children
     }
 
@@ -103,7 +103,7 @@ impl Noop {
 impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for Noop {
     /// Returns input `population`.
     #[inline(always)]
-    fn apply(&mut self, population: Vec<IndividualT>, _children: Vec<IndividualT>) -> Vec<IndividualT> {
+    fn apply(&mut self, _metadata: &GAMetadata, population: Vec<IndividualT>, _children: Vec<IndividualT>) -> Vec<IndividualT> {
         population
     }
 
@@ -168,6 +168,7 @@ impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for WeakPare
     /// * `children` - Result of the crossover phase
     fn apply(
         &mut self,
+        _metadata: &GAMetadata,
         mut population: Vec<IndividualT>,
         mut children: Vec<IndividualT>,
     ) -> Vec<IndividualT> {
@@ -208,7 +209,7 @@ impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for WeakPare
 
 #[cfg(test)]
 mod tests {
-    use crate::ga::Individual;
+    use crate::ga::{Individual, GAMetadata};
 
     use super::{BothParents, Noop, ReplacementOperator, WeakParent};
 
@@ -248,7 +249,7 @@ mod tests {
 
         let children_clone = children.clone();
 
-        let result = WeakParent::new().apply(parents, children);
+        let result = WeakParent::new().apply(&GAMetadata::default(), parents, children);
 
         assert_eq!(result, children_clone);
     }
@@ -279,7 +280,7 @@ mod tests {
 
         let parents_clone = parents.clone();
 
-        let result = WeakParent::new().apply(parents, children);
+        let result = WeakParent::new().apply(&GAMetadata::default(), parents, children);
 
         assert_eq!(result, parents_clone);
     }
@@ -319,7 +320,7 @@ mod tests {
             },
         ];
 
-        let result = WeakParent::new().apply(parents, children);
+        let result = WeakParent::new().apply(&GAMetadata::default(), parents, children);
 
         assert_eq!(result, expected_result);
     }
@@ -359,7 +360,7 @@ mod tests {
             },
         ];
 
-        let result = WeakParent::new().apply(parents, children);
+        let result = WeakParent::new().apply(&GAMetadata::default(), parents, children);
 
         assert_eq!(result, expected_result);
     }
@@ -399,7 +400,7 @@ mod tests {
             },
         ];
 
-        let result = WeakParent::new().apply(parents, children);
+        let result = WeakParent::new().apply(&GAMetadata::default(), parents, children);
 
         assert_eq!(result, expected_result);
     }
