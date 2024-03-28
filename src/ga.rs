@@ -317,7 +317,10 @@ where
             // FIXME: Do not assume that population size is an even number.
             self.timer.start();
             for parents in mating_pool.chunks(2) {
-                let crt_children = self.config.crossover_operator.apply(parents[0], parents[1]);
+                let crt_children =
+                    self.config
+                        .crossover_operator
+                        .apply(&self.metadata, parents[0], parents[1]);
 
                 children.push(crt_children.0);
                 children.push(crt_children.1);
@@ -328,7 +331,7 @@ where
             children.iter_mut().for_each(|child| {
                 self.config
                     .mutation_operator
-                    .apply(child, self.config.params.mutation_rate)
+                    .apply(&self.metadata, child, self.config.params.mutation_rate)
             });
             self.metadata.mutation_dur = Some(self.timer.elapsed());
 
@@ -338,7 +341,10 @@ where
 
             // 6. Replacement - merge new generation with old one
             self.timer.start();
-            population = self.config.replacement_operator.apply(population, children);
+            population = self
+                .config
+                .replacement_operator
+                .apply(&self.metadata, population, children);
             self.metadata.replacement_dur = Some(self.timer.elapsed());
 
             // 7. Check for stop condition (Is good enough individual found)? If not goto 2.

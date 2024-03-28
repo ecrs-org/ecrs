@@ -4,7 +4,7 @@ use len_trait::Len;
 use push_trait::{Nothing, Push};
 use rand::{rngs::ThreadRng, Rng};
 
-use crate::ga::individual::IndividualTrait;
+use crate::ga::{individual::IndividualTrait, GAMetadata};
 
 /// # Mutation Operator
 ///
@@ -17,7 +17,7 @@ pub trait MutationOperator<IndividualT: IndividualTrait> {
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64);
+    fn apply(&mut self, metadata: &GAMetadata, individual: &mut IndividualT, mutation_rate: f64);
 }
 
 /// # Identity Mutation Operator
@@ -36,7 +36,7 @@ impl Identity {
 }
 
 impl<IndividualT: IndividualTrait> MutationOperator<IndividualT> for Identity {
-    fn apply(&mut self, _individual: &mut IndividualT, _mutation_rate: f64) {}
+    fn apply(&mut self, _metadata: &GAMetadata, _individual: &mut IndividualT, _mutation_rate: f64) {}
 }
 
 /// ### Flilp bit mutation operator
@@ -76,7 +76,7 @@ where
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
+    fn apply(&mut self, _metadata: &GAMetadata, individual: &mut IndividualT, mutation_rate: f64) {
         let distribution = rand::distributions::Uniform::from(0.0..1.0);
         let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
@@ -127,7 +127,7 @@ where
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
+    fn apply(&mut self, _metadata: &GAMetadata, individual: &mut IndividualT, mutation_rate: f64) {
         let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
 
@@ -183,7 +183,7 @@ where
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
+    fn apply(&mut self, _metadata: &GAMetadata, individual: &mut IndividualT, mutation_rate: f64) {
         let dist = rand::distributions::Uniform::from(0.0..1.0);
         let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
@@ -239,7 +239,7 @@ where
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, individual: &mut IndividualT, mutation_rate: f64) {
+    fn apply(&mut self, _metadata: &GAMetadata, individual: &mut IndividualT, mutation_rate: f64) {
         let _marker: PhantomData<GeneT> = PhantomData;
 
         let r: f64 = self.rng.gen();
@@ -262,7 +262,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::ga::{individual::IndividualTrait, Individual};
+    use crate::ga::{individual::IndividualTrait, GAMetadata, Individual};
     use itertools::Itertools;
     use rand::{distributions::Uniform, Rng};
 
@@ -282,7 +282,7 @@ mod tests {
 
         let mut identity_mutation = Identity;
 
-        identity_mutation.apply(&mut individual, 1.);
+        identity_mutation.apply(&GAMetadata::default(), &mut individual, 1.);
 
         assert_eq!(chromosome, individual.chromosome);
     }
@@ -304,7 +304,7 @@ mod tests {
 
         let mut operator = FlipBit::new();
 
-        operator.apply(&mut individual, 1.);
+        operator.apply(&GAMetadata::default(), &mut individual, 1.);
 
         for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome()) {
             assert_eq!(actual, !*expected);
@@ -328,7 +328,7 @@ mod tests {
 
         let mut operator = FlipBit::new();
 
-        operator.apply(&mut individual, 0.);
+        operator.apply(&GAMetadata::default(), &mut individual, 0.);
 
         for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome()) {
             assert_eq!(actual, *expected);
@@ -352,7 +352,7 @@ mod tests {
 
         let mut operator = Interchange::new();
 
-        operator.apply(&mut individual, 1.);
+        operator.apply(&GAMetadata::default(), &mut individual, 1.);
         let changes = std::iter::zip(chromosome_clone, individual.chromosome())
             .filter(|p| p.0 != *p.1)
             .count();
@@ -376,7 +376,7 @@ mod tests {
 
         let mut operator = Interchange::new();
 
-        operator.apply(&mut individual, 0.);
+        operator.apply(&GAMetadata::default(), &mut individual, 0.);
 
         for (actual, expected) in std::iter::zip(chromosome_clone, individual.chromosome()) {
             assert_eq!(actual, *expected);
@@ -399,7 +399,7 @@ mod tests {
 
         let mut operator = Reversing::new();
 
-        operator.apply(&mut individual, 1.0);
+        operator.apply(&GAMetadata::default(), &mut individual, 1.0);
 
         assert_eq!(
             first_gene_value,
