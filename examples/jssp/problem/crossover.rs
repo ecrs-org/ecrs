@@ -1,4 +1,4 @@
-use ecrs::{ga::individual::IndividualTrait, prelude::crossover::CrossoverOperator};
+use ecrs::{ga::{individual::IndividualTrait, GAMetadata}, prelude::crossover::CrossoverOperator};
 use rand::{thread_rng, Rng};
 
 use super::individual::JsspIndividual;
@@ -18,6 +18,7 @@ impl JsspCrossover {
 impl CrossoverOperator<JsspIndividual> for JsspCrossover {
     fn apply(
         &mut self,
+        _metadata: &GAMetadata,
         parent_1: &JsspIndividual,
         parent_2: &JsspIndividual,
     ) -> (JsspIndividual, JsspIndividual) {
@@ -60,6 +61,7 @@ impl NoopCrossover {
 impl CrossoverOperator<JsspIndividual> for NoopCrossover {
     fn apply(
         &mut self,
+        _metadata: &GAMetadata,
         parent_1: &JsspIndividual,
         parent_2: &JsspIndividual,
     ) -> (JsspIndividual, JsspIndividual) {
