@@ -1,4 +1,7 @@
-use ecrs::{ga::{individual::IndividualTrait, GAMetadata}, prelude::crossover::CrossoverOperator};
+use ecrs::{
+    ga::{individual::IndividualTrait, GAMetadata},
+    prelude::crossover::CrossoverOperator,
+};
 use rand::{thread_rng, Rng};
 
 use super::individual::JsspIndividual;
