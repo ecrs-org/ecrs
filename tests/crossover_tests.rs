@@ -1,8 +1,8 @@
 #![cfg(feature = "ga")]
 
-use ecrs::ga::GAMetadata;
 use ecrs::ga::individual::{IndividualTrait, RealValueIndividual};
 use ecrs::ga::operators::crossover::Ppx;
+use ecrs::ga::GAMetadata;
 use ecrs::ga::{
     operators::crossover::{CrossoverOperator, MultiPoint, SinglePoint, TwoPoint, Uniform},
     population::{PopulationGenerator, RandomPoints},

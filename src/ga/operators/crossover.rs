@@ -4,8 +4,8 @@ use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::ops::{Index, IndexMut};
 
-use crate::ga::GAMetadata;
 use crate::ga::individual::{Chromosome, IndividualTrait};
+use crate::ga::GAMetadata;
 use push_trait::{Nothing, Push};
 use rand::prelude::SliceRandom;
 use rand::{rngs::ThreadRng, Rng};
@@ -21,7 +21,12 @@ pub trait CrossoverOperator<IndividualT: IndividualTrait> {
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(&mut self, metadata: &GAMetadata, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT);
+    fn apply(
+        &mut self,
+        metadata: &GAMetadata,
+        parent_1: &IndividualT,
+        parent_2: &IndividualT,
+    ) -> (IndividualT, IndividualT);
 }
 
 /// # Single point crossover operator
@@ -70,7 +75,12 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(&mut self, _metadata: &GAMetadata, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
+    fn apply(
+        &mut self,
+        _metadata: &GAMetadata,
+        parent_1: &IndividualT,
+        parent_2: &IndividualT,
+    ) -> (IndividualT, IndividualT) {
         let chromosome_len = parent_1.chromosome().len();
         let cut_point = self.rng.gen_range(0..chromosome_len);
 
@@ -137,7 +147,12 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(&mut self, _metadata: &GAMetadata, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
+    fn apply(
+        &mut self,
+        _metadata: &GAMetadata,
+        parent_1: &IndividualT,
+        parent_2: &IndividualT,
+    ) -> (IndividualT, IndividualT) {
         assert_eq!(
             parent_1.chromosome().len(),
             parent_2.chromosome().len(),
@@ -239,7 +254,12 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(&mut self, _metadata: &GAMetadata, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
+    fn apply(
+        &mut self,
+        _metadata: &GAMetadata,
+        parent_1: &IndividualT,
+        parent_2: &IndividualT,
+    ) -> (IndividualT, IndividualT) {
         assert_eq!(
             parent_1.chromosome().len(),
             parent_2.chromosome().len(),
@@ -325,7 +345,12 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(&mut self, _metadata: &GAMetadata, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
+    fn apply(
+        &mut self,
+        _metadata: &GAMetadata,
+        parent_1: &IndividualT,
+        parent_2: &IndividualT,
+    ) -> (IndividualT, IndividualT) {
         assert_eq!(
             parent_1.chromosome().len(),
             parent_2.chromosome().len(),
@@ -403,7 +428,12 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(&mut self, _metadata: &GAMetadata, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
+    fn apply(
+        &mut self,
+        _metadata: &GAMetadata,
+        parent_1: &IndividualT,
+        parent_2: &IndividualT,
+    ) -> (IndividualT, IndividualT) {
         assert_eq!(
             parent_1.chromosome().len(),
             parent_2.chromosome().len(),
@@ -535,7 +565,12 @@ where
     ///
     /// * `parent_1` - First parent to take part in crossover
     /// * `parent_2` - Second parent to take part in crossover
-    fn apply(&mut self, _metadata: &GAMetadata, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
+    fn apply(
+        &mut self,
+        _metadata: &GAMetadata,
+        parent_1: &IndividualT,
+        parent_2: &IndividualT,
+    ) -> (IndividualT, IndividualT) {
         assert_eq!(
             parent_1.chromosome().len(),
             parent_2.chromosome().len(),
@@ -657,7 +692,12 @@ where
     ///
     /// * `parent_1` - one of the parents to take part in crossover
     /// * `parent_2` - one of the parents to take part in crossover
-    fn apply(&mut self, _metadata: &GAMetadata, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
+    fn apply(
+        &mut self,
+        _metadata: &GAMetadata,
+        parent_1: &IndividualT,
+        parent_2: &IndividualT,
+    ) -> (IndividualT, IndividualT) {
         assert_eq!(
             parent_1.chromosome().len(),
             parent_2.chromosome().len(),
@@ -820,7 +860,12 @@ where
     ///
     /// * `parent_1` - First parent to take part in crossover
     /// * `parent_2` - Second parent to take part in crossover
-    fn apply(&mut self, _metadata: &GAMetadata, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
+    fn apply(
+        &mut self,
+        _metadata: &GAMetadata,
+        parent_1: &IndividualT,
+        parent_2: &IndividualT,
+    ) -> (IndividualT, IndividualT) {
         assert_eq!(
             parent_1.chromosome().len(),
             parent_2.chromosome().len(),
@@ -889,7 +934,12 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(&mut self, _metadata: &GAMetadata, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
+    fn apply(
+        &mut self,
+        _metadata: &GAMetadata,
+        parent_1: &IndividualT,
+        parent_2: &IndividualT,
+    ) -> (IndividualT, IndividualT) {
         let chromosome_len = parent_1.chromosome().len();
         let cut_point = self.rng.gen_range(0..chromosome_len);
 
@@ -948,7 +998,12 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply(&mut self, _metadata: &GAMetadata, parent_1: &IndividualT, parent_2: &IndividualT) -> (IndividualT, IndividualT) {
+    fn apply(
+        &mut self,
+        _metadata: &GAMetadata,
+        parent_1: &IndividualT,
+        parent_2: &IndividualT,
+    ) -> (IndividualT, IndividualT) {
         let mut child_1 = parent_1.clone();
         let mut child_2 = parent_2.clone();
 
@@ -966,7 +1021,7 @@ mod test {
     use crate::ga::individual::IndividualTrait;
     use crate::ga::operators::crossover::Ppx;
     use crate::ga::operators::crossover::{CrossoverOperator, FixedPoint, Pmx, Shuffle};
-    use crate::ga::{Individual, GAMetadata};
+    use crate::ga::{GAMetadata, Individual};
     use std::iter::zip;
 
     #[test]
