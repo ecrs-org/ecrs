@@ -331,7 +331,7 @@ where
             children.iter_mut().for_each(|child| {
                 self.config
                     .mutation_operator
-                    .apply(child, self.config.params.mutation_rate)
+                    .apply(&self.metadata, child, self.config.params.mutation_rate)
             });
             self.metadata.mutation_dur = Some(self.timer.elapsed());
 
