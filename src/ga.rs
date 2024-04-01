@@ -176,6 +176,10 @@ where
 pub struct GAMetadata {
     pub generation: usize,
     pub start_time: Option<std::time::Instant>,
+
+    /// This field can not be relied upon. It is updated only in the begining
+    /// of each generation (iteration) & in the very end, just before `on_end`
+    /// probe callback. To get more accurate timing please use `start_time.elapsed()`.
     pub total_dur: Option<std::time::Duration>,
     pub pop_gen_dur: Option<std::time::Duration>,
     pub pop_eval_dur: Option<std::time::Duration>,
@@ -374,6 +378,7 @@ where
             }
         }
 
+        self.metadata.total_dur = Some(self.metadata.start_time.unwrap().elapsed());
         self.config
             .probe
             .on_end(&self.metadata, &population, &best_individual_all_time);
