@@ -2081,6 +2081,7 @@ pub fn ripple25(x: &[f64]) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f(1, ..., 1) = 0
+#[allow(clippy::ptr_arg)]
 pub fn rosenbrock(x: &Vec<f64>) -> f64 {
     assert!(
         x.len() >= 2,
@@ -2310,7 +2311,7 @@ pub fn schmidt_vetters(x: &[f64]) -> f64 {
 
 pub fn schumer_steiglitz(x: &[f64]) -> f64 {
     let mut res = 0_f64;
-    for (_dim, arg) in x.iter().enumerate() {
+    for arg in x.iter() {
         res += f64::powi(*arg, 4)
     }
     res
@@ -2341,7 +2342,7 @@ pub fn schwefel(x: &[f64]) -> f64 {
 /// at m=7: f(4,4,4,4) = -10.4029 \
 /// at m=10: f(4,4,4,4) = -10.5364
 
-pub fn shekel(x: &[f64], m: i32, beta: &[f64], c: &Vec<Vec<f64>>) -> f64 {
+pub fn shekel(x: &[f64], m: i32, beta: &[f64], c: &[Vec<f64>]) -> f64 {
     assert_eq!(
         x.len(),
         4,
@@ -2612,7 +2613,7 @@ pub fn trigonometric2(x: &[f64]) -> f64 {
     for arg in x {
         sum += f64::cos(*arg);
     }
-    for (_dim, arg) in x.iter().enumerate() {
+    for arg in x.iter() {
         sum += 8_f64 * f64::powi(f64::sin(7_f64 * f64::powi(arg - 0.9, 2)), 2)
             + 6_f64 * f64::powi(f64::sin(14_f64 * f64::powi(x[0] - 0.9, 2)), 2)
             + f64::powi(arg - 0.9, 2)
@@ -2838,7 +2839,7 @@ pub fn xin_she_yang_2(x: &[f64]) -> f64 {
     );
     let mut temp1 = 0.0;
     let mut temp2 = 0.0;
-    for (_index, x_curr) in x.iter().enumerate() {
+    for x_curr in x.iter() {
         temp1 += f64::abs(*x_curr);
         temp2 += f64::sin(f64::powi(*x_curr, 2))
     }

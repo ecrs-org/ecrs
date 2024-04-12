@@ -1,5 +1,6 @@
 use std::f64;
 
+#[allow(clippy::ptr_arg)]
 pub fn rastrigin(params: &Vec<f64>) -> f64 {
     let mut res = 0 as f64;
     for param in params.iter() {
@@ -8,6 +9,7 @@ pub fn rastrigin(params: &Vec<f64>) -> f64 {
     res + 10_f64 * params.len() as f64
 }
 
+#[allow(clippy::ptr_arg)]
 pub fn cartesian_distance(a: &Vec<f64>, b: &[f64]) -> f64 {
     //Distance between two points
     let mut res: f64 = 0 as f64;
@@ -17,6 +19,7 @@ pub fn cartesian_distance(a: &Vec<f64>, b: &[f64]) -> f64 {
     f64::sqrt(res)
 }
 
+#[allow(clippy::ptr_arg)]
 pub fn taxi_measure_distance(a: &Vec<f64>, b: &[f64]) -> f64 {
     let mut res: f64 = 0 as f64;
     for dimension in 0..a.len() {

@@ -2,6 +2,7 @@
 
 use std::f64;
 
+#[allow(clippy::ptr_arg)]
 pub fn ackley2(x: &Vec<f64>) -> f64 {
     assert_eq!(
         2,

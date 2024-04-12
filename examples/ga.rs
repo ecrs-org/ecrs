@@ -8,6 +8,7 @@ use ecrs::{
 
 mod util;
 
+#[allow(clippy::ptr_arg)]
 fn rastrigin_fitness(chromosome: &Vec<f64>) -> f64 {
     1000.0 * f64::exp(-ecrs::test_functions::rastrigin(chromosome))
 }

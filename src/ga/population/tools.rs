@@ -41,6 +41,7 @@ impl<R: Rng + Clone> PointGenerator<R> {
 
     /// Generates `n` random points, each with `dim` coordinates. Each coordinate respects given
     /// constraint.
+    #[allow(clippy::ptr_arg)]
     pub fn generate_with_constraints(
         &mut self,
         dim: usize,

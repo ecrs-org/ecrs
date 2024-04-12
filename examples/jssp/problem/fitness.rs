@@ -272,7 +272,7 @@ impl JsspFitness {
         &mut self,
         indv: &mut JsspIndividual,
         op_id: usize,
-        visited: &mut Vec<bool>,
+        visited: &mut [bool],
     ) {
         let mut stack: Vec<usize> = Vec::with_capacity(visited.len() * 2);
 
