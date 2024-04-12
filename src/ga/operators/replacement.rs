@@ -4,9 +4,9 @@
 //! original one and the result of crossover phase to a single one,
 //! which will be the next generation
 
-#[cfg(feature = "ga_impl_mutation")]
+#[cfg(feature = "ga_impl_replacement")]
 pub mod impls;
-#[cfg(feature = "ga_impl_mutation")]
+#[cfg(feature = "ga_impl_replacement")]
 pub use impls::*;
 
 use crate::ga::{individual::IndividualTrait, GAMetadata};
