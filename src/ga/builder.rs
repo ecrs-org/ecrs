@@ -2,9 +2,14 @@
 //!
 //! For usage see docs for par::ChromosomeTticular builders.
 
+#[cfg(all(feature = "ga", feature = "ga_ops_impls"))]
 mod bitstring;
-mod generic;
+
+#[cfg(all(feature = "ga", feature = "ga_ops_impls"))]
 mod realvalued;
+
+mod generic;
+
 use std::error::Error;
 use std::fmt::Display;
 use std::marker::PhantomData;
@@ -16,9 +21,14 @@ use super::population::PopulationGenerator;
 use super::{CrossoverOperator, GAConfig, GAParams, MutationOperator, Probe};
 
 use crate::ga::operators::fitness::Fitness;
+
+#[cfg(all(feature = "ga", feature = "ga_ops_impls"))]
 pub use bitstring::BitStringBuilder;
-pub use generic::GenericBuilder;
+
+#[cfg(all(feature = "ga", feature = "ga_ops_impls"))]
 pub use realvalued::RealValuedBuilder;
+
+pub use generic::GenericBuilder;
 
 /// The trait for fitness was already added. Moreover it rather
 /// should not be defined in builder module.
@@ -281,6 +291,7 @@ impl Builder {
     ///
     /// Please note that sticking to defaults rarely results in great performance.
     ///
+    #[cfg(all(feature = "ga", feature = "ga_ops_impls"))]
     pub fn with_rvc<F: Fitness<RealValueIndividual>>() -> RealValuedBuilder<F> {
         RealValuedBuilder::new()
     }
@@ -292,6 +303,7 @@ impl Builder {
     ///
     /// Please note that sticking to defaults rarely results in great performance.
     ///
+    #[cfg(all(feature = "ga", feature = "ga_ops_impls"))]
     pub fn with_bsc<F: Fitness<BitStringIndividual>>() -> BitStringBuilder<F> {
         BitStringBuilder::new()
     }
