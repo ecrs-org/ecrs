@@ -268,12 +268,7 @@ impl JsspFitness {
         self.calculate_critical_distance(indv, 0, &mut visited)
     }
 
-    fn calculate_critical_distance(
-        &mut self,
-        indv: &mut JsspIndividual,
-        op_id: usize,
-        visited: &mut [bool],
-    ) {
+    fn calculate_critical_distance(&mut self, indv: &mut JsspIndividual, op_id: usize, visited: &mut [bool]) {
         let mut stack: Vec<usize> = Vec::with_capacity(visited.len() * 2);
 
         stack.push(op_id);
