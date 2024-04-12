@@ -21,7 +21,7 @@ name = "ecrs"
 path = "src/lib.rs"
 
 [features]
-default = ["ga"]
+default = ["ga", "ga_ops_impls"]
 ga = ["dep:push-trait", "dep:len-trait", "dep:num-traits"]
 ga_ops_impls = ["ga_impl_crossover", "ga_impl_mutation", "ga_impl_replacement", "ga_impl_selection", "ga_impl_population"]
 ga_impl_crossover = ["ga"]
