@@ -21,14 +21,20 @@ name = "ecrs"
 path = "src/lib.rs"
 
 [features]
-default = ["ga"]
-ga = ["test_functions", "dep:push-trait", "dep:len-trait", "dep:num-traits"]
+default = ["ga", "ga_ops_impls"]
+ga = ["dep:push-trait", "dep:len-trait", "dep:num-traits"]
+ga_ops_impls = ["ga_impl_crossover", "ga_impl_mutation", "ga_impl_replacement", "ga_impl_selection", "ga_impl_population"]
+ga_impl_crossover = ["ga"]
+ga_impl_mutation = ["ga"]
+ga_impl_replacement = ["ga"]
+ga_impl_selection = ["ga"]
+ga_impl_population = ["ga"]
 aco = ["dep:nalgebra", "dep:num"]
 ff = ["dep:rayon"]
 pso = ["dep:rayon", "dep:num", "test_functions"]
 aco_tsp = ["aco"]
 test_functions = []
-
+all = ["ga", "aco", "ff", "pso", "test_functions"]
 
 [dependencies]
 rand = "0.8.5"
@@ -44,13 +50,11 @@ push-trait = { version = "0.6.0", optional = true }
 len-trait = { version = "0.6.1", optional = true }
 num-traits = { version = "0.2.15", optional = true }
 
-
 [dev-dependencies]
 log4rs = "1.2.0"
 criterion = "0.5.1"
 clap = { version = "4.2.7", features = ["derive"] }
 md5 = "0.7.0"
-
 
 [[bench]]
 name = "aco_bench"
@@ -71,4 +75,29 @@ debug = true
 lto = "fat"
 panic = "abort"
 opt-level = 3
+
+[[example]]
+name = "jssp"
+path = "examples/jssp/main.rs"
+required-features = ["ga", "ga_ops_impls"]
+
+[[example]]
+name = "ga"
+path = "examples/ga.rs"
+required-features = ["ga", "ga_ops_impls", "test_functions"]
+
+[[example]]
+name = "ga_ackley_test_function"
+path = "examples/ga_ackley_test_function.rs"
+required-features = ["ga", "ga_ops_impls", "test_functions"]
+
+[[example]]
+name = "ga_bsc"
+path = "examples/ga_bsc.rs"
+required-features = ["ga", "ga_ops_impls", "test_functions"]
+
+[[example]]
+name = "ga_rvc"
+path = "examples/ga_rvc.rs"
+required-features = ["ga", "ga_ops_impls", "test_functions"]
 

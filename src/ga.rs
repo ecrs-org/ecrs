@@ -105,15 +105,15 @@
 //! 1. Fitness function (the algorithm must know what it is optimizing)
 //! 2. Problem dimension
 //! 3. Population generator (the algorithm must be able to create initial population)
-//! 4. Probe (the logging object -- if you don't want to see any logs other than final result just pass [Empty probe](crate::ga::probes::Empty))
+//! 4. Probe (the logging object -- if you don't want to see any logs other than final result just pass [Empty probe](crate::ga::probe::EmptyProbe))
 //!
-//! The defaults for operators and parameters are provided for two types of chromosomes: bit string and real valued vector (see docs of [Builder](crage::ga::builder::Builder)),
+//! The defaults for operators and parameters are provided for two types of chromosomes: bit string and real valued vector (see docs of [Builder](crate::ga::builder::Builder)),
 //! but keep in mind that these default options might not be even good for your particular problem as the operators & parameters should be
 //! tailored individually for each problem.
 //!
-//! * See [probes & configuration](ecrs::ga::probe)
-//! * See [population generators](ecrs::ga::population)
-//! * See [fitness & configuration](ecrs::ga::fitness)
+//! * See [probes & configuration](crate::ga::probe)
+//! * See [population generators](crate::ga::population)
+//! * See [fitness & configuration](crate::ga::operators::fitness)
 //! * See [available params](self::GAParams)
 
 pub mod builder;

@@ -9,7 +9,7 @@ use std::{f64, i32};
 /// n-dimensional \
 /// Global minimum: \
 /// f(0, ..., 0) = 0
-pub fn ackley(x: &Vec<f64>) -> f64 {
+pub fn ackley(x: &[f64]) -> f64 {
     assert!(
         !x.is_empty(),
         "Ackley function takes an at least one dimensional vector as a parameter."
@@ -30,7 +30,7 @@ pub fn ackley(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(0,0) = -200
 
-pub fn ackley2(x: &Vec<f64>) -> f64 {
+pub fn ackley2(x: &[f64]) -> f64 {
     assert_eq!(
         2,
         x.len(),
@@ -46,7 +46,7 @@ pub fn ackley2(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(0, ~ -0.4) = ~ -219.1418
 
-pub fn ackley3(x: &Vec<f64>) -> f64 {
+pub fn ackley3(x: &[f64]) -> f64 {
     assert_eq!(
         2,
         x.len(),
@@ -69,7 +69,7 @@ pub fn ackley3(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(2, 0.10578) = ~ −2.02181
 
-pub fn adijman(x: &Vec<f64>) -> f64 {
+pub fn adijman(x: &[f64]) -> f64 {
     assert_eq!(
         2,
         x.len(),
@@ -85,7 +85,7 @@ pub fn adijman(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(0, 0, ..., 0) = 0
 
-pub fn alpine(x: &Vec<f64>) -> f64 {
+pub fn alpine(x: &[f64]) -> f64 {
     let mut res = 0_f64;
     for arg in x {
         res += f64::abs(arg * f64::sin(*arg) + arg / 10_f64)
@@ -98,7 +98,7 @@ pub fn alpine(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(7.917, ..., 7.917) = 2.808 ^ D(imensions)
 
-pub fn alpine2(x: &Vec<f64>) -> f64 {
+pub fn alpine2(x: &[f64]) -> f64 {
     let mut res = 0_f64;
     for arg in x {
         res *= f64::sqrt(*arg) * f64::sin(*arg)
@@ -111,7 +111,7 @@ pub fn alpine2(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(0.0824, 1.133, 2.3437) = 0.00821487
 
-pub fn brad(x: &Vec<f64>) -> f64 {
+pub fn brad(x: &[f64]) -> f64 {
     assert_eq!(
         3,
         x.len(),
@@ -138,7 +138,7 @@ pub fn brad(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(0, 0) = 1
 
-pub fn bartels_conn(x: &Vec<f64>) -> f64 {
+pub fn bartels_conn(x: &[f64]) -> f64 {
     assert_eq!(
         3,
         x.len(),
@@ -153,7 +153,7 @@ pub fn bartels_conn(x: &Vec<f64>) -> f64 {
 /// 2-dimensional only \
 /// Global minimum: \
 /// f(3, 0.5) = 0
-pub fn beale(x: &Vec<f64>) -> f64 {
+pub fn beale(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -171,7 +171,7 @@ pub fn beale(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(1, 10) = 0
 
-pub fn biggs_exp2(x: &Vec<f64>) -> f64 {
+pub fn biggs_exp2(x: &[f64]) -> f64 {
     assert_eq!(
         2,
         x.len(),
@@ -197,7 +197,7 @@ pub fn biggs_exp2(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(1, 10, 5) = 0
 
-pub fn biggs_exp3(x: &Vec<f64>) -> f64 {
+pub fn biggs_exp3(x: &[f64]) -> f64 {
     assert_eq!(
         3,
         x.len(),
@@ -225,7 +225,7 @@ pub fn biggs_exp3(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(1, 10, 1, 5) = 0
 
-pub fn biggs_exp4(x: &Vec<f64>) -> f64 {
+pub fn biggs_exp4(x: &[f64]) -> f64 {
     assert_eq!(
         4,
         x.len(),
@@ -254,7 +254,7 @@ pub fn biggs_exp4(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(1, 10, 1, 5, 4) = 0
 
-pub fn biggs_exp5(x: &Vec<f64>) -> f64 {
+pub fn biggs_exp5(x: &[f64]) -> f64 {
     assert_eq!(
         5,
         x.len(),
@@ -289,7 +289,7 @@ pub fn biggs_exp5(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(1, 10, 1, 5, 4, 3) = 0
 
-pub fn biggs_exp6(x: &Vec<f64>) -> f64 {
+pub fn biggs_exp6(x: &[f64]) -> f64 {
     assert_eq!(
         6,
         x.len(),
@@ -325,7 +325,7 @@ pub fn biggs_exp6(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(4.70104, 3.15294) = f(-1.58214, −3.13024) = −106.764537
 
-pub fn bird(x: &Vec<f64>) -> f64 {
+pub fn bird(x: &[f64]) -> f64 {
     assert_eq!(
         2,
         x.len(),
@@ -343,7 +343,7 @@ pub fn bird(x: &Vec<f64>) -> f64 {
 /// f(0, 1.25313) = 0.292579 \
 /// f(0,0) = 0
 
-pub fn bohachevsky_n1(x: &Vec<f64>) -> f64 {
+pub fn bohachevsky_n1(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -363,7 +363,7 @@ pub fn bohachevsky_n1(x: &Vec<f64>) -> f64 {
 /// f(0, 1.25313) = 0.292579 \
 /// f(0,0) = 0
 
-pub fn bohachevsky_n2(x: &Vec<f64>) -> f64 {
+pub fn bohachevsky_n2(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -382,7 +382,7 @@ pub fn bohachevsky_n2(x: &Vec<f64>) -> f64 {
 /// f(0, 1.25313) = 0.292579 \
 /// f(0,0) = 0
 
-pub fn bohachevsky_n3(x: &Vec<f64>) -> f64 {
+pub fn bohachevsky_n3(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -399,7 +399,7 @@ pub fn bohachevsky_n3(x: &Vec<f64>) -> f64 {
 /// 2-dimensional only \
 /// Global minimum: \
 /// f(1, 3) = 0
-pub fn booth(x: &Vec<f64>) -> f64 {
+pub fn booth(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -415,7 +415,7 @@ pub fn booth(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(1, 10, 1) = 0
 
-pub fn box_betts(x: &Vec<f64>) -> f64 {
+pub fn box_betts(x: &[f64]) -> f64 {
     assert_eq!(
         3,
         x.len(),
@@ -442,7 +442,7 @@ pub fn box_betts(x: &Vec<f64>) -> f64 {
 /// # Branin function
 /// 2-dimensional only
 
-pub fn branin(x: &Vec<f64>, a: &f64, b: &f64, c: &f64, r: &f64, s: &f64, t: &f64) -> f64 {
+pub fn branin(x: &[f64], a: &f64, b: &f64, c: &f64, r: &f64, s: &f64, t: &f64) -> f64 {
     assert_eq!(
         2,
         x.len(),
@@ -458,7 +458,7 @@ pub fn branin(x: &Vec<f64>, a: &f64, b: &f64, c: &f64, r: &f64, s: &f64, t: &f64
 /// Global minimum:\
 /// f(−3.2, 12.53) = 5.559037
 
-pub fn branin_rcos(x: &Vec<f64>) -> f64 {
+pub fn branin_rcos(x: &[f64]) -> f64 {
     assert_eq!(
         2,
         x.len(),
@@ -479,7 +479,7 @@ pub fn branin_rcos(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(−pi, 12.275) = f(pi, 2.275) = f(3 pi, 2.425) = 0.3978873
 
-pub fn branin_rcos2(x: &Vec<f64>) -> f64 {
+pub fn branin_rcos2(x: &[f64]) -> f64 {
     assert_eq!(
         2,
         x.len(),
@@ -503,7 +503,7 @@ pub fn branin_rcos2(x: &Vec<f64>) -> f64 {
 /// 2-dimensional only
 /// Global minimum: \
 /// f(-pi, 2.275) = 0.397887
-pub fn branin_default(x: &Vec<f64>) -> f64 {
+pub fn branin_default(x: &[f64]) -> f64 {
     assert_eq!(
         2,
         x.len(),
@@ -525,7 +525,7 @@ pub fn branin_default(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(0, 0) = 0
 
-pub fn brent(x: &Vec<f64>) -> f64 {
+pub fn brent(x: &[f64]) -> f64 {
     assert_eq!(
         2,
         x.len(),
@@ -543,7 +543,7 @@ pub fn brent(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(0,..., 0) = 0
 
-pub fn brown(x: &Vec<f64>) -> f64 {
+pub fn brown(x: &[f64]) -> f64 {
     let mut res = 0_f64;
     for i in 0..x.len() - 1 {
         res += f64::powf(f64::powi(x[i], 2), f64::powi(x[i + 1], 2) + 1_f64)
@@ -557,7 +557,7 @@ pub fn brown(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(-10, 0) = 0
 ///
-pub fn bukin_2(x: &Vec<f64>) -> f64 {
+pub fn bukin_2(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -573,7 +573,7 @@ pub fn bukin_2(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(-10, 0) = 0
 ///
-pub fn bukin_4(x: &Vec<f64>) -> f64 {
+pub fn bukin_4(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -588,7 +588,7 @@ pub fn bukin_4(x: &Vec<f64>) -> f64 {
 /// 2-dimensional only \
 /// Global minimum: \
 /// f(-10, 1) = 0
-pub fn bukin_n6(x: &Vec<f64>) -> f64 {
+pub fn bukin_n6(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -603,7 +603,7 @@ pub fn bukin_n6(x: &Vec<f64>) -> f64 {
 /// 2-dimensional only \
 /// Global minimum: \
 /// f(0, 0) = 0
-pub fn three_hump_camel(x: &Vec<f64>) -> f64 {
+pub fn three_hump_camel(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -619,7 +619,7 @@ pub fn three_hump_camel(x: &Vec<f64>) -> f64 {
 /// Local mini
 /// Global minima: 2\
 /// f(0.898, -0.7126) = f(0.0898, 0.7126) = -1.0316
-pub fn six_hump_camel(x: &Vec<f64>) -> f64 {
+pub fn six_hump_camel(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -637,7 +637,7 @@ pub fn six_hump_camel(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(-7/18, -13/18) = -2000
 ///
-pub fn chen_bird(x: &Vec<f64>) -> f64 {
+pub fn chen_bird(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -654,7 +654,7 @@ pub fn chen_bird(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(−0.3888889, 0.7222222) = -2000
 ///
-pub fn chen_v(x: &Vec<f64>) -> f64 {
+pub fn chen_v(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -672,7 +672,7 @@ pub fn chen_v(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(5.90133, 0.5) = −43.3159
 ///
-pub fn chichinadze(x: &Vec<f64>) -> f64 {
+pub fn chichinadze(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -691,7 +691,7 @@ pub fn chichinadze(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0, 0) = 0
 ///
-pub fn chung_reynolds(x: &Vec<f64>) -> f64 {
+pub fn chung_reynolds(x: &[f64]) -> f64 {
     let mut res = 0_f64;
     for arg in x {
         res += f64::powi(*arg, 2);
@@ -705,7 +705,7 @@ pub fn chung_reynolds(x: &Vec<f64>) -> f64 {
 /// 4-dimensional \
 /// Global minimum: \
 /// f(1,1,1,1) = 0
-pub fn colville(x: &Vec<f64>) -> f64 {
+pub fn colville(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         4,
@@ -729,7 +729,7 @@ pub fn colville(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0,..., 0) = 0
 ///
-pub fn cosine_mixture(x: &Vec<f64>) -> f64 {
+pub fn cosine_mixture(x: &[f64]) -> f64 {
     let mut sum1 = 0_f64;
     let mut sum2 = 0_f64;
     for arg in x {
@@ -746,7 +746,7 @@ pub fn cosine_mixture(x: &Vec<f64>) -> f64 {
 /// f(1.3491, 1.3491) = -2.06261 \
 /// f(-1.3491, 1.3491) = -2.06261 \
 /// f(-1.3491, -1.3491) = -2.06261
-pub fn cross_in_tray(x: &Vec<f64>) -> f64 {
+pub fn cross_in_tray(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -771,7 +771,7 @@ pub fn cross_in_tray(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0,..., 0) = 0
 ///
-pub fn csendes(x: &Vec<f64>) -> f64 {
+pub fn csendes(x: &[f64]) -> f64 {
     let mut res = 0_f64;
     for arg in x {
         res += f64::powi(*arg, 6) * (2_f64 + f64::sin(1_f64 / arg))
@@ -784,7 +784,7 @@ pub fn csendes(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(-1, 1) = 0
 ///
-pub fn cube(x: &Vec<f64>) -> f64 {
+pub fn cube(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -800,7 +800,7 @@ pub fn cube(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(-1, 1) = 0
 ///
-pub fn damavandi(x: &Vec<f64>) -> f64 {
+pub fn damavandi(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -823,7 +823,7 @@ pub fn damavandi(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0,..., 0) = 0
 ///
-pub fn deb1(x: &Vec<f64>) -> f64 {
+pub fn deb1(x: &[f64]) -> f64 {
     let mut res = 0_f64;
     for arg in x {
         res += f64::powi(f64::sin(5_f64 * f64::consts::PI * arg), 6)
@@ -835,7 +835,7 @@ pub fn deb1(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0,..., 0) = 0
 ///
-pub fn deb3(x: &Vec<f64>) -> f64 {
+pub fn deb3(x: &[f64]) -> f64 {
     let mut res = 0_f64;
     for arg in x {
         res += f64::powi(
@@ -851,7 +851,7 @@ pub fn deb3(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0, +-15) = −24777
 ///
-pub fn deckkers_aarts(x: &Vec<f64>) -> f64 {
+pub fn deckkers_aarts(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -868,7 +868,7 @@ pub fn deckkers_aarts(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0, 0, 0, 0) = 0
 ///
-pub fn devilliers_glasser1(x: &Vec<f64>) -> f64 {
+pub fn devilliers_glasser1(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -898,7 +898,7 @@ pub fn devilliers_glasser1(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0, 0, 0, 0, 0) = 0
 ///
-pub fn devilliers_glasser2(x: &Vec<f64>) -> f64 {
+pub fn devilliers_glasser2(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         5,
@@ -929,7 +929,7 @@ pub fn devilliers_glasser2(x: &Vec<f64>) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f((x_1, ..., x_n)) = 0, where x_i = 2^( -(2^i - 2) / 2^i)
-pub fn dixon_price(x: &Vec<f64>) -> f64 {
+pub fn dixon_price(x: &[f64]) -> f64 {
     assert!(
         x.len() >= 2,
         "Dixon-Price function takes an at least two dimensional vector as a parameter."
@@ -944,7 +944,7 @@ pub fn dixon_price(x: &Vec<f64>) -> f64 {
 ///# De Jong n. 5 function
 /// 2-dimensional only\
 
-pub fn de_jong_n5(x: &Vec<f64>) -> f64 {
+pub fn de_jong_n5(x: &[f64]) -> f64 {
     assert_eq!(
         2,
         x.len(),
@@ -961,9 +961,9 @@ pub fn de_jong_n5(x: &Vec<f64>) -> f64 {
     for i in (-32..33).step_by(16) {
         b.append(&mut vec![i as f64; 5]);
     }
-    let a = vec![a1, b];
+    let a = [a1, b];
     for i in 1..26 {
-        sum += 1_f64 / i as f64 + f64::powi(x1 - a[1][i], 6) + f64::powi(x2 - a[2][i], 6);
+        sum += 1_f64 / i as f64 + f64::powi(x1 - a[0][i], 6) + f64::powi(x2 - a[1][i], 6);
     }
     f64::powf(0.002 + sum, -1_f64)
 }
@@ -973,7 +973,7 @@ pub fn de_jong_n5(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0, 0, 0, 0, 0) = 0
 ///
-pub fn dolan(x: &Vec<f64>) -> f64 {
+pub fn dolan(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         5,
@@ -994,7 +994,7 @@ pub fn dolan(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(0,0) = -1
 
-pub fn drop_wave(x: &Vec<f64>) -> f64 {
+pub fn drop_wave(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1010,7 +1010,7 @@ pub fn drop_wave(x: &Vec<f64>) -> f64 {
 /// 2-dimensional only \
 /// Global minimum: \
 /// f(PI, PI) = -1, where PI = 3.14159...
-pub fn easom(x: &Vec<f64>) -> f64 {
+pub fn easom(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1028,7 +1028,7 @@ pub fn easom(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(2.842503, 1.920175) = 0.470427
 ///
-pub fn eavd(x: &Vec<f64>) -> f64 {
+pub fn eavd(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1046,7 +1046,7 @@ pub fn eavd(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(2.842503, 1.920175) = 0.470427
 ///
-pub fn egg_crate(x: &Vec<f64>) -> f64 {
+pub fn egg_crate(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1061,7 +1061,7 @@ pub fn egg_crate(x: &Vec<f64>) -> f64 {
 /// 2-dimensional only \
 /// Global minimum: \
 /// f(512, 404.2319) = -959.6407
-pub fn eggholder(x: &Vec<f64>) -> f64 {
+pub fn eggholder(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1077,7 +1077,7 @@ pub fn eggholder(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0, ..., 0) = 1
 ///
-pub fn exponential(x: &Vec<f64>) -> f64 {
+pub fn exponential(x: &[f64]) -> f64 {
     let mut res = 0_f64;
     for arg in x {
         res += f64::powi(*arg, 2)
@@ -1090,7 +1090,7 @@ pub fn exponential(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(1, 10) = 0
 ///
-pub fn exp2(x: &Vec<f64>) -> f64 {
+pub fn exp2(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1129,7 +1129,7 @@ pub fn forrester_et_al(x: &f64) -> f64 {
 /// Global minimum: \
 /// f(5,4) = 0
 ///
-pub fn freudenstein_roth(x: &Vec<f64>) -> f64 {
+pub fn freudenstein_roth(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1146,7 +1146,7 @@ pub fn freudenstein_roth(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0.45834282, 0.45834282) = 0.060447
 ///
-pub fn giunta(x: &Vec<f64>) -> f64 {
+pub fn giunta(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1165,7 +1165,7 @@ pub fn giunta(x: &Vec<f64>) -> f64 {
 /// 2-dimensional only \
 /// Global minimum: \
 /// f(0, -1) = 3
-pub fn goldstein_price(x: &Vec<f64>) -> f64 {
+pub fn goldstein_price(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1197,7 +1197,7 @@ pub fn gramacy_lee(x: &f64) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f(0, ..., 0) = 0
-pub fn griewank(x: &Vec<f64>) -> f64 {
+pub fn griewank(x: &[f64]) -> f64 {
     assert!(
         !x.is_empty(),
         "Griewank function takes an at least one dimensional vector as a parameter."
@@ -1215,7 +1215,7 @@ pub fn griewank(x: &Vec<f64>) -> f64 {
 /// 99-dimensional only \
 /// Global minimum: \
 /// f(50, 25, 1.5, .....) = 0///
-pub fn gulf_research(x: &Vec<f64>) -> f64 {
+pub fn gulf_research(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         99,
@@ -1246,20 +1246,20 @@ pub fn gulf_research(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(0.114614, 0.555649, 0.852547)
 
-pub fn hartmann_3d(x: &Vec<f64>) -> f64 {
+pub fn hartmann_3d(x: &[f64]) -> f64 {
     assert_eq!(
         3,
         x.len(),
         "Hartmann 3-dimensional function takes only a three dimensional vector as a parameter."
     );
     let alfa = [1.0, 1.2, 3.0, 3.2];
-    let a = vec![
+    let a = [
         vec![3.0, 10.0, 30.0],
         vec![0.1, 10.0, 35.0],
         vec![3.0, 10.0, 30.0],
         vec![0.1, 10.0, 35.0],
     ];
-    let p = vec![
+    let p = [
         vec![3.689, 1.17, 2.673],
         vec![4.699, 4.387, 7.47],
         vec![1.091, 8.732, 5.547],
@@ -1279,20 +1279,20 @@ pub fn hartmann_3d(x: &Vec<f64>) -> f64 {
 ///# Hartmann 4-dimensional function
 /// 4-dimensional only\
 
-pub fn hartmann_4d(x: &Vec<f64>) -> f64 {
+pub fn hartmann_4d(x: &[f64]) -> f64 {
     assert_eq!(
         4,
         x.len(),
         "Hartmann 4-dimensional function takes only a three dimensional vector as a parameter."
     );
     let alfa = [1.0, 1.2, 3.0, 3.2];
-    let a = vec![
+    let a = [
         vec![10.0, 3.0, 17.0, 3.5, 1.7, 8.0],
         vec![0.05, 10.0, 17.0, 0.1, 8.0, 14.0],
         vec![3.0, 3.5, 1.7, 10.0, 17.0, 8.0],
         vec![17.0, 8.0, 0.05, 10.0, 0.1, 14.0],
     ];
-    let p = vec![
+    let p = [
         vec![1.312, 1.696, 5.569, 1.24, 8.283, 5.886],
         vec![2.329, 4.135, 8.307, 3.736, 1.004, 9.991],
         vec![2.348, 1.451, 3.522, 2.883, 3.047, 6.650],
@@ -1314,20 +1314,20 @@ pub fn hartmann_4d(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(0.20169, 0.150011, 0.476874, 0.275332, 0.311652, 0.6573) = -3.32237
 
-pub fn hartmann_6d(x: &Vec<f64>) -> f64 {
+pub fn hartmann_6d(x: &[f64]) -> f64 {
     assert_eq!(
         6,
         x.len(),
         "Hartmann 6-dimensional function takes only a six dimensional vector as a parameter."
     );
     let alfa = [1.0, 1.2, 3.0, 3.2];
-    let a = vec![
+    let a = [
         vec![10.0, 3.0, 17.0, 3.5, 1.7, 8.0],
         vec![0.05, 10.0, 17.0, 0.1, 8.0, 14.0],
         vec![3.0, 3.5, 1.7, 10.0, 17.0, 8.0],
         vec![17.0, 8.0, 0.05, 10.0, 0.1, 14.0],
     ];
-    let p = vec![
+    let p = [
         vec![1.312, 1.696, 5.569, 1.24, 8.283, 5.886],
         vec![2.329, 4.135, 8.307, 3.736, 1.004, 9.991],
         vec![2.348, 1.451, 0.522, 2.883, 3.047, 6.650],
@@ -1353,7 +1353,7 @@ pub fn hartmann_6d(x: &Vec<f64>) -> f64 {
 /// f(-2.805118, 3.131312) = 0 \
 /// f(-3.779310, -3.283186) = 0 \
 /// f(3.584428, -1.848126) = 0
-pub fn himmelblau(x: &Vec<f64>) -> f64 {
+pub fn himmelblau(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1371,7 +1371,7 @@ pub fn himmelblau(x: &Vec<f64>) -> f64 {
 /// f(8.05502, -9.66459) = -19.2085 \
 /// f(-8.05502, 9.66459) = -19.2085 \
 /// f(-8.05502, -9.66459) = -19.2085
-pub fn holder_table(x: &Vec<f64>) -> f64 {
+pub fn holder_table(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1393,7 +1393,7 @@ pub fn holder_table(x: &Vec<f64>) -> f64 {
 /// Global minima: \
 /// f(+-9.646168, -+9.646168) = −26.920336
 ///
-pub fn holder_table2(x: &Vec<f64>) -> f64 {
+pub fn holder_table2(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1415,7 +1415,7 @@ pub fn holder_table2(x: &Vec<f64>) -> f64 {
 /// Global minima: \
 /// f(f(+-8.055023472141116, +-9.664590028909654) = −19.20850
 ///
-pub fn holder_table3(x: &Vec<f64>) -> f64 {
+pub fn holder_table3(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1439,7 +1439,7 @@ pub fn holder_table3(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(4,2) = ~ −2.3458
 ///
-pub fn hosaki(x: &Vec<f64>) -> f64 {
+pub fn hosaki(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1458,7 +1458,7 @@ pub fn hosaki(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0.257825, 0.257825) = 124.3612
 ///
-pub fn jennrich_sampson(x: &Vec<f64>) -> f64 {
+pub fn jennrich_sampson(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1500,7 +1500,7 @@ pub fn langermann(x: &[f64], m: i32, c: &[f64], a: &[Vec<f64>]) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f(1, ..., 1) = 0
-pub fn levy(x: &Vec<f64>) -> f64 {
+pub fn levy(x: &[f64]) -> f64 {
     assert!(
         !x.is_empty(),
         "Levy function takes an at least one dimensional vector as a parameter."
@@ -1520,7 +1520,7 @@ pub fn levy(x: &Vec<f64>) -> f64 {
 /// 2-dimensional only \
 /// Global minimum: \
 /// f(1, 1) = 0
-pub fn levy_n13(x: &Vec<f64>) -> f64 {
+pub fn levy_n13(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1538,7 +1538,7 @@ pub fn levy_n13(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0, 1.39325) = f(1.39325, 0) = −0.673668
 ///
-pub fn keane(x: &Vec<f64>) -> f64 {
+pub fn keane(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1555,7 +1555,7 @@ pub fn keane(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(1, 1) = 0
 ///
-pub fn leon(x: &Vec<f64>) -> f64 {
+pub fn leon(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1570,7 +1570,7 @@ pub fn leon(x: &Vec<f64>) -> f64 {
 /// 2-dimensional only \
 /// Global minimum: \
 /// f(0, 0) = 0
-pub fn matyas(x: &Vec<f64>) -> f64 {
+pub fn matyas(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1585,7 +1585,7 @@ pub fn matyas(x: &Vec<f64>) -> f64 {
 /// 2-dimensional only \
 /// Global minimum: \
 /// f(-0.54719, -1.54719) = -1.9133
-pub fn mcormick(x: &Vec<f64>) -> f64 {
+pub fn mcormick(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1601,7 +1601,7 @@ pub fn mcormick(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// depends of number of dimensions \
 /// for two-dimensional argument: f(2.2, 1.57) = -1.8013
-pub fn michalewicz(x: &Vec<f64>) -> f64 {
+pub fn michalewicz(x: &[f64]) -> f64 {
     assert!(
         !x.is_empty(),
         "Michalewicz function takes an at least one dimensional vector as a parameter."
@@ -1622,7 +1622,7 @@ pub fn michalewicz(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0, 1, 1, 1) = 0
 ///
-pub fn miele_cantrell(x: &Vec<f64>) -> f64 {
+pub fn miele_cantrell(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         4,
@@ -1643,7 +1643,7 @@ pub fn miele_cantrell(x: &Vec<f64>) -> f64 {
 /// # Parsopoulos function
 /// 2-dimensional only \
 
-pub fn parsopoulos(x: &Vec<f64>) -> f64 {
+pub fn parsopoulos(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1659,7 +1659,7 @@ pub fn parsopoulos(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(+-9.646168, -+9.646168) = −0.96354
 ///
-pub fn pen_holder(x: &Vec<f64>) -> f64 {
+pub fn pen_holder(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1687,7 +1687,7 @@ pub fn pen_holder(x: &Vec<f64>) -> f64 {
 /// Multidimensional
 /// Global minimum: \
 /// f(0, ..., 0) = 0
-pub fn pathological(x: &Vec<f64>) -> f64 {
+pub fn pathological(x: &[f64]) -> f64 {
     let mut res = 0_f64;
     for i in 1..x.len() - 2 {
         res += 0.5
@@ -1709,7 +1709,7 @@ pub fn pathological(x: &Vec<f64>) -> f64 {
 /// 10-dimensional only \
 /// Global minimum: \
 /// f(9.351, ...., 9.351) = ~−45.778
-pub fn paviani(x: &Vec<f64>) -> f64 {
+pub fn paviani(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         10,
@@ -1753,7 +1753,7 @@ pub fn pinter(x: &[f64]) -> f64 {
 /// Two-dimensional
 /// Global minimum: \
 /// f(0, 0) = 0.9
-pub fn periodic(x: &Vec<f64>) -> f64 {
+pub fn periodic(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1769,7 +1769,7 @@ pub fn periodic(x: &Vec<f64>) -> f64 {
 /// 2-dimensional only\
 /// Global minimum: \
 /// f(1, 0.5, ... , 1/d) = 0
-pub fn perm_0_d_beta(x: &Vec<f64>, beta: &f64) -> f64 {
+pub fn perm_0_d_beta(x: &[f64], beta: &f64) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1792,7 +1792,7 @@ pub fn perm_0_d_beta(x: &Vec<f64>, beta: &f64) -> f64 {
 /// Global minimum:\
 /// f(1,2,...,D) = 0
 
-pub fn perm_d_beta(x: &Vec<f64>, beta: &f64) -> f64 {
+pub fn perm_d_beta(x: &[f64], beta: &f64) -> f64 {
     let d = x.len();
     let mut res = 0_f64;
     for i in 1..d + 1 {
@@ -1810,7 +1810,7 @@ pub fn perm_d_beta(x: &Vec<f64>, beta: &f64) -> f64 {
 /// Global minimum: \
 /// f(0,..,0) = 0
 
-pub fn powell(x: &Vec<f64>) -> f64 {
+pub fn powell(x: &[f64]) -> f64 {
     assert!(
         x.len() > 3,
         "Powell function takes at least a four dimensional vector as a parameter."
@@ -1831,7 +1831,7 @@ pub fn powell(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0,..,0) = 0
 
-pub fn powell2(x: &Vec<f64>) -> f64 {
+pub fn powell2(x: &[f64]) -> f64 {
     assert!(
         x.len() > 3,
         "Powell Singular 2 function takes at least a four dimensional vector as a parameter."
@@ -1864,7 +1864,7 @@ pub fn powell_sum(x: &[f64]) -> f64 {
 /// Global minimum: \
 /// f(0,...,0) = 0
 
-pub fn power_sum(x: &Vec<f64>, b: &Vec<f64>) -> f64 {
+pub fn power_sum(x: &[f64], b: &[f64]) -> f64 {
     assert_eq!(
         b.len(),
         x.len(),
@@ -1885,7 +1885,7 @@ pub fn power_sum(x: &Vec<f64>, b: &Vec<f64>) -> f64 {
 /// Two-dimensional
 /// Global minimum: \
 /// f(+-5, +-5) = 0
-pub fn price1(x: &Vec<f64>) -> f64 {
+pub fn price1(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1900,7 +1900,7 @@ pub fn price1(x: &Vec<f64>) -> f64 {
 /// Two-dimensional
 /// Global minimum: \
 /// f(0, 0) = 0.9
-pub fn price2(x: &Vec<f64>) -> f64 {
+pub fn price2(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1916,7 +1916,7 @@ pub fn price2(x: &Vec<f64>) -> f64 {
 /// Two-dimensional
 /// Global minimum: \
 /// f(+-5, +-5) = 0
-pub fn price3(x: &Vec<f64>) -> f64 {
+pub fn price3(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1932,7 +1932,7 @@ pub fn price3(x: &Vec<f64>) -> f64 {
 /// Two-dimensional
 /// Global minimum: \
 /// f(0, 0) = 0
-pub fn price4(x: &Vec<f64>) -> f64 {
+pub fn price4(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1948,7 +1948,7 @@ pub fn price4(x: &Vec<f64>) -> f64 {
 /// Multidimensional
 /// Global minimum: \
 /// f(+-sqrt(i)
-pub fn qing(x: &Vec<f64>, i: &f64) -> f64 {
+pub fn qing(x: &[f64], i: &f64) -> f64 {
     let mut res = 0_f64;
     for arg in x {
         res += f64::powi(f64::powi(*arg, 2) - i, 2)
@@ -1960,7 +1960,7 @@ pub fn qing(x: &Vec<f64>, i: &f64) -> f64 {
 /// Two-dimensional
 /// Global minimum: \
 /// f(0.19388, 0.48513) = −3873.7243.
-pub fn quadratic(x: &Vec<f64>) -> f64 {
+pub fn quadratic(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -1978,7 +1978,7 @@ pub fn quadratic(x: &Vec<f64>) -> f64 {
 // /// Multidimensional
 // /// Global minimum: \
 // /// f(0, ..., 0) = 0
-// pub fn quartic(x: &Vec<f64>, i: &f64) -> f64 {
+// pub fn quartic(x: &[f64], i: &f64) -> f64 {
 //   let mut res = 0_f64;
 //   for (dim, arg) in x.iter().enumerate() {
 //       res += dim*f64::powi(*arg, 4)+thread_rng().gen_range(0.0..1.0);
@@ -1990,7 +1990,7 @@ pub fn quadratic(x: &Vec<f64>) -> f64 {
 /// Multidimensional
 /// Global minimum: \
 /// f(-1, ..., -1) = f(2, ..., 2) = 0
-pub fn quintic(x: &Vec<f64>) -> f64 {
+pub fn quintic(x: &[f64]) -> f64 {
     let mut res = 0_f64;
     for arg in x {
         res += f64::abs(
@@ -2021,7 +2021,7 @@ pub fn rana(x: &[f64]) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f(0, ..., 0) = 0
-pub fn rastrigin(x: &Vec<f64>) -> f64 {
+pub fn rastrigin(x: &[f64]) -> f64 {
     assert!(
         !x.is_empty(),
         "Rastrigin function takes an at least one dimensional vector as a parameter."
@@ -2037,7 +2037,7 @@ pub fn rastrigin(x: &Vec<f64>) -> f64 {
 /// # Ripple 1 function
 /// Two-dimensional
 
-pub fn ripple1(x: &Vec<f64>) -> f64 {
+pub fn ripple1(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2059,7 +2059,7 @@ pub fn ripple1(x: &Vec<f64>) -> f64 {
 /// # Ripple 25 function
 /// Two-dimensional
 
-pub fn ripple25(x: &Vec<f64>) -> f64 {
+pub fn ripple25(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2081,6 +2081,7 @@ pub fn ripple25(x: &Vec<f64>) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f(1, ..., 1) = 0
+#[allow(clippy::ptr_arg)]
 pub fn rosenbrock(x: &Vec<f64>) -> f64 {
     assert!(
         x.len() >= 2,
@@ -2098,7 +2099,7 @@ pub fn rosenbrock(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(-1, -1) = 0
 
-pub fn rosenbrock_modified(x: &Vec<f64>) -> f64 {
+pub fn rosenbrock_modified(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2119,7 +2120,7 @@ pub fn rosenbrock_modified(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0, 0) = 0
 
-pub fn rotated_ellipse(x: &Vec<f64>) -> f64 {
+pub fn rotated_ellipse(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2135,7 +2136,7 @@ pub fn rotated_ellipse(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0, 0) = 0
 
-pub fn rotated_ellipse2(x: &Vec<f64>) -> f64 {
+pub fn rotated_ellipse2(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2150,7 +2151,7 @@ pub fn rotated_ellipse2(x: &Vec<f64>) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f(0, ..., 0) = 0
-pub fn rotated_hyper_ellipsoid(x: &Vec<f64>) -> f64 {
+pub fn rotated_hyper_ellipsoid(x: &[f64]) -> f64 {
     assert!(
         !x.is_empty(),
         "Rotated Hyper-Ellipsoid function takes an at least one dimensional vector as a parameter."
@@ -2169,7 +2170,7 @@ pub fn rotated_hyper_ellipsoid(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0, 0) = 0
 
-pub fn rump(x: &Vec<f64>) -> f64 {
+pub fn rump(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2187,7 +2188,7 @@ pub fn rump(x: &Vec<f64>) -> f64 {
 /// # Salomon function
 /// Multidimensional
 
-pub fn salomon(x: &Vec<f64>) -> f64 {
+pub fn salomon(x: &[f64]) -> f64 {
     let mut res = 0_f64;
     for arg in x {
         res += f64::powi(*arg, 2)
@@ -2198,7 +2199,7 @@ pub fn salomon(x: &Vec<f64>) -> f64 {
 /// # Sargan function
 /// Multidimensional
 
-pub fn sargan(x: &Vec<f64>) -> f64 {
+pub fn sargan(x: &[f64]) -> f64 {
     let mut res = 0_f64;
     for (dim, val) in x.iter().enumerate() {
         let mut innersum = 0_f64;
@@ -2216,7 +2217,7 @@ pub fn sargan(x: &Vec<f64>) -> f64 {
 /// 2-dimensional only \
 /// Global minimum: \
 /// f(0, 0) = 0
-pub fn schaffer_n1(x: &Vec<f64>) -> f64 {
+pub fn schaffer_n1(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2232,7 +2233,7 @@ pub fn schaffer_n1(x: &Vec<f64>) -> f64 {
 /// 2-dimensional only \
 /// Global minimum: \
 /// f(0, 0) = 0
-pub fn schaffer_n2(x: &Vec<f64>) -> f64 {
+pub fn schaffer_n2(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2247,7 +2248,7 @@ pub fn schaffer_n2(x: &Vec<f64>) -> f64 {
 /// # Schaffer N.3 function
 /// 2-dimensional only \
 
-pub fn schaffer_n3(x: &Vec<f64>) -> f64 {
+pub fn schaffer_n3(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2269,7 +2270,7 @@ pub fn schaffer_n3(x: &Vec<f64>) -> f64 {
 /// f(0, -1.25313) = 0.292579 \
 /// f(1.25313, 0) = 0.292579 \
 /// f(-1.25313, 0) = 0.292579
-pub fn schaffer_n4(x: &Vec<f64>) -> f64 {
+pub fn schaffer_n4(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2289,7 +2290,7 @@ pub fn schaffer_n4(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0.78547, 0.78547, 0.78547) = 3
 
-pub fn schmidt_vetters(x: &Vec<f64>) -> f64 {
+pub fn schmidt_vetters(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         3,
@@ -2310,7 +2311,7 @@ pub fn schmidt_vetters(x: &Vec<f64>) -> f64 {
 
 pub fn schumer_steiglitz(x: &[f64]) -> f64 {
     let mut res = 0_f64;
-    for (_dim, arg) in x.iter().enumerate() {
+    for arg in x.iter() {
         res += f64::powi(*arg, 4)
     }
     res
@@ -2320,7 +2321,7 @@ pub fn schumer_steiglitz(x: &[f64]) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f(420.9687, ..., 420.9687) = 0
-pub fn schwefel(x: &Vec<f64>) -> f64 {
+pub fn schwefel(x: &[f64]) -> f64 {
     assert!(
         !x.is_empty(),
         "Schwefel function takes an at least one dimensional vector as a parameter."
@@ -2341,7 +2342,7 @@ pub fn schwefel(x: &Vec<f64>) -> f64 {
 /// at m=7: f(4,4,4,4) = -10.4029 \
 /// at m=10: f(4,4,4,4) = -10.5364
 
-pub fn shekel(x: &Vec<f64>, m: i32, beta: &Vec<f64>, c: &Vec<Vec<f64>>) -> f64 {
+pub fn shekel(x: &[f64], m: i32, beta: &[f64], c: &[Vec<f64>]) -> f64 {
     assert_eq!(
         x.len(),
         4,
@@ -2367,7 +2368,7 @@ pub fn shekel(x: &Vec<f64>, m: i32, beta: &Vec<f64>, c: &Vec<Vec<f64>>) -> f64 {
 /// Global minimum:\
 /// f(4,4,4,4) = -10.5364
 
-pub fn shekel_default(x: &Vec<f64>) -> f64 {
+pub fn shekel_default(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         4,
@@ -2376,7 +2377,7 @@ pub fn shekel_default(x: &Vec<f64>) -> f64 {
     let mut res = 0.0;
     let raw = vec![1.0, 2.0, 2.0, 4.0, 4.0, 6.0, 3.0, 7.0, 5.0, 5.0];
     let beta = raw.into_iter().map(|x| 0.1 * x).collect::<Vec<_>>();
-    let c = vec![
+    let c = [
         vec![4.0, 1.0, 8.0, 6.0, 3.0, 2.0, 5.0, 8.0, 6.0, 7.0],
         vec![4.0, 1.0, 8.0, 6.0, 7.0, 9.0, 3.0, 1.0, 2.0, 3.6],
         vec![4.0, 1.0, 8.0, 6.0, 3.0, 2.0, 5.0, 8.0, 6.0, 7.0],
@@ -2399,7 +2400,7 @@ pub fn shekel_default(x: &Vec<f64>) -> f64 {
 /// Global minima: 18\
 /// f(x*) = -186.7309
 
-pub fn shubert(x: &Vec<f64>) -> f64 {
+pub fn shubert(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2438,7 +2439,7 @@ pub fn sphere(x: &Vec<f64>) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f(-2.903534, ..., -2.903534) = -39.16599n, where n - number of dimensions of argument vector
-pub fn styblinski_tang(x: &Vec<f64>) -> f64 {
+pub fn styblinski_tang(x: &[f64]) -> f64 {
     assert!(
         !x.is_empty(),
         "Styblinski-Tang function takes an at least one dimensional vector as a parameter."
@@ -2455,7 +2456,7 @@ pub fn styblinski_tang(x: &Vec<f64>) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f(0, ..., 0) = 0
-pub fn stretched_v_sine_wave(x: &Vec<f64>) -> f64 {
+pub fn stretched_v_sine_wave(x: &[f64]) -> f64 {
     assert!(
         !x.is_empty(),
         "Streched V Sine Wave function takes an at least one dimensional vector as a parameter."
@@ -2475,7 +2476,7 @@ pub fn stretched_v_sine_wave(x: &Vec<f64>) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f(0, ..., 0) = 0
-pub fn sum_of_powers(x: &Vec<f64>) -> f64 {
+pub fn sum_of_powers(x: &[f64]) -> f64 {
     assert!(
         !x.is_empty(),
         "Sum of Different Powers function takes an at least one dimensional vector as a parameter."
@@ -2491,7 +2492,7 @@ pub fn sum_of_powers(x: &Vec<f64>) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f(0, ..., 0) = 0
-pub fn sum_squares(x: &Vec<f64>) -> f64 {
+pub fn sum_squares(x: &[f64]) -> f64 {
     assert!(
         !x.is_empty(),
         "Sum Squares function takes an at least one dimensional vector as a parameter."
@@ -2508,7 +2509,7 @@ pub fn sum_squares(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(+-pi/2, 0) = −10.872300
 ///
-pub fn testtube_holder(x: &Vec<f64>) -> f64 {
+pub fn testtube_holder(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2530,7 +2531,7 @@ pub fn testtube_holder(x: &Vec<f64>) -> f64 {
 /// Global minimum: \
 /// f(0, 0) = f(-2, 0) = 0
 ///
-pub fn trecanni(x: &Vec<f64>) -> f64 {
+pub fn trecanni(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2546,7 +2547,7 @@ pub fn trecanni(x: &Vec<f64>) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f((x_1, ..., x_n)) = -n * ( n + 4 ) * ( n - 1 ) / 6, where x_i = i * (n + 1 - i)
-pub fn trid(x: &Vec<f64>) -> f64 {
+pub fn trid(x: &[f64]) -> f64 {
     assert!(
         x.len() >= 2,
         "Trid function takes an at least two dimensional vector as a parameter."
@@ -2562,7 +2563,7 @@ pub fn trid(x: &Vec<f64>) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f((x_1, ..., x_n)) = -n * ( n + 4 ) * ( n - 1 ) / 6, where x_i = i * (n + 1 - i)
-pub fn trid10(x: &Vec<f64>) -> f64 {
+pub fn trid10(x: &[f64]) -> f64 {
     assert!(
         x.len() >= 2,
         "Trid 10 function takes an at least two dimensional vector as a parameter."
@@ -2580,7 +2581,7 @@ pub fn trid10(x: &Vec<f64>) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f(0, ..., 0) = 0
-pub fn trigonometric1(x: &Vec<f64>) -> f64 {
+pub fn trigonometric1(x: &[f64]) -> f64 {
     assert!(
         x.len() >= 2,
         "Trigonometric 1 function takes an at least two dimensional vector as a parameter."
@@ -2603,7 +2604,7 @@ pub fn trigonometric1(x: &Vec<f64>) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f(0.9, ..., 0.9) = 0
-pub fn trigonometric2(x: &Vec<f64>) -> f64 {
+pub fn trigonometric2(x: &[f64]) -> f64 {
     assert!(
         x.len() >= 2,
         "Trigonometric 2 function takes an at least two dimensional vector as a parameter."
@@ -2612,7 +2613,7 @@ pub fn trigonometric2(x: &Vec<f64>) -> f64 {
     for arg in x {
         sum += f64::cos(*arg);
     }
-    for (_dim, arg) in x.iter().enumerate() {
+    for arg in x.iter() {
         sum += 8_f64 * f64::powi(f64::sin(7_f64 * f64::powi(arg - 0.9, 2)), 2)
             + 6_f64 * f64::powi(f64::sin(14_f64 * f64::powi(x[0] - 0.9, 2)), 2)
             + f64::powi(arg - 0.9, 2)
@@ -2625,7 +2626,7 @@ pub fn trigonometric2(x: &Vec<f64>) -> f64 {
 /// # Ursem 1 function
 /// 2-dimensional only \
 
-pub fn ursem1(x: &Vec<f64>) -> f64 {
+pub fn ursem1(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2639,7 +2640,7 @@ pub fn ursem1(x: &Vec<f64>) -> f64 {
 /// # Ursem 3 function
 /// 2-dimensional only \
 
-pub fn ursem3(x: &Vec<f64>) -> f64 {
+pub fn ursem3(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2660,7 +2661,7 @@ pub fn ursem3(x: &Vec<f64>) -> f64 {
 /// # Ursem 4 function
 /// 2-dimensional only \
 
-pub fn ursem4(x: &Vec<f64>) -> f64 {
+pub fn ursem4(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2677,7 +2678,7 @@ pub fn ursem4(x: &Vec<f64>) -> f64 {
 /// # Ursem Waves function
 /// 2-dimensional only \
 
-pub fn ursem_waves(x: &Vec<f64>) -> f64 {
+pub fn ursem_waves(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2694,7 +2695,7 @@ pub fn ursem_waves(x: &Vec<f64>) -> f64 {
 /// Two-dimensional \
 /// Global minimum: \
 /// f(−0.024403, 0.210612) = −3.30686865.
-pub fn trefethen(x: &Vec<f64>) -> f64 {
+pub fn trefethen(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2714,7 +2715,7 @@ pub fn trefethen(x: &Vec<f64>) -> f64 {
 /// Two-dimensional \
 /// Global minimum: \
 /// f(−0.024403, 0.210612) = −3.30686865.
-pub fn vss(x: &Vec<f64>) -> f64 {
+pub fn vss(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2737,7 +2738,7 @@ pub fn vss(x: &Vec<f64>) -> f64 {
 /// Global minima: 18\
 /// f(−0.0299, 0) = −0.003791
 
-pub fn wayburn_seader1(x: &Vec<f64>) -> f64 {
+pub fn wayburn_seader1(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2754,7 +2755,7 @@ pub fn wayburn_seader1(x: &Vec<f64>) -> f64 {
 /// Global minima: 18\
 /// f(0.2, 1) = 0
 
-pub fn wayburn_seader2(x: &Vec<f64>) -> f64 {
+pub fn wayburn_seader2(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2774,7 +2775,7 @@ pub fn wayburn_seader2(x: &Vec<f64>) -> f64 {
 /// Global minimum:\
 /// f(5.611, 6.187) = 21.35
 
-pub fn wayburn_seader3(x: &Vec<f64>) -> f64 {
+pub fn wayburn_seader3(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2799,7 +2800,7 @@ pub fn wordmax(chromosome: &Vec<bool>) -> f64 {
 /// Global minimum:\
 /// f() = (0, 0, 0) = 0
 
-pub fn wolfe(x: &Vec<f64>) -> f64 {
+pub fn wolfe(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         3,
@@ -2815,7 +2816,7 @@ pub fn wolfe(x: &Vec<f64>) -> f64 {
 // /// n-dimensional \
 // /// Global minimum: \
 // /// f(0, ..., 0) = 0
-// pub fn xin_she_yang_1(x: &Vec<f64>) -> f64 {
+// pub fn xin_she_yang_1(x: &[f64]) -> f64 {
 //   assert!(
 //     !x.is_empty(),
 //     "Xin-She Yang (Function 1) takes an at least one dimensional vector as a parameter."
@@ -2831,14 +2832,14 @@ pub fn wolfe(x: &Vec<f64>) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f(0, ..., 0) = 0
-pub fn xin_she_yang_2(x: &Vec<f64>) -> f64 {
+pub fn xin_she_yang_2(x: &[f64]) -> f64 {
     assert!(
         !x.is_empty(),
         "Xin-She Yang function 2 takes an at least one dimensional vector as a parameter."
     );
     let mut temp1 = 0.0;
     let mut temp2 = 0.0;
-    for (_index, x_curr) in x.iter().enumerate() {
+    for x_curr in x.iter() {
         temp1 += f64::abs(*x_curr);
         temp2 += f64::sin(f64::powi(*x_curr, 2))
     }
@@ -2849,7 +2850,7 @@ pub fn xin_she_yang_2(x: &Vec<f64>) -> f64 {
 /// n-dimensional \
 /// Global minimum: \
 /// f(0, ..., 0) = 0
-pub fn zakharov(x: &Vec<f64>) -> f64 {
+pub fn zakharov(x: &[f64]) -> f64 {
     assert!(
         !x.is_empty(),
         "Zakharov function takes an at least one dimensional vector as a parameter."
@@ -2869,7 +2870,7 @@ pub fn zakharov(x: &Vec<f64>) -> f64 {
 /// Global minima: 18\
 /// f(−0.0299, 0) = −0.003791
 
-pub fn zettl(x: &Vec<f64>) -> f64 {
+pub fn zettl(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,
@@ -2886,7 +2887,7 @@ pub fn zettl(x: &Vec<f64>) -> f64 {
 /// Global minima: 18\
 /// f(−1.0465, 0) =~ −0.3523
 
-pub fn zirilli(x: &Vec<f64>) -> f64 {
+pub fn zirilli(x: &[f64]) -> f64 {
     assert_eq!(
         x.len(),
         2,

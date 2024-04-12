@@ -1,15 +1,11 @@
-#[cfg(feature = "ga")]
 use ecrs::ga;
-#[cfg(feature = "ga")]
 mod util;
 
 #[allow(clippy::ptr_arg)]
-#[cfg(feature = "ga")]
 pub fn wordmax_fitness(chromosome: &Vec<bool>) -> f64 {
     chromosome.iter().filter(|gene| **gene).count() as f64
 }
 
-#[cfg(feature = "ga")]
 fn main() {
     let _ = util::init_logging();
 
@@ -23,9 +19,4 @@ fn main() {
         .unwrap();
 
     println!("Bitstring with most ones: {best_individual:#?}")
-}
-
-#[cfg(not(feature = "ga"))]
-fn main() {
-    panic!("Required feature \"ga\" is not enabled");
 }
