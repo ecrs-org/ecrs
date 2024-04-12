@@ -3,7 +3,6 @@ pub mod impls;
 #[cfg(feature = "ga_impl_mutation")]
 pub use impls::*;
 
-
 use crate::ga::{individual::IndividualTrait, GAMetadata};
 
 /// # Mutation Operator
@@ -19,4 +18,3 @@ pub trait MutationOperator<IndividualT: IndividualTrait> {
     /// * `mutation_rate` - probability of gene mutation
     fn apply(&mut self, metadata: &GAMetadata, individual: &mut IndividualT, mutation_rate: f64);
 }
-

@@ -18,4 +18,3 @@ pub trait PopulationGenerator<IndividualT: IndividualTrait> {
         self.generate(count).into_iter()
     }
 }
-

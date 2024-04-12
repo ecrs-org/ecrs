@@ -23,4 +23,3 @@ pub trait CrossoverOperator<IndividualT: IndividualTrait> {
         parent_2: &IndividualT,
     ) -> (IndividualT, IndividualT);
 }
-

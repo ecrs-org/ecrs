@@ -20,4 +20,3 @@ fn main() {
 
     println!("Bitstring with most ones: {best_individual:#?}")
 }
-

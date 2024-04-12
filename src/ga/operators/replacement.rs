@@ -48,4 +48,3 @@ pub trait ReplacementOperator<IndividualT: IndividualTrait> {
         true
     }
 }
-

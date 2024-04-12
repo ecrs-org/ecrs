@@ -15,4 +15,3 @@ fn main() {
 
     println!("4D ackley function zero approximation {best_individual:#?}")
 }
-

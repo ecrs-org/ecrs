@@ -36,4 +36,3 @@ pub trait SelectionOperator<IndividualT: IndividualTrait> {
         count: usize,
     ) -> Vec<&'a IndividualT>;
 }
-

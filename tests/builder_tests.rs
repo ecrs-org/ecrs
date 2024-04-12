@@ -18,7 +18,6 @@ pub fn wordmax(chromosome: &Vec<bool>) -> f64 {
     chromosome.iter().filter(|gene| **gene).count() as f64
 }
 
-
 use ecrs::{
     ga::{individual::RealValueIndividual, StdoutProbe},
     prelude::{
@@ -84,16 +83,10 @@ fn generic_does_not_panic_with_some_params_unspecified() {
 
 #[test]
 fn rvc_does_not_panic_with_some_operators_unspecified() {
-    let _ = ecrs::ga::Builder::with_rvc()
-        .dim(10)
-        .fitness_fn(ackley2)
-        .build();
+    let _ = ecrs::ga::Builder::with_rvc().dim(10).fitness_fn(ackley2).build();
 }
 
 #[test]
 fn bsc_does_not_panic_with_some_operators_unsepcified() {
-    let _ = ecrs::ga::Builder::with_bsc()
-        .dim(10)
-        .fitness_fn(wordmax)
-        .build();
+    let _ = ecrs::ga::Builder::with_bsc().dim(10).fitness_fn(wordmax).build();
 }

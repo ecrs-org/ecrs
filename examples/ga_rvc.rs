@@ -26,4 +26,3 @@ fn main() {
 
     println!("5D Rastrigin function zero approximation {best_individual:#?}")
 }
-
