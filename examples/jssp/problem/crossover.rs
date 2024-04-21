@@ -2,6 +2,7 @@ use ecrs::{
     ga::{individual::IndividualTrait, GAMetadata},
     prelude::crossover::CrossoverOperator,
 };
+use push_trait::PushBack;
 use rand::{thread_rng, Rng};
 
 use super::individual::JsspIndividual;
@@ -19,7 +20,7 @@ impl JsspCrossover {
 }
 
 impl CrossoverOperator<JsspIndividual> for JsspCrossover {
-    fn apply(
+    fn apply_legacy(
         &mut self,
         _metadata: &GAMetadata,
         parent_1: &JsspIndividual,
@@ -51,6 +52,20 @@ impl CrossoverOperator<JsspIndividual> for JsspCrossover {
 
         (child_1, child_2)
     }
+
+    fn apply(
+        &mut self,
+        metadata: &GAMetadata,
+        selected: &[&JsspIndividual],
+        output: &mut Vec<JsspIndividual>,
+    ) {
+        assert!(selected.len() & 1 == 0);
+        for parents in selected.chunks(2) {
+            let (child_1, child_2) = self.apply_legacy(metadata, parents[0], parents[1]);
+            output.push(child_1);
+            output.push(child_2);
+        }
+    }
 }
 
 pub struct NoopCrossover;
@@ -62,12 +77,26 @@ impl NoopCrossover {
 }
 
 impl CrossoverOperator<JsspIndividual> for NoopCrossover {
-    fn apply(
+    fn apply_legacy(
         &mut self,
         _metadata: &GAMetadata,
         parent_1: &JsspIndividual,
         parent_2: &JsspIndividual,
     ) -> (JsspIndividual, JsspIndividual) {
         (parent_1.clone(), parent_2.clone())
+    }
+
+    fn apply(
+        &mut self,
+        metadata: &GAMetadata,
+        selected: &[&JsspIndividual],
+        output: &mut Vec<JsspIndividual>,
+    ) {
+        assert!(selected.len() & 1 == 0);
+        for parents in selected.chunks(2) {
+            let (child_1, child_2) = self.apply_legacy(metadata, parents[0], parents[1]);
+            output.push(child_1);
+            output.push(child_2);
+        }
     }
 }
