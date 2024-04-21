@@ -1,14 +1,10 @@
-use itertools::{Itertools};
 use len_trait::Len;
 
+use std::ops::IndexMut;
 
-use std::ops::{IndexMut};
-
-use crate::ga::individual::{IndividualTrait};
+use crate::ga::individual::IndividualTrait;
 use crate::ga::GAMetadata;
 use push_trait::{Nothing, Push};
-
-
 
 use super::CrossoverOperator;
 

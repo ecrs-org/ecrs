@@ -1,8 +1,8 @@
-use itertools::{enumerate, Itertools};
+use itertools::enumerate;
 use len_trait::Len;
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
-use std::ops::{Index};
+use std::ops::Index;
 
 use crate::ga::individual::{Chromosome, IndividualTrait};
 use crate::ga::GAMetadata;

@@ -1,10 +1,9 @@
-use itertools::{Itertools};
 use len_trait::Len;
-use std::collections::{HashSet};
+use std::collections::HashSet;
 use std::hash::Hash;
-use std::ops::{Index};
+use std::ops::Index;
 
-use crate::ga::individual::{IndividualTrait};
+use crate::ga::individual::IndividualTrait;
 use crate::ga::GAMetadata;
 use push_trait::{Nothing, Push};
 
