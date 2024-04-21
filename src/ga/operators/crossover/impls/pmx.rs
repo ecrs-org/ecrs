@@ -2,12 +2,12 @@ use itertools::{enumerate, Itertools};
 use len_trait::Len;
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
-use std::ops::{Index, IndexMut};
+use std::ops::{Index};
 
 use crate::ga::individual::{Chromosome, IndividualTrait};
 use crate::ga::GAMetadata;
 use push_trait::{Nothing, Push};
-use rand::prelude::SliceRandom;
+
 use rand::{rngs::ThreadRng, Rng};
 
 use super::CrossoverOperator;

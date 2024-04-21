@@ -1,13 +1,13 @@
-use itertools::{enumerate, Itertools};
+use itertools::{Itertools};
 use len_trait::Len;
-use std::collections::{HashMap, HashSet};
-use std::hash::Hash;
-use std::ops::{Index, IndexMut};
 
-use crate::ga::individual::{Chromosome, IndividualTrait};
+
+use std::ops::{Index};
+
+use crate::ga::individual::{IndividualTrait};
 use crate::ga::GAMetadata;
 use push_trait::{Nothing, Push};
-use rand::prelude::SliceRandom;
+
 use rand::{rngs::ThreadRng, Rng};
 
 use super::CrossoverOperator;
