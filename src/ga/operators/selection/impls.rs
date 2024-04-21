@@ -353,8 +353,7 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for To
         count: usize,
     ) -> Vec<&'a IndividualT> {
         let tournament_size = (population.len() as f64 * self.size_factor) as usize;
-
-        assert!(tournament_size > 0);
+        let tournament_size = tournament_size.max(1);
 
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
 
