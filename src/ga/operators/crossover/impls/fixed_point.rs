@@ -43,7 +43,7 @@ impl FixedPoint {
     ) -> (IndividualT, IndividualT)
     where
         IndividualT: IndividualTrait,
-        IndividualT::ChromosomeT: IndexMut<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+        IndividualT::ChromosomeT: IndexMut<usize, Output = GeneT> + Len,
         GeneT: Copy,
     {
         let mut child_1 = parent_1.clone();
@@ -61,7 +61,7 @@ impl FixedPoint {
 impl<GeneT, IndividualT> CrossoverOperator<IndividualT> for FixedPoint
 where
     IndividualT: IndividualTrait,
-    IndividualT::ChromosomeT: IndexMut<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    IndividualT::ChromosomeT: IndexMut<usize, Output = GeneT> + Len,
     GeneT: Copy,
 {
     /// Returns vector of owned individuals which were created in result of applying crossover
