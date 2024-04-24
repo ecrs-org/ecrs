@@ -11,19 +11,6 @@ use crate::ga::GAMetadata;
 /// This trait defines common behaviour for crossover operators.
 /// You can implement this trait to provide your custom crossover operator to the GA.
 pub trait CrossoverOperator<IndividualT: IndividualTrait> {
-    /// Returns a tuple of children
-    ///
-    /// ## Arguments
-    ///
-    /// * `parent_1` - First parent to take part in recombination
-    /// * `parent_2` - Second parent to take part in recombination
-    fn apply_legacy(
-        &mut self,
-        metadata: &GAMetadata,
-        parent_1: &IndividualT,
-        parent_2: &IndividualT,
-    ) -> (IndividualT, IndividualT);
-
     /// FIXME: Understand lifetimes here!
     // fn apply_iter<'i, InputIter, OutputIter>(
     //     &mut self,
@@ -41,6 +28,9 @@ pub trait CrossoverOperator<IndividualT: IndividualTrait> {
     ///
     /// * `metadata` - metadata provided by the GA runtime,
     /// * `selected` - result of running selection operator,
-    /// * `output` - buffer for the individuals created by the crossover operator.
-    fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT], output: &mut Vec<IndividualT>);
+    ///
+    /// ## Returns
+    ///
+    /// Vector of individuals created during the crossover stage.
+    fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT]) -> Vec<IndividualT>;
 }
