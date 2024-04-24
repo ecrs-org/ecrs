@@ -316,19 +316,9 @@ where
             self.metadata.selection_dur = Some(self.timer.elapsed());
 
             // 5. From mating pool create new generation (apply crossover & mutation).
-            let mut children: Vec<IndividualT> = Vec::with_capacity(self.config.params.population_size);
 
-            // FIXME: Do not assume that population size is an even number.
             self.timer.start();
-            for parents in mating_pool.chunks(2) {
-                let crt_children =
-                    self.config
-                        .crossover_operator
-                        .apply(&self.metadata, parents[0], parents[1]);
-
-                children.push(crt_children.0);
-                children.push(crt_children.1);
-            }
+            let mut children = self.config.crossover_operator.apply(&self.metadata, &mating_pool);
             self.metadata.crossover_dur = Some(self.timer.elapsed());
 
             self.timer.start();

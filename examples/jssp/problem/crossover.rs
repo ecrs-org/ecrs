@@ -2,6 +2,7 @@ use ecrs::{
     ga::{individual::IndividualTrait, GAMetadata},
     prelude::crossover::CrossoverOperator,
 };
+use push_trait::PushBack;
 use rand::{thread_rng, Rng};
 
 use super::individual::JsspIndividual;
@@ -16,10 +17,8 @@ impl JsspCrossover {
             distr: rand::distributions::Uniform::new(0.0, 1.0),
         }
     }
-}
 
-impl CrossoverOperator<JsspIndividual> for JsspCrossover {
-    fn apply(
+    fn apply_single(
         &mut self,
         _metadata: &GAMetadata,
         parent_1: &JsspIndividual,
@@ -53,21 +52,51 @@ impl CrossoverOperator<JsspIndividual> for JsspCrossover {
     }
 }
 
+impl CrossoverOperator<JsspIndividual> for JsspCrossover {
+    fn apply(&mut self, metadata: &GAMetadata, selected: &[&JsspIndividual]) -> Vec<JsspIndividual> {
+        assert!(selected.len() & 1 == 0);
+
+        let mut output = Vec::with_capacity(selected.len());
+
+        for parents in selected.chunks(2) {
+            let (child_1, child_2) = self.apply_single(metadata, parents[0], parents[1]);
+            output.push(child_1);
+            output.push(child_2);
+        }
+
+        output
+    }
+}
+
 pub struct NoopCrossover;
 
 impl NoopCrossover {
     pub fn new() -> Self {
         Self
     }
-}
 
-impl CrossoverOperator<JsspIndividual> for NoopCrossover {
-    fn apply(
+    fn apply_single(
         &mut self,
         _metadata: &GAMetadata,
         parent_1: &JsspIndividual,
         parent_2: &JsspIndividual,
     ) -> (JsspIndividual, JsspIndividual) {
         (parent_1.clone(), parent_2.clone())
+    }
+}
+
+impl CrossoverOperator<JsspIndividual> for NoopCrossover {
+    fn apply(&mut self, metadata: &GAMetadata, selected: &[&JsspIndividual]) -> Vec<JsspIndividual> {
+        assert!(selected.len() & 1 == 0);
+
+        let mut output = Vec::with_capacity(selected.len());
+
+        for parents in selected.chunks(2) {
+            let (child_1, child_2) = self.apply_single(metadata, parents[0], parents[1]);
+            output.push(child_1);
+            output.push(child_2);
+        }
+
+        output
     }
 }
