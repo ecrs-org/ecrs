@@ -51,15 +51,7 @@ impl<R: Rng> MultiPoint<R> {
         assert!(cut_points_no >= 1, "Number of cut points must be >= 1");
         Self { cut_points_no, rng }
     }
-}
 
-impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for MultiPoint<R>
-where
-    IndividualT: IndividualTrait,
-    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
-    GeneT: Copy,
-    R: Rng,
-{
     /// Returns a tuple of children
     ///
     /// It works analogously to [SinglePoint] or [TwoPoint]. One important difference is that
@@ -70,12 +62,17 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply_legacy(
+    fn apply_single<GeneT, IndividualT>(
         &mut self,
         _metadata: &GAMetadata,
         parent_1: &IndividualT,
         parent_2: &IndividualT,
-    ) -> (IndividualT, IndividualT) {
+    ) -> (IndividualT, IndividualT)
+    where
+        IndividualT: IndividualTrait,
+        IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+        GeneT: Copy,
+    {
         assert_eq!(
             parent_1.chromosome().len(),
             parent_2.chromosome().len(),
@@ -120,12 +117,37 @@ where
         (IndividualT::from(child_1_ch), IndividualT::from(child_2_ch))
     }
 
-    fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT], output: &mut Vec<IndividualT>) {
+}
+
+impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for MultiPoint<R>
+where
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    GeneT: Copy,
+    R: Rng,
+{
+    /// Returns vector of owned individuals which were created in result of applying crossover
+    /// operator.
+    ///
+    /// It works analogously to [SinglePoint] or [TwoPoint]. One important difference is that
+    /// all cutpoints are distinct, thus single or two point crossover with guarantee of distinct cutpoints
+    /// can be achieved.
+    ///
+    /// ## Arguments
+    ///
+    /// * `metadata` - algorithm state metadata, see the structure details for more info,
+    /// * `selected` - references to individuals selected during selection step.
+    fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT]) -> Vec<IndividualT> {
         assert!(selected.len() & 1 == 0);
+
+        let mut output = Vec::with_capacity(selected.len());
+
         for parents in selected.chunks(2) {
-            let (child_1, child_2) = self.apply_legacy(metadata, parents[0], parents[1]);
+            let (child_1, child_2) = self.apply_single(metadata, parents[0], parents[1]);
             output.push(child_1);
             output.push(child_2);
         }
+
+        output
     }
 }

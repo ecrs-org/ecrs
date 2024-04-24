@@ -1,10 +1,10 @@
-use itertools::{Itertools};
+use itertools::Itertools;
 use len_trait::Len;
-use std::collections::{HashSet};
+use std::collections::HashSet;
 use std::hash::Hash;
-use std::ops::{Index};
+use std::ops::Index;
 
-use crate::ga::individual::{IndividualTrait};
+use crate::ga::individual::IndividualTrait;
 use crate::ga::GAMetadata;
 use push_trait::{Nothing, Push};
 
@@ -88,15 +88,7 @@ impl<R: Rng> Ppx<R> {
         }
         IndividualT::from(child_ch)
     }
-}
 
-impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for Ppx<R>
-where
-    IndividualT: IndividualTrait,
-    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
-    GeneT: Copy + Eq + Hash,
-    R: Rng,
-{
     /// Returns a tuple of children, first child is created by using parent_1 as first parent,
     /// second child is created by using a parent_1 as the second parent.
     ///
@@ -115,12 +107,17 @@ where
     ///
     /// * `parent_1` - one of the parents to take part in crossover
     /// * `parent_2` - one of the parents to take part in crossover
-    fn apply_legacy(
+    fn apply_single<GeneT, IndividualT>(
         &mut self,
         _metadata: &GAMetadata,
         parent_1: &IndividualT,
         parent_2: &IndividualT,
-    ) -> (IndividualT, IndividualT) {
+    ) -> (IndividualT, IndividualT)
+    where
+        IndividualT: IndividualTrait,
+        IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+        GeneT: Copy + Eq + Hash,
+    {
         assert_eq!(
             parent_1.chromosome().len(),
             parent_2.chromosome().len(),
@@ -140,12 +137,47 @@ where
         (child_1, child_2)
     }
 
-    fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT], output: &mut Vec<IndividualT>) {
+}
+
+impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for Ppx<R>
+where
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    GeneT: Copy + Eq + Hash,
+    R: Rng,
+{
+    /// Returns vector of owned individuals which were created in result of applying crossover
+    /// operator.
+    ///
+    /// First child is created by using parent_1 as first parent,
+    /// second child is created by using a parent_1 as the second parent.
+    ///
+    /// PPX (Precedence Preservative Crossover), genes are taken in order they appear in parent,
+    /// parent is chosen at random, if gene was already taken from other parent then the next un-taken gene
+    /// is chosen
+    ///
+    /// P1         : <i>2 4 1 3 5</i> <br>
+    /// P2         : <b>5 2 1 4 3</b> <br>
+    /// Gene source: 1 1 2 1 2 <br>
+    /// Ch         : <i> 2 4 </i> <b> 5 </b> <i> 1<i/> <b> 3</b>
+    ///
+    /// Degenerated case when all genes are taken from the same parent can occur.
+    ///
+    /// ## Arguments
+    ///
+    /// * `metadata` - algorithm state metadata, see the structure details for more info,
+    /// * `selected` - references to individuals selected during selection step.
+    fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT]) -> Vec<IndividualT> {
         assert!(selected.len() & 1 == 0);
+
+        let mut output = Vec::with_capacity(selected.len());
+
         for parents in selected.chunks(2) {
-            let (child_1, child_2) = self.apply_legacy(metadata, parents[0], parents[1]);
+            let (child_1, child_2) = self.apply_single(metadata, parents[0], parents[1]);
             output.push(child_1);
             output.push(child_2);
         }
+
+        output
     }
 }

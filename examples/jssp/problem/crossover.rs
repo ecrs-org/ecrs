@@ -17,10 +17,8 @@ impl JsspCrossover {
             distr: rand::distributions::Uniform::new(0.0, 1.0),
         }
     }
-}
 
-impl CrossoverOperator<JsspIndividual> for JsspCrossover {
-    fn apply_legacy(
+    fn apply_single(
         &mut self,
         _metadata: &GAMetadata,
         parent_1: &JsspIndividual,
@@ -52,19 +50,25 @@ impl CrossoverOperator<JsspIndividual> for JsspCrossover {
 
         (child_1, child_2)
     }
+}
 
+impl CrossoverOperator<JsspIndividual> for JsspCrossover {
     fn apply(
         &mut self,
         metadata: &GAMetadata,
         selected: &[&JsspIndividual],
-        output: &mut Vec<JsspIndividual>,
-    ) {
+    ) -> Vec<JsspIndividual> {
         assert!(selected.len() & 1 == 0);
+
+        let mut output = Vec::with_capacity(selected.len());
+
         for parents in selected.chunks(2) {
-            let (child_1, child_2) = self.apply_legacy(metadata, parents[0], parents[1]);
+            let (child_1, child_2) = self.apply_single(metadata, parents[0], parents[1]);
             output.push(child_1);
             output.push(child_2);
         }
+
+        output
     }
 }
 
@@ -74,10 +78,8 @@ impl NoopCrossover {
     pub fn new() -> Self {
         Self
     }
-}
 
-impl CrossoverOperator<JsspIndividual> for NoopCrossover {
-    fn apply_legacy(
+    fn apply_single(
         &mut self,
         _metadata: &GAMetadata,
         parent_1: &JsspIndividual,
@@ -85,18 +87,24 @@ impl CrossoverOperator<JsspIndividual> for NoopCrossover {
     ) -> (JsspIndividual, JsspIndividual) {
         (parent_1.clone(), parent_2.clone())
     }
+}
 
+impl CrossoverOperator<JsspIndividual> for NoopCrossover {
     fn apply(
         &mut self,
         metadata: &GAMetadata,
         selected: &[&JsspIndividual],
-        output: &mut Vec<JsspIndividual>,
-    ) {
+    ) -> Vec<JsspIndividual> {
         assert!(selected.len() & 1 == 0);
+
+        let mut output = Vec::with_capacity(selected.len());
+
         for parents in selected.chunks(2) {
-            let (child_1, child_2) = self.apply_legacy(metadata, parents[0], parents[1]);
+            let (child_1, child_2) = self.apply_single(metadata, parents[0], parents[1]);
             output.push(child_1);
             output.push(child_2);
         }
+
+        output
     }
 }

@@ -90,15 +90,7 @@ impl<R: Rng> OrderedCrossover<R> {
         }
         IndividualT::from(child_ch)
     }
-}
 
-impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for OrderedCrossover<R>
-where
-    IndividualT: IndividualTrait,
-    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
-    GeneT: Copy + Eq + Hash,
-    R: Rng,
-{
     /// Returns a tuple of children, first child is created by taking a substring from parent_1,
     /// second child is created by using a substring from parent_2
     ///
@@ -115,12 +107,17 @@ where
     ///
     /// * `parent_1` - First parent to take part in crossover
     /// * `parent_2` - Second parent to take part in crossover
-    fn apply_legacy(
+    fn apply_single<GeneT, IndividualT>(
         &mut self,
         _metadata: &GAMetadata,
         parent_1: &IndividualT,
         parent_2: &IndividualT,
-    ) -> (IndividualT, IndividualT) {
+    ) -> (IndividualT, IndividualT)
+    where
+        IndividualT: IndividualTrait,
+        IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+        GeneT: Copy + Eq + Hash,
+    {
         assert_eq!(
             parent_1.chromosome().len(),
             parent_2.chromosome().len(),
@@ -137,13 +134,46 @@ where
 
         (child_1, child_2)
     }
+}
 
-    fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT], output: &mut Vec<IndividualT>) {
+impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for OrderedCrossover<R>
+where
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    GeneT: Copy + Eq + Hash,
+    R: Rng,
+{
+    /// Returns vector of owned individuals which were created in result of applying crossover
+    /// operator.
+    ///
+    /// First child is created by taking a substring from parent_1,
+    /// second child is created by using a substring from parent_2
+    ///
+    /// It works by taking a substring from one parent, and filling the missing places with alleles from
+    /// second parent in the order they appear in.
+    ///
+    /// P1 : 2 <b>4 1 3</b> 5 <br>
+    /// P2 : 5 2 1 4 3 <br>
+    /// Ch : 5 <b>4 1 3</b> 2
+    ///
+    /// Degenerated case when substring has length equal to genome length can occur.
+    ///
+    ///
+    /// ## Arguments
+    ///
+    /// * `metadata` - algorithm state metadata, see the structure details for more info,
+    /// * `selected` - references to individuals selected during selection step.
+    fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT]) -> Vec<IndividualT> {
         assert!(selected.len() & 1 == 0);
+
+        let mut output = Vec::with_capacity(selected.len());
+
         for parents in selected.chunks(2) {
-            let (child_1, child_2) = self.apply_legacy(metadata, parents[0], parents[1]);
+            let (child_1, child_2) = self.apply_single(metadata, parents[0], parents[1]);
             output.push(child_1);
             output.push(child_2);
         }
+
+        output
     }
 }
