@@ -40,7 +40,7 @@ impl<R: Rng> UniformParameterized<R> {
     }
 }
 
-impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for UniformParameterized<R>
+impl<GeneT, IndividualT, R> UniformParameterized<R>
 where
     IndividualT: IndividualTrait,
     IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
@@ -56,7 +56,7 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply_legacy(
+    fn apply_single(
         &mut self,
         _metadata: &GAMetadata,
         parent_1: &IndividualT,
@@ -87,13 +87,22 @@ where
 
         (IndividualT::from(child_1_ch), IndividualT::from(child_2_ch))
     }
+}
 
+impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for UniformParameterized<R>
+where
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    GeneT: Copy,
+    R: Rng + Clone,
+{
     fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT], output: &mut Vec<IndividualT>) {
         assert!(selected.len() & 1 == 0);
         for parents in selected.chunks(2) {
-            let (child_1, child_2) = self.apply_legacy(metadata, parents[0], parents[1]);
+            let (child_1, child_2) = self.apply_single(metadata, parents[0], parents[1]);
             output.push(child_1);
             output.push(child_2);
         }
     }
 }
+
