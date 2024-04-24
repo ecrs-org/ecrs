@@ -4,7 +4,7 @@ use std::ops::IndexMut;
 
 use crate::ga::individual::IndividualTrait;
 use crate::ga::GAMetadata;
-use push_trait::{Nothing, Push};
+use push_trait::{Push};
 
 use super::CrossoverOperator;
 
