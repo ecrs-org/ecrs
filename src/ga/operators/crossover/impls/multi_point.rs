@@ -116,7 +116,6 @@ impl<R: Rng> MultiPoint<R> {
 
         (IndividualT::from(child_1_ch), IndividualT::from(child_2_ch))
     }
-
 }
 
 impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for MultiPoint<R>

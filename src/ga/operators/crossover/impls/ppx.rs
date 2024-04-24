@@ -136,7 +136,6 @@ impl<R: Rng> Ppx<R> {
 
         (child_1, child_2)
     }
-
 }
 
 impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for Ppx<R>

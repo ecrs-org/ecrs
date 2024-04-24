@@ -53,11 +53,7 @@ impl JsspCrossover {
 }
 
 impl CrossoverOperator<JsspIndividual> for JsspCrossover {
-    fn apply(
-        &mut self,
-        metadata: &GAMetadata,
-        selected: &[&JsspIndividual],
-    ) -> Vec<JsspIndividual> {
+    fn apply(&mut self, metadata: &GAMetadata, selected: &[&JsspIndividual]) -> Vec<JsspIndividual> {
         assert!(selected.len() & 1 == 0);
 
         let mut output = Vec::with_capacity(selected.len());
@@ -90,11 +86,7 @@ impl NoopCrossover {
 }
 
 impl CrossoverOperator<JsspIndividual> for NoopCrossover {
-    fn apply(
-        &mut self,
-        metadata: &GAMetadata,
-        selected: &[&JsspIndividual],
-    ) -> Vec<JsspIndividual> {
+    fn apply(&mut self, metadata: &GAMetadata, selected: &[&JsspIndividual]) -> Vec<JsspIndividual> {
         assert!(selected.len() & 1 == 0);
 
         let mut output = Vec::with_capacity(selected.len());

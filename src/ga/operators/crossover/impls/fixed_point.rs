@@ -56,7 +56,6 @@ impl FixedPoint {
 
         (child_1, child_2)
     }
-
 }
 
 impl<GeneT, IndividualT> CrossoverOperator<IndividualT> for FixedPoint

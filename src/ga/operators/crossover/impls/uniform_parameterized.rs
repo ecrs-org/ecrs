@@ -122,4 +122,3 @@ where
         output
     }
 }
-

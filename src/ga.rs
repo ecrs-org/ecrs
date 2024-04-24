@@ -319,9 +319,7 @@ where
 
             // FIXME: Do not assume that population size is an even number.
             self.timer.start();
-            let mut children = self.config
-                .crossover_operator
-                .apply(&self.metadata, &mating_pool);
+            let mut children = self.config.crossover_operator.apply(&self.metadata, &mating_pool);
             self.metadata.crossover_dur = Some(self.timer.elapsed());
 
             self.timer.start();

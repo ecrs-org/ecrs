@@ -37,8 +37,7 @@ impl<R: Rng> TwoPoint<R> {
     }
 }
 
-impl<R: Rng> TwoPoint<R>
-{
+impl<R: Rng> TwoPoint<R> {
     /// Returns a tuple of children
     ///
     /// It works by randomly selecting two cutpoints splitting parents chromosomes in three parts.
