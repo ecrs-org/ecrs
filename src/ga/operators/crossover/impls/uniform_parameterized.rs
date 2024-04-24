@@ -96,13 +96,28 @@ where
     GeneT: Copy,
     R: Rng + Clone,
 {
-    fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT], output: &mut Vec<IndividualT>) {
+    /// Returns vector of owned individuals which were created in result of applying crossover
+    /// operator.
+    ///
+    /// It works by creating a bit-mask of chromosome length. 1 means that gene should be taken from first
+    /// parent, 0 means that gene should be take from second parent. This is inverted when creating second child.
+    ///
+    /// ## Arguments
+    ///
+    /// * `metadata` - algorithm state metadata, see the structure details for more info,
+    /// * `selected` - references to individuals selected during selection step.
+    fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT]) -> Vec<IndividualT> {
         assert!(selected.len() & 1 == 0);
+
+        let mut output = Vec::with_capacity(selected.len());
+
         for parents in selected.chunks(2) {
             let (child_1, child_2) = self.apply_single(metadata, parents[0], parents[1]);
             output.push(child_1);
             output.push(child_2);
         }
+
+        output
     }
 }
 

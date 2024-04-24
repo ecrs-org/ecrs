@@ -34,7 +34,7 @@ impl<R: Rng + Clone> Uniform<R> {
     }
 }
 
-impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for Uniform<R>
+impl<GeneT, IndividualT, R> Uniform<R>
 where
     IndividualT: IndividualTrait,
     IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
@@ -50,7 +50,7 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply_legacy(
+    fn apply_single(
         &mut self,
         _metadata: &GAMetadata,
         parent_1: &IndividualT,
@@ -86,10 +86,29 @@ where
         (IndividualT::from(child_1_ch), IndividualT::from(child_2_ch))
     }
 
+}
+
+impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for Uniform<R>
+where
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    GeneT: Copy,
+    R: Rng + Clone,
+{
+    /// Returns vector of owned individuals which were created in result of applying crossover
+    /// operator.
+    ///
+    /// It works by creating a bit-mask of chromosome length. 1 means that gene should be taken from first
+    /// parent, 0 means that gene should be take from second parent. This is inverted when creating second child.
+    ///
+    /// ## Arguments
+    ///
+    /// * `metadata` - algorithm state metadata, see the structure details for more info,
+    /// * `selected` - references to individuals selected during selection step.
     fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT], output: &mut Vec<IndividualT>) {
         assert!(selected.len() & 1 == 0);
         for parents in selected.chunks(2) {
-            let (child_1, child_2) = self.apply_legacy(metadata, parents[0], parents[1]);
+            let (child_1, child_2) = self.apply_single(metadata, parents[0], parents[1]);
             output.push(child_1);
             output.push(child_2);
         }
