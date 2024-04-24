@@ -37,12 +37,7 @@ impl<R: Rng> TwoPoint<R> {
     }
 }
 
-impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for TwoPoint<R>
-where
-    IndividualT: IndividualTrait,
-    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
-    GeneT: Copy,
-    R: Rng,
+impl<R: Rng> TwoPoint<R>
 {
     /// Returns a tuple of children
     ///
@@ -56,12 +51,17 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply_legacy(
+    fn apply_single<GeneT, IndividualT>(
         &mut self,
         _metadata: &GAMetadata,
         parent_1: &IndividualT,
         parent_2: &IndividualT,
-    ) -> (IndividualT, IndividualT) {
+    ) -> (IndividualT, IndividualT)
+    where
+        IndividualT: IndividualTrait,
+        IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+        GeneT: Copy,
+    {
         assert_eq!(
             parent_1.chromosome().len(),
             parent_2.chromosome().len(),
@@ -101,13 +101,39 @@ where
 
         (IndividualT::from(child_1_ch), IndividualT::from(child_2_ch))
     }
+}
 
-    fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT], output: &mut Vec<IndividualT>) {
+impl<GeneT, IndividualT, R> CrossoverOperator<IndividualT> for TwoPoint<R>
+where
+    IndividualT: IndividualTrait,
+    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+    GeneT: Copy,
+    R: Rng,
+{
+    /// Returns vector of owned individuals which were created in result of applying crossover
+    /// operator.
+    ///
+    /// It works by randomly selecting two cutpoints splitting parents chromosomes in three parts.
+    /// Then it creates children by taking parents chromosome parts interchangeably.
+    /// Its mechanism is analoguous to [SinglePoint].
+    ///
+    /// Degenerate case when both cutpoints are in the same place or at position 0 or last can occur.
+    ///
+    /// ## Arguments
+    ///
+    /// * `metadata` - algorithm state metadata, see the structure details for more info,
+    /// * `selected` - references to individuals selected during selection step.
+    fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT]) -> Vec<IndividualT> {
         assert!(selected.len() & 1 == 0);
+
+        let mut output = Vec::with_capacity(selected.len());
+
         for parents in selected.chunks(2) {
-            let (child_1, child_2) = self.apply_legacy(metadata, parents[0], parents[1]);
+            let (child_1, child_2) = self.apply_single(metadata, parents[0], parents[1]);
             output.push(child_1);
             output.push(child_2);
         }
+
+        output
     }
 }

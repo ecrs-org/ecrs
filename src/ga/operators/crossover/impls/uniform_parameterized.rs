@@ -40,11 +40,8 @@ impl<R: Rng> UniformParameterized<R> {
     }
 }
 
-impl<GeneT, IndividualT, R> UniformParameterized<R>
+impl<R> UniformParameterized<R>
 where
-    IndividualT: IndividualTrait,
-    IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
-    GeneT: Copy,
     R: Rng + Clone,
 {
     /// Returns a tuple of children
@@ -56,12 +53,17 @@ where
     ///
     /// * `parent_1` - First parent to take part in recombination
     /// * `parent_2` - Second parent to take part in recombination
-    fn apply_single(
+    fn apply_single<GeneT, IndividualT>(
         &mut self,
         _metadata: &GAMetadata,
         parent_1: &IndividualT,
         parent_2: &IndividualT,
-    ) -> (IndividualT, IndividualT) {
+    ) -> (IndividualT, IndividualT)
+    where
+        IndividualT: IndividualTrait,
+        IndividualT::ChromosomeT: Index<usize, Output = GeneT> + Push<GeneT, PushedOut = Nothing>,
+        GeneT: Copy,
+    {
         assert_eq!(
             parent_1.chromosome().len(),
             parent_2.chromosome().len(),
