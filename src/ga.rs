@@ -143,8 +143,8 @@ use self::{
 };
 
 pub struct GAParams {
-    pub selection_rate: f64,
-    pub mutation_rate: f64,
+    // pub selection_rate: f64,
+    // pub mutation_rate: f64,
     pub population_size: usize,
     pub generation_limit: usize,
     pub max_duration: std::time::Duration,
@@ -322,11 +322,9 @@ where
             self.metadata.crossover_dur = Some(self.timer.elapsed());
 
             self.timer.start();
-            children.iter_mut().for_each(|child| {
-                self.config
-                    .mutation_operator
-                    .apply(&self.metadata, child, self.config.params.mutation_rate)
-            });
+            children
+                .iter_mut()
+                .for_each(|child| self.config.mutation_operator.apply(&self.metadata, child));
             self.metadata.mutation_dur = Some(self.timer.elapsed());
 
             if self.config.replacement_operator.requires_children_fitness() {
