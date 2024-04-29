@@ -16,5 +16,5 @@ pub trait MutationOperator<IndividualT: IndividualTrait> {
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, metadata: &GAMetadata, individual: &mut IndividualT, mutation_rate: f64);
+    fn apply(&mut self, metadata: &GAMetadata, individual: &mut IndividualT);
 }
