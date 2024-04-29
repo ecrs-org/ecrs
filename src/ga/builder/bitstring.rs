@@ -145,7 +145,9 @@ impl<F: Fitness<BitStringIndividual>> BitStringBuilder<F> {
         self.config
             .crossover_operator
             .get_or_insert_with(SinglePoint::new);
-        self.config.mutation_operator.get_or_insert_with(|| FlipBit::new(0.05));
+        self.config
+            .mutation_operator
+            .get_or_insert_with(|| FlipBit::new(0.05));
         self.config
             .selection_operator
             .get_or_insert_with(|| Tournament::new(0.2));

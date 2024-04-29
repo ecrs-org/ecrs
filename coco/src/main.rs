@@ -120,7 +120,7 @@ fn ecrs_ga_search(problem: &mut Problem, _max_budget: usize, _random_generator: 
     ))
     .set_selection_operator(selection::Tournament::new(0.2))
     .set_crossover_operator(crossover::Uniform::new())
-    .set_mutation_operator(mutation::Reversing::new())
+    .set_mutation_operator(mutation::Reversing::new(0.05))
     .set_replacement_operator(replacement::WeakParent::new())
     .build();
 
