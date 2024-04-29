@@ -64,8 +64,6 @@ impl Error for ConfigError {}
 // don't have to write it by hand...
 #[derive(Debug, Clone)]
 pub struct GAParamsOpt {
-    pub selection_rate: Option<f64>,
-    pub mutation_rate: Option<f64>,
     pub population_size: Option<usize>,
     pub generation_limit: Option<usize>,
     pub max_duration: Option<std::time::Duration>,
@@ -75,8 +73,6 @@ impl GAParamsOpt {
     /// Returns new instance of [GAParamsOpt] struct. All fields are `None` initially.
     pub fn new() -> Self {
         Self {
-            selection_rate: None,
-            mutation_rate: None,
             population_size: None,
             generation_limit: None,
             max_duration: None,
@@ -85,8 +81,6 @@ impl GAParamsOpt {
 
     /// Sets all `None` values to values form `other`
     pub fn fill_from(&mut self, other: &GAParams) {
-        self.selection_rate.get_or_insert(other.selection_rate);
-        self.mutation_rate.get_or_insert(other.mutation_rate);
         self.population_size.get_or_insert(other.population_size);
         self.generation_limit.get_or_insert(other.generation_limit);
         self.max_duration.get_or_insert(other.max_duration);
@@ -97,14 +91,6 @@ impl TryFrom<GAParamsOpt> for GAParams {
     type Error = ConfigError;
 
     fn try_from(params_opt: GAParamsOpt) -> Result<Self, Self::Error> {
-        let Some(selection_rate) = params_opt.selection_rate else {
-            return Err(ConfigError::MissingParam("Unspecified selection rate".to_owned()));
-        };
-
-        let Some(mutation_rate) = params_opt.mutation_rate else {
-            return Err(ConfigError::MissingParam("Unspecified mutation rate".to_owned()));
-        };
-
         let Some(population_size) = params_opt.population_size else {
             return Err(ConfigError::MissingParam(
                 "Unspecified population size".to_owned(),
@@ -122,8 +108,6 @@ impl TryFrom<GAParamsOpt> for GAParams {
         };
 
         Ok(GAParams {
-            selection_rate,
-            mutation_rate,
             population_size,
             generation_limit,
             max_duration,
@@ -313,8 +297,8 @@ impl Builder {
 /// some of the values.
 pub(crate) trait DefaultParams {
     const DEFAULT_PARAMS: GAParams = GAParams {
-        selection_rate: 1.0,
-        mutation_rate: 0.05,
+        // selection_rate: 1.0,
+        // mutation_rate: 0.05,
         population_size: 100,
         generation_limit: usize::MAX,
         max_duration: std::time::Duration::MAX,
@@ -340,8 +324,8 @@ mod test {
     #[test]
     fn new_param_opt_is_empty() {
         let params = GAParamsOpt::new();
-        assert!(params.selection_rate.is_none());
-        assert!(params.mutation_rate.is_none());
+        // assert!(params.selection_rate.is_none());
+        // assert!(params.mutation_rate.is_none());
         assert!(params.population_size.is_none());
         assert!(params.generation_limit.is_none());
         assert!(params.max_duration.is_none());
@@ -350,12 +334,9 @@ mod test {
     #[test]
     fn param_opt_fills_correctly() {
         let mut params_opt = GAParamsOpt::new();
-        params_opt.selection_rate = Some(0.5);
         params_opt.generation_limit = Some(100);
 
         let params = GAParams {
-            selection_rate: 1.0,
-            mutation_rate: 1.0,
             population_size: 100,
             generation_limit: 200,
             max_duration: std::time::Duration::from_secs(1),
@@ -363,8 +344,6 @@ mod test {
 
         params_opt.fill_from(&params);
 
-        assert!(params_opt.selection_rate.is_some() && params_opt.selection_rate.unwrap() == 0.5);
-        assert!(params_opt.mutation_rate.is_some() && params_opt.mutation_rate.unwrap() == 1.0);
         assert!(params_opt.population_size.is_some() && params_opt.population_size.unwrap() == 100);
         assert!(params_opt.generation_limit.is_some() && params_opt.generation_limit.unwrap() == 100);
         assert!(
@@ -376,12 +355,6 @@ mod test {
     #[test]
     fn conversion_works_as_expected() {
         let mut params_opt = GAParamsOpt::new();
-
-        params_opt.selection_rate = Some(1.0);
-        assert!(convert_gaparamsopt_to_ga_params(params_opt.clone()).is_err());
-
-        params_opt.mutation_rate = Some(0.0);
-        assert!(convert_gaparamsopt_to_ga_params(params_opt.clone()).is_err());
 
         params_opt.population_size = Some(200);
         assert!(convert_gaparamsopt_to_ga_params(params_opt.clone()).is_err());

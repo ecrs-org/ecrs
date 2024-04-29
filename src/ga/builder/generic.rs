@@ -75,36 +75,6 @@ where
         }
     }
 
-    /// Sets selection rate
-    ///
-    /// ## Arguments
-    ///
-    /// * `selection_rate` - Selection rate; must be in [0, 1] interval
-    ///
-    /// ## Panics
-    ///
-    /// If the `selection_rate` param has invalid value.
-    pub fn set_selection_rate(mut self, selection_rate: f64) -> Self {
-        assert!((0f64..=1f64).contains(&selection_rate));
-        self.config.params.selection_rate = Some(selection_rate);
-        self
-    }
-
-    /// Sets mutation rate
-    ///
-    /// ## Arguments
-    ///
-    /// * `mutation_rate` - Mutation rate; must be in [0, 1] interval
-    ///
-    /// ## Panics
-    ///
-    /// If the parameter has invalid value.
-    pub fn set_mutation_rate(mut self, mutation_rate: f64) -> Self {
-        assert!((0.0..=1.0).contains(&mutation_rate));
-        self.config.params.mutation_rate = Some(mutation_rate);
-        self
-    }
-
     /// Sets max duration. If exceeded, the algorithm halts.
     ///
     /// ## Arguments
