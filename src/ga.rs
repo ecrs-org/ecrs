@@ -339,6 +339,12 @@ where
                 .apply(&self.metadata, population, children);
             self.metadata.replacement_dur = Some(self.timer.elapsed());
 
+            assert_eq!(population.len(), self.config.params.population_size,
+                "There was change in population size from {} to {} in generation {}. Dynamic population size is currently not supported.",
+                self.config.params.population_size,
+                population.len(),
+                generation_no);
+
             // 7. Check for stop condition (Is good enough individual found)? If not goto 2.
             self.timer.start();
             self.eval_pop(&mut population);
