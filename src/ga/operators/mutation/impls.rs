@@ -39,6 +39,8 @@ pub struct FlipBit<R: Rng = ThreadRng> {
 
 impl FlipBit<ThreadRng> {
     /// Returns new instance of [FlipBit] mutation operator with default RNG
+    ///
+    /// * `mutation_rate` - probability of gene mutation
     pub fn new(mutation_rate: f64) -> Self {
         Self::with_rng(mutation_rate, rand::thread_rng())
     }
@@ -90,6 +92,8 @@ pub struct Interchange<R: Rng = ThreadRng> {
 
 impl Interchange<ThreadRng> {
     /// Returns new instance of [Interchange] mutation operator with default RNG
+    ///
+    /// * `mutation_rate` - probability of gene mutation
     pub fn new(mutation_rate: f64) -> Self {
         Self::with_rng(mutation_rate, rand::thread_rng())
     }
@@ -116,7 +120,6 @@ where
     /// ## Arguments
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
-    /// * `mutation_rate` - probability of gene mutation
     fn apply(&mut self, _metadata: &GAMetadata, individual: &mut IndividualT) {
         let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
@@ -147,6 +150,8 @@ pub struct Reversing<R: Rng = ThreadRng> {
 
 impl Reversing<ThreadRng> {
     /// Returns new instance of [Reversing] mutation operator with default RNG
+    ///
+    /// * `mutation_rate` - probability of gene mutation
     pub fn new(mutation_rate: f64) -> Self {
         Self::with_rng(mutation_rate, rand::thread_rng())
     }
@@ -173,7 +178,6 @@ where
     /// ## Arguments
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
-    /// * `mutation_rate` - probability of gene mutation
     fn apply(&mut self, _metadata: &GAMetadata, individual: &mut IndividualT) {
         let dist = rand::distributions::Uniform::from(0.0..1.0);
         let chromosome_ref = individual.chromosome_mut();
@@ -203,6 +207,8 @@ pub struct Inversion<GeneT: Copy, R: Rng = ThreadRng> {
 
 impl<GeneT: Copy> Inversion<GeneT, ThreadRng> {
     /// Returns new instance of [Inversion] mutation operator with default RNG
+    ///
+    /// * `mutation_rate` - probability of gene mutation
     pub fn new(mutation_rate: f64) -> Self {
         Self::with_rng(mutation_rate, rand::thread_rng())
     }
@@ -231,7 +237,6 @@ where
     /// ## Arguments
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
-    /// * `mutation_rate` - probability of gene mutation
     fn apply(&mut self, _metadata: &GAMetadata, individual: &mut IndividualT) {
         let _marker: PhantomData<GeneT> = PhantomData;
 
