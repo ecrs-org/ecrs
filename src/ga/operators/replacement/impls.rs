@@ -182,7 +182,7 @@ impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for WeakPare
 
 #[cfg(test)]
 mod tests {
-    use crate::ga::{Metrics, Individual};
+    use crate::ga::{Individual, Metrics};
 
     use super::{BothParents, Noop, ReplacementOperator, WeakParent};
 

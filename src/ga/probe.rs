@@ -116,12 +116,8 @@ pub trait Probe<IndividualT: IndividualTrait> {
     /// See [GAMetadata] for reference.
     /// * `population` - Final population
     /// * `best_individual` - Best individual found by algorithm
-    fn on_end(
-        &mut self,
-        _metadata: &Metrics,
-        _population: &[IndividualT],
-        _best_individual: &IndividualT,
-    ) { /* defaults to noop */
+    fn on_end(&mut self, _metadata: &Metrics, _population: &[IndividualT], _best_individual: &IndividualT) {
+        /* defaults to noop */
     }
 }
 

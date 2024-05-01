@@ -93,11 +93,7 @@ impl Probe<JsspIndividual> for JsspProbe {
         info!(target: "iterinfo", "event_name,generation,eval_time,sel_time,cross_time,mut_time,repl_time,iter_time");
     }
 
-    fn on_initial_population_created(
-        &mut self,
-        metadata: &ecrs::ga::Metrics,
-        population: &[JsspIndividual],
-    ) {
+    fn on_initial_population_created(&mut self, metadata: &ecrs::ga::Metrics, population: &[JsspIndividual]) {
         debug_assert_eq!(self.repeated.len(), 0);
         self.repeated.resize(population.len(), false);
 

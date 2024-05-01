@@ -26,7 +26,7 @@ pub use uniform_parameterized::UniformParameterized;
 mod test {
     use crate::ga::individual::IndividualTrait;
     use crate::ga::operators::crossover::{CrossoverOperator, FixedPoint, Pmx, Ppx, Shuffle};
-    use crate::ga::{Metrics, Individual};
+    use crate::ga::{Individual, Metrics};
     use std::iter::zip;
 
     #[test]
