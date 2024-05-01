@@ -173,7 +173,7 @@ where
 }
 
 #[derive(Default)]
-pub struct GAMetadata {
+pub struct Metrics {
     pub generation: usize,
     pub start_time: Option<std::time::Instant>,
 
@@ -190,13 +190,13 @@ pub struct GAMetadata {
     pub iteration_dur: Option<std::time::Duration>,
 }
 
-impl GAMetadata {
+impl Metrics {
     pub fn new(
         start_time: Option<std::time::Instant>,
         duration: Option<std::time::Duration>,
         generation: usize,
     ) -> Self {
-        GAMetadata {
+        Metrics {
             generation,
             start_time,
             total_dur: duration,
@@ -223,7 +223,7 @@ where
     ProbeT: Probe<IndividualT>,
 {
     config: GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
-    metadata: GAMetadata,
+    metadata: Metrics,
     timer: Timer,
 }
 
@@ -246,7 +246,7 @@ where
                                                           // now
         GeneticSolver {
             config,
-            metadata: GAMetadata::new(None, None, 0),
+            metadata: Metrics::new(None, None, 0),
             timer: Timer::new(),
         }
     }
@@ -382,10 +382,10 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::GAMetadata;
+    use super::Metrics;
 
     #[test]
     fn gametadata_can_be_constructed_with_new_fn() {
-        GAMetadata::new(None, None, 0);
+        Metrics::new(None, None, 0);
     }
 }

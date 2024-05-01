@@ -1,4 +1,4 @@
-use super::{individual::IndividualTrait, GAMetadata};
+use super::{individual::IndividualTrait, Metrics};
 
 mod aggregated_probe;
 mod csv_probe;
@@ -30,7 +30,7 @@ pub trait Probe<IndividualT: IndividualTrait> {
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference. When running this method only `start_time`
     /// field has meaningful value.
-    fn on_start(&mut self, _metadata: &GAMetadata) { /* defaults to noop */
+    fn on_start(&mut self, _metadata: &Metrics) { /* defaults to noop */
     }
 
     /// This method is called directly after initial populationn is created and fitness
@@ -41,7 +41,7 @@ pub trait Probe<IndividualT: IndividualTrait> {
     /// ### Arguments
     ///
     /// * `population` - Freshly generated population
-    fn on_initial_population_created(&mut self, _metadata: &GAMetadata, _population: &[IndividualT]) {
+    fn on_initial_population_created(&mut self, _metadata: &Metrics, _population: &[IndividualT]) {
         /* defaults to noop */
     }
 
@@ -54,7 +54,7 @@ pub trait Probe<IndividualT: IndividualTrait> {
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
     /// * `individual` - New best individual
-    fn on_new_best(&mut self, _metadata: &GAMetadata, _individual: &IndividualT) {
+    fn on_new_best(&mut self, _metadata: &Metrics, _individual: &IndividualT) {
         /* defaults to noop */
     }
 
@@ -67,7 +67,7 @@ pub trait Probe<IndividualT: IndividualTrait> {
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
     /// * `generation` - Newly created generation
-    fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[IndividualT]) {
+    fn on_new_generation(&mut self, _metadata: &Metrics, _generation: &[IndividualT]) {
         /* defaults to noop */
     }
 
@@ -80,7 +80,7 @@ pub trait Probe<IndividualT: IndividualTrait> {
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
     /// * `individual` - Best individual in current generation
-    fn on_best_fit_in_generation(&mut self, _metadata: &GAMetadata, _individual: &IndividualT) {
+    fn on_best_fit_in_generation(&mut self, _metadata: &Metrics, _individual: &IndividualT) {
         /* defaults to noop */
     }
 
@@ -92,7 +92,7 @@ pub trait Probe<IndividualT: IndividualTrait> {
     ///
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
-    fn on_iteration_start(&mut self, _metadata: &GAMetadata) { /* defaults to noop */
+    fn on_iteration_start(&mut self, _metadata: &Metrics) { /* defaults to noop */
     }
 
     /// This method is called in the very end of algorithm's main loop, just before
@@ -102,7 +102,7 @@ pub trait Probe<IndividualT: IndividualTrait> {
     ///
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
-    fn on_iteration_end(&mut self, _metadata: &GAMetadata) { /* defaults to noop */
+    fn on_iteration_end(&mut self, _metadata: &Metrics) { /* defaults to noop */
     }
 
     /// This method is called after algorithm 's main loop is exited, just before the `run`
@@ -118,7 +118,7 @@ pub trait Probe<IndividualT: IndividualTrait> {
     /// * `best_individual` - Best individual found by algorithm
     fn on_end(
         &mut self,
-        _metadata: &GAMetadata,
+        _metadata: &Metrics,
         _population: &[IndividualT],
         _best_individual: &IndividualT,
     ) { /* defaults to noop */
@@ -192,16 +192,16 @@ pub trait Probe<IndividualT: IndividualTrait> {
 ///
 /// Later you can use it with [PolicyDrivenProbe]
 pub trait ProbingPolicy<IndividualT: IndividualTrait> {
-    fn on_start(&mut self, _metadata: &GAMetadata) -> bool;
-    fn on_initial_population_created(&mut self, _metadata: &GAMetadata, _population: &[IndividualT]) -> bool;
-    fn on_new_best(&mut self, _metadata: &GAMetadata, _individual: &IndividualT) -> bool;
-    fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[IndividualT]) -> bool;
-    fn on_best_fit_in_generation(&mut self, _metadata: &GAMetadata, _individual: &IndividualT) -> bool;
-    fn on_iteration_start(&mut self, _metadata: &GAMetadata) -> bool;
-    fn on_iteration_end(&mut self, _metadata: &GAMetadata) -> bool;
+    fn on_start(&mut self, _metadata: &Metrics) -> bool;
+    fn on_initial_population_created(&mut self, _metadata: &Metrics, _population: &[IndividualT]) -> bool;
+    fn on_new_best(&mut self, _metadata: &Metrics, _individual: &IndividualT) -> bool;
+    fn on_new_generation(&mut self, _metadata: &Metrics, _generation: &[IndividualT]) -> bool;
+    fn on_best_fit_in_generation(&mut self, _metadata: &Metrics, _individual: &IndividualT) -> bool;
+    fn on_iteration_start(&mut self, _metadata: &Metrics) -> bool;
+    fn on_iteration_end(&mut self, _metadata: &Metrics) -> bool;
     fn on_end(
         &mut self,
-        _metadata: &GAMetadata,
+        _metadata: &Metrics,
         _population: &[IndividualT],
         _best_individual: &IndividualT,
     ) -> bool;

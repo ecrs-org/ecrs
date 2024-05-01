@@ -1,5 +1,5 @@
 use ecrs::{
-    ga::{individual::IndividualTrait, GAMetadata},
+    ga::{individual::IndividualTrait, Metrics},
     prelude::crossover::CrossoverOperator,
 };
 use push_trait::PushBack;
@@ -20,7 +20,7 @@ impl JsspCrossover {
 
     fn apply_single(
         &mut self,
-        _metadata: &GAMetadata,
+        _metadata: &Metrics,
         parent_1: &JsspIndividual,
         parent_2: &JsspIndividual,
     ) -> (JsspIndividual, JsspIndividual) {
@@ -53,7 +53,7 @@ impl JsspCrossover {
 }
 
 impl CrossoverOperator<JsspIndividual> for JsspCrossover {
-    fn apply(&mut self, metadata: &GAMetadata, selected: &[&JsspIndividual]) -> Vec<JsspIndividual> {
+    fn apply(&mut self, metadata: &Metrics, selected: &[&JsspIndividual]) -> Vec<JsspIndividual> {
         assert!(selected.len() & 1 == 0);
 
         let mut output = Vec::with_capacity(selected.len());
@@ -77,7 +77,7 @@ impl NoopCrossover {
 
     fn apply_single(
         &mut self,
-        _metadata: &GAMetadata,
+        _metadata: &Metrics,
         parent_1: &JsspIndividual,
         parent_2: &JsspIndividual,
     ) -> (JsspIndividual, JsspIndividual) {
@@ -86,7 +86,7 @@ impl NoopCrossover {
 }
 
 impl CrossoverOperator<JsspIndividual> for NoopCrossover {
-    fn apply(&mut self, metadata: &GAMetadata, selected: &[&JsspIndividual]) -> Vec<JsspIndividual> {
+    fn apply(&mut self, metadata: &Metrics, selected: &[&JsspIndividual]) -> Vec<JsspIndividual> {
         assert!(selected.len() & 1 == 0);
 
         let mut output = Vec::with_capacity(selected.len());

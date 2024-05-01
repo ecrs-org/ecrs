@@ -84,7 +84,7 @@ impl Probe<JsspIndividual> for JsspProbe {
     // iterinfo,<generation>,<eval_time>,<sel_time>,<cross_time>,<mut_time>,<repl_time>,<iter_time>
 
     #[inline]
-    fn on_start(&mut self, _metadata: &ecrs::ga::GAMetadata) {
+    fn on_start(&mut self, _metadata: &ecrs::ga::Metrics) {
         // Writing csv header to each file
         info!(target: "popmetrics", "event_name,generation,total_duration,population_size,diversity,distance_avg");
         info!(target: "popgentime", "event_name,time");
@@ -95,7 +95,7 @@ impl Probe<JsspIndividual> for JsspProbe {
 
     fn on_initial_population_created(
         &mut self,
-        metadata: &ecrs::ga::GAMetadata,
+        metadata: &ecrs::ga::Metrics,
         population: &[JsspIndividual],
     ) {
         debug_assert_eq!(self.repeated.len(), 0);
@@ -109,7 +109,7 @@ impl Probe<JsspIndividual> for JsspProbe {
         info!(target: "popgentime", "popgentime,{}", metadata.pop_gen_dur.unwrap().as_millis());
     }
 
-    fn on_new_best(&mut self, metadata: &ecrs::ga::GAMetadata, individual: &JsspIndividual) {
+    fn on_new_best(&mut self, metadata: &ecrs::ga::Metrics, individual: &JsspIndividual) {
         info!(
             target: "newbest",
             "newbest,{},{},{}",
@@ -119,7 +119,7 @@ impl Probe<JsspIndividual> for JsspProbe {
         );
     }
 
-    fn on_new_generation(&mut self, metadata: &ecrs::ga::GAMetadata, generation: &[JsspIndividual]) {
+    fn on_new_generation(&mut self, metadata: &ecrs::ga::Metrics, generation: &[JsspIndividual]) {
         // TODO: As this metric is useless right now I'm disabling it temporarily
         // let diversity = self.estimate_pop_diversity(generation);
         let diversity = self.estimate_pop_diversity(generation);
@@ -133,7 +133,7 @@ impl Probe<JsspIndividual> for JsspProbe {
         );
     }
 
-    fn on_best_fit_in_generation(&mut self, metadata: &ecrs::ga::GAMetadata, individual: &JsspIndividual) {
+    fn on_best_fit_in_generation(&mut self, metadata: &ecrs::ga::Metrics, individual: &JsspIndividual) {
         info!(
             target: "bestingen",
             "bestingen,{},{},{}",
@@ -144,11 +144,11 @@ impl Probe<JsspIndividual> for JsspProbe {
     }
 
     #[inline]
-    fn on_iteration_start(&mut self, _metadata: &ecrs::ga::GAMetadata) { /* defaults to noop */
+    fn on_iteration_start(&mut self, _metadata: &ecrs::ga::Metrics) { /* defaults to noop */
     }
 
     #[inline]
-    fn on_iteration_end(&mut self, metadata: &ecrs::ga::GAMetadata) {
+    fn on_iteration_end(&mut self, metadata: &ecrs::ga::Metrics) {
         info!(target: "iterinfo", "iterinfo,{},{},{},{},{},{},{}",
             metadata.generation,
             metadata.pop_eval_dur.unwrap().as_millis(),
@@ -163,7 +163,7 @@ impl Probe<JsspIndividual> for JsspProbe {
     #[inline]
     fn on_end(
         &mut self,
-        metadata: &ecrs::ga::GAMetadata,
+        metadata: &ecrs::ga::Metrics,
         _population: &[JsspIndividual],
         best_individual: &JsspIndividual,
     ) {

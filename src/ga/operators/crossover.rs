@@ -4,7 +4,7 @@ pub mod impls;
 pub use impls::*;
 
 use crate::ga::individual::IndividualTrait;
-use crate::ga::GAMetadata;
+use crate::ga::Metrics;
 
 /// # Crossover Operator
 ///
@@ -32,5 +32,5 @@ pub trait CrossoverOperator<IndividualT: IndividualTrait> {
     /// ## Returns
     ///
     /// Vector of individuals created during the crossover stage.
-    fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT]) -> Vec<IndividualT>;
+    fn apply(&mut self, metadata: &Metrics, selected: &[&IndividualT]) -> Vec<IndividualT>;
 }

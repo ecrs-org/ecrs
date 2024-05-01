@@ -4,7 +4,7 @@ use std::hash::Hash;
 use std::ops::Index;
 
 use crate::ga::individual::IndividualTrait;
-use crate::ga::GAMetadata;
+use crate::ga::Metrics;
 use push_trait::{Nothing, Push};
 
 use rand::{rngs::ThreadRng, Rng};
@@ -109,7 +109,7 @@ impl<R: Rng> OrderedCrossover<R> {
     /// * `parent_2` - Second parent to take part in crossover
     fn apply_single<GeneT, IndividualT>(
         &mut self,
-        _metadata: &GAMetadata,
+        _metadata: &Metrics,
         parent_1: &IndividualT,
         parent_2: &IndividualT,
     ) -> (IndividualT, IndividualT)
@@ -163,7 +163,7 @@ where
     ///
     /// * `metadata` - algorithm state metadata, see the structure details for more info,
     /// * `selected` - references to individuals selected during selection step.
-    fn apply(&mut self, metadata: &GAMetadata, selected: &[&IndividualT]) -> Vec<IndividualT> {
+    fn apply(&mut self, metadata: &Metrics, selected: &[&IndividualT]) -> Vec<IndividualT> {
         assert!(selected.len() & 1 == 0);
 
         let mut output = Vec::with_capacity(selected.len());

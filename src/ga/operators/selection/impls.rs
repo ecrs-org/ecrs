@@ -3,7 +3,7 @@ use std::{iter::Sum, ops::Index};
 use num_traits::{identities::Zero, NumAssignOps};
 use rand::{distributions::Standard, prelude::Distribution, rngs::ThreadRng, Rng};
 
-use crate::ga::{individual::IndividualTrait, GAMetadata};
+use crate::ga::{individual::IndividualTrait, Metrics};
 
 use super::SelectionOperator;
 
@@ -63,7 +63,7 @@ where
     /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metadata: &GAMetadata,
+        _metadata: &Metrics,
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
@@ -127,7 +127,7 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Ra
     /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metadata: &GAMetadata,
+        _metadata: &Metrics,
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
@@ -186,7 +186,7 @@ where
     /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metadata: &GAMetadata,
+        _metadata: &Metrics,
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
@@ -266,7 +266,7 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Ra
     /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metadata: &GAMetadata,
+        _metadata: &Metrics,
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
@@ -348,7 +348,7 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for To
     /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metadata: &GAMetadata,
+        _metadata: &Metrics,
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
@@ -444,7 +444,7 @@ impl<IndividualT: IndividualTrait<FitnessValueT = f64>, R: Rng> SelectionOperato
     /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metadata: &GAMetadata,
+        _metadata: &Metrics,
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
@@ -538,7 +538,7 @@ where
 {
     fn apply<'a>(
         &mut self,
-        metadata: &GAMetadata,
+        metadata: &Metrics,
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {

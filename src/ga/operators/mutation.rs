@@ -3,7 +3,7 @@ pub mod impls;
 #[cfg(feature = "ga_impl_mutation")]
 pub use impls::*;
 
-use crate::ga::{individual::IndividualTrait, GAMetadata};
+use crate::ga::{individual::IndividualTrait, Metrics};
 
 /// # Mutation Operator
 ///
@@ -15,5 +15,5 @@ pub trait MutationOperator<IndividualT: IndividualTrait> {
     /// ## Arguments
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
-    fn apply(&mut self, metadata: &GAMetadata, individual: &mut IndividualT);
+    fn apply(&mut self, metadata: &Metrics, individual: &mut IndividualT);
 }

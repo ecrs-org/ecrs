@@ -9,7 +9,7 @@ pub mod impls;
 #[cfg(feature = "ga_impl_replacement")]
 pub use impls::*;
 
-use crate::ga::{individual::IndividualTrait, GAMetadata};
+use crate::ga::{individual::IndividualTrait, Metrics};
 
 /// # Replacement Operator
 ///
@@ -36,7 +36,7 @@ pub trait ReplacementOperator<IndividualT: IndividualTrait> {
     /// * `children` - Result of the crossover phase.
     fn apply(
         &mut self,
-        metadata: &GAMetadata,
+        metadata: &Metrics,
         population: Vec<IndividualT>,
         children: Vec<IndividualT>,
     ) -> Vec<IndividualT>;

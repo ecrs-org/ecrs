@@ -3,7 +3,7 @@
 use ecrs::ga::{
     operators::replacement::{BothParents, Noop, ReplacementOperator},
     population::{PopulationGenerator, RandomPoints},
-    GAMetadata, Individual,
+    Metrics, Individual,
 };
 
 #[test]
@@ -18,7 +18,7 @@ fn noop_does_nothing() {
 
     let mut noop = Noop::new();
 
-    let result = noop.apply(&GAMetadata::default(), population, children);
+    let result = noop.apply(&Metrics::default(), population, children);
 
     assert_eq!(result, population_clone);
 }
@@ -36,7 +36,7 @@ fn both_parents_returns_children() {
 
     let mut both_parents = BothParents::new();
 
-    let result = both_parents.apply(&GAMetadata::default(), population, children);
+    let result = both_parents.apply(&Metrics::default(), population, children);
 
     assert_eq!(result, children_clone);
 }

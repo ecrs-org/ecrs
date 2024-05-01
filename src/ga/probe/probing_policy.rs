@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::ga::{individual::IndividualTrait, GAMetadata};
+use crate::ga::{individual::IndividualTrait, Metrics};
 
 use super::ProbingPolicy;
 
@@ -28,36 +28,36 @@ impl GenerationInterval {
 
 impl<IndividualT: IndividualTrait> ProbingPolicy<IndividualT> for GenerationInterval {
     #[inline(always)]
-    fn on_start(&mut self, _metadata: &crate::ga::GAMetadata) -> bool {
+    fn on_start(&mut self, _metadata: &crate::ga::Metrics) -> bool {
         true
     }
 
     #[inline(always)]
-    fn on_initial_population_created(&mut self, _metadata: &GAMetadata, _population: &[IndividualT]) -> bool {
+    fn on_initial_population_created(&mut self, _metadata: &Metrics, _population: &[IndividualT]) -> bool {
         true
     }
 
     #[inline(always)]
-    fn on_new_best(&mut self, _metadata: &crate::ga::GAMetadata, _individual: &IndividualT) -> bool {
+    fn on_new_best(&mut self, _metadata: &crate::ga::Metrics, _individual: &IndividualT) -> bool {
         true
     }
 
     #[inline(always)]
-    fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[IndividualT]) -> bool {
+    fn on_new_generation(&mut self, _metadata: &Metrics, _generation: &[IndividualT]) -> bool {
         self.should_log
     }
 
     #[inline(always)]
     fn on_best_fit_in_generation(
         &mut self,
-        _metadata: &crate::ga::GAMetadata,
+        _metadata: &crate::ga::Metrics,
         _individual: &IndividualT,
     ) -> bool {
         self.should_log
     }
 
     #[inline]
-    fn on_iteration_start(&mut self, metadata: &GAMetadata) -> bool {
+    fn on_iteration_start(&mut self, metadata: &Metrics) -> bool {
         if metadata.generation >= self.threshold {
             self.threshold += self.interval;
             self.should_log = true;
@@ -68,7 +68,7 @@ impl<IndividualT: IndividualTrait> ProbingPolicy<IndividualT> for GenerationInte
     }
 
     #[inline(always)]
-    fn on_iteration_end(&mut self, _metadata: &GAMetadata) -> bool {
+    fn on_iteration_end(&mut self, _metadata: &Metrics) -> bool {
         let prev = self.should_log;
         self.should_log = false;
         prev
@@ -77,7 +77,7 @@ impl<IndividualT: IndividualTrait> ProbingPolicy<IndividualT> for GenerationInte
     #[inline(always)]
     fn on_end(
         &mut self,
-        _metadata: &crate::ga::GAMetadata,
+        _metadata: &crate::ga::Metrics,
         _population: &[IndividualT],
         _best_individual: &IndividualT,
     ) -> bool {
@@ -109,35 +109,35 @@ impl ElapsedTime {
 
 impl<IndividualT: IndividualTrait> ProbingPolicy<IndividualT> for ElapsedTime {
     #[inline(always)]
-    fn on_start(&mut self, _metadata: &crate::ga::GAMetadata) -> bool {
+    fn on_start(&mut self, _metadata: &crate::ga::Metrics) -> bool {
         true
     }
 
     #[inline(always)]
-    fn on_initial_population_created(&mut self, _metadata: &GAMetadata, _population: &[IndividualT]) -> bool {
+    fn on_initial_population_created(&mut self, _metadata: &Metrics, _population: &[IndividualT]) -> bool {
         true
     }
 
     #[inline(always)]
-    fn on_new_best(&mut self, _metadata: &crate::ga::GAMetadata, _individual: &IndividualT) -> bool {
+    fn on_new_best(&mut self, _metadata: &crate::ga::Metrics, _individual: &IndividualT) -> bool {
         true
     }
 
     #[inline(always)]
-    fn on_new_generation(&mut self, _metadata: &GAMetadata, _generation: &[IndividualT]) -> bool {
+    fn on_new_generation(&mut self, _metadata: &Metrics, _generation: &[IndividualT]) -> bool {
         self.should_log
     }
 
     #[inline(always)]
     fn on_best_fit_in_generation(
         &mut self,
-        _metadata: &crate::ga::GAMetadata,
+        _metadata: &crate::ga::Metrics,
         _individual: &IndividualT,
     ) -> bool {
         self.should_log
     }
 
-    fn on_iteration_start(&mut self, metadata: &GAMetadata) -> bool {
+    fn on_iteration_start(&mut self, metadata: &Metrics) -> bool {
         if metadata.total_dur.unwrap() >= self.threshold {
             self.should_log = true;
             self.threshold += self.interval;
@@ -148,7 +148,7 @@ impl<IndividualT: IndividualTrait> ProbingPolicy<IndividualT> for ElapsedTime {
     }
 
     #[inline]
-    fn on_iteration_end(&mut self, _metadata: &GAMetadata) -> bool {
+    fn on_iteration_end(&mut self, _metadata: &Metrics) -> bool {
         let prev = self.should_log;
         self.should_log = false;
         prev
@@ -157,7 +157,7 @@ impl<IndividualT: IndividualTrait> ProbingPolicy<IndividualT> for ElapsedTime {
     #[inline(always)]
     fn on_end(
         &mut self,
-        _metadata: &crate::ga::GAMetadata,
+        _metadata: &crate::ga::Metrics,
         _population: &[IndividualT],
         _best_individual: &IndividualT,
     ) -> bool {

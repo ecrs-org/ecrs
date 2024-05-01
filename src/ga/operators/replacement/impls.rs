@@ -1,4 +1,4 @@
-use crate::ga::{individual::IndividualTrait, GAMetadata};
+use crate::ga::{individual::IndividualTrait, Metrics};
 
 use super::ReplacementOperator;
 
@@ -38,7 +38,7 @@ impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for BothPare
     #[inline(always)]
     fn apply(
         &mut self,
-        _metadata: &GAMetadata,
+        _metadata: &Metrics,
         _population: Vec<IndividualT>,
         children: Vec<IndividualT>,
     ) -> Vec<IndividualT> {
@@ -73,7 +73,7 @@ impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for Noop {
     #[inline(always)]
     fn apply(
         &mut self,
-        _metadata: &GAMetadata,
+        _metadata: &Metrics,
         population: Vec<IndividualT>,
         _children: Vec<IndividualT>,
     ) -> Vec<IndividualT> {
@@ -141,7 +141,7 @@ impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for WeakPare
     /// * `children` - Result of the crossover phase
     fn apply(
         &mut self,
-        _metadata: &GAMetadata,
+        _metadata: &Metrics,
         mut population: Vec<IndividualT>,
         mut children: Vec<IndividualT>,
     ) -> Vec<IndividualT> {
@@ -182,7 +182,7 @@ impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for WeakPare
 
 #[cfg(test)]
 mod tests {
-    use crate::ga::{GAMetadata, Individual};
+    use crate::ga::{Metrics, Individual};
 
     use super::{BothParents, Noop, ReplacementOperator, WeakParent};
 
@@ -222,7 +222,7 @@ mod tests {
 
         let children_clone = children.clone();
 
-        let result = WeakParent::new().apply(&GAMetadata::default(), parents, children);
+        let result = WeakParent::new().apply(&Metrics::default(), parents, children);
 
         assert_eq!(result, children_clone);
     }
@@ -253,7 +253,7 @@ mod tests {
 
         let parents_clone = parents.clone();
 
-        let result = WeakParent::new().apply(&GAMetadata::default(), parents, children);
+        let result = WeakParent::new().apply(&Metrics::default(), parents, children);
 
         assert_eq!(result, parents_clone);
     }
@@ -293,7 +293,7 @@ mod tests {
             },
         ];
 
-        let result = WeakParent::new().apply(&GAMetadata::default(), parents, children);
+        let result = WeakParent::new().apply(&Metrics::default(), parents, children);
 
         assert_eq!(result, expected_result);
     }
@@ -333,7 +333,7 @@ mod tests {
             },
         ];
 
-        let result = WeakParent::new().apply(&GAMetadata::default(), parents, children);
+        let result = WeakParent::new().apply(&Metrics::default(), parents, children);
 
         assert_eq!(result, expected_result);
     }
@@ -373,7 +373,7 @@ mod tests {
             },
         ];
 
-        let result = WeakParent::new().apply(&GAMetadata::default(), parents, children);
+        let result = WeakParent::new().apply(&Metrics::default(), parents, children);
 
         assert_eq!(result, expected_result);
     }

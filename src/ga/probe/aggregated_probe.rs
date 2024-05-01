@@ -1,5 +1,5 @@
 use super::Probe;
-use crate::ga::{individual::IndividualTrait, GAMetadata};
+use crate::ga::{individual::IndividualTrait, Metrics};
 
 /// Wrapper probe. It holds a list of probes and calls them sequentially.
 ///
@@ -49,7 +49,7 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference. When running this method only `start_time`
     /// field has meaningful value.
-    fn on_start(&mut self, metadata: &GAMetadata) {
+    fn on_start(&mut self, metadata: &Metrics) {
         for probe in &mut self.probes {
             probe.on_start(metadata);
         }
@@ -63,7 +63,7 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     /// ### Arguments
     ///
     /// * `population` - Freshly generated population
-    fn on_initial_population_created(&mut self, metadata: &GAMetadata, population: &[IndividualT]) {
+    fn on_initial_population_created(&mut self, metadata: &Metrics, population: &[IndividualT]) {
         for probe in &mut self.probes {
             probe.on_initial_population_created(metadata, population);
         }
@@ -78,7 +78,7 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
     /// * `individual` - New best individual
-    fn on_new_best(&mut self, metadata: &GAMetadata, individual: &IndividualT) {
+    fn on_new_best(&mut self, metadata: &Metrics, individual: &IndividualT) {
         for probe in &mut self.probes {
             probe.on_new_best(metadata, individual);
         }
@@ -91,7 +91,7 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     /// ### Arguments
     ///
     /// * `generation` - Newly created generation
-    fn on_new_generation(&mut self, metadata: &GAMetadata, generation: &[IndividualT]) {
+    fn on_new_generation(&mut self, metadata: &Metrics, generation: &[IndividualT]) {
         /* defaults to noop */
         for probe in &mut self.probes {
             probe.on_new_generation(metadata, generation);
@@ -107,7 +107,7 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
     /// * `individual` - Best individual in current generation
-    fn on_best_fit_in_generation(&mut self, metadata: &GAMetadata, individual: &IndividualT) {
+    fn on_best_fit_in_generation(&mut self, metadata: &Metrics, individual: &IndividualT) {
         for probe in &mut self.probes {
             probe.on_best_fit_in_generation(metadata, individual);
         }
@@ -121,7 +121,7 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     ///
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
-    fn on_iteration_start(&mut self, metadata: &GAMetadata) {
+    fn on_iteration_start(&mut self, metadata: &Metrics) {
         /* defaults to noop */
         for probe in &mut self.probes {
             probe.on_iteration_start(metadata);
@@ -137,7 +137,7 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     ///
     /// * `metadata` - Structure containing metadata information on genetic algorithm.
     /// See [GAMetadata] for reference.
-    fn on_iteration_end(&mut self, metadata: &GAMetadata) {
+    fn on_iteration_end(&mut self, metadata: &Metrics) {
         /* defaults to noop */
         for probe in &mut self.probes {
             probe.on_iteration_end(metadata);
@@ -155,7 +155,7 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     /// See [GAMetadata] for reference.
     /// * `population` - Final population
     /// * `best_individual` - Best individual found by algorithm
-    fn on_end(&mut self, metadata: &GAMetadata, population: &[IndividualT], best_individual: &IndividualT) {
+    fn on_end(&mut self, metadata: &Metrics, population: &[IndividualT], best_individual: &IndividualT) {
         for probe in &mut self.probes {
             probe.on_end(metadata, population, best_individual);
         }
