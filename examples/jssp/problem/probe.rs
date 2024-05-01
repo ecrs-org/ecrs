@@ -84,7 +84,7 @@ impl Probe<JsspIndividual> for JsspProbe {
     // iterinfo,<generation>,<eval_time>,<sel_time>,<cross_time>,<mut_time>,<repl_time>,<iter_time>
 
     #[inline]
-    fn on_start(&mut self, _metadata: &ecrs::ga::Metrics) {
+    fn on_start(&mut self, _metrics: &ecrs::ga::Metrics) {
         // Writing csv header to each file
         info!(target: "popmetrics", "event_name,generation,total_duration,population_size,diversity,distance_avg");
         info!(target: "popgentime", "event_name,time");
@@ -93,7 +93,7 @@ impl Probe<JsspIndividual> for JsspProbe {
         info!(target: "iterinfo", "event_name,generation,eval_time,sel_time,cross_time,mut_time,repl_time,iter_time");
     }
 
-    fn on_initial_population_created(&mut self, metadata: &ecrs::ga::Metrics, population: &[JsspIndividual]) {
+    fn on_initial_population_created(&mut self, metrics: &ecrs::ga::Metrics, population: &[JsspIndividual]) {
         debug_assert_eq!(self.repeated.len(), 0);
         self.repeated.resize(population.len(), false);
 
@@ -102,20 +102,20 @@ impl Probe<JsspIndividual> for JsspProbe {
         let diversity = self.estimate_pop_diversity(population);
         let distance_avg = self.estimate_avg_distance(population);
         info!(target: "popmetrics", "diversity,0,0,{},{diversity},{distance_avg}", population.len());
-        info!(target: "popgentime", "popgentime,{}", metadata.pop_gen_dur.unwrap().as_millis());
+        info!(target: "popgentime", "popgentime,{}", metrics.pop_gen_dur.unwrap().as_millis());
     }
 
-    fn on_new_best(&mut self, metadata: &ecrs::ga::Metrics, individual: &JsspIndividual) {
+    fn on_new_best(&mut self, metrics: &ecrs::ga::Metrics, individual: &JsspIndividual) {
         info!(
             target: "newbest",
             "newbest,{},{},{}",
-            metadata.generation,
-            metadata.total_dur.unwrap().as_millis(),
+            metrics.generation,
+            metrics.total_dur.unwrap().as_millis(),
             individual.fitness
         );
     }
 
-    fn on_new_generation(&mut self, metadata: &ecrs::ga::Metrics, generation: &[JsspIndividual]) {
+    fn on_new_generation(&mut self, metrics: &ecrs::ga::Metrics, generation: &[JsspIndividual]) {
         // TODO: As this metric is useless right now I'm disabling it temporarily
         // let diversity = self.estimate_pop_diversity(generation);
         let diversity = self.estimate_pop_diversity(generation);
@@ -123,43 +123,43 @@ impl Probe<JsspIndividual> for JsspProbe {
         info!(
             target: "popmetrics",
             "diversity,{},{},{},{diversity},{distance_avg}",
-            metadata.generation,
-            metadata.total_dur.unwrap().as_millis(),
+            metrics.generation,
+            metrics.total_dur.unwrap().as_millis(),
             generation.len()
         );
     }
 
-    fn on_best_fit_in_generation(&mut self, metadata: &ecrs::ga::Metrics, individual: &JsspIndividual) {
+    fn on_best_fit_in_generation(&mut self, metrics: &ecrs::ga::Metrics, individual: &JsspIndividual) {
         info!(
             target: "bestingen",
             "bestingen,{},{},{}",
-            metadata.generation,
-            metadata.total_dur.unwrap().as_millis(),
+            metrics.generation,
+            metrics.total_dur.unwrap().as_millis(),
             individual.fitness
         );
     }
 
     #[inline]
-    fn on_iteration_start(&mut self, _metadata: &ecrs::ga::Metrics) { /* defaults to noop */
+    fn on_iteration_start(&mut self, _metrics: &ecrs::ga::Metrics) { /* defaults to noop */
     }
 
     #[inline]
-    fn on_iteration_end(&mut self, metadata: &ecrs::ga::Metrics) {
+    fn on_iteration_end(&mut self, metrics: &ecrs::ga::Metrics) {
         info!(target: "iterinfo", "iterinfo,{},{},{},{},{},{},{}",
-            metadata.generation,
-            metadata.pop_eval_dur.unwrap().as_millis(),
-            metadata.selection_dur.unwrap().as_millis(),
-            metadata.crossover_dur.unwrap().as_millis(),
-            metadata.mutation_dur.unwrap().as_millis(),
-            metadata.replacement_dur.unwrap().as_millis(),
-            metadata.iteration_dur.unwrap().as_millis()
+            metrics.generation,
+            metrics.pop_eval_dur.unwrap().as_millis(),
+            metrics.selection_dur.unwrap().as_millis(),
+            metrics.crossover_dur.unwrap().as_millis(),
+            metrics.mutation_dur.unwrap().as_millis(),
+            metrics.replacement_dur.unwrap().as_millis(),
+            metrics.iteration_dur.unwrap().as_millis()
         );
     }
 
     #[inline]
     fn on_end(
         &mut self,
-        metadata: &ecrs::ga::Metrics,
+        metrics: &ecrs::ga::Metrics,
         _population: &[JsspIndividual],
         best_individual: &JsspIndividual,
     ) {
@@ -201,8 +201,8 @@ impl Probe<JsspIndividual> for JsspProbe {
             solution_string,
             hash: format!("{:x}", hash),
             fitness: best_individual.fitness,
-            generation_count: metadata.generation,
-            total_time: metadata.total_dur.unwrap().as_millis(),
+            generation_count: metrics.generation,
+            total_time: metrics.total_dur.unwrap().as_millis(),
             chromosome: best_individual.chromosome(),
         };
         let serialized_object = serde_json::to_string_pretty(&outdata).unwrap();

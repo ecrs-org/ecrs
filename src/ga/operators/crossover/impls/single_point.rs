@@ -51,7 +51,7 @@ impl<R: Rng> SinglePoint<R> {
     /// * `parent_2` - Second parent to take part in recombination
     fn apply_single<GeneT, IndividualT>(
         &mut self,
-        _metadata: &Metrics,
+        _metrics: &Metrics,
         parent_1: &IndividualT,
         parent_2: &IndividualT,
     ) -> (IndividualT, IndividualT)
@@ -98,15 +98,15 @@ where
     ///
     /// ## Arguments
     ///
-    /// * `metadata` - algorithm state metadata, see the structure details for more info,
+    /// * `metrics` - algorithm state metrics, see the structure details for more info,
     /// * `selected` - references to individuals selected during selection step.
-    fn apply(&mut self, metadata: &Metrics, selected: &[&IndividualT]) -> Vec<IndividualT> {
+    fn apply(&mut self, metrics: &Metrics, selected: &[&IndividualT]) -> Vec<IndividualT> {
         assert!(selected.len() & 1 == 0);
 
         let mut output = Vec::with_capacity(selected.len());
 
         for parents in selected.chunks(2) {
-            let (child_1, child_2) = self.apply_single(metadata, parents[0], parents[1]);
+            let (child_1, child_2) = self.apply_single(metrics, parents[0], parents[1]);
             output.push(child_1);
             output.push(child_2);
         }

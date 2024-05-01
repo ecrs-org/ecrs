@@ -11,44 +11,44 @@ impl StdoutProbe {
 }
 
 impl<IndividualT: IndividualTrait> Probe<IndividualT> for StdoutProbe {
-    fn on_start(&mut self, _metadata: &Metrics) {
+    fn on_start(&mut self, _metrics: &Metrics) {
         info!("[START] time,generation,chromosome,fitness");
     }
 
-    fn on_new_best(&mut self, metadata: &Metrics, individual: &IndividualT) {
+    fn on_new_best(&mut self, metrics: &Metrics, individual: &IndividualT) {
         info!(
             "[NEW_BEST] {},{},{:?},{}",
-            metadata
+            metrics
                 .total_dur
                 .unwrap_or(std::time::Duration::from_millis(0))
                 .as_millis(),
-            metadata.generation,
+            metrics.generation,
             individual.chromosome(),
             individual.fitness()
         );
     }
 
-    fn on_new_generation(&mut self, _metadata: &Metrics, _generation: &[IndividualT]) {
+    fn on_new_generation(&mut self, _metrics: &Metrics, _generation: &[IndividualT]) {
         // TODO: Take reference to whole generation as a parameter and display it here!
         // We don't want to print anything on new generation right now
     }
 
-    fn on_best_fit_in_generation(&mut self, metadata: &Metrics, individual: &IndividualT) {
+    fn on_best_fit_in_generation(&mut self, metrics: &Metrics, individual: &IndividualT) {
         // TODO: Take reference to the best chromosome & display it here!
         info!(
             "[BEST_IN_GEN] {},{},{:?},{}",
-            metadata.total_dur.unwrap().as_millis(),
-            metadata.generation,
+            metrics.total_dur.unwrap().as_millis(),
+            metrics.generation,
             individual.chromosome(),
             individual.fitness()
         );
     }
 
-    fn on_end(&mut self, metadata: &Metrics, _population: &[IndividualT], best_individual: &IndividualT) {
+    fn on_end(&mut self, metrics: &Metrics, _population: &[IndividualT], best_individual: &IndividualT) {
         info!(
             "[END] {},{},{:?},{}",
-            metadata.total_dur.unwrap().as_millis(),
-            metadata.generation,
+            metrics.total_dur.unwrap().as_millis(),
+            metrics.generation,
             best_individual.chromosome(),
             best_individual.fitness()
         );

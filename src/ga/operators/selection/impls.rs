@@ -58,12 +58,12 @@ where
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+    /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
     /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metadata: &Metrics,
+        _metrics: &Metrics,
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
@@ -122,12 +122,12 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Ra
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+    /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
     /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metadata: &Metrics,
+        _metrics: &Metrics,
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
@@ -181,12 +181,12 @@ where
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+    /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
     /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metadata: &Metrics,
+        _metrics: &Metrics,
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
@@ -261,12 +261,12 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Ra
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+    /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
     /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metadata: &Metrics,
+        _metrics: &Metrics,
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
@@ -343,12 +343,12 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for To
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+    /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
     /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metadata: &Metrics,
+        _metrics: &Metrics,
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
@@ -439,12 +439,12 @@ impl<IndividualT: IndividualTrait<FitnessValueT = f64>, R: Rng> SelectionOperato
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+    /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
     /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metadata: &Metrics,
+        _metrics: &Metrics,
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
@@ -538,14 +538,14 @@ where
 {
     fn apply<'a>(
         &mut self,
-        metadata: &Metrics,
+        metrics: &Metrics,
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT> {
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
         let mut weights: Vec<f64> = Vec::with_capacity(count);
 
-        let k = 1.0 + 100.0 * (metadata.generation as f64) / (self.max_gen_count as f64);
+        let k = 1.0 + 100.0 * (metrics.generation as f64) / (self.max_gen_count as f64);
         let temp = self.temp_0 * (1.0 - self.alpha).powf(k);
 
         for idv in population {

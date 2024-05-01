@@ -38,7 +38,7 @@ impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for BothPare
     #[inline(always)]
     fn apply(
         &mut self,
-        _metadata: &Metrics,
+        _metrics: &Metrics,
         _population: Vec<IndividualT>,
         children: Vec<IndividualT>,
     ) -> Vec<IndividualT> {
@@ -73,7 +73,7 @@ impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for Noop {
     #[inline(always)]
     fn apply(
         &mut self,
-        _metadata: &Metrics,
+        _metrics: &Metrics,
         population: Vec<IndividualT>,
         _children: Vec<IndividualT>,
     ) -> Vec<IndividualT> {
@@ -141,7 +141,7 @@ impl<IndividualT: IndividualTrait> ReplacementOperator<IndividualT> for WeakPare
     /// * `children` - Result of the crossover phase
     fn apply(
         &mut self,
-        _metadata: &Metrics,
+        _metrics: &Metrics,
         mut population: Vec<IndividualT>,
         mut children: Vec<IndividualT>,
     ) -> Vec<IndividualT> {

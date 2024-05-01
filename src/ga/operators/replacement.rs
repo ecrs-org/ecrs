@@ -36,7 +36,7 @@ pub trait ReplacementOperator<IndividualT: IndividualTrait> {
     /// * `children` - Result of the crossover phase.
     fn apply(
         &mut self,
-        metadata: &Metrics,
+        metrics: &Metrics,
         population: Vec<IndividualT>,
         children: Vec<IndividualT>,
     ) -> Vec<IndividualT>;

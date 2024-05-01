@@ -14,7 +14,7 @@ pub trait CrossoverOperator<IndividualT: IndividualTrait> {
     /// FIXME: Understand lifetimes here!
     // fn apply_iter<'i, InputIter, OutputIter>(
     //     &mut self,
-    //     metadata: &GAMetadata,
+    //     metrics: &Metrics,
     //     selected: InputIter,
     // ) -> OutputIter
     // where
@@ -26,11 +26,11 @@ pub trait CrossoverOperator<IndividualT: IndividualTrait> {
     ///
     /// ## Arguments
     ///
-    /// * `metadata` - metadata provided by the GA runtime,
+    /// * `metrics` - metrics provided by the GA runtime,
     /// * `selected` - result of running selection operator,
     ///
     /// ## Returns
     ///
     /// Vector of individuals created during the crossover stage.
-    fn apply(&mut self, metadata: &Metrics, selected: &[&IndividualT]) -> Vec<IndividualT>;
+    fn apply(&mut self, metrics: &Metrics, selected: &[&IndividualT]) -> Vec<IndividualT>;
 }

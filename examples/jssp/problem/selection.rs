@@ -13,7 +13,7 @@ impl EmptySelection {
 impl SelectionOperator<JsspIndividual> for EmptySelection {
     fn apply<'a>(
         &mut self,
-        _metadata: &ecrs::ga::Metrics,
+        _metrics: &ecrs::ga::Metrics,
         _population: &'a [JsspIndividual],
         _count: usize,
     ) -> Vec<&'a JsspIndividual> {

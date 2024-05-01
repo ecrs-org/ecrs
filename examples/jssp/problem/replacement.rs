@@ -24,7 +24,7 @@ impl JsspReplacement {
 impl ReplacementOperator<JsspIndividual> for JsspReplacement {
     fn apply(
         &mut self,
-        _metadata: &Metrics,
+        _metrics: &Metrics,
         mut population: Vec<JsspIndividual>,
         mut children: Vec<JsspIndividual>,
     ) -> Vec<JsspIndividual> {
@@ -80,7 +80,7 @@ impl ReplaceWithRandomPopulation {
 impl ReplacementOperator<JsspIndividual> for ReplaceWithRandomPopulation {
     fn apply(
         &mut self,
-        _metadata: &Metrics,
+        _metrics: &Metrics,
         population: Vec<JsspIndividual>,
         _children: Vec<JsspIndividual>,
     ) -> Vec<JsspIndividual> {

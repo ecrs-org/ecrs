@@ -24,7 +24,7 @@ impl Identity {
 }
 
 impl<IndividualT: IndividualTrait> MutationOperator<IndividualT> for Identity {
-    fn apply(&mut self, _metadata: &Metrics, _individual: &mut IndividualT) {}
+    fn apply(&mut self, _metrics: &Metrics, _individual: &mut IndividualT) {}
 }
 
 /// ### Flilp bit mutation operator
@@ -67,7 +67,7 @@ where
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
     /// * `mutation_rate` - probability of gene mutation
-    fn apply(&mut self, _metadata: &Metrics, individual: &mut IndividualT) {
+    fn apply(&mut self, _metrics: &Metrics, individual: &mut IndividualT) {
         let distribution = rand::distributions::Uniform::from(0.0..1.0);
         let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
@@ -120,7 +120,7 @@ where
     /// ## Arguments
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
-    fn apply(&mut self, _metadata: &Metrics, individual: &mut IndividualT) {
+    fn apply(&mut self, _metrics: &Metrics, individual: &mut IndividualT) {
         let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
 
@@ -178,7 +178,7 @@ where
     /// ## Arguments
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
-    fn apply(&mut self, _metadata: &Metrics, individual: &mut IndividualT) {
+    fn apply(&mut self, _metrics: &Metrics, individual: &mut IndividualT) {
         let dist = rand::distributions::Uniform::from(0.0..1.0);
         let chromosome_ref = individual.chromosome_mut();
         let chromosome_len = chromosome_ref.len();
@@ -237,7 +237,7 @@ where
     /// ## Arguments
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
-    fn apply(&mut self, _metadata: &Metrics, individual: &mut IndividualT) {
+    fn apply(&mut self, _metrics: &Metrics, individual: &mut IndividualT) {
         let _marker: PhantomData<GeneT> = PhantomData;
 
         let r: f64 = self.rng.gen();

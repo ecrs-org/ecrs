@@ -15,5 +15,5 @@ pub trait MutationOperator<IndividualT: IndividualTrait> {
     /// ## Arguments
     ///
     /// * `individual` - mutable reference to to-be-mutated individual
-    fn apply(&mut self, metadata: &Metrics, individual: &mut IndividualT);
+    fn apply(&mut self, metrics: &Metrics, individual: &mut IndividualT);
 }

@@ -46,12 +46,12 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - Structure containing metadata information on genetic algorithm.
-    /// See [GAMetadata] for reference. When running this method only `start_time`
+    /// * `metrics` - Structure containing metrics information on genetic algorithm.
+    /// See [Metrics] for reference. When running this method only `start_time`
     /// field has meaningful value.
-    fn on_start(&mut self, metadata: &Metrics) {
+    fn on_start(&mut self, metrics: &Metrics) {
         for probe in &mut self.probes {
-            probe.on_start(metadata);
+            probe.on_start(metrics);
         }
     }
 
@@ -63,9 +63,9 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     /// ### Arguments
     ///
     /// * `population` - Freshly generated population
-    fn on_initial_population_created(&mut self, metadata: &Metrics, population: &[IndividualT]) {
+    fn on_initial_population_created(&mut self, metrics: &Metrics, population: &[IndividualT]) {
         for probe in &mut self.probes {
-            probe.on_initial_population_created(metadata, population);
+            probe.on_initial_population_created(metrics, population);
         }
     }
 
@@ -75,12 +75,12 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - Structure containing metadata information on genetic algorithm.
-    /// See [GAMetadata] for reference.
+    /// * `Metrics` - Structure containing Metrics information on genetic algorithm.
+    /// See [Metrics] for reference.
     /// * `individual` - New best individual
-    fn on_new_best(&mut self, metadata: &Metrics, individual: &IndividualT) {
+    fn on_new_best(&mut self, metrics: &Metrics, individual: &IndividualT) {
         for probe in &mut self.probes {
-            probe.on_new_best(metadata, individual);
+            probe.on_new_best(metrics, individual);
         }
     }
 
@@ -91,10 +91,10 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     /// ### Arguments
     ///
     /// * `generation` - Newly created generation
-    fn on_new_generation(&mut self, metadata: &Metrics, generation: &[IndividualT]) {
+    fn on_new_generation(&mut self, metrics: &Metrics, generation: &[IndividualT]) {
         /* defaults to noop */
         for probe in &mut self.probes {
-            probe.on_new_generation(metadata, generation);
+            probe.on_new_generation(metrics, generation);
         }
     }
 
@@ -104,12 +104,12 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - Structure containing metadata information on genetic algorithm.
-    /// See [GAMetadata] for reference.
+    /// * `metrics` - Structure containing metrics information on genetic algorithm.
+    /// See [Metrics] for reference.
     /// * `individual` - Best individual in current generation
-    fn on_best_fit_in_generation(&mut self, metadata: &Metrics, individual: &IndividualT) {
+    fn on_best_fit_in_generation(&mut self, metrics: &Metrics, individual: &IndividualT) {
         for probe in &mut self.probes {
-            probe.on_best_fit_in_generation(metadata, individual);
+            probe.on_best_fit_in_generation(metrics, individual);
         }
     }
 
@@ -119,12 +119,12 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - Structure containing metadata information on genetic algorithm.
-    /// See [GAMetadata] for reference.
-    fn on_iteration_start(&mut self, metadata: &Metrics) {
+    /// * `metrics` - Structure containing metrics information on genetic algorithm.
+    /// See [Metrics] for reference.
+    fn on_iteration_start(&mut self, metrics: &Metrics) {
         /* defaults to noop */
         for probe in &mut self.probes {
-            probe.on_iteration_start(metadata);
+            probe.on_iteration_start(metrics);
         }
     }
 
@@ -135,12 +135,12 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - Structure containing metadata information on genetic algorithm.
-    /// See [GAMetadata] for reference.
-    fn on_iteration_end(&mut self, metadata: &Metrics) {
+    /// * `metrics` - Structure containing metrics information on genetic algorithm.
+    /// See [Metrics] for reference.
+    fn on_iteration_end(&mut self, metrics: &Metrics) {
         /* defaults to noop */
         for probe in &mut self.probes {
-            probe.on_iteration_end(metadata);
+            probe.on_iteration_end(metrics);
         }
     }
 
@@ -151,13 +151,13 @@ impl<IndividualT: IndividualTrait> Probe<IndividualT> for AggregatedProbe<Indivi
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - Structure containing metadata information on genetic algorithm.
-    /// See [GAMetadata] for reference.
+    /// * `metrics` - Structure containing metrics information on genetic algorithm.
+    /// See [Metrics] for reference.
     /// * `population` - Final population
     /// * `best_individual` - Best individual found by algorithm
-    fn on_end(&mut self, metadata: &Metrics, population: &[IndividualT], best_individual: &IndividualT) {
+    fn on_end(&mut self, metrics: &Metrics, population: &[IndividualT], best_individual: &IndividualT) {
         for probe in &mut self.probes {
-            probe.on_end(metadata, population, best_individual);
+            probe.on_end(metrics, population, best_individual);
         }
     }
 }
