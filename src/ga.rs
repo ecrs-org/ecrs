@@ -242,8 +242,6 @@ where
     pub fn new(
         config: GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
     ) -> Self {
-        assert_eq!(config.params.population_size % 2, 0); // Required for most of operators right
-                                                          // now
         GeneticSolver {
             config,
             metadata: Metrics::new(None, None, 0),
