@@ -301,35 +301,36 @@ impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> Sele
 /// 1. Select `ceil(size_factor * population_size)` distinct, random individuals
 /// 2. Select one with the highest fitness
 /// 3. Repeat 1-2 number of times necessary to fill mating pool
-pub struct Tournament<R: Rng = ThreadRng> {
+pub struct Tournament<SizeValue: ValueProvider<usize>, R: Rng = ThreadRng> {
     size_factor: f64,
+    selection_size: SizeValue,
     rng: R,
 }
 
-impl Tournament<ThreadRng> {
+impl<SizeValue: ValueProvider<usize>> Tournament<SizeValue, ThreadRng> {
     /// Returns new instance of [Tournament] selection operator with default RNG
     ///
     /// ### Arguments
     ///
     /// * `size_factor` - part of population to take part in tournament for choosing single individual; must be in range [0, 1]
-    pub fn new(size_factor: f64) -> Self {
-        Tournament::with_rng(size_factor, rand::thread_rng())
+    pub fn new(size_factor: f64, selection_size: SizeValue) -> Self {
+        Self::with_rng(size_factor, selection_size, rand::thread_rng())
     }
 }
 
-impl<R: Rng> Tournament<R> {
+impl<SizeValue: ValueProvider<usize>, R: Rng> Tournament<SizeValue, R> {
     /// Returns new instance of [Tournament] selection operator with custom RNG
     ///
     /// ### Arguments
     ///
     /// * `size_factor` - part of population to take part in tournament for choosing single individual; must be in range [0, 1]
-    pub fn with_rng(size_factor: f64, rng: R) -> Self {
+    pub fn with_rng(size_factor: f64, selection_size: SizeValue, rng: R) -> Self {
         assert!((0.0..=1.0).contains(&size_factor));
-        Tournament { size_factor, rng }
+        Tournament { size_factor, selection_size, rng }
     }
 }
 
-impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Tournament<R> {
+impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT> for Tournament<SizeValue, R> {
     /// Returns a vector of references to individuals selected to mating pool
     ///
     /// Individuals are selected by conducting given number of tournaments with single winner:
@@ -347,10 +348,10 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for To
     /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metrics: &Metrics,
+        metrics: &Metrics,
         population: &'a [IndividualT],
-        count: usize,
     ) -> Vec<&'a IndividualT> {
+        let count = self.selection_size.get(metrics);
         let tournament_size = (population.len() as f64 * self.size_factor) as usize;
         let tournament_size = tournament_size.max(1);
 
