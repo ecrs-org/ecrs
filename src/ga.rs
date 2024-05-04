@@ -121,8 +121,8 @@ pub mod individual;
 pub mod operators;
 pub mod population;
 pub mod probe;
-pub mod value_provider;
 pub(crate) mod timer;
+pub mod value_provider;
 
 use crate::ga::operators::fitness::Fitness;
 pub use builder::*;
@@ -309,9 +309,7 @@ where
             // 4. Create mating pool by applying selection operator.
             self.timer.start();
             let mating_pool: Vec<&IndividualT> =
-                self.config
-                    .selection_operator
-                    .apply(&self.metrics, &population);
+                self.config.selection_operator.apply(&self.metrics, &population);
             self.metrics.selection_dur = Some(self.timer.elapsed());
 
             // 5. From mating pool create new generation (apply crossover & mutation).

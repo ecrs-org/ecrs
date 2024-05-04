@@ -28,9 +28,5 @@ pub trait SelectionOperator<IndividualT: IndividualTrait> {
     ///
     /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
-    fn apply<'a>(
-        &mut self,
-        metrics: &Metrics,
-        population: &'a [IndividualT],
-    ) -> Vec<&'a IndividualT>;
+    fn apply<'a>(&mut self, metrics: &Metrics, population: &'a [IndividualT]) -> Vec<&'a IndividualT>;
 }

@@ -3,10 +3,10 @@ use crate::ga::Metrics;
 use super::ValueProvider;
 
 pub struct FlatValue<T: Sized + Clone> {
-    value: T
+    value: T,
 }
 
-impl <T: Sized + Clone> ValueProvider<T> for FlatValue<T> {
+impl<T: Sized + Clone> ValueProvider<T> for FlatValue<T> {
     #[inline]
     fn get(&mut self, _metrics: &Metrics) -> T {
         self.value.clone()

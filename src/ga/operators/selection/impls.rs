@@ -144,11 +144,7 @@ impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> Sele
     ///
     /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
-    fn apply<'a>(
-        &mut self,
-        metrics: &Metrics,
-        population: &'a [IndividualT],
-    ) -> Vec<&'a IndividualT> {
+    fn apply<'a>(&mut self, metrics: &Metrics, population: &'a [IndividualT]) -> Vec<&'a IndividualT> {
         let count = self.selection_size.get(metrics);
         // We must use index API, as we want to return vector of references, not vector of actual items
         let indices = rand::seq::index::sample(&mut self.rng, population.len(), count);
@@ -198,7 +194,8 @@ impl<SizeValue: ValueProvider<usize>, R: Rng> Rank<SizeValue, R> {
     }
 }
 
-impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT> for Rank<SizeValue, R>
+impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT>
+    for Rank<SizeValue, R>
 where
     IndividualT::FitnessValueT: PartialOrd,
 {
@@ -213,11 +210,7 @@ where
     ///
     /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
-    fn apply<'a>(
-        &mut self,
-        metrics: &Metrics,
-        population: &'a [IndividualT],
-    ) -> Vec<&'a IndividualT> {
+    fn apply<'a>(&mut self, metrics: &Metrics, population: &'a [IndividualT]) -> Vec<&'a IndividualT> {
         let count = self.selection_size.get(metrics);
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
 
@@ -277,11 +270,17 @@ impl<SizeValue: ValueProvider<usize>, R: Rng> RankR<SizeValue, R> {
     /// * `rng` - custom random number generator
     pub fn with_rng(r: f64, selection_size: SizeValue, rng: R) -> Self {
         assert!((0.0..=1.0).contains(&r));
-        RankR { r, selection_size, rng }
+        RankR {
+            r,
+            selection_size,
+            rng,
+        }
     }
 }
 
-impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT> for RankR<SizeValue, R> {
+impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT>
+    for RankR<SizeValue, R>
+{
     /// Returns a vector of references to individuals selected to mating pool.
     ///
     /// Individuals are selected in following process:
@@ -297,11 +296,7 @@ impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> Sele
     ///
     /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
-    fn apply<'a>(
-        &mut self,
-        metrics: &Metrics,
-        population: &'a [IndividualT],
-    ) -> Vec<&'a IndividualT> {
+    fn apply<'a>(&mut self, metrics: &Metrics, population: &'a [IndividualT]) -> Vec<&'a IndividualT> {
         let count = self.selection_size.get(metrics);
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
         let population_len = population.len();
@@ -364,11 +359,17 @@ impl<SizeValue: ValueProvider<usize>, R: Rng> Tournament<SizeValue, R> {
     /// produce
     pub fn with_rng(size_factor: f64, selection_size: SizeValue, rng: R) -> Self {
         assert!((0.0..=1.0).contains(&size_factor));
-        Tournament { size_factor, selection_size, rng }
+        Tournament {
+            size_factor,
+            selection_size,
+            rng,
+        }
     }
 }
 
-impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT> for Tournament<SizeValue, R> {
+impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT>
+    for Tournament<SizeValue, R>
+{
     /// Returns a vector of references to individuals selected to mating pool
     ///
     /// Individuals are selected by conducting given number of tournaments with single winner:
@@ -384,11 +385,7 @@ impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> Sele
     /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
     /// * `count` - target number of individuals in mating pool
-    fn apply<'a>(
-        &mut self,
-        metrics: &Metrics,
-        population: &'a [IndividualT],
-    ) -> Vec<&'a IndividualT> {
+    fn apply<'a>(&mut self, metrics: &Metrics, population: &'a [IndividualT]) -> Vec<&'a IndividualT> {
         let count = self.selection_size.get(metrics);
         let tournament_size = (population.len() as f64 * self.size_factor) as usize;
         let tournament_size = tournament_size.max(1);
@@ -463,8 +460,8 @@ impl<SizeValue: ValueProvider<usize>, R: Rng> StochasticUniversalSampling<SizeVa
 
 // FIXME: Panics then total_fitness == 0
 // Should this be expected or do we want to handle this?
-impl<IndividualT: IndividualTrait<FitnessValueT = f64>, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT>
-    for StochasticUniversalSampling<SizeValue, R>
+impl<IndividualT: IndividualTrait<FitnessValueT = f64>, SizeValue: ValueProvider<usize>, R: Rng>
+    SelectionOperator<IndividualT> for StochasticUniversalSampling<SizeValue, R>
 {
     /// Returns a vector of references to individuals selected to mating pool
     ///
@@ -490,11 +487,7 @@ impl<IndividualT: IndividualTrait<FitnessValueT = f64>, SizeValue: ValueProvider
     ///
     /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
-    fn apply<'a>(
-        &mut self,
-        metrics: &Metrics,
-        population: &'a [IndividualT],
-    ) -> Vec<&'a IndividualT> {
+    fn apply<'a>(&mut self, metrics: &Metrics, population: &'a [IndividualT]) -> Vec<&'a IndividualT> {
         let count = self.selection_size.get(metrics);
         let total_fitness: f64 = population.iter().map(|indiv| indiv.fitness()).sum();
 
@@ -546,8 +539,21 @@ impl<SizeValue: ValueProvider<usize>> Boltzmann<SizeValue, ThreadRng> {
     /// * `temp_0` - initial temperature for the operator
     /// * `max_gen_count` - maximum number of generations GA can run; this param will be removed in future version of the library
     /// * `elitism` - set to true to ensure that best individuals end in mating pool no matter operator results; **not supported yet**
-    pub fn new(selection_size: SizeValue, alpha: f64, temp_0: f64, max_gen_count: usize, elitism: bool) -> Self {
-        Self::with_rng(selection_size, alpha, temp_0, max_gen_count, elitism, rand::thread_rng())
+    pub fn new(
+        selection_size: SizeValue,
+        alpha: f64,
+        temp_0: f64,
+        max_gen_count: usize,
+        elitism: bool,
+    ) -> Self {
+        Self::with_rng(
+            selection_size,
+            alpha,
+            temp_0,
+            max_gen_count,
+            elitism,
+            rand::thread_rng(),
+        )
     }
 }
 
@@ -563,7 +569,14 @@ impl<SizeValue: ValueProvider<usize>, R: Rng> Boltzmann<SizeValue, R> {
     /// * `max_gen_count` - maximum number of generations GA can run; this param will be removed in future version of the library
     /// * `elitism` - set to true to ensure that best individuals end in mating pool no matter operator results; **not supported yet**
     /// * `rng` - custom random number generator
-    pub fn with_rng(selection_size: SizeValue, alpha: f64, temp_0: f64, max_gen_count: usize, elitism: bool, rng: R) -> Self {
+    pub fn with_rng(
+        selection_size: SizeValue,
+        alpha: f64,
+        temp_0: f64,
+        max_gen_count: usize,
+        elitism: bool,
+        rng: R,
+    ) -> Self {
         assert!(
             (0.0..=1.0).contains(&alpha),
             "Alpha parameter must be a value from [0, 1] interval"
@@ -591,11 +604,7 @@ where
     SizeValue: ValueProvider<usize>,
     R: Rng,
 {
-    fn apply<'a>(
-        &mut self,
-        metrics: &Metrics,
-        population: &'a [IndividualT],
-    ) -> Vec<&'a IndividualT> {
+    fn apply<'a>(&mut self, metrics: &Metrics, population: &'a [IndividualT]) -> Vec<&'a IndividualT> {
         let count = self.selection_size.get(metrics);
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
         let mut weights: Vec<f64> = Vec::with_capacity(count);

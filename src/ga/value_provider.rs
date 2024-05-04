@@ -9,4 +9,3 @@ use super::Metrics;
 pub trait ValueProvider<T: Sized + Clone> {
     fn get(&mut self, metrics: &Metrics) -> T;
 }
-
