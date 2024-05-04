@@ -14,6 +14,7 @@ use crate::ga::{individual::IndividualTrait, Metrics};
 ///
 /// * [RouletteWheel]
 /// * [Random]
+/// * [UniqueRandom]
 /// * [Rank]
 /// * [RankR]
 /// * [Tournament]
