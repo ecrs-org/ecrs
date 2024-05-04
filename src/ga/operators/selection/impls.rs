@@ -3,7 +3,7 @@ use std::{iter::Sum, ops::Index};
 use num_traits::{identities::Zero, NumAssignOps};
 use rand::{distributions::Standard, prelude::Distribution, rngs::ThreadRng, Rng};
 
-use crate::ga::{individual::IndividualTrait, Metrics};
+use crate::ga::{individual::IndividualTrait, value_provider::ValueProvider, Metrics};
 
 use super::SelectionOperator;
 
@@ -19,28 +19,29 @@ use super::SelectionOperator;
 ///
 /// Individuals are selected with probability proportional to their fitness value. More specifically:
 /// probability of selecting chromosome `C` from population `P` is `fitness(C)` / `sum_of_fitness_in_whole_population`.
-pub struct RouletteWheel<R: Rng = ThreadRng> {
+pub struct RouletteWheel<SizeValue: ValueProvider<usize>, R: Rng = ThreadRng> {
+    selection_size: SizeValue,
     rng: R,
 }
 
-impl RouletteWheel<ThreadRng> {
+impl<SizeValue: ValueProvider<usize>> RouletteWheel<SizeValue, ThreadRng> {
     /// Returns new instance of [RouletteWheel] selection operator with default RNG
-    pub fn new() -> Self {
-        RouletteWheel::with_rng(rand::thread_rng())
+    pub fn new(selection_size: SizeValue) -> Self {
+        RouletteWheel::with_rng(selection_size, rand::thread_rng())
     }
 }
 
-impl<R: Rng> RouletteWheel<R> {
+impl<SizeValue: ValueProvider<usize>, R: Rng> RouletteWheel<SizeValue, R> {
     /// Returns new instance of [RouletteWheel] selection operator with custom RNG
-    pub fn with_rng(rng: R) -> Self {
-        RouletteWheel { rng }
+    pub fn with_rng(selection_size: SizeValue, rng: R) -> Self {
+        RouletteWheel { selection_size, rng }
     }
 }
 
 // FIXME: It will return empty vector if total_fitness == 0
 // WORKING CHANGE: crt >= threshold instead of crt_sum > threshold
 // But this should be resolved some other way
-impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for RouletteWheel<R>
+impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT> for RouletteWheel<SizeValue, R>
 where
     IndividualT::FitnessValueT: NumAssignOps + Sum<IndividualT::FitnessValueT> + PartialOrd + Copy,
     Standard: Distribution<IndividualT::FitnessValueT>,
@@ -60,14 +61,13 @@ where
     ///
     /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
-    /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metrics: &Metrics,
+        metrics: &Metrics,
         population: &'a [IndividualT],
-        count: usize,
     ) -> Vec<&'a IndividualT> {
         let total_fitness: IndividualT::FitnessValueT = population.iter().map(|indiv| indiv.fitness()).sum();
+        let count = self.selection_size.get(&metrics);
 
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
 
