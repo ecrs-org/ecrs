@@ -36,7 +36,7 @@ fn main() {
         3,
         vec![-5.12..5.12, -5.12..5.12, -5.12..5.12],
     ))
-    .set_selection_operator(ga::operators::selection::Boltzmann::new(0.05, 80.0, 500, false))
+    .set_selection_operator(ga::operators::selection::Boltzmann::new(100, 0.05, 80.0, 500, false))
     .set_probe(
         ga::probe::AggregatedProbe::new()
             .add_probe(ga::probe::PolicyDrivenProbe::new(

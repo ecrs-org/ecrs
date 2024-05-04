@@ -89,7 +89,7 @@ impl Particle {
             updated_position.push(updated_x_i);
         }
 
-        self.position = updated_position.clone();
+        self.position.clone_from(&updated_position);
         self.value = function(&self.position);
 
         if self.value < self.best_position_value {

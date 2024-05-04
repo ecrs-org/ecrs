@@ -36,7 +36,7 @@ impl Swarm {
         let mut best_position = particles[0].clone().best_position;
         for particle in &particles {
             if function(&particle.position) < function(&best_position) {
-                best_position = particle.position.clone();
+                best_position.clone_from(&particle.position);
             }
         }
 
@@ -74,7 +74,7 @@ impl Swarm {
     pub fn update_best_position(&mut self, function: fn(&Vec<f64>) -> f64) {
         self.particles.iter_mut().for_each(|particle| {
             if function(&particle.best_position) < function(&self.best_position) {
-                self.best_position = particle.best_position.clone();
+                self.best_position.clone_from(&particle.best_position);
                 self.best_position_value = particle.best_position_value;
             }
         });
