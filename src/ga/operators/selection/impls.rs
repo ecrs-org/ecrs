@@ -25,7 +25,12 @@ pub struct RouletteWheel<SizeValue: ValueProvider<usize>, R: Rng = ThreadRng> {
 }
 
 impl<SizeValue: ValueProvider<usize>> RouletteWheel<SizeValue, ThreadRng> {
-    /// Returns new instance of [RouletteWheel] selection operator with default RNG
+    /// Returns new instance of [RouletteWheel] selection operator with default RNG.
+    ///
+    /// ## Arguments
+    ///
+    /// * `selection_size` - value provider deciding how many individuals will selection operator
+    /// produce
     pub fn new(selection_size: SizeValue) -> Self {
         RouletteWheel::with_rng(selection_size, rand::thread_rng())
     }
@@ -33,6 +38,11 @@ impl<SizeValue: ValueProvider<usize>> RouletteWheel<SizeValue, ThreadRng> {
 
 impl<SizeValue: ValueProvider<usize>, R: Rng> RouletteWheel<SizeValue, R> {
     /// Returns new instance of [RouletteWheel] selection operator with custom RNG
+    ///
+    /// ## Arguments
+    ///
+    /// * `selection_size` - value provider deciding how many individuals will selection operator
+    /// produce
     pub fn with_rng(selection_size: SizeValue, rng: R) -> Self {
         RouletteWheel { selection_size, rng }
     }
@@ -99,6 +109,11 @@ pub struct Random<SizeValue: ValueProvider<usize>, R: Rng = ThreadRng> {
 
 impl<SizeValue: ValueProvider<usize>> Random<SizeValue, ThreadRng> {
     /// Returns new instance of [Random] selection operator with default RNG
+    ///
+    /// ## Arguments
+    ///
+    /// * `selection_size` - value provider deciding how many individuals will selection operator
+    /// produce
     pub fn new(selection_size: SizeValue) -> Self {
         Random::with_rng(selection_size, rand::thread_rng())
     }
@@ -106,6 +121,11 @@ impl<SizeValue: ValueProvider<usize>> Random<SizeValue, ThreadRng> {
 
 impl<SizeValue: ValueProvider<usize>, R: Rng> Random<SizeValue, R> {
     /// Returns new instance of [Random] selection operator with custom RNG
+    ///
+    /// ## Arguments
+    ///
+    /// * `selection_size` - value provider deciding how many individuals will selection operator
+    /// produce
     pub fn with_rng(selection_size: SizeValue, rng: R) -> Self {
         Random { selection_size, rng }
     }
@@ -156,6 +176,11 @@ pub struct Rank<SizeValue: ValueProvider<usize>, R: Rng = ThreadRng> {
 
 impl<SizeValue: ValueProvider<usize>> Rank<SizeValue, ThreadRng> {
     /// Returns new instance of [Rank] selection operator with default RNG
+    ///
+    /// ## Arguments
+    ///
+    /// * `selection_size` - value provider deciding how many individuals will selection operator
+    /// produce
     pub fn new(selection_size: SizeValue) -> Self {
         Rank::with_rng(selection_size, rand::thread_rng())
     }
@@ -163,6 +188,11 @@ impl<SizeValue: ValueProvider<usize>> Rank<SizeValue, ThreadRng> {
 
 impl<SizeValue: ValueProvider<usize>, R: Rng> Rank<SizeValue, R> {
     /// Returns new instance of [Rank] selection operator with custom RNG
+    ///
+    /// ## Arguments
+    ///
+    /// * `selection_size` - value provider deciding how many individuals will selection operator
+    /// produce
     pub fn with_rng(selection_size: SizeValue, rng: R) -> Self {
         Rank { selection_size, rng }
     }
@@ -229,6 +259,8 @@ impl<SizeValue: ValueProvider<usize>> RankR<SizeValue, ThreadRng> {
     /// ### Arguments
     ///
     /// * `r` - threshold in range [0, 1]; see [RankR] description for explaination
+    /// * `selection_size` - value provider deciding how many individuals will selection operator
+    /// produce
     pub fn new(r: f64, selection_size: SizeValue) -> Self {
         RankR::with_rng(r, selection_size, rand::thread_rng())
     }
@@ -240,6 +272,8 @@ impl<SizeValue: ValueProvider<usize>, R: Rng> RankR<SizeValue, R> {
     /// ### Arguments
     ///
     /// * `r` - threshold in range [0, 1]; see [RankR] description for details
+    /// * `selection_size` - value provider deciding how many individuals will selection operator
+    /// produce
     /// * `rng` - custom random number generator
     pub fn with_rng(r: f64, selection_size: SizeValue, rng: R) -> Self {
         assert!((0.0..=1.0).contains(&r));
@@ -313,6 +347,8 @@ impl<SizeValue: ValueProvider<usize>> Tournament<SizeValue, ThreadRng> {
     /// ### Arguments
     ///
     /// * `size_factor` - part of population to take part in tournament for choosing single individual; must be in range [0, 1]
+    /// * `selection_size` - value provider deciding how many individuals will selection operator
+    /// produce
     pub fn new(size_factor: f64, selection_size: SizeValue) -> Self {
         Self::with_rng(size_factor, selection_size, rand::thread_rng())
     }
@@ -324,6 +360,8 @@ impl<SizeValue: ValueProvider<usize>, R: Rng> Tournament<SizeValue, R> {
     /// ### Arguments
     ///
     /// * `size_factor` - part of population to take part in tournament for choosing single individual; must be in range [0, 1]
+    /// * `selection_size` - value provider deciding how many individuals will selection operator
+    /// produce
     pub fn with_rng(size_factor: f64, selection_size: SizeValue, rng: R) -> Self {
         assert!((0.0..=1.0).contains(&size_factor));
         Tournament { size_factor, selection_size, rng }
@@ -401,6 +439,11 @@ pub struct StochasticUniversalSampling<SizeValue: ValueProvider<usize>, R: Rng =
 
 impl<SizeValue: ValueProvider<usize>> StochasticUniversalSampling<SizeValue, ThreadRng> {
     /// Returns new instance of [StochasticUniversalSampling] selection operator with default RNG
+    ///
+    /// ## Arguments
+    ///
+    /// * `selection_size` - value provider deciding how many individuals will selection operator
+    /// produce
     pub fn new(selection_size: SizeValue) -> Self {
         Self::with_rng(selection_size, rand::thread_rng())
     }
@@ -408,6 +451,11 @@ impl<SizeValue: ValueProvider<usize>> StochasticUniversalSampling<SizeValue, Thr
 
 impl<SizeValue: ValueProvider<usize>, R: Rng> StochasticUniversalSampling<SizeValue, R> {
     /// Returns new instance of [StochasticUniversalSampling] selection operator with custom RNG
+    ///
+    /// ## Arguments
+    ///
+    /// * `selection_size` - value provider deciding how many individuals will selection operator
+    /// produce
     pub fn with_rng(selection_size: SizeValue, rng: R) -> Self {
         Self { selection_size, rng }
     }
@@ -492,6 +540,8 @@ impl<SizeValue: ValueProvider<usize>> Boltzmann<SizeValue, ThreadRng> {
     ///
     /// ### Arguments
     ///
+    /// * `selection_size` - value provider deciding how many individuals will selection operator
+    /// produce
     /// * `alpha` - prameter that controlls temperature scaling; must be in [0, 1] range
     /// * `temp_0` - initial temperature for the operator
     /// * `max_gen_count` - maximum number of generations GA can run; this param will be removed in future version of the library
@@ -506,6 +556,8 @@ impl<SizeValue: ValueProvider<usize>, R: Rng> Boltzmann<SizeValue, R> {
     ///
     /// ### Arguments
     ///
+    /// * `selection_size` - value provider deciding how many individuals will selection operator
+    /// produce
     /// * `alpha` - prameter that controlls temperature scaling; must be in [0, 1] range
     /// * `temp_0` - initial temperature for the operator
     /// * `max_gen_count` - maximum number of generations GA can run; this param will be removed in future version of the library
