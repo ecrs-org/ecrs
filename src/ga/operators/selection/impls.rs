@@ -149,25 +149,26 @@ impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> Sele
 /// rated individual from selected pair goes to mating pool. In case of equal fitness - only one goes to mating pool.
 ///
 /// **Note**: The same individual *can* be selected multiple times.
-pub struct Rank<R: Rng = ThreadRng> {
+pub struct Rank<SizeValue: ValueProvider<usize>, R: Rng = ThreadRng> {
+    selection_size: SizeValue,
     rng: R,
 }
 
-impl Rank<ThreadRng> {
+impl<SizeValue: ValueProvider<usize>> Rank<SizeValue, ThreadRng> {
     /// Returns new instance of [Rank] selection operator with default RNG
-    pub fn new() -> Self {
-        Rank::with_rng(rand::thread_rng())
+    pub fn new(selection_size: SizeValue) -> Self {
+        Rank::with_rng(selection_size, rand::thread_rng())
     }
 }
 
-impl<R: Rng> Rank<R> {
+impl<SizeValue: ValueProvider<usize>, R: Rng> Rank<SizeValue, R> {
     /// Returns new instance of [Rank] selection operator with custom RNG
-    pub fn with_rng(rng: R) -> Self {
-        Rank { rng }
+    pub fn with_rng(selection_size: SizeValue, rng: R) -> Self {
+        Rank { selection_size, rng }
     }
 }
 
-impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Rank<R>
+impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT> for Rank<SizeValue, R>
 where
     IndividualT::FitnessValueT: PartialOrd,
 {
@@ -182,13 +183,12 @@ where
     ///
     /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
-    /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metrics: &Metrics,
+        metrics: &Metrics,
         population: &'a [IndividualT],
-        count: usize,
     ) -> Vec<&'a IndividualT> {
+        let count = self.selection_size.get(&metrics);
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
 
         let population_len = population.len();
