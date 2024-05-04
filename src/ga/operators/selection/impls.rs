@@ -2,10 +2,9 @@ use std::{iter::Sum, ops::Index};
 
 use num_traits::{identities::Zero, NumAssignOps};
 use rand::{
-    distributions::{self, Standard, Uniform},
+    distributions::{Standard, Uniform},
     prelude::Distribution,
     rngs::ThreadRng,
-    seq::SliceRandom,
     Rng,
 };
 
