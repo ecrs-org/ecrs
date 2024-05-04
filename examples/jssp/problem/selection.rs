@@ -15,7 +15,6 @@ impl SelectionOperator<JsspIndividual> for EmptySelection {
         &mut self,
         _metrics: &ecrs::ga::Metrics,
         _population: &'a [JsspIndividual],
-        _count: usize,
     ) -> Vec<&'a JsspIndividual> {
         Vec::new()
     }

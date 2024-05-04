@@ -113,7 +113,7 @@ fn run_jssp_solver(instance: JsspInstance, config: Config) {
     // }
 
     ga::Builder::new()
-        .set_selection_operator(selection::Rank::new())
+        .set_selection_operator(selection::Rank::new(pop_size))
         .set_crossover_operator(JsspCrossover::new())
         .set_mutation_operator(mutation::Identity::new())
         .set_population_generator(JsspPopProvider::new(instance.clone()))

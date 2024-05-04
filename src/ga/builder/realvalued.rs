@@ -24,7 +24,7 @@ pub struct RealValuedBuilder<F: Fitness<RealValueIndividual>> {
         Individual<Rvc>,
         Interchange<rand::rngs::ThreadRng>,
         SinglePoint<rand::rngs::ThreadRng>,
-        Tournament<rand::rngs::ThreadRng>,
+        Tournament<usize, rand::rngs::ThreadRng>,
         BothParents,
         RandomPoints<rand::rngs::ThreadRng>,
         F,
@@ -125,7 +125,7 @@ impl<F: Fitness<RealValueIndividual>> RealValuedBuilder<F> {
         Individual<Rvc>,
         Interchange<rand::rngs::ThreadRng>,
         SinglePoint<rand::rngs::ThreadRng>,
-        Tournament<rand::rngs::ThreadRng>,
+        Tournament<usize, rand::rngs::ThreadRng>,
         BothParents,
         RandomPoints<rand::rngs::ThreadRng>,
         F,
@@ -149,7 +149,7 @@ impl<F: Fitness<RealValueIndividual>> RealValuedBuilder<F> {
             .get_or_insert_with(|| Interchange::new(0.05));
         self.config
             .selection_operator
-            .get_or_insert_with(|| Tournament::new(0.2));
+            .get_or_insert_with(|| Tournament::new(0.2, self.config.params.population_size.unwrap()));
         self.config
             .replacement_operator
             .get_or_insert_with(BothParents::new);

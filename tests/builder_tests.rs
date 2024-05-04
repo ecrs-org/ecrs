@@ -34,7 +34,7 @@ fn generic_does_not_panic_with_some_params_unspecified() {
         RealValueIndividual,
         Identity,
         SinglePoint,
-        Boltzmann,
+        Boltzmann<usize>,
         BothParents,
         RandomPoints,
         FnBasedFitness<RealValueIndividual>,
@@ -51,7 +51,7 @@ fn generic_does_not_panic_with_some_params_unspecified() {
         vec![-5.12..5.12, -5.12..5.12, -5.12..5.12],
     ))
     .set_selection_operator(ecrs::ga::operators::selection::Boltzmann::new(
-        0.05, 80.0, 500, false,
+        100, 0.05, 80.0, 500, false,
     ))
     .set_probe(ecrs::ga::probe::StdoutProbe)
     .build();
@@ -61,7 +61,7 @@ fn generic_does_not_panic_with_some_params_unspecified() {
         RealValueIndividual,
         Identity,
         SinglePoint,
-        Boltzmann,
+        Boltzmann<usize>,
         BothParents,
         RandomPoints,
         FnBasedFitness<RealValueIndividual>,
@@ -76,7 +76,7 @@ fn generic_does_not_panic_with_some_params_unspecified() {
         vec![-5.12..5.12, -5.12..5.12, -5.12..5.12],
     ))
     .set_selection_operator(ecrs::ga::operators::selection::Boltzmann::new(
-        0.05, 80.0, 500, false,
+        100, 0.05, 80.0, 500, false,
     ))
     .set_probe(ecrs::ga::probe::StdoutProbe)
     .build();

@@ -26,7 +26,7 @@ fn random_selection_returns_demanded_size() {
 
     let expected_selection_size = expected_population_size / 2;
 
-    let selected = Random::new().apply(&metrics, &population, expected_selection_size);
+    let selected = Random::new(expected_selection_size).apply(&metrics, &population);
 
     assert_eq!(
         expected_selection_size,
@@ -51,7 +51,7 @@ fn roulette_whell_returns_demanded_size() {
 
     let expected_selection_size = expected_population_size / 2;
 
-    let selected = RouletteWheel::new().apply(&metrics, &population, expected_selection_size);
+    let selected = RouletteWheel::new(expected_selection_size).apply(&metrics, &population);
 
     assert_eq!(
         expected_selection_size,
@@ -76,7 +76,7 @@ fn rank_returns_demanded_size() {
 
     let expected_selection_size = expected_population_size / 2;
 
-    let selected = Rank::new().apply(&metrics, &population, expected_selection_size);
+    let selected = Rank::new(expected_selection_size).apply(&metrics, &population);
 
     assert_eq!(
         expected_selection_size,
@@ -101,7 +101,7 @@ fn rankr_returns_demanded_size() {
 
     let expected_selection_size = expected_population_size / 2;
 
-    let selected = RankR::new(0.5).apply(&metrics, &population, expected_selection_size);
+    let selected = RankR::new(0.5, expected_selection_size).apply(&metrics, &population);
 
     assert_eq!(
         expected_selection_size,
@@ -126,7 +126,7 @@ fn tournament_returns_demanded_size() {
 
     let expected_selection_size = expected_population_size / 2;
 
-    let selected = Tournament::new(0.2).apply(&metrics, &population, expected_selection_size);
+    let selected = Tournament::new(0.2, expected_selection_size).apply(&metrics, &population);
 
     assert_eq!(
         expected_selection_size,
@@ -156,7 +156,7 @@ fn sus_returns_demanded_size_when_fitness_positive() {
 
     let expected_selection_size = expected_population_size / 2;
 
-    let selected = StochasticUniversalSampling::new().apply(&metrics, &population, expected_selection_size);
+    let selected = StochasticUniversalSampling::new(expected_selection_size).apply(&metrics, &population);
 
     assert_eq!(
         expected_selection_size,
@@ -188,7 +188,7 @@ fn boltzmann_returns_demanded_size() {
     // FIXME: We must add mocking!
     let metrics = Metrics::new(Some(std::time::Instant::now()), None, 40);
 
-    let selected = Boltzmann::new(0.2, 6.0, 300, true).apply(&metrics, &population, expected_selection_size);
+    let selected = Boltzmann::new(expected_selection_size, 0.2, 6.0, 300, true).apply(&metrics, &population);
 
     assert_eq!(
         expected_selection_size,
@@ -203,9 +203,9 @@ fn random_returns_whole_population_in_order() {
     let dim = 21;
 
     let population: Vec<RealValueIndividual> = RandomPoints::new(dim).generate(population_size);
-    let mut operator = Random::with_rng(rand::rngs::mock::StepRng::new(0, 1));
+    let mut operator = Random::with_rng(population_size, rand::rngs::mock::StepRng::new(0, 1));
 
-    let selected = operator.apply(&Metrics::default(), &population, population_size);
+    let selected = operator.apply(&Metrics::default(), &population);
 
     for (expected, actual) in std::iter::zip(&population, selected) {
         assert_eq!(expected, actual);

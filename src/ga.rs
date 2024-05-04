@@ -311,7 +311,7 @@ where
             let mating_pool: Vec<&IndividualT> =
                 self.config
                     .selection_operator
-                    .apply(&self.metrics, &population, population.len());
+                    .apply(&self.metrics, &population);
             self.metrics.selection_dur = Some(self.timer.elapsed());
 
             // 5. From mating pool create new generation (apply crossover & mutation).

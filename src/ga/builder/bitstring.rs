@@ -25,7 +25,7 @@ pub struct BitStringBuilder<F: Fitness<BitStringIndividual>> {
         Individual<Bsc>,
         FlipBit<rand::rngs::ThreadRng>,
         SinglePoint<rand::rngs::ThreadRng>,
-        Tournament<rand::rngs::ThreadRng>,
+        Tournament<usize, rand::rngs::ThreadRng>,
         BothParents,
         BitStrings<rand::rngs::ThreadRng>,
         F,
@@ -126,7 +126,7 @@ impl<F: Fitness<BitStringIndividual>> BitStringBuilder<F> {
         Individual<Bsc>,
         FlipBit<rand::rngs::ThreadRng>,
         SinglePoint<rand::rngs::ThreadRng>,
-        Tournament<rand::rngs::ThreadRng>,
+        Tournament<usize, rand::rngs::ThreadRng>,
         BothParents,
         BitStrings<rand::rngs::ThreadRng>,
         F,
@@ -150,7 +150,7 @@ impl<F: Fitness<BitStringIndividual>> BitStringBuilder<F> {
             .get_or_insert_with(|| FlipBit::new(0.05));
         self.config
             .selection_operator
-            .get_or_insert_with(|| Tournament::new(0.2));
+            .get_or_insert_with(|| Tournament::new(0.2, self.config.params.population_size.unwrap()));
         self.config
             .replacement_operator
             .get_or_insert_with(BothParents::new);

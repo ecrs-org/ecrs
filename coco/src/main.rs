@@ -103,7 +103,7 @@ fn ecrs_ga_search(problem: &mut Problem, _max_budget: usize, _random_generator: 
         RealValueIndividual,
         Reversing,
         Uniform,
-        Tournament,
+        Tournament<usize>,
         WeakParent,
         RandomPoints,
         adapter::CocoFitness,
@@ -118,7 +118,7 @@ fn ecrs_ga_search(problem: &mut Problem, _max_budget: usize, _random_generator: 
         dimension,
         constraints,
     ))
-    .set_selection_operator(selection::Tournament::new(0.2))
+    .set_selection_operator(selection::Tournament::new(0.2, population_size))
     .set_crossover_operator(crossover::Uniform::new())
     .set_mutation_operator(mutation::Reversing::new(0.05))
     .set_replacement_operator(replacement::WeakParent::new())
