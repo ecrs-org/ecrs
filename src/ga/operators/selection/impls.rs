@@ -1,7 +1,7 @@
 use std::{iter::Sum, ops::Index};
 
 use num_traits::{identities::Zero, NumAssignOps};
-use rand::{distributions::Standard, prelude::Distribution, rngs::ThreadRng, Rng};
+use rand::{distributions::{self, Standard, Uniform}, prelude::Distribution, rngs::ThreadRng, seq::SliceRandom, Rng};
 
 use crate::ga::{individual::IndividualTrait, value_provider::ValueProvider, Metrics};
 
@@ -101,8 +101,8 @@ where
 ///
 /// Individuals are selected with uniform probability.
 ///
-/// **Note**: The same individual *can not* be selected mutiple times.
-pub struct Random<SizeValue: ValueProvider<usize>, R: Rng = ThreadRng> {
+/// **Note**: The same individual *can* be selected mutiple times.
+pub struct Random<SizeValue: ValueProvider<usize>, R: Rng + Clone = ThreadRng> {
     selection_size: SizeValue,
     rng: R,
 }
@@ -119,7 +119,7 @@ impl<SizeValue: ValueProvider<usize>> Random<SizeValue, ThreadRng> {
     }
 }
 
-impl<SizeValue: ValueProvider<usize>, R: Rng> Random<SizeValue, R> {
+impl<SizeValue: ValueProvider<usize>, R: Rng + Clone> Random<SizeValue, R> {
     /// Returns new instance of [Random] selection operator with custom RNG
     ///
     /// ## Arguments
@@ -131,14 +131,12 @@ impl<SizeValue: ValueProvider<usize>, R: Rng> Random<SizeValue, R> {
     }
 }
 
-impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT>
+impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng + Clone> SelectionOperator<IndividualT>
     for Random<SizeValue, R>
 {
     /// Returns a vector of references to individuals selected to mating pool.
     ///
     /// Individuals are selected with uniform probability.
-    ///
-    /// **Note**: The same individual *can not* be selected multiple times.
     ///
     /// ### Arguments
     ///
@@ -146,6 +144,67 @@ impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> Sele
     /// * `population` - individuals to choose mating pool from
     fn apply<'a>(&mut self, metrics: &Metrics, population: &'a [IndividualT]) -> Vec<&'a IndividualT> {
         let count = self.selection_size.get(metrics);
+        let distr_ind = Uniform::new(0, population.len());
+        let selection_iter = self.rng.clone().sample_iter(distr_ind).take(count).map(|i| &population[i]);
+        Vec::<&'a IndividualT>::from_iter(selection_iter)
+
+        // We must use index API, as we want to return vector of references, not vector of actual items
+        // let indices = rand::seq::index::sample(&mut self.rng, population.len(), count);
+        // let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
+        //
+        // for i in indices {
+        //     selected.push(&population[i]);
+        // }
+        // selected
+    }
+}
+
+/// ### UniqueRandom selection operator
+///
+/// This struct implements [SelectionOperator] trait and can be used with GA.
+///
+/// Individuals are selected with uniform probability.
+///
+/// **Note**: The same individual *can not* be selected mutiple times.
+pub struct UniqueRandom<SizeValue: ValueProvider<usize>, R: Rng = ThreadRng> {
+    selection_size: SizeValue,
+    rng: R,
+}
+
+impl<SizeValue: ValueProvider<usize>> UniqueRandom<SizeValue, ThreadRng> {
+    pub fn new(selection_size: SizeValue) -> Self {
+        Self::with_rng(selection_size, rand::thread_rng())
+    }
+}
+
+impl<SizeValue: ValueProvider<usize>, R: Rng> UniqueRandom<SizeValue, R> {
+    pub fn with_rng(selection_size: SizeValue, rng: R) -> Self {
+        Self { selection_size, rng }
+    }
+}
+
+impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng + Clone> SelectionOperator<IndividualT>
+    for UniqueRandom<SizeValue, R>
+{
+    /// Returns a vector of references to individuals selected to mating pool.
+    ///
+    /// Individuals are selected with uniform probability.
+    ///
+    /// **Note**: The same individual *can not* be selected multiple times.
+    /// **Note**: Selection size must not be greater than population size, in such case
+    /// this operator panics.
+    ///
+    /// ### Arguments
+    ///
+    /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
+    /// * `population` - individuals to choose mating pool from
+    ///
+    /// ### Panics
+    ///
+    /// When selection size is greater than population size.
+    fn apply<'a>(&mut self, metrics: &Metrics, population: &'a [IndividualT]) -> Vec<&'a IndividualT> {
+        let count = self.selection_size.get(metrics);
+
         // We must use index API, as we want to return vector of references, not vector of actual items
         let indices = rand::seq::index::sample(&mut self.rng, population.len(), count);
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
@@ -156,6 +215,7 @@ impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> Sele
         selected
     }
 }
+
 
 /// ### Rank selection operator
 ///
