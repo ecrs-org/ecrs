@@ -20,7 +20,7 @@ fn main() {
         RealValueIndividual,
         Identity,
         SinglePoint,
-        Boltzmann,
+        Boltzmann<usize>,
         WeakParent,
         RandomPoints,
         FnBasedFitness<RealValueIndividual>,
