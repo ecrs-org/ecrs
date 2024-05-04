@@ -65,7 +65,7 @@
 //!     ga::individual::RealValueIndividual,
 //!     mutation::Identity,
 //!     crossover::SinglePoint,
-//!     selection::Boltzmann,
+//!     selection::Boltzmann<usize>,
 //!     replacement::WeakParent,
 //!     population::RandomPoints,
 //!     fitness::FnBasedFitness<ga::individual::RealValueIndividual>,
@@ -81,7 +81,7 @@
 //!     3,
 //!     vec![-5.12..5.12, -5.12..5.12, -5.12..5.12],
 //!   ))
-//!   .set_selection_operator(ga::operators::selection::Boltzmann::new(0.05, 80.0, 500, false))
+//!   .set_selection_operator(ga::operators::selection::Boltzmann::new(100, 0.05, 80.0, 500, false))
 //!   .set_probe(
 //!     ga::probe::AggregatedProbe::new()
 //!       .add_probe(ga::probe::PolicyDrivenProbe::new(
@@ -122,6 +122,7 @@ pub mod operators;
 pub mod population;
 pub mod probe;
 pub(crate) mod timer;
+pub mod value_provider;
 
 use crate::ga::operators::fitness::Fitness;
 pub use builder::*;
@@ -308,9 +309,7 @@ where
             // 4. Create mating pool by applying selection operator.
             self.timer.start();
             let mating_pool: Vec<&IndividualT> =
-                self.config
-                    .selection_operator
-                    .apply(&self.metrics, &population, population.len());
+                self.config.selection_operator.apply(&self.metrics, &population);
             self.metrics.selection_dur = Some(self.timer.elapsed());
 
             // 5. From mating pool create new generation (apply crossover & mutation).
