@@ -1,7 +1,13 @@
 use std::{iter::Sum, ops::Index};
 
 use num_traits::{identities::Zero, NumAssignOps};
-use rand::{distributions::{self, Standard, Uniform}, prelude::Distribution, rngs::ThreadRng, seq::SliceRandom, Rng};
+use rand::{
+    distributions::{self, Standard, Uniform},
+    prelude::Distribution,
+    rngs::ThreadRng,
+    seq::SliceRandom,
+    Rng,
+};
 
 use crate::ga::{individual::IndividualTrait, value_provider::ValueProvider, Metrics};
 
@@ -131,8 +137,8 @@ impl<SizeValue: ValueProvider<usize>, R: Rng + Clone> Random<SizeValue, R> {
     }
 }
 
-impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng + Clone> SelectionOperator<IndividualT>
-    for Random<SizeValue, R>
+impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng + Clone>
+    SelectionOperator<IndividualT> for Random<SizeValue, R>
 {
     /// Returns a vector of references to individuals selected to mating pool.
     ///
@@ -145,7 +151,12 @@ impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng + Clo
     fn apply<'a>(&mut self, metrics: &Metrics, population: &'a [IndividualT]) -> Vec<&'a IndividualT> {
         let count = self.selection_size.get(metrics);
         let distr_ind = Uniform::new(0, population.len());
-        let selection_iter = self.rng.clone().sample_iter(distr_ind).take(count).map(|i| &population[i]);
+        let selection_iter = self
+            .rng
+            .clone()
+            .sample_iter(distr_ind)
+            .take(count)
+            .map(|i| &population[i]);
         Vec::<&'a IndividualT>::from_iter(selection_iter)
 
         // We must use index API, as we want to return vector of references, not vector of actual items
@@ -183,8 +194,8 @@ impl<SizeValue: ValueProvider<usize>, R: Rng> UniqueRandom<SizeValue, R> {
     }
 }
 
-impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng + Clone> SelectionOperator<IndividualT>
-    for UniqueRandom<SizeValue, R>
+impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng + Clone>
+    SelectionOperator<IndividualT> for UniqueRandom<SizeValue, R>
 {
     /// Returns a vector of references to individuals selected to mating pool.
     ///
@@ -215,7 +226,6 @@ impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng + Clo
         selected
     }
 }
-
 
 /// ### Rank selection operator
 ///
