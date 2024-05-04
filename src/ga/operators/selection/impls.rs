@@ -394,28 +394,29 @@ impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> Sele
 /// 3. Iterate over the pointers and select the individuals they point to
 ///
 /// See the source code for implemenation details
-pub struct StochasticUniversalSampling<R: Rng = ThreadRng> {
+pub struct StochasticUniversalSampling<SizeValue: ValueProvider<usize>, R: Rng = ThreadRng> {
+    selection_size: SizeValue,
     rng: R,
 }
 
-impl StochasticUniversalSampling<ThreadRng> {
+impl<SizeValue: ValueProvider<usize>> StochasticUniversalSampling<SizeValue, ThreadRng> {
     /// Returns new instance of [StochasticUniversalSampling] selection operator with default RNG
-    pub fn new() -> Self {
-        Self::with_rng(rand::thread_rng())
+    pub fn new(selection_size: SizeValue) -> Self {
+        Self::with_rng(selection_size, rand::thread_rng())
     }
 }
 
-impl<R: Rng> StochasticUniversalSampling<R> {
+impl<SizeValue: ValueProvider<usize>, R: Rng> StochasticUniversalSampling<SizeValue, R> {
     /// Returns new instance of [StochasticUniversalSampling] selection operator with custom RNG
-    pub fn with_rng(rng: R) -> Self {
-        Self { rng }
+    pub fn with_rng(selection_size: SizeValue, rng: R) -> Self {
+        Self { selection_size, rng }
     }
 }
 
 // FIXME: Panics then total_fitness == 0
 // Should this be expected or do we want to handle this?
-impl<IndividualT: IndividualTrait<FitnessValueT = f64>, R: Rng> SelectionOperator<IndividualT>
-    for StochasticUniversalSampling<R>
+impl<IndividualT: IndividualTrait<FitnessValueT = f64>, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT>
+    for StochasticUniversalSampling<SizeValue, R>
 {
     /// Returns a vector of references to individuals selected to mating pool
     ///
@@ -441,13 +442,12 @@ impl<IndividualT: IndividualTrait<FitnessValueT = f64>, R: Rng> SelectionOperato
     ///
     /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
-    /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metrics: &Metrics,
+        metrics: &Metrics,
         population: &'a [IndividualT],
-        count: usize,
     ) -> Vec<&'a IndividualT> {
+        let count = self.selection_size.get(metrics);
         let total_fitness: f64 = population.iter().map(|indiv| indiv.fitness()).sum();
 
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
