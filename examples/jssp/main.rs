@@ -14,7 +14,7 @@ use config::Config;
 use ecrs::ga::probe::{AggregatedProbe, ElapsedTime, PolicyDrivenProbe, ProbingPolicy};
 use ecrs::prelude::{crossover, ga, ops, replacement, selection};
 use ecrs::{
-    ga::{GAMetadata, Individual, StdoutProbe},
+    ga::{Individual, Metrics, StdoutProbe},
     prelude::{
         crossover::{CrossoverOperator, UniformParameterized},
         mutation::{self, Identity},

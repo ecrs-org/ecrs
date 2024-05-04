@@ -1,5 +1,5 @@
 use ecrs::{
-    ga::{individual::IndividualTrait, GAMetadata},
+    ga::{individual::IndividualTrait, Metrics},
     prelude::crossover::CrossoverOperator,
 };
 use push_trait::PushBack;
@@ -20,7 +20,7 @@ impl JsspCrossover {
 
     fn apply_single(
         &mut self,
-        _metadata: &GAMetadata,
+        _metrics: &Metrics,
         parent_1: &JsspIndividual,
         parent_2: &JsspIndividual,
     ) -> (JsspIndividual, JsspIndividual) {
@@ -53,13 +53,13 @@ impl JsspCrossover {
 }
 
 impl CrossoverOperator<JsspIndividual> for JsspCrossover {
-    fn apply(&mut self, metadata: &GAMetadata, selected: &[&JsspIndividual]) -> Vec<JsspIndividual> {
+    fn apply(&mut self, metrics: &Metrics, selected: &[&JsspIndividual]) -> Vec<JsspIndividual> {
         assert!(selected.len() & 1 == 0);
 
         let mut output = Vec::with_capacity(selected.len());
 
         for parents in selected.chunks(2) {
-            let (child_1, child_2) = self.apply_single(metadata, parents[0], parents[1]);
+            let (child_1, child_2) = self.apply_single(metrics, parents[0], parents[1]);
             output.push(child_1);
             output.push(child_2);
         }
@@ -77,7 +77,7 @@ impl NoopCrossover {
 
     fn apply_single(
         &mut self,
-        _metadata: &GAMetadata,
+        _metrics: &Metrics,
         parent_1: &JsspIndividual,
         parent_2: &JsspIndividual,
     ) -> (JsspIndividual, JsspIndividual) {
@@ -86,13 +86,13 @@ impl NoopCrossover {
 }
 
 impl CrossoverOperator<JsspIndividual> for NoopCrossover {
-    fn apply(&mut self, metadata: &GAMetadata, selected: &[&JsspIndividual]) -> Vec<JsspIndividual> {
+    fn apply(&mut self, metrics: &Metrics, selected: &[&JsspIndividual]) -> Vec<JsspIndividual> {
         assert!(selected.len() & 1 == 0);
 
         let mut output = Vec::with_capacity(selected.len());
 
         for parents in selected.chunks(2) {
-            let (child_1, child_2) = self.apply_single(metadata, parents[0], parents[1]);
+            let (child_1, child_2) = self.apply_single(metrics, parents[0], parents[1]);
             output.push(child_1);
             output.push(child_2);
         }

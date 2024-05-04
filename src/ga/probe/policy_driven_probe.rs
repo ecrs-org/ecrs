@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::ga::{individual::IndividualTrait, GAMetadata};
+use crate::ga::{individual::IndividualTrait, Metrics};
 
 use super::{Probe, ProbingPolicy};
 
@@ -45,12 +45,12 @@ impl<IndividualT: IndividualTrait, Pc: ProbingPolicy<IndividualT>, Pr: Probe<Ind
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - Structure containing metadata information on genetic algorithm.
-    /// See [GAMetadata] for reference. When running this method only `start_time`
+    /// * `metrics` - Structure containing metrics information on genetic algorithm.
+    /// See [Metrics] for reference. When running this method only `start_time`
     /// field has meaningful value.
-    fn on_start(&mut self, metadata: &GAMetadata) {
-        if self.policy.on_start(metadata) {
-            self.probe.on_start(metadata);
+    fn on_start(&mut self, metrics: &Metrics) {
+        if self.policy.on_start(metrics) {
+            self.probe.on_start(metrics);
         }
     }
 
@@ -62,9 +62,9 @@ impl<IndividualT: IndividualTrait, Pc: ProbingPolicy<IndividualT>, Pr: Probe<Ind
     /// ### Arguments
     ///
     /// * `population` - Freshly generated population
-    fn on_initial_population_created(&mut self, metadata: &GAMetadata, population: &[IndividualT]) {
-        if self.policy.on_initial_population_created(metadata, population) {
-            self.probe.on_initial_population_created(metadata, population);
+    fn on_initial_population_created(&mut self, metrics: &Metrics, population: &[IndividualT]) {
+        if self.policy.on_initial_population_created(metrics, population) {
+            self.probe.on_initial_population_created(metrics, population);
         }
     }
 
@@ -74,12 +74,12 @@ impl<IndividualT: IndividualTrait, Pc: ProbingPolicy<IndividualT>, Pr: Probe<Ind
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - Structure containing metadata information on genetic algorithm.
-    /// See [GAMetadata] for reference.
+    /// * `metrics` - Structure containing metrics information on genetic algorithm.
+    /// See [Metrics] for reference.
     /// * `individual` - New best individual
-    fn on_new_best(&mut self, metadata: &GAMetadata, individual: &IndividualT) {
-        if self.policy.on_new_best(metadata, individual) {
-            self.probe.on_new_best(metadata, individual);
+    fn on_new_best(&mut self, metrics: &Metrics, individual: &IndividualT) {
+        if self.policy.on_new_best(metrics, individual) {
+            self.probe.on_new_best(metrics, individual);
         }
     }
 
@@ -90,9 +90,9 @@ impl<IndividualT: IndividualTrait, Pc: ProbingPolicy<IndividualT>, Pr: Probe<Ind
     /// ### Arguments
     ///
     /// * `generation` - Newly created generation
-    fn on_new_generation(&mut self, metadata: &GAMetadata, generation: &[IndividualT]) {
-        if self.policy.on_new_generation(metadata, generation) {
-            self.probe.on_new_generation(metadata, generation);
+    fn on_new_generation(&mut self, metrics: &Metrics, generation: &[IndividualT]) {
+        if self.policy.on_new_generation(metrics, generation) {
+            self.probe.on_new_generation(metrics, generation);
         }
     }
 
@@ -102,12 +102,12 @@ impl<IndividualT: IndividualTrait, Pc: ProbingPolicy<IndividualT>, Pr: Probe<Ind
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - Structure containing metadata information on genetic algorithm.
-    /// See [GAMetadata] for reference.
+    /// * `metrics` - Structure containing metrics information on genetic algorithm.
+    /// See [Metrics] for reference.
     /// * `individual` - Best individual in current generation
-    fn on_best_fit_in_generation(&mut self, metadata: &GAMetadata, individual: &IndividualT) {
-        if self.policy.on_best_fit_in_generation(metadata, individual) {
-            self.probe.on_best_fit_in_generation(metadata, individual);
+    fn on_best_fit_in_generation(&mut self, metrics: &Metrics, individual: &IndividualT) {
+        if self.policy.on_best_fit_in_generation(metrics, individual) {
+            self.probe.on_best_fit_in_generation(metrics, individual);
         }
     }
 
@@ -117,11 +117,11 @@ impl<IndividualT: IndividualTrait, Pc: ProbingPolicy<IndividualT>, Pr: Probe<Ind
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - Structure containing metadata information on genetic algorithm.
-    /// See [GAMetadata] for reference.
-    fn on_iteration_start(&mut self, metadata: &GAMetadata) {
-        if self.policy.on_iteration_start(metadata) {
-            self.probe.on_iteration_start(metadata);
+    /// * `metrics` - Structure containing metrics information on genetic algorithm.
+    /// See [Metrics] for reference.
+    fn on_iteration_start(&mut self, metrics: &Metrics) {
+        if self.policy.on_iteration_start(metrics) {
+            self.probe.on_iteration_start(metrics);
         }
     }
 
@@ -132,11 +132,11 @@ impl<IndividualT: IndividualTrait, Pc: ProbingPolicy<IndividualT>, Pr: Probe<Ind
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - Structure containing metadata information on genetic algorithm.
-    /// See [GAMetadata] for reference.
-    fn on_iteration_end(&mut self, metadata: &GAMetadata) {
-        if self.policy.on_iteration_end(metadata) {
-            self.probe.on_iteration_end(metadata);
+    /// * `metrics` - Structure containing metrics information on genetic algorithm.
+    /// See [Metrics] for reference.
+    fn on_iteration_end(&mut self, metrics: &Metrics) {
+        if self.policy.on_iteration_end(metrics) {
+            self.probe.on_iteration_end(metrics);
         }
     }
 
@@ -147,13 +147,13 @@ impl<IndividualT: IndividualTrait, Pc: ProbingPolicy<IndividualT>, Pr: Probe<Ind
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - Structure containing metadata information on genetic algorithm.
-    /// See [GAMetadata] for reference.
+    /// * `metrics` - Structure containing metrics information on genetic algorithm.
+    /// See [Metrics] for reference.
     /// * `population` - Final population
     /// * `best_individual` - Best individual found by algorithm
-    fn on_end(&mut self, metadata: &GAMetadata, population: &[IndividualT], best_individual: &IndividualT) {
-        if self.policy.on_end(metadata, population, best_individual) {
-            self.probe.on_end(metadata, population, best_individual);
+    fn on_end(&mut self, metrics: &Metrics, population: &[IndividualT], best_individual: &IndividualT) {
+        if self.policy.on_end(metrics, population, best_individual) {
+            self.probe.on_end(metrics, population, best_individual);
         }
     }
 }

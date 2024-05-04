@@ -173,7 +173,7 @@ where
 }
 
 #[derive(Default)]
-pub struct GAMetadata {
+pub struct Metrics {
     pub generation: usize,
     pub start_time: Option<std::time::Instant>,
 
@@ -190,13 +190,13 @@ pub struct GAMetadata {
     pub iteration_dur: Option<std::time::Duration>,
 }
 
-impl GAMetadata {
+impl Metrics {
     pub fn new(
         start_time: Option<std::time::Instant>,
         duration: Option<std::time::Duration>,
         generation: usize,
     ) -> Self {
-        GAMetadata {
+        Metrics {
             generation,
             start_time,
             total_dur: duration,
@@ -223,7 +223,7 @@ where
     ProbeT: Probe<IndividualT>,
 {
     config: GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
-    metadata: GAMetadata,
+    metrics: Metrics,
     timer: Timer,
 }
 
@@ -242,11 +242,9 @@ where
     pub fn new(
         config: GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
     ) -> Self {
-        assert_eq!(config.params.population_size % 2, 0); // Required for most of operators right
-                                                          // now
         GeneticSolver {
             config,
-            metadata: GAMetadata::new(None, None, 0),
+            metrics: Metrics::new(None, None, 0),
             timer: Timer::new(),
         }
     }
@@ -272,60 +270,60 @@ where
     }
 
     pub fn run(&mut self) -> Option<IndividualT> {
-        self.metadata.start_time = Some(std::time::Instant::now());
-        self.config.probe.on_start(&self.metadata);
+        self.metrics.start_time = Some(std::time::Instant::now());
+        self.config.probe.on_start(&self.metrics);
 
         self.timer.start();
         let mut population = self.gen_pop();
-        self.metadata.pop_gen_dur = Some(self.timer.elapsed());
+        self.metrics.pop_gen_dur = Some(self.timer.elapsed());
 
         self.timer.start();
         self.eval_pop(&mut population);
-        self.metadata.pop_eval_dur = Some(self.timer.elapsed());
+        self.metrics.pop_eval_dur = Some(self.timer.elapsed());
 
         self.config
             .probe
-            .on_initial_population_created(&self.metadata, &population);
+            .on_initial_population_created(&self.metrics, &population);
 
         let mut best_individual_all_time = Self::find_best_individual(&population).clone();
 
-        self.metadata.total_dur = Some(self.metadata.start_time.unwrap().elapsed());
+        self.metrics.total_dur = Some(self.metrics.start_time.unwrap().elapsed());
         self.config
             .probe
-            .on_new_best(&self.metadata, &best_individual_all_time);
+            .on_new_best(&self.metrics, &best_individual_all_time);
 
         let mut iteration_timer = Timer::new();
         for generation_no in 1..=self.config.params.generation_limit {
-            self.metadata.generation = generation_no;
-            self.metadata.total_dur = Some(self.metadata.start_time.unwrap().elapsed());
+            self.metrics.generation = generation_no;
+            self.metrics.total_dur = Some(self.metrics.start_time.unwrap().elapsed());
             iteration_timer.start();
 
-            self.config.probe.on_iteration_start(&self.metadata);
+            self.config.probe.on_iteration_start(&self.metrics);
 
             // 2. Evaluate fitness for each individual.
             self.timer.start();
             self.eval_pop(&mut population);
-            self.metadata.pop_eval_dur = Some(self.timer.elapsed());
+            self.metrics.pop_eval_dur = Some(self.timer.elapsed());
 
             // 4. Create mating pool by applying selection operator.
             self.timer.start();
             let mating_pool: Vec<&IndividualT> =
                 self.config
                     .selection_operator
-                    .apply(&self.metadata, &population, population.len());
-            self.metadata.selection_dur = Some(self.timer.elapsed());
+                    .apply(&self.metrics, &population, population.len());
+            self.metrics.selection_dur = Some(self.timer.elapsed());
 
             // 5. From mating pool create new generation (apply crossover & mutation).
 
             self.timer.start();
-            let mut children = self.config.crossover_operator.apply(&self.metadata, &mating_pool);
-            self.metadata.crossover_dur = Some(self.timer.elapsed());
+            let mut children = self.config.crossover_operator.apply(&self.metrics, &mating_pool);
+            self.metrics.crossover_dur = Some(self.timer.elapsed());
 
             self.timer.start();
             children
                 .iter_mut()
-                .for_each(|child| self.config.mutation_operator.apply(&self.metadata, child));
-            self.metadata.mutation_dur = Some(self.timer.elapsed());
+                .for_each(|child| self.config.mutation_operator.apply(&self.metrics, child));
+            self.metrics.mutation_dur = Some(self.timer.elapsed());
 
             if self.config.replacement_operator.requires_children_fitness() {
                 self.eval_pop(&mut children);
@@ -336,50 +334,56 @@ where
             population = self
                 .config
                 .replacement_operator
-                .apply(&self.metadata, population, children);
-            self.metadata.replacement_dur = Some(self.timer.elapsed());
+                .apply(&self.metrics, population, children);
+            self.metrics.replacement_dur = Some(self.timer.elapsed());
+
+            assert_eq!(population.len(), self.config.params.population_size,
+                "There was change in population size from {} to {} in generation {}. Dynamic population size is currently not supported.",
+                self.config.params.population_size,
+                population.len(),
+                generation_no);
 
             // 7. Check for stop condition (Is good enough individual found)? If not goto 2.
             self.timer.start();
             self.eval_pop(&mut population);
-            self.metadata.pop_eval_dur = Some(self.timer.elapsed());
+            self.metrics.pop_eval_dur = Some(self.timer.elapsed());
 
-            self.config.probe.on_new_generation(&self.metadata, &population);
+            self.config.probe.on_new_generation(&self.metrics, &population);
 
             let best_individual = Self::find_best_individual(&population);
             self.config
                 .probe
-                .on_best_fit_in_generation(&self.metadata, best_individual);
+                .on_best_fit_in_generation(&self.metrics, best_individual);
 
             if *best_individual < best_individual_all_time {
                 best_individual_all_time = best_individual.clone();
                 self.config
                     .probe
-                    .on_new_best(&self.metadata, &best_individual_all_time);
+                    .on_new_best(&self.metrics, &best_individual_all_time);
             }
 
-            self.metadata.iteration_dur = Some(iteration_timer.elapsed());
-            self.config.probe.on_iteration_end(&self.metadata);
+            self.metrics.iteration_dur = Some(iteration_timer.elapsed());
+            self.config.probe.on_iteration_end(&self.metrics);
 
-            if self.metadata.start_time.unwrap().elapsed() >= self.config.params.max_duration {
+            if self.metrics.start_time.unwrap().elapsed() >= self.config.params.max_duration {
                 break;
             }
         }
 
-        self.metadata.total_dur = Some(self.metadata.start_time.unwrap().elapsed());
+        self.metrics.total_dur = Some(self.metrics.start_time.unwrap().elapsed());
         self.config
             .probe
-            .on_end(&self.metadata, &population, &best_individual_all_time);
+            .on_end(&self.metrics, &population, &best_individual_all_time);
         Some(best_individual_all_time)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::GAMetadata;
+    use super::Metrics;
 
     #[test]
-    fn gametadata_can_be_constructed_with_new_fn() {
-        GAMetadata::new(None, None, 0);
+    fn metrics_can_be_constructed_with_new_fn() {
+        Metrics::new(None, None, 0);
     }
 }

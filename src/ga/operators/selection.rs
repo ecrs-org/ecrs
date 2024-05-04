@@ -3,7 +3,7 @@ pub mod impls;
 #[cfg(feature = "ga_impl_selection")]
 pub use impls::*;
 
-use crate::ga::{individual::IndividualTrait, GAMetadata};
+use crate::ga::{individual::IndividualTrait, Metrics};
 
 /// ### Selection operator
 ///
@@ -26,12 +26,12 @@ pub trait SelectionOperator<IndividualT: IndividualTrait> {
     ///
     /// ### Arguments
     ///
-    /// * `metadata` - [crate::ga::GAMetadata] information on current stage of the algorithm (iteration, elapsed time, etc.)
+    /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
     /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        metadata: &GAMetadata,
+        metrics: &Metrics,
         population: &'a [IndividualT],
         count: usize,
     ) -> Vec<&'a IndividualT>;
