@@ -478,7 +478,8 @@ impl<IndividualT: IndividualTrait<FitnessValueT = f64>, SizeValue: ValueProvider
 ///
 /// This struct implements [SelectionOperator] trait and can be used with GA
 ///
-pub struct Boltzmann<R: Rng = ThreadRng> {
+pub struct Boltzmann<SizeValue: ValueProvider<usize>, R: Rng = ThreadRng> {
+    selection_size: SizeValue,
     alpha: f64,
     max_gen_count: usize, // FIXME: This should be removed after operators are passed whole algorithm state & config
     temp_0: f64,
@@ -486,7 +487,7 @@ pub struct Boltzmann<R: Rng = ThreadRng> {
     rng: R,
 }
 
-impl Boltzmann<ThreadRng> {
+impl<SizeValue: ValueProvider<usize>> Boltzmann<SizeValue, ThreadRng> {
     /// Returns new instance of [Boltzmann] selection operator with default RNG
     ///
     /// ### Arguments
@@ -495,12 +496,12 @@ impl Boltzmann<ThreadRng> {
     /// * `temp_0` - initial temperature for the operator
     /// * `max_gen_count` - maximum number of generations GA can run; this param will be removed in future version of the library
     /// * `elitism` - set to true to ensure that best individuals end in mating pool no matter operator results; **not supported yet**
-    pub fn new(alpha: f64, temp_0: f64, max_gen_count: usize, elitism: bool) -> Self {
-        Self::with_rng(alpha, temp_0, max_gen_count, elitism, rand::thread_rng())
+    pub fn new(selection_size: SizeValue, alpha: f64, temp_0: f64, max_gen_count: usize, elitism: bool) -> Self {
+        Self::with_rng(selection_size, alpha, temp_0, max_gen_count, elitism, rand::thread_rng())
     }
 }
 
-impl<R: Rng> Boltzmann<R> {
+impl<SizeValue: ValueProvider<usize>, R: Rng> Boltzmann<SizeValue, R> {
     /// Returns new instance of [Boltzmann] selection operator with default RNG
     ///
     /// ### Arguments
@@ -510,7 +511,7 @@ impl<R: Rng> Boltzmann<R> {
     /// * `max_gen_count` - maximum number of generations GA can run; this param will be removed in future version of the library
     /// * `elitism` - set to true to ensure that best individuals end in mating pool no matter operator results; **not supported yet**
     /// * `rng` - custom random number generator
-    pub fn with_rng(alpha: f64, temp_0: f64, max_gen_count: usize, elitism: bool, rng: R) -> Self {
+    pub fn with_rng(selection_size: SizeValue, alpha: f64, temp_0: f64, max_gen_count: usize, elitism: bool, rng: R) -> Self {
         assert!(
             (0.0..=1.0).contains(&alpha),
             "Alpha parameter must be a value from [0, 1] interval"
@@ -521,6 +522,7 @@ impl<R: Rng> Boltzmann<R> {
         );
 
         Boltzmann {
+            selection_size,
             alpha,
             max_gen_count,
             temp_0,
@@ -530,18 +532,19 @@ impl<R: Rng> Boltzmann<R> {
     }
 }
 
-impl<IndividualT, R> SelectionOperator<IndividualT> for Boltzmann<R>
+impl<IndividualT, SizeValue, R> SelectionOperator<IndividualT> for Boltzmann<SizeValue, R>
 where
     IndividualT: IndividualTrait<FitnessValueT = f64>,
     IndividualT::ChromosomeT: Index<usize, Output = IndividualT::FitnessValueT>,
+    SizeValue: ValueProvider<usize>,
     R: Rng,
 {
     fn apply<'a>(
         &mut self,
         metrics: &Metrics,
         population: &'a [IndividualT],
-        count: usize,
     ) -> Vec<&'a IndividualT> {
+        let count = self.selection_size.get(metrics);
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
         let mut weights: Vec<f64> = Vec::with_capacity(count);
 
