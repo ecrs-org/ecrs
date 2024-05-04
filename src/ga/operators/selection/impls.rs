@@ -64,7 +64,7 @@ where
     /// * `population` - individuals to choose mating pool from
     fn apply<'a>(&mut self, metrics: &Metrics, population: &'a [IndividualT]) -> Vec<&'a IndividualT> {
         let total_fitness: IndividualT::FitnessValueT = population.iter().map(|indiv| indiv.fitness()).sum();
-        let count = self.selection_size.get(&metrics);
+        let count = self.selection_size.get(metrics);
 
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
 
@@ -129,7 +129,7 @@ impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> Sele
         metrics: &Metrics,
         population: &'a [IndividualT],
     ) -> Vec<&'a IndividualT> {
-        let count = self.selection_size.get(&metrics);
+        let count = self.selection_size.get(metrics);
         // We must use index API, as we want to return vector of references, not vector of actual items
         let indices = rand::seq::index::sample(&mut self.rng, population.len(), count);
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
@@ -188,7 +188,7 @@ where
         metrics: &Metrics,
         population: &'a [IndividualT],
     ) -> Vec<&'a IndividualT> {
-        let count = self.selection_size.get(&metrics);
+        let count = self.selection_size.get(metrics);
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
 
         let population_len = population.len();
@@ -217,36 +217,37 @@ where
 /// 4. Repeat 1-3 necessary number of times to create mating pool of demanded size
 ///
 /// **Note**: The same individual can be selected multiple times
-pub struct RankR<R: Rng = ThreadRng> {
+pub struct RankR<SizeValue: ValueProvider<usize>, R: Rng = ThreadRng> {
     r: f64,
+    selection_size: SizeValue,
     rng: R,
 }
 
-impl RankR<ThreadRng> {
+impl<SizeValue: ValueProvider<usize>> RankR<SizeValue, ThreadRng> {
     /// Returns new instance of [RankR] selection operator with default RNG
     ///
     /// ### Arguments
     ///
     /// * `r` - threshold in range [0, 1]; see [RankR] description for explaination
-    pub fn new(r: f64) -> Self {
-        RankR::with_rng(r, rand::thread_rng())
+    pub fn new(r: f64, selection_size: SizeValue) -> Self {
+        RankR::with_rng(r, selection_size, rand::thread_rng())
     }
 }
 
-impl<R: Rng> RankR<R> {
+impl<SizeValue: ValueProvider<usize>, R: Rng> RankR<SizeValue, R> {
     /// Returns new instance of [RankR] selection operator with custom RNG
     ///
     /// ### Arguments
     ///
     /// * `r` - threshold in range [0, 1]; see [RankR] description for details
     /// * `rng` - custom random number generator
-    pub fn with_rng(r: f64, rng: R) -> Self {
+    pub fn with_rng(r: f64, selection_size: SizeValue, rng: R) -> Self {
         assert!((0.0..=1.0).contains(&r));
-        RankR { r, rng }
+        RankR { r, selection_size, rng }
     }
 }
 
-impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for RankR<R> {
+impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT> for RankR<SizeValue, R> {
     /// Returns a vector of references to individuals selected to mating pool.
     ///
     /// Individuals are selected in following process:
@@ -262,13 +263,12 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Ra
     ///
     /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
-    /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metrics: &Metrics,
+        metrics: &Metrics,
         population: &'a [IndividualT],
-        count: usize,
     ) -> Vec<&'a IndividualT> {
+        let count = self.selection_size.get(metrics);
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
         let population_len = population.len();
         let distribution_for_ind = rand::distributions::Uniform::from(0..population_len);
