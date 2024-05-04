@@ -1,7 +1,5 @@
 pub mod flat;
 
-
-
 use super::Metrics;
 
 // The `sized` bound here was not thinked through. It is possible
