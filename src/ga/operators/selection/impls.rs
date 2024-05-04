@@ -628,36 +628,36 @@ mod test {
     #[test]
     #[should_panic]
     fn boltzman_panics_on_too_big_alpha() {
-        let _operator = Boltzmann::new(5.0, 10.0, 300, false);
+        let _operator = Boltzmann::new(100, 5.0, 10.0, 300, false);
     }
 
     #[test]
     #[should_panic]
     fn boltzman_panics_on_too_small_alpha() {
-        let _operator = Boltzmann::new(-0.1, 10.0, 300, false);
+        let _operator = Boltzmann::new(100, -0.1, 10.0, 300, false);
     }
 
     #[test]
     #[should_panic]
     fn boltzman_panics_on_too_low_temp() {
-        let _operator = Boltzmann::new(0.5, 4.0, 300, false);
+        let _operator = Boltzmann::new(100, 0.5, 4.0, 300, false);
     }
 
     #[test]
     #[should_panic]
     fn boltzman_panics_on_too_high_temp() {
-        let _operator = Boltzmann::new(0.5, 400.0, 300, false);
+        let _operator = Boltzmann::new(100, 0.5, 400.0, 300, false);
     }
 
     #[test]
     #[should_panic]
     fn tournament_panics_on_wrong_size_factor() {
-        let _operator = Tournament::new(2.0);
+        let _operator = Tournament::new(2.0, 100);
     }
 
     #[test]
     #[should_panic]
     fn rankr_panics_on_wrong_r() {
-        let _operator = RankR::new(1.1);
+        let _operator = RankR::new(1.1, 100);
     }
 }
