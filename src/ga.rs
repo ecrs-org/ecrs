@@ -121,6 +121,7 @@ pub mod individual;
 pub mod operators;
 pub mod population;
 pub mod probe;
+pub mod value_provider;
 pub(crate) mod timer;
 
 use crate::ga::operators::fitness::Fitness;
