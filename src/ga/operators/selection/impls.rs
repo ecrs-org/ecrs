@@ -41,7 +41,8 @@ impl<SizeValue: ValueProvider<usize>, R: Rng> RouletteWheel<SizeValue, R> {
 // FIXME: It will return empty vector if total_fitness == 0
 // WORKING CHANGE: crt >= threshold instead of crt_sum > threshold
 // But this should be resolved some other way
-impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT> for RouletteWheel<SizeValue, R>
+impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT>
+    for RouletteWheel<SizeValue, R>
 where
     IndividualT::FitnessValueT: NumAssignOps + Sum<IndividualT::FitnessValueT> + PartialOrd + Copy,
     Standard: Distribution<IndividualT::FitnessValueT>,
@@ -61,11 +62,7 @@ where
     ///
     /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
-    fn apply<'a>(
-        &mut self,
-        metrics: &Metrics,
-        population: &'a [IndividualT],
-    ) -> Vec<&'a IndividualT> {
+    fn apply<'a>(&mut self, metrics: &Metrics, population: &'a [IndividualT]) -> Vec<&'a IndividualT> {
         let total_fitness: IndividualT::FitnessValueT = population.iter().map(|indiv| indiv.fitness()).sum();
         let count = self.selection_size.get(&metrics);
 
@@ -95,25 +92,28 @@ where
 /// Individuals are selected with uniform probability.
 ///
 /// **Note**: The same individual *can not* be selected mutiple times.
-pub struct Random<R: Rng = ThreadRng> {
+pub struct Random<SizeValue: ValueProvider<usize>, R: Rng = ThreadRng> {
+    selection_size: SizeValue,
     rng: R,
 }
 
-impl Random<ThreadRng> {
+impl<SizeValue: ValueProvider<usize>> Random<SizeValue, ThreadRng> {
     /// Returns new instance of [Random] selection operator with default RNG
-    pub fn new() -> Self {
-        Random::with_rng(rand::thread_rng())
+    pub fn new(selection_size: SizeValue) -> Self {
+        Random::with_rng(selection_size, rand::thread_rng())
     }
 }
 
-impl<R: Rng> Random<R> {
+impl<SizeValue: ValueProvider<usize>, R: Rng> Random<SizeValue, R> {
     /// Returns new instance of [Random] selection operator with custom RNG
-    pub fn with_rng(rng: R) -> Self {
-        Random { rng }
+    pub fn with_rng(selection_size: SizeValue, rng: R) -> Self {
+        Random { selection_size, rng }
     }
 }
 
-impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Random<R> {
+impl<IndividualT: IndividualTrait, SizeValue: ValueProvider<usize>, R: Rng> SelectionOperator<IndividualT>
+    for Random<SizeValue, R>
+{
     /// Returns a vector of references to individuals selected to mating pool.
     ///
     /// Individuals are selected with uniform probability.
@@ -124,13 +124,12 @@ impl<IndividualT: IndividualTrait, R: Rng> SelectionOperator<IndividualT> for Ra
     ///
     /// * `metrics` - [crate::ga::Metrics] information on current stage of the algorithm (iteration, elapsed time, etc.)
     /// * `population` - individuals to choose mating pool from
-    /// * `count` - target number of individuals in mating pool
     fn apply<'a>(
         &mut self,
-        _metrics: &Metrics,
+        metrics: &Metrics,
         population: &'a [IndividualT],
-        count: usize,
     ) -> Vec<&'a IndividualT> {
+        let count = self.selection_size.get(&metrics);
         // We must use index API, as we want to return vector of references, not vector of actual items
         let indices = rand::seq::index::sample(&mut self.rng, population.len(), count);
         let mut selected: Vec<&IndividualT> = Vec::with_capacity(count);
