@@ -186,7 +186,12 @@ fn boltzmann_returns_demanded_size() {
     );
 
     // FIXME: We must add mocking!
-    let metrics = Metrics::new(Some(std::time::Instant::now()), None, 40, expected_population_size);
+    let metrics = Metrics::new(
+        Some(std::time::Instant::now()),
+        None,
+        40,
+        expected_population_size,
+    );
 
     let selected = Boltzmann::new(expected_selection_size, 0.2, 6.0, 300, true).apply(&metrics, &population);
 
