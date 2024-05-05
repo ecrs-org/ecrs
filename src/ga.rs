@@ -176,6 +176,7 @@ where
 #[derive(Default)]
 pub struct Metrics {
     pub generation: usize,
+    pub population_size: usize,
     pub start_time: Option<std::time::Instant>,
 
     /// This field can not be relied upon. It is updated only in the begining
@@ -196,9 +197,11 @@ impl Metrics {
         start_time: Option<std::time::Instant>,
         duration: Option<std::time::Duration>,
         generation: usize,
+        population_size: usize,
     ) -> Self {
         Metrics {
             generation,
+            population_size,
             start_time,
             total_dur: duration,
             pop_gen_dur: None,
@@ -243,9 +246,10 @@ where
     pub fn new(
         config: GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>,
     ) -> Self {
+        let population_size = config.params.population_size;
         GeneticSolver {
             config,
-            metrics: Metrics::new(None, None, 0),
+            metrics: Metrics::new(None, None, 0, population_size),
             timer: Timer::new(),
         }
     }
@@ -277,6 +281,8 @@ where
         self.timer.start();
         let mut population = self.gen_pop();
         self.metrics.pop_gen_dur = Some(self.timer.elapsed());
+
+        self.metrics.population_size = population.len();
 
         self.timer.start();
         self.eval_pop(&mut population);
@@ -336,6 +342,8 @@ where
                 .apply(&self.metrics, population, children);
             self.metrics.replacement_dur = Some(self.timer.elapsed());
 
+            self.metrics.population_size = population.len();
+
             assert_eq!(population.len(), self.config.params.population_size,
                 "There was change in population size from {} to {} in generation {}. Dynamic population size is currently not supported.",
                 self.config.params.population_size,
@@ -383,6 +391,6 @@ mod tests {
 
     #[test]
     fn metrics_can_be_constructed_with_new_fn() {
-        Metrics::new(None, None, 0);
+        Metrics::new(None, None, 0, 0);
     }
 }
