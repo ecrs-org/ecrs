@@ -151,14 +151,6 @@ pub struct GAParams {
     pub max_duration: std::time::Duration,
 }
 
-pub struct Telemetry {
-
-}
-
-pub struct Instrumentation {
-    pub telemetry: Telemetry,
-}
-
 pub struct GAConfig<IndividualT, MutOpT, CrossOpT, SelOpT, ReplOpT, PopGenT, FitnessT, ProbeT>
 where
     IndividualT: IndividualTrait,
@@ -399,6 +391,6 @@ mod tests {
 
     #[test]
     fn metrics_can_be_constructed_with_new_fn() {
-        Metrics::new(None, None, 0);
+        Metrics::new(None, None, 0, 0);
     }
 }
